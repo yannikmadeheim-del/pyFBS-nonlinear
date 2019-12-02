@@ -303,10 +303,6 @@ class VPT(object):
         self.specific_impact = np.asarray(Numerator / Denominator, dtype=float)
 
 
-
-
-
-
         """
         #print(_gr_ch,_gr_chVP)
 
