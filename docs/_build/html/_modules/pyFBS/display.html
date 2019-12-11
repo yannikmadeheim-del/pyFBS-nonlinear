@@ -1,0 +1,491 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pyFBS.display &mdash; pyFBS  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> pyFBS
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">About</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../intro.html">Why pyFBS?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/basic_examples.html">Basic Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/application_examples.html">Application Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Code Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../code_documentation/display.html">pyFBS.display</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../code_documentation/SEMM.html">pyFBS.SEMM</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pyFBS</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>pyFBS.display</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pyFBS.display</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">pyvista</span> <span class="k">as</span> <span class="nn">pv</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="n">RED</span> <span class="o">=</span> <span class="s2">&quot;#d62728&quot;</span>
+<span class="n">BLUE</span> <span class="o">=</span> <span class="s2">&quot;#1f77b4&quot;</span>
+<span class="n">GREEN</span> <span class="o">=</span> <span class="s2">&quot;#2ca02c&quot;</span>
+
+<span class="n">BACKGROUND</span> <span class="o">=</span> <span class="s2">&quot;#D4D4D4&quot;</span>
+
+<div class="viewcode-block" id="view3D"><a class="viewcode-back" href="../../code_documentation/display.html#pyFBS.display.view3D">[docs]</a><span class="k">class</span> <span class="nc">view3D</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A 3D visualization tool for the pyFBS.</span>
+
+<span class="sd">    :param behaviour: Defines the behaviour of the 3D viewer</span>
+<span class="sd">    :type behaviour: str</span>
+<span class="sd">    :param show_origin: Display the CSYS in origin</span>
+<span class="sd">    :type show_origin: bool</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">behaviour</span> <span class="o">=</span> <span class="s2">&quot;static&quot;</span><span class="p">,</span><span class="n">show_origin</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">behaviour</span> <span class="o">==</span> <span class="s2">&quot;static&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">plot</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">BackgroundPlotter</span><span class="p">(</span><span class="n">show</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">background_color</span> <span class="o">=</span> <span class="n">BACKGROUND</span>
+
+        <span class="k">if</span> <span class="n">show_origin</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_csys</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+
+<div class="viewcode-block" id="view3D.add_csys"><a class="viewcode-back" href="../../code_documentation/display.html#pyFBS.display.view3D.add_csys">[docs]</a>    <span class="k">def</span> <span class="nf">add_csys</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">position</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">size</span> <span class="o">=</span> <span class="mi">10</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds a coordinate system at a certain position.</span>
+
+<span class="sd">        :param position: Position of the CSYS [x,y,z]</span>
+<span class="sd">        :type position: list, optional</span>
+<span class="sd">        :param size: Size of the CSYS</span>
+<span class="sd">        :type size: float, optional</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">arrow</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">Arrow</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="n">direction</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="n">arrow</span><span class="o">.</span><span class="n">points</span> <span class="o">*=</span> <span class="n">size</span>
+        <span class="n">arrow</span><span class="o">.</span><span class="n">points</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">position</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">add_mesh</span><span class="p">(</span><span class="n">arrow</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">RED</span><span class="p">)</span>
+
+        <span class="n">arrow</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">Arrow</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="n">direction</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="n">arrow</span><span class="o">.</span><span class="n">points</span> <span class="o">*=</span> <span class="n">size</span>
+        <span class="n">arrow</span><span class="o">.</span><span class="n">points</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">position</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">add_mesh</span><span class="p">(</span><span class="n">arrow</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">GREEN</span><span class="p">)</span>
+
+        <span class="n">arrow</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">Arrow</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="n">direction</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">arrow</span><span class="o">.</span><span class="n">points</span> <span class="o">*=</span> <span class="n">size</span>
+        <span class="n">arrow</span><span class="o">.</span><span class="n">points</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">position</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">add_mesh</span><span class="p">(</span><span class="n">arrow</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">BLUE</span><span class="p">)</span></div>
+
+        <span class="c1">#sphere = pv.Sphere(radius = 1, center=position)</span>
+        <span class="c1">#self.plot.add_mesh(sphere, color=&quot;black&quot;)</span>
+
+<div class="viewcode-block" id="view3D.add_stl"><a class="viewcode-back" href="../../code_documentation/display.html#pyFBS.display.view3D.add_stl">[docs]</a>    <span class="k">def</span> <span class="nf">add_stl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stl_path</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds a mesh to 3D view from .stl file.</span>
+
+<span class="sd">        :param stl_path: Path to the .stl file</span>
+<span class="sd">        :type stl_path: str</span>
+<span class="sd">        :param color: Color of the mesh</span>
+<span class="sd">        :type color: str, optional</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">mesh</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">PolyData</span><span class="p">(</span><span class="n">stl_path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">add_mesh</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span><span class="n">color</span> <span class="o">=</span> <span class="n">color</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="view3D.add_impact"><a class="viewcode-back" href="../../code_documentation/display.html#pyFBS.display.view3D.add_impact">[docs]</a>    <span class="k">def</span> <span class="nf">add_impact</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">direction</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="n">RED</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds an impact to 3D view.</span>
+
+<span class="sd">        :param position: Position of the impact [x,y,z]</span>
+<span class="sd">        :type position: list</span>
+<span class="sd">        :param direction: Direction of the impact [dx,dy,dz]</span>
+<span class="sd">        :type direction: list</span>
+<span class="sd">        :param size: Size of the impact</span>
+<span class="sd">        :type size: float, optional</span>
+<span class="sd">        :param color: Color of the impact</span>
+<span class="sd">        :type color: str, optional</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">arrow</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">Arrow</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="n">direction</span><span class="o">=</span><span class="n">direction</span><span class="p">)</span>
+        <span class="n">arrow</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">direction</span><span class="p">))</span>
+        <span class="n">arrow</span><span class="o">.</span><span class="n">points</span> <span class="o">*=</span> <span class="n">size</span>
+        <span class="n">arrow</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">position</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">add_mesh</span><span class="p">(</span><span class="n">arrow</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="view3D.add_channel"><a class="viewcode-back" href="../../code_documentation/display.html#pyFBS.display.view3D.add_channel">[docs]</a>    <span class="k">def</span> <span class="nf">add_channel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">direction</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="n">BLUE</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds a channel to 3D view.</span>
+
+<span class="sd">        :param position: Position of the channel [x,y,z]</span>
+<span class="sd">        :type position: list</span>
+<span class="sd">        :param direction: Direction of the channel [dx,dy,dz]</span>
+<span class="sd">        :type direction: list</span>
+<span class="sd">        :param size: Size of the channel</span>
+<span class="sd">        :type size: float, optional</span>
+<span class="sd">        :param color: Color of the channel</span>
+<span class="sd">        :type color: str, optional</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">arrow</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">Arrow</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="n">direction</span><span class="o">=</span><span class="n">direction</span><span class="p">)</span>
+        <span class="n">arrow</span><span class="o">.</span><span class="n">points</span> <span class="o">*=</span> <span class="n">size</span>
+        <span class="n">arrow</span><span class="o">.</span><span class="n">points</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">position</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">add_mesh</span><span class="p">(</span><span class="n">arrow</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="view3D.create_accelerometer"><a class="viewcode-back" href="../../code_documentation/display.html#pyFBS.display.view3D.create_accelerometer">[docs]</a>    <span class="k">def</span> <span class="nf">create_accelerometer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">position</span><span class="p">,</span><span class="n">orientation</span><span class="p">,</span><span class="n">size</span> <span class="o">=</span> <span class="mi">10</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a 3D model of accelerometer.</span>
+
+<span class="sd">        :param position: Position of the accelerometer [x,y,z]</span>
+<span class="sd">        :type position: list</span>
+<span class="sd">        :param orientation: Orientation of the accelerometer [ax,ay,az]</span>
+<span class="sd">        :type orientation: list</span>
+<span class="sd">        :param size: Size of the accelerometer</span>
+<span class="sd">        :type size: float, optional</span>
+
+<span class="sd">        :return: Accelerometer object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">box</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">Box</span><span class="p">(</span><span class="n">bounds</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="n">size</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">size</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="n">size</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">size</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="n">size</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">size</span><span class="o">/</span><span class="mi">2</span><span class="p">))</span>
+        <span class="n">cable</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">Cylinder</span><span class="p">(</span><span class="n">center</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="n">size</span><span class="o">/</span><span class="mi">2</span><span class="o">-</span><span class="n">size</span><span class="o">/</span><span class="mi">8</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span><span class="n">direction</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span><span class="n">radius</span> <span class="o">=</span> <span class="n">size</span><span class="o">/</span><span class="mi">5</span><span class="p">,</span><span class="n">height</span> <span class="o">=</span> <span class="n">size</span><span class="o">/</span><span class="mi">4</span><span class="p">)</span>
+
+        <span class="n">ray_x</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">Line</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span> <span class="o">-</span> <span class="n">size</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">size</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span> <span class="o">-</span> <span class="n">size</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">ray_y</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">Line</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span> <span class="o">-</span> <span class="n">size</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span> <span class="o">-</span> <span class="n">size</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">ray_z</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">Line</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span> <span class="o">-</span> <span class="n">size</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">size</span><span class="p">])</span> <span class="o">-</span> <span class="n">size</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+
+        <span class="n">accelerometer</span> <span class="o">=</span> <span class="p">[</span><span class="n">box</span><span class="p">,</span> <span class="n">cable</span><span class="p">,</span><span class="n">ray_x</span><span class="p">,</span><span class="n">ray_y</span><span class="p">,</span><span class="n">ray_z</span><span class="p">]</span>
+
+        <span class="n">_new</span> <span class="o">=</span> <span class="n">position</span>
+
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">accelerometer</span><span class="p">:</span>
+            <span class="n">item</span><span class="o">.</span><span class="n">rotate_x</span><span class="p">(</span><span class="n">orientation</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">item</span><span class="o">.</span><span class="n">rotate_y</span><span class="p">(</span><span class="n">orientation</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">item</span><span class="o">.</span><span class="n">rotate_z</span><span class="p">(</span><span class="n">orientation</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+            <span class="n">item</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">_new</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">accelerometer</span></div>
+
+<div class="viewcode-block" id="view3D.add_accelerometer"><a class="viewcode-back" href="../../code_documentation/display.html#pyFBS.display.view3D.add_accelerometer">[docs]</a>    <span class="k">def</span> <span class="nf">add_accelerometer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">acc</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds an accelerometer to 3D view.</span>
+
+<span class="sd">        :param acc: Accelerometer object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">add_mesh</span><span class="p">(</span><span class="n">acc</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">opacity</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">show_edges</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#8c8c8c&quot;</span><span class="p">,</span> <span class="n">pickable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">add_mesh</span><span class="p">(</span><span class="n">acc</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">opacity</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">show_edges</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#8c8c8c&quot;</span><span class="p">,</span> <span class="n">pickable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">add_mesh</span><span class="p">(</span><span class="n">acc</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">RED</span><span class="p">,</span> <span class="n">line_width</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">pickable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">add_mesh</span><span class="p">(</span><span class="n">acc</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">GREEN</span><span class="p">,</span> <span class="n">line_width</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">pickable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">add_mesh</span><span class="p">(</span><span class="n">acc</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">BLUE</span><span class="p">,</span> <span class="n">line_width</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">pickable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="view3D.add_vp"><a class="viewcode-back" href="../../code_documentation/display.html#pyFBS.display.view3D.add_vp">[docs]</a>    <span class="k">def</span> <span class="nf">add_vp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">position</span><span class="p">,</span><span class="n">size</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span><span class="n">color</span> <span class="o">=</span> <span class="n">GREEN</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds a virtual point to 3D view.</span>
+
+<span class="sd">        :param position: Position of the virtual point [x,y,z]</span>
+<span class="sd">        :type position: list</span>
+<span class="sd">        :param size: Size of the virtual point</span>
+<span class="sd">        :type size: float, optional</span>
+<span class="sd">        :param color: Color of the virtual point</span>
+<span class="sd">        :type color: str, optional</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sphere</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">Sphere</span><span class="p">(</span><span class="n">radius</span> <span class="o">=</span> <span class="n">size</span><span class="p">,</span> <span class="n">center</span> <span class="o">=</span> <span class="n">position</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">add_mesh</span><span class="p">(</span><span class="n">sphere</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="view3D.show_acc"><a class="viewcode-back" href="../../code_documentation/display.html#pyFBS.display.view3D.show_acc">[docs]</a>    <span class="k">def</span> <span class="nf">show_acc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">df</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds accelerometers from the DataFrame to 3D view.</span>
+
+<span class="sd">        :param df: A DataFrame containing relevant information about the accelerometers</span>
+<span class="sd">        :type df: pd.DataFrame</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+            <span class="n">acc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_accelerometer</span><span class="p">((</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;Position_1&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">,</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;Position_2&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">,</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;Position_3&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">),</span>
+                                         <span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;Orientation_1&quot;</span><span class="p">],</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;Orientation_2&quot;</span><span class="p">],</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;Orientation_3&quot;</span><span class="p">]))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_accelerometer</span><span class="p">(</span><span class="n">acc</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="view3D.show_imp"><a class="viewcode-back" href="../../code_documentation/display.html#pyFBS.display.view3D.show_imp">[docs]</a>    <span class="k">def</span> <span class="nf">show_imp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">df</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds impacts from the DataFrame to 3D view.</span>
+
+<span class="sd">        :param df: A DataFrame containing relevant information about the impacts</span>
+<span class="sd">        :type df: pd.DataFrame</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_impact</span><span class="p">((</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;Position_1&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">,</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;Position_2&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">,</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;Position_3&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">),</span>
+                         <span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;Direction_1&quot;</span><span class="p">],</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;Direction_2&quot;</span><span class="p">],</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;Direction_3&quot;</span><span class="p">]))</span></div>
+
+<div class="viewcode-block" id="view3D.show_chn"><a class="viewcode-back" href="../../code_documentation/display.html#pyFBS.display.view3D.show_chn">[docs]</a>    <span class="k">def</span> <span class="nf">show_chn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">df</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds channels from the DataFrame to 3D view.</span>
+
+<span class="sd">        :param df: A DataFrame containing relevant information about the channels</span>
+<span class="sd">        :type df: pd.DataFrame</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_channel</span><span class="p">((</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;Position_1&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">,</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;Position_2&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">,</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;Position_3&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">),</span>
+                          <span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;Direction_1&quot;</span><span class="p">],</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;Direction_2&quot;</span><span class="p">],</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;Direction_3&quot;</span><span class="p">]))</span></div>
+
+
+<div class="viewcode-block" id="view3D.show_vp"><a class="viewcode-back" href="../../code_documentation/display.html#pyFBS.display.view3D.show_vp">[docs]</a>    <span class="k">def</span> <span class="nf">show_vp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">df</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds virtual points from the DataFrame to 3D view.</span>
+
+<span class="sd">        :param df: A DataFrame containing relevant information about the virtual points</span>
+<span class="sd">        :type df: pd.DataFrame</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Position_1&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Position_2&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Position_3&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+        <span class="n">position</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">])</span><span class="o">.</span><span class="n">T</span>
+        <span class="n">position</span> <span class="o">*=</span> <span class="mi">1000</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_vp</span><span class="p">(</span><span class="n">position</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="view3D.label_acc"><a class="viewcode-back" href="../../code_documentation/display.html#pyFBS.display.view3D.label_acc">[docs]</a>    <span class="k">def</span> <span class="nf">label_acc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">df</span><span class="p">,</span><span class="n">name</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds labels to accelerometers from the DataFrame to 3D view.</span>
+
+<span class="sd">        :param df: A DataFrame containing relevant information about the accelerometers</span>
+<span class="sd">        :type df: pd.DataFrame</span>
+<span class="sd">        :param name: Name of the label which can be used to update existing notations</span>
+<span class="sd">        :type name: str, optional</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">positions</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+            <span class="n">positions</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;Position_1&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">,</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;Position_2&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">,</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;Position_3&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">])</span>
+            <span class="n">labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;Name&quot;</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">add_point_labels</span><span class="p">(</span><span class="n">positions</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="p">,</span><span class="n">shape_opacity</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="view3D.label_imp"><a class="viewcode-back" href="../../code_documentation/display.html#pyFBS.display.view3D.label_imp">[docs]</a>    <span class="k">def</span> <span class="nf">label_imp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">df</span><span class="p">,</span><span class="n">name</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds labels to impacts from the DataFrame to 3D view.</span>
+
+<span class="sd">        :param df: A DataFrame containing relevant information about the impacts</span>
+<span class="sd">        :type df: pd.DataFrame</span>
+<span class="sd">        :param name: Name of the label which can be used to update existing notations</span>
+<span class="sd">        :type name: str, optional</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">positions</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+
+            <span class="n">positions</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;Position_1&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">,</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;Position_2&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">,</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;Position_3&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">])</span>
+            <span class="n">labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;NodeNumber&quot;</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">add_point_labels</span><span class="p">(</span><span class="n">positions</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="p">,</span><span class="n">shape_color</span> <span class="o">=</span> <span class="n">RED</span><span class="p">,</span><span class="n">shape_opacity</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="view3D.label_chn"><a class="viewcode-back" href="../../code_documentation/display.html#pyFBS.display.view3D.label_chn">[docs]</a>    <span class="k">def</span> <span class="nf">label_chn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">df</span><span class="p">,</span><span class="n">name</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span><span class="n">size</span> <span class="o">=</span> <span class="mi">10</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds labels to channels from the DataFrame to 3D view.</span>
+
+<span class="sd">        :param df: A DataFrame containing relevant information about the channels</span>
+<span class="sd">        :type df: pd.DataFrame</span>
+<span class="sd">        :param name: Name of the label which can be used to update existing notations</span>
+<span class="sd">        :type name: str, optional</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">positions</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;Direction_1&quot;</span><span class="p">]</span><span class="o">*</span><span class="n">size</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;Direction_2&quot;</span><span class="p">]</span><span class="o">*</span><span class="n">size</span>
+            <span class="n">z</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;Direction_3&quot;</span><span class="p">]</span><span class="o">*</span><span class="n">size</span>
+
+            <span class="n">positions</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;Position_1&quot;</span><span class="p">]</span><span class="o">*</span><span class="mi">1000</span><span class="o">+</span><span class="n">x</span><span class="p">,</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;Position_2&quot;</span><span class="p">]</span><span class="o">*</span><span class="mi">1000</span><span class="o">+</span><span class="n">y</span><span class="p">,</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;Position_3&quot;</span><span class="p">]</span><span class="o">*</span><span class="mi">1000</span><span class="o">+</span><span class="n">z</span><span class="p">])</span>
+            <span class="n">labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;NodeNumber&quot;</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">add_point_labels</span><span class="p">(</span><span class="n">positions</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">shape_color</span><span class="o">=</span><span class="n">BLUE</span><span class="p">,</span> <span class="n">shape_opacity</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="view3D.label_vp"><a class="viewcode-back" href="../../code_documentation/display.html#pyFBS.display.view3D.label_vp">[docs]</a>    <span class="k">def</span> <span class="nf">label_vp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">df</span><span class="p">,</span><span class="n">name</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds labels to virtual point from the DataFrame to 3D view.</span>
+
+<span class="sd">        :param df: A DataFrame containing relevant information about the virtual points</span>
+<span class="sd">        :type df: pd.DataFrame</span>
+<span class="sd">        :param name: Name of the label which can be used to update existing notations</span>
+<span class="sd">        :type name: str, optional</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Position_1&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Position_2&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Position_3&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+        <span class="n">position</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">])</span><span class="o">.</span><span class="n">T</span>
+        <span class="n">position</span> <span class="o">*=</span> <span class="mi">1000</span>
+
+        <span class="n">L</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Grouping&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">add_point_labels</span><span class="p">(</span><span class="n">position</span><span class="p">,</span> <span class="n">L</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="p">,</span><span class="n">shape_opacity</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span><span class="n">shape_color</span> <span class="o">=</span> <span class="n">GREEN</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Tomaž Bregar
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
