@@ -1,5 +1,5 @@
 import pyuff
-from pyfbs.io import Quantity
+from pyFBS.IO import Quantity
 
 #TODO: Clean the code class instance within function?!
 #TODO: introduce the same unit/quantity class from the io.py!!!

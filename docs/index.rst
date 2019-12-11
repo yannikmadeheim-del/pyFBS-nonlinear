@@ -1,20 +1,37 @@
 Welcome to pyFBS's documentation!
 ======================================
 
+.. include:: ../README.rst
+
+
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
-
-   readme
-   installation
-   usage
-   modules
-   contributing
+   :caption: About
+   
+   intro
+   
    authors
-   history
+   
+   license
 
-Indices and tables
-==================
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Getting Started
+
+   usage
+   
+   installation
+   
+   ./examples/basic_examples
+   
+   ./examples/application_examples
+
+   
+.. toctree::
+   :maxdepth: 2
+   :caption: Code Documentation
+   
+   ./code_documentation/display
+   ./code_documentation/SEMM
+

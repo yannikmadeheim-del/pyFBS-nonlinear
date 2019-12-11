@@ -1,5 +1,5 @@
 import re
-from pyfbs.io import Channels
+from pyFBS.IO import Channels
 
 from numpy import ndarray
 import matplotlib.pyplot as plt

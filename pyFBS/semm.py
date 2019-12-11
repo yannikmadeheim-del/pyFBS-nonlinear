@@ -9,11 +9,15 @@ import copy
 
 
 def LocOfExp(Overlay, DoF):
-    """Preparation of data to find locations of corresponding experimental meassurement in numerical model.
+    """
+    Preparation of data to find locations of corresponding experimental meassurement in numerical model.
 
-    Arguments:
-        Overlay {list} -- defines connections bettwen numerical and experimental model
-        DoF {int} -- number of DoFs per one node
+    :param Overlay: Defines connections bettwen numerical and experimental model
+    :type Overlay: list
+    :param DoF: Number of DoFs per one node
+    :type DoF: int
+
+    :return: something cat like
     """
     AllResponseNodesDoF = []
     AllExcitationNodesDoF = []
