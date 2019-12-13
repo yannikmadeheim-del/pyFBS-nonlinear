@@ -160,6 +160,7 @@
   <h1>Source code for pyFBS.display</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">pyvista</span> <span class="k">as</span> <span class="nn">pv</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 
 <span class="n">RED</span> <span class="o">=</span> <span class="s2">&quot;#d62728&quot;</span>
 <span class="n">BLUE</span> <span class="o">=</span> <span class="s2">&quot;#1f77b4&quot;</span>
@@ -178,7 +179,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">behaviour</span> <span class="o">=</span> <span class="s2">&quot;static&quot;</span><span class="p">,</span><span class="n">show_origin</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">behaviour</span> <span class="o">==</span> <span class="s2">&quot;static&quot;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">plot</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">BackgroundPlotter</span><span class="p">(</span><span class="n">show</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">plot</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">BackgroundPlotter</span><span class="p">(</span><span class="n">show</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span><span class="n">window_size</span> <span class="o">=</span> <span class="p">[</span><span class="mi">600</span><span class="p">,</span><span class="mi">400</span><span class="p">])</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">background_color</span> <span class="o">=</span> <span class="n">BACKGROUND</span>
 
         <span class="k">if</span> <span class="n">show_origin</span><span class="p">:</span>
@@ -447,6 +448,98 @@
         <span class="n">L</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Grouping&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">add_point_labels</span><span class="p">(</span><span class="n">position</span><span class="p">,</span> <span class="n">L</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="p">,</span><span class="n">shape_opacity</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span><span class="n">shape_color</span> <span class="o">=</span> <span class="n">GREEN</span><span class="p">)</span></div></div>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">The making of interactive 3D display</span>
+<span class="sd">import pyvista as pv</span>
+<span class="sd">import numpy as np</span>
+<span class="sd">import numpy as np</span>
+
+
+
+<span class="sd">points = np.array([[0,0,0],</span>
+<span class="sd">                   [0,0.5,0.5],</span>
+<span class="sd">                   [0.5,0,0.5],</span>
+<span class="sd">                   [0.5,0.5,0]])</span>
+
+
+
+
+<span class="sd">def unit_vector(vector):</span>
+<span class="sd">    return vector / np.linalg.norm(vector)</span>
+
+<span class="sd">def angle_between(v1, v2):</span>
+<span class="sd">    v1_u = unit_vector(v1)</span>
+<span class="sd">    v2_u = unit_vector(v2)</span>
+<span class="sd">    return np.arccos(np.clip(np.dot(v1_u, v2_u), -1.0, 1.0))</span>
+
+<span class="sd">class Accelerometer():</span>
+<span class="sd">    def __init__(self,p,N):</span>
+
+<span class="sd">        # accelerometer</span>
+<span class="sd">        self.box = pv.Box()</span>
+<span class="sd">        self.box.translate ([1,1,1])</span>
+<span class="sd">        self.box.points /= 2</span>
+
+<span class="sd">        p.add_mesh(self.box,opacity = 0.3, show_edges  = True, color = &quot;#8c8c8c&quot;)</span>
+
+<span class="sd">        ray_x = pv.Line([0,0,0], [1,0,0])</span>
+<span class="sd">        p.add_mesh(ray_x, color=&quot;r&quot;, line_width=3)</span>
+<span class="sd">        ray_y = pv.Line([0,0,0], [0,1,0])</span>
+<span class="sd">        p.add_mesh(ray_y, color=&quot;g&quot;, line_width=3)</span>
+<span class="sd">        ray_z = pv.Line([0,0,0], [0,0,1])</span>
+<span class="sd">        p.add_mesh(ray_z, color=&quot;b&quot;, line_width=3)</span>
+
+<span class="sd">        self.accelerometer = [self.box,ray_x,ray_y,ray_z]</span>
+<span class="sd">        self.N = int(N*4)</span>
+
+<span class="sd">    def callback(self,point, i):</span>
+<span class="sd">        # 3D translation in space</span>
+<span class="sd">        if i == 0:</span>
+
+<span class="sd">            _new = point - self.box.center_of_mass() + [0.5,0.5,0.5]</span>
+
+<span class="sd">            for item in self.accelerometer:</span>
+<span class="sd">                item.translate(_new)</span>
+
+<span class="sd">            for i in range(3):</span>
+<span class="sd">                p.sphere_widgets[self.N+1+i].SetCenter(_new + np.asarray(p.sphere_widgets[self.N+1+i].GetCenter()))</span>
+
+<span class="sd">        else:</span>
+<span class="sd">            _new = self.box.center_of_mass() - [0.5,0.5,0.5]</span>
+
+
+<span class="sd">            _vec1 = np.asarray(point-_new)</span>
+<span class="sd">            _vec2 = np.asarray(points[i,:])</span>
+
+<span class="sd">            if i == 3:</span>
+<span class="sd">                print(_vec1[[0,1]])</span>
+<span class="sd">                print(i,angle_between(_vec1[[0,1]], _vec2[[0,1]])*180/np.pi)</span>
+
+<span class="sd">            for k in range(3):</span>
+<span class="sd">                p.sphere_widgets[self.N+1+k].SetCenter(_new + points[1+k,:])</span>
+
+<span class="sd">                </span>
+<span class="sd">    def translate(self,point):</span>
+<span class="sd">        _new = point - self.box.center_of_mass() + [0.5, 0.5, 0.5]</span>
+<span class="sd">        for item in self.accelerometer:</span>
+<span class="sd">            item.translate(_new)</span>
+
+<span class="sd">        for i in range(4):</span>
+<span class="sd">            p.sphere_widgets[self.N  + i].SetCenter(_new + np.asarray(p.sphere_widgets[self.N + i].GetCenter()))</span>
+
+<span class="sd">if __name__ == &#39;__main__&#39;:</span>
+
+<span class="sd">    p = pv.Plotter()</span>
+
+<span class="sd">    for i in range(10):</span>
+<span class="sd">        _gg = Accelerometer(p,i)</span>
+<span class="sd">        p.add_sphere_widget(_gg.callback, center=points, color = [&quot;k&quot;,&quot;r&quot;,&quot;g&quot;,&quot;b&quot;],radius = 0.05)</span>
+<span class="sd">        _gg.translate(np.random.random(3)*10)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;cat&quot;</span><span class="p">)</span>
 </pre></div>
 
            </div>
