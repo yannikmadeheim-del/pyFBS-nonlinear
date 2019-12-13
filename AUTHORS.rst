@@ -5,7 +5,7 @@ Credits
 Development Lead
 ----------------
 
-* Tomaž Bregar <bregar.toma@gmail.com>
+TODO
 
 Contributors
 ------------
