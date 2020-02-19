@@ -52,7 +52,7 @@ class view3D():
         #sphere = pv.Sphere(radius = 1, center=position)
         #self.plot.add_mesh(sphere, color="black")
 
-    def add_stl(self, stl_path, color = None):
+    def add_stl(self, stl_path, color = None,opacity = 1):
         """
         Adds a mesh to 3D view from .stl file.
 
@@ -62,7 +62,7 @@ class view3D():
         :type color: str, optional
         """
         mesh = pv.PolyData(stl_path)
-        self.plot.add_mesh(mesh,color = color)
+        self.plot.add_mesh(mesh,color = color, opacity = opacity)
 
     def add_impact(self, position, direction, size = 10, color = RED):
         """
@@ -200,7 +200,7 @@ class view3D():
                           (row["Direction_1"], row["Direction_2"], row["Direction_3"]))
 
 
-    def show_vp(self,df):
+    def show_vp(self,df,size = 10):
         """
         Adds virtual points from the DataFrame to 3D view.
 
@@ -212,7 +212,7 @@ class view3D():
         z = df["Position_3"].unique()
         position = np.asarray([x, y, z]).T
         position *= 1000
-        self.add_vp(position)
+        self.add_vp(position,size = size)
 
     def label_acc(self,df,name = None):
         """
