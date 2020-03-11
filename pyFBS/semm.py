@@ -1,9 +1,6 @@
 import numpy as np
-from tqdm import tqdm_notebook as tqdm
-import lvm_read
-import os
-import pickle
 import copy
+import matplotlib.pyplot as plt
 
 
 
@@ -33,7 +30,19 @@ def LocOfExp(Overlay, DoF):
     return AllResponseNodesDoF, AllExcitationNodesDoF, AllMeasurement
 
 
-def SEMM(Y_num, Y_exp, Overlay, DoF, Loc_Y_num=None, SEMM_type='fully-extend'):
+def red_order(A, sv = 0):
+    U, s, VT = np.linalg.svd(A)
+    kk = s.shape[1] - sv
+    Uk = U[:, :, :kk]
+    Sk = np.zeros((A.shape[0], kk, kk))
+
+    for i in range(A.shape[0]):
+        Sk[i] = np.diag(s[i, :kk])
+    Vk = VT[:, :kk, :]
+
+    return Uk @ Sk @ Vk
+
+def SEMM(Y_num, Y_exp, Overlay, DoF, Loc_Y_num=None, SEMM_type='fully-extend',red_comp = 0,red_eq = 0):
     """
     This function performs SEMM. It couples numerical (Y_num)
     and experimental (Y_exp) model to hybrid model. Connections bettwen
@@ -48,7 +57,7 @@ def SEMM(Y_num, Y_exp, Overlay, DoF, Loc_Y_num=None, SEMM_type='fully-extend'):
         Overlay {list} -- defines connections bettwen numerical and experimental model
         DoF {int} -- number of DoFs per one node
         Loc_Y_num {list} -- defines which nodes are represented in numerical model if it is not full squere matrix
-        SEMM_type {str} -- defined which type of SEMM will be performed - basic ("basic") or fully extend ("fully-extend")
+        SEMM_type {str} -- defined which type of SEMM will be performed - basic ("basic") or fully extended ("fully-extend") or fully extended with SVD truncation on compatibility or equilibrium ("full-extended-svd")
 
     Returns:
         numpy.ndarray -- hybrid model based on numerical and experiemral data
@@ -175,10 +184,18 @@ def SEMM(Y_num, Y_exp, Overlay, DoF, Loc_Y_num=None, SEMM_type='fully-extend'):
         except np.linalg.LinAlgError:
             Y_SEMM = Y_par-Y_par[:, :, -len(UniqueExcitationNodesDoF):]@np.linalg.pinv(Y_rem)@(
                 Y_rem-Y_ov)@np.linalg.pinv(Y_rem)@Y_par[:, -len(UniqueResponseNodesDoF):, :]
+
     elif SEMM_type == "fully-extend":
         # Single-line method SEMM - fully-extend form - eq(31)
         Y_SEMM = Y_par-Y_par@np.linalg.pinv(Y_par[:, -len(UniqueResponseNodesDoF):, :])@(
             Y_rem-Y_ov)@np.linalg.pinv(Y_par[:, :, -len(UniqueExcitationNodesDoF):])@Y_par
+
+    elif SEMM_type == "fully-extended-svd":
+        Y_SEMM = Y_par - Y_par @ np.linalg.pinv(red_order(Y_par[:, -len(UniqueResponseNodesDoF):, :],sv = red_comp))  @ (Y_rem - Y_ov) @ np.linalg.pinv(red_order(Y_par[:, :, -len(UniqueExcitationNodesDoF):],sv = red_eq)) @ Y_par
+
+    #U, s, VT = np.linalg.svd(Y_par[:, -len(UniqueResponseNodesDoF):, :])
+    #U, s, VT = np.linalg.svd(Y_par[:, :, -len(UniqueExcitationNodesDoF):])
+    #plt.semilogy(s)
 
     # rearranging SEMM model to input numerical form od DOFs
     # moved collumns
