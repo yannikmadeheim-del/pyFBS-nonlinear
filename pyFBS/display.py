@@ -1,6 +1,8 @@
 import pyvista as pv
 import numpy as np
 import pandas as pd
+from PyQt5.QtWidgets import  QAction
+
 
 RED = "#d62728"
 BLUE = "#1f77b4"
@@ -8,22 +10,49 @@ GREEN = "#2ca02c"
 
 BACKGROUND = "#D4D4D4"
 
+
+
 class view3D():
     """
     A 3D visualization tool for the pyFBS.
 
-    :param behaviour: Defines the behaviour of the 3D viewer
-    :type behaviour: str
     :param show_origin: Display the CSYS in origin
     :type show_origin: bool
     """
-    def __init__(self, behaviour = "static",show_origin = True):
-        if behaviour == "static":
-            self.plot = pv.BackgroundPlotter(show = True,window_size = [600,400])
-            self.plot.background_color = BACKGROUND
+    def __init__(self,show_origin = True):
+        self.plot = pv.BackgroundPlotter(show = True,window_size = [1240,640])
+        self.plot.background_color = BACKGROUND
 
         if show_origin:
             self.add_csys([0,0,0])
+
+        # Variables
+        self.global_acc = []
+        self.acc_visible = False
+
+        self.global_imp = []
+        self.imp_visible = False
+
+        self.global_chn = []
+        self.imp_visible = False
+
+        self.global_vps = []
+        self.vps_visible = False
+
+        self.global_labels = []
+        self.labels_visible = False
+
+        self.name = None
+        self.name_ev = None
+
+        self.show_hide_toolbar = self.plot.app_window.addToolBar('Show/hide Actors')
+
+    def add_action(self,toolbar, key, function, main_window):
+        action = QAction(key, main_window)
+        action.triggered.connect(function)
+        toolbar.addAction(action)
+        return
+
 
     def add_csys(self,position = [0,0,0], size = 10):
         """
@@ -49,10 +78,7 @@ class view3D():
         arrow.points += np.asarray(position)
         self.plot.add_mesh(arrow, color=BLUE)
 
-        #sphere = pv.Sphere(radius = 1, center=position)
-        #self.plot.add_mesh(sphere, color="black")
-
-    def add_stl(self, stl_path, color = None,opacity = 1):
+    def add_stl(self, stl_path, name = "model", **kwargs):
         """
         Adds a mesh to 3D view from .stl file.
 
@@ -62,9 +88,9 @@ class view3D():
         :type color: str, optional
         """
         mesh = pv.PolyData(stl_path)
-        self.plot.add_mesh(mesh,color = color, opacity = opacity)
+        actor = self.plot.add_mesh(mesh,name = name,**kwargs)
 
-    def add_impact(self, position, direction, size = 10, color = RED):
+    def add_impact(self, position, direction, size = 10, color = RED, **kwargs):
         """
         Adds an impact to 3D view.
 
@@ -82,9 +108,12 @@ class view3D():
         arrow.points *= size
         arrow.translate(np.asarray(position))
 
-        self.plot.add_mesh(arrow, color=color)
+        imp_actor = self.plot.add_mesh(arrow, color=color,reset_camera = False, **kwargs)
 
-    def add_channel(self, position, direction, size = 10, color = BLUE):
+        return arrow,imp_actor
+
+
+    def add_channel(self, position, direction, size = 10, color = BLUE,**kwargs):
         """
         Adds a channel to 3D view.
 
@@ -101,7 +130,8 @@ class view3D():
         arrow.points *= size
         arrow.points += np.asarray(position)
 
-        self.plot.add_mesh(arrow, color=color)
+        chn_actor = self.plot.add_mesh(arrow, color=color,reset_camera =False, **kwargs)
+        return arrow,chn_actor
 
 
     def create_accelerometer(self,position,orientation,size = 10):
@@ -143,12 +173,14 @@ class view3D():
 
         :param acc: Accelerometer object
         """
-        self.plot.add_mesh(acc[0], opacity=0.5, show_edges=True, color="#8c8c8c", pickable=False)
-        self.plot.add_mesh(acc[1], opacity=0.5, show_edges=False, color="#8c8c8c", pickable=False)
+        acc_1 = self.plot.add_mesh(acc[0], opacity=0.5, show_edges=True, color="#8c8c8c", reset_camera =False)
+        acc_2 = self.plot.add_mesh(acc[1], opacity=0.5, show_edges=False, color="#8c8c8c", reset_camera =False)
+        acc_3 = self.plot.add_mesh(acc[2], color=RED, line_width=5, reset_camera =False)
+        acc_4 = self.plot.add_mesh(acc[3], color=GREEN, line_width=5, reset_camera =False)
+        acc_5 = self.plot.add_mesh(acc[4], color=BLUE, line_width=5, reset_camera =False)
 
-        self.plot.add_mesh(acc[2], color=RED, line_width=5, pickable=False)
-        self.plot.add_mesh(acc[3], color=GREEN, line_width=5, pickable=False)
-        self.plot.add_mesh(acc[4], color=BLUE, line_width=5, pickable=False)
+        return [acc_1,acc_2,acc_3,acc_4,acc_5]
+
 
     def add_vp(self,position,size = 10,color = GREEN):
         """
@@ -162,42 +194,115 @@ class view3D():
         :type color: str, optional
         """
         sphere = pv.Sphere(radius = size, center = position)
-        self.plot.add_mesh(sphere, color=color)
+        vp_actor = self.plot.add_mesh(sphere, color=color)
+        return sphere,vp_actor
 
 
-    def show_acc(self,df):
+    def show_acc(self,df,size = 10):
         """
         Adds accelerometers from the DataFrame to 3D view.
 
         :param df: A DataFrame containing relevant information about the accelerometers
         :type df: pd.DataFrame
         """
-        for i, row in df.iterrows():
-            acc = self.create_accelerometer((row["Position_1"] * 1000, row["Position_2"] * 1000, row["Position_3"] * 1000),
-                                         (row["Orientation_1"], row["Orientation_2"], row["Orientation_3"]))
-            self.add_accelerometer(acc)
+        if self.global_acc != []:
+            self.acc_visible = True
+            self.show_hide_accelerometers()
+            self.global_acc = []
+        else:
+            self.add_action(self.show_hide_toolbar, "Sensors", self.show_hide_accelerometers, self.plot.app_window)
 
-    def show_imp(self,df):
+        for i, row in df.iterrows():
+
+            acc_mesh = self.create_accelerometer((row["Position_1"] * 1000, row["Position_2"] * 1000, row["Position_3"] * 1000),
+                                         (row["Orientation_1"], row["Orientation_2"], row["Orientation_3"]),size = size)
+
+            acc_actor = self.add_accelerometer(acc_mesh)
+            self.global_acc.append([acc_mesh,acc_actor])
+
+        self.acc_visible = True
+
+    def show_hide_accelerometers(self):
+        if self.acc_visible == False:
+            for _acc in self.global_acc:
+                for item in _acc[1]:
+                    self.plot.add_actor(item,reset_camera =False)
+            self.acc_visible = True
+
+        else:
+            for _acc in self.global_acc:
+                for item in _acc[1]:
+                    self.plot.remove_actor(item, reset_camera=False)
+            self.acc_visible = False
+
+    def show_imp(self,df,color = RED,**kwargs):
         """
         Adds impacts from the DataFrame to 3D view.
 
         :param df: A DataFrame containing relevant information about the impacts
         :type df: pd.DataFrame
         """
-        for i, row in df.iterrows():
-            self.add_impact((row["Position_1"] * 1000, row["Position_2"] * 1000, row["Position_3"] * 1000),
-                         (row["Direction_1"], row["Direction_2"], row["Direction_3"]))
 
-    def show_chn(self,df):
+        if self.global_imp != []:
+            self.imp_visible = True
+            self.show_hide_impacts()
+            self.global_imp = []
+        else:
+            self.add_action(self.show_hide_toolbar, "Impacts", self.show_hide_impacts, self.plot.app_window)
+
+        for i, row in df.iterrows():
+            imp_mesh,imp_actor = self.add_impact((row["Position_1"] * 1000, row["Position_2"] * 1000, row["Position_3"] * 1000),
+                         (row["Direction_1"], row["Direction_2"], row["Direction_3"]),color = color, **kwargs)
+            self.global_imp.append([imp_mesh,imp_actor])
+
+        self.imp_visible = True
+
+
+    def show_hide_impacts(self):
+        if self.imp_visible == False:
+            for _imp in self.global_imp:
+                self.plot.add_actor(_imp[1],reset_camera =False)
+            self.imp_visible = True
+
+        else:
+            for _imp in self.global_imp:
+                self.plot.remove_actor(_imp[1],reset_camera =False)
+            self.imp_visible = False
+
+
+    def show_chn(self,df,color = BLUE,**kwargs):
         """
         Adds channels from the DataFrame to 3D view.
 
         :param df: A DataFrame containing relevant information about the channels
         :type df: pd.DataFrame
         """
+
+        if self.global_chn != []:
+            self.chn_visible = True
+            self.show_hide_channels()
+            self.global_chn = []
+        else:
+            self.add_action(self.show_hide_toolbar, "Channels", self.show_hide_channels, self.plot.app_window)
+
         for i, row in df.iterrows():
-            self.add_channel((row["Position_1"] * 1000, row["Position_2"] * 1000, row["Position_3"] * 1000),
-                          (row["Direction_1"], row["Direction_2"], row["Direction_3"]))
+            chn_mesh,chn_actor = self.add_channel((row["Position_1"] * 1000, row["Position_2"] * 1000, row["Position_3"] * 1000),
+                          (row["Direction_1"], row["Direction_2"], row["Direction_3"]),color = color,**kwargs)
+            self.global_chn.append([chn_mesh,chn_actor])
+
+        self.chn_visible = True
+
+    def show_hide_channels(self):
+        if self.chn_visible == False:
+            for _chn in self.global_chn:
+                self.plot.add_actor(_chn[1],reset_camera =False)
+            self.chn_visible = True
+
+        else:
+            for _chn in self.global_chn:
+                self.plot.remove_actor(_chn[1],reset_camera =False)
+
+            self.chn_visible = False
 
 
     def show_vp(self,df,size = 10):
@@ -207,14 +312,35 @@ class view3D():
         :param df: A DataFrame containing relevant information about the virtual points
         :type df: pd.DataFrame
         """
+        if self.global_vps != []:
+            self.vps_visible = True
+            self.show_hide_vps()
+            self.global_vps = []
+        else:
+            self.add_action(self.show_hide_toolbar, "VPs", self.show_hide_vps, self.plot.app_window)
+
         x = df["Position_1"].unique()
         y = df["Position_2"].unique()
         z = df["Position_3"].unique()
         position = np.asarray([x, y, z]).T
         position *= 1000
-        self.add_vp(position,size = size)
+        vp_mesh,vp_actor = self.add_vp(position,size = size)
+        self.global_vps.append([vp_mesh, vp_actor])
+        self.vps_visible = True
 
-    def label_acc(self,df,name = None):
+    def show_hide_vps(self):
+        if self.vps_visible == False:
+            for _vp in self.global_vps:
+                self.plot.add_actor(_vp[1],reset_camera =False)
+            self.vps_visible = True
+
+        else:
+            for _vp in self.global_vps:
+                self.plot.remove_actor(_vp[1],reset_camera =False)
+
+            self.vps_visible = False
+
+    def label_acc(self,df,name = "Accelerometers",**kwargs):
         """
         Adds labels to accelerometers from the DataFrame to 3D view.
 
@@ -223,15 +349,20 @@ class view3D():
         :param name: Name of the label which can be used to update existing notations
         :type name: str, optional
         """
+        if self.global_labels == []:
+            self.add_action(self.show_hide_toolbar, "Clear Labels", self.hide_labels, self.plot.app_window)
+
         positions = []
         labels = []
         for i, row in df.iterrows():
             positions.append([row["Position_1"] * 1000, row["Position_2"] * 1000, row["Position_3"] * 1000])
             labels.append(row["Name"])
 
-        self.plot.add_point_labels(positions, labels, font=12,name = name,shape_opacity=0.5)
+        self.plot.add_point_labels(positions, labels, font=12,name = name,shape_opacity=0.5,**kwargs)
+        self.global_labels.append([[positions, labels], name])
+        self.labels_visible = True
 
-    def label_imp(self,df,name = None):
+    def label_imp(self,df,name = "Impacts",**kwargs):
         """
         Adds labels to impacts from the DataFrame to 3D view.
 
@@ -240,6 +371,9 @@ class view3D():
         :param name: Name of the label which can be used to update existing notations
         :type name: str, optional
         """
+        if self.global_labels == []:
+            self.add_action(self.show_hide_toolbar, "Clear Labels", self.hide_labels, self.plot.app_window)
+
         positions = []
         labels = []
         for i, row in df.iterrows():
@@ -247,9 +381,11 @@ class view3D():
             positions.append([row["Position_1"] * 1000, row["Position_2"] * 1000, row["Position_3"] * 1000])
             labels.append(row["NodeNumber"])
 
-        self.plot.add_point_labels(positions, labels, font=12,name = name,shape_color = RED,shape_opacity=0.5)
+        self.plot.add_point_labels(positions, labels, font=12,name = name,shape_color = RED,shape_opacity=0.5,**kwargs)
+        self.global_labels.append([[positions, labels], name])
+        self.labels_visible = True
 
-    def label_chn(self,df,name = None,size = 10):
+    def label_chn(self,df,name = "Channels",size = 10,**kwargs):
         """
         Adds labels to channels from the DataFrame to 3D view.
 
@@ -258,6 +394,9 @@ class view3D():
         :param name: Name of the label which can be used to update existing notations
         :type name: str, optional
         """
+        if self.global_labels == []:
+            self.add_action(self.show_hide_toolbar, "Clear Labels", self.hide_labels, self.plot.app_window)
+
         positions = []
         labels = []
         for i, row in df.iterrows():
@@ -268,9 +407,11 @@ class view3D():
             positions.append([row["Position_1"]*1000+x, row["Position_2"]*1000+y, row["Position_3"]*1000+z])
             labels.append(row["NodeNumber"])
 
-        self.plot.add_point_labels(positions, labels, font=12, name=name, shape_color=BLUE, shape_opacity=0.5)
+        self.plot.add_point_labels(positions, labels, font=12, name=name, shape_color=BLUE, shape_opacity=0.5,**kwargs)
+        self.global_labels.append([[positions,labels],name])
+        self.labels_visible = True
 
-    def label_vp(self,df,name = None):
+    def label_vp(self,df,name = "VPs",**kwargs):
         """
         Adds labels to virtual point from the DataFrame to 3D view.
 
@@ -279,6 +420,9 @@ class view3D():
         :param name: Name of the label which can be used to update existing notations
         :type name: str, optional
         """
+        if self.global_labels == []:
+            self.add_action(self.show_hide_toolbar, "Clear Labels", self.hide_labels, self.plot.app_window)
+
         x = df["Position_1"].unique()
         y = df["Position_2"].unique()
         z = df["Position_3"].unique()
@@ -287,96 +431,16 @@ class view3D():
 
         L = df["Grouping"].unique()
 
-        self.plot.add_point_labels(position, L, font=12,name = name,shape_opacity=0.5,shape_color = GREEN)
+        self.plot.add_point_labels(position, L, font=12,name = name,shape_opacity=0.5,shape_color = GREEN,**kwargs)
+        self.global_labels.append([[position, L], name])
+        self.labels_visible = True
 
-"""
-The making of interactive 3D display
-import pyvista as pv
-import numpy as np
-import numpy as np
+    def hide_labels(self):
+        for _label in self.global_labels:
+            self.plot.remove_actor(_label[1],reset_camera =False)
 
+        self.labels_visible = False
 
-
-points = np.array([[0,0,0],
-                   [0,0.5,0.5],
-                   [0.5,0,0.5],
-                   [0.5,0.5,0]])
-
-
-
-
-def unit_vector(vector):
-    return vector / np.linalg.norm(vector)
-
-def angle_between(v1, v2):
-    v1_u = unit_vector(v1)
-    v2_u = unit_vector(v2)
-    return np.arccos(np.clip(np.dot(v1_u, v2_u), -1.0, 1.0))
-
-class Accelerometer():
-    def __init__(self,p,N):
-
-        # accelerometer
-        self.box = pv.Box()
-        self.box.translate ([1,1,1])
-        self.box.points /= 2
-
-        p.add_mesh(self.box,opacity = 0.3, show_edges  = True, color = "#8c8c8c")
-
-        ray_x = pv.Line([0,0,0], [1,0,0])
-        p.add_mesh(ray_x, color="r", line_width=3)
-        ray_y = pv.Line([0,0,0], [0,1,0])
-        p.add_mesh(ray_y, color="g", line_width=3)
-        ray_z = pv.Line([0,0,0], [0,0,1])
-        p.add_mesh(ray_z, color="b", line_width=3)
-
-        self.accelerometer = [self.box,ray_x,ray_y,ray_z]
-        self.N = int(N*4)
-
-    def callback(self,point, i):
-        # 3D translation in space
-        if i == 0:
-
-            _new = point - self.box.center_of_mass() + [0.5,0.5,0.5]
-
-            for item in self.accelerometer:
-                item.translate(_new)
-
-            for i in range(3):
-                p.sphere_widgets[self.N+1+i].SetCenter(_new + np.asarray(p.sphere_widgets[self.N+1+i].GetCenter()))
-
-        else:
-            _new = self.box.center_of_mass() - [0.5,0.5,0.5]
-
-
-            _vec1 = np.asarray(point-_new)
-            _vec2 = np.asarray(points[i,:])
-
-            if i == 3:
-                print(_vec1[[0,1]])
-                print(i,angle_between(_vec1[[0,1]], _vec2[[0,1]])*180/np.pi)
-
-            for k in range(3):
-                p.sphere_widgets[self.N+1+k].SetCenter(_new + points[1+k,:])
-
-                
-    def translate(self,point):
-        _new = point - self.box.center_of_mass() + [0.5, 0.5, 0.5]
-        for item in self.accelerometer:
-            item.translate(_new)
-
-        for i in range(4):
-            p.sphere_widgets[self.N  + i].SetCenter(_new + np.asarray(p.sphere_widgets[self.N + i].GetCenter()))
-
-if __name__ == '__main__':
-
-    p = pv.Plotter()
-
-    for i in range(10):
-        _gg = Accelerometer(p,i)
-        p.add_sphere_widget(_gg.callback, center=points, color = ["k","r","g","b"],radius = 0.05)
-        _gg.translate(np.random.random(3)*10)
-"""
 
 if __name__ == '__main__':
     print("cat")

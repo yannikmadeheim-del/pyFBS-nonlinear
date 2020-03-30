@@ -62,8 +62,8 @@ class Accelerometer():
             #    print(_vec1[[0, 1]])
             #    print(i, angle_between(_vec1[[0, 1]], _vec2[[0, 1]]) * 180 / np.pi)
 
-            #for k in range(3):
-            #    p.sphere_widgets[self.N + 1 + k].SetCenter(_new + points[1 + k, :])
+            for k in range(3):
+                p.sphere_widgets[self.N + 1 + k].SetCenter(_new + points[1 + k, :])
 
     def translate(self, point):
         _new = point - self.box.center_of_mass() + [0.5, 0.5, 0.5]
@@ -79,7 +79,7 @@ if __name__ == '__main__':
     p = pv.Plotter()
     p.background_color = "#D4D4D4"
 
-    for i in range(1):
+    for i in range(20):
         _gg = Accelerometer(p, i)
         p.add_sphere_widget(_gg.callback, center=points, color=["k", "r", "g", "b"], radius=0.05)
         _gg.translate(np.random.random(3) * 10)
