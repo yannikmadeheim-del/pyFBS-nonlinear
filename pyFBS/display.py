@@ -1,6 +1,7 @@
 import pyvista as pv
 import numpy as np
 import pandas as pd
+from time import time,sleep
 from PyQt5.QtWidgets import  QAction
 
 
@@ -8,7 +9,8 @@ RED = "#d62728"
 BLUE = "#1f77b4"
 GREEN = "#2ca02c"
 
-BACKGROUND = "#D4D4D4"
+#BACKGROUND = "#D4D4D4"
+BACKGROUND = "#FFFFFF"
 
 
 
@@ -46,6 +48,52 @@ class view3D():
         self.name_ev = None
 
         self.show_hide_toolbar = self.plot.app_window.addToolBar('Show/hide Actors')
+        self.animate_toolbar = self.plot.app_window.addToolBar('Animate Modeshape')
+
+        self.displayed_bodies = []
+
+        self.mode_shape = None
+
+
+    def add_mode_shape(self,dict_shape,run_animation = False):
+        if self.mode_shape == None:
+            self.add_action(self.animate_toolbar, "Animate", self.animate_mesh, self.plot.app_window)
+
+        self.mode_shape = dict_shape
+
+        self.plot.add_text("Frequency = %4.1f Hz\nDamping = %4.3f%%\nComplexity = %4.1f%%" % (
+        self.mode_shape["freq"], self.mode_shape["damping"], self.mode_shape["mcf"]),
+                             position='upper_right', font_size=10, color="k", font="times", name="Mode")
+
+        if run_animation:
+            self.animate_mesh()
+
+
+
+    def animate_mesh(self):
+
+        frameperiod = 1.0 / self.mode_shape["fps"]
+
+        now = time()
+        nextframe = now + frameperiod
+
+        ann = self.mode_shape["animation_pts"]
+        set_lim = np.sqrt(np.mean(ann ** 2, axis=0))
+
+        self.plot.update_scalar_bar_range(clim=[np.min(set_lim), np.max(set_lim)])
+
+
+        for i in range(ann.shape[2]):
+            add_val = ann[:, :, i].T
+
+            self.plot.update_coordinates(self.mode_shape["or_pts"] + add_val, mesh=self.mode_shape["mesh"])
+            self.plot.update_scalars(np.sqrt(np.mean(add_val ** 2, axis=1)).reshape(24))
+
+            while now < nextframe:
+                sleep(nextframe - now)
+                now = time()
+            nextframe += frameperiod
+
 
     def add_action(self,toolbar, key, function, main_window):
         action = QAction(key, main_window)
@@ -89,6 +137,9 @@ class view3D():
         """
         mesh = pv.PolyData(stl_path)
         actor = self.plot.add_mesh(mesh,name = name,**kwargs)
+
+        self.displayed_bodies.append([name,actor])
+
 
     def add_impact(self, position, direction, size = 10, color = RED, **kwargs):
         """
@@ -154,6 +205,7 @@ class view3D():
         ray_x = pv.Line(np.asarray([0, 0, 0]) - size / 2, np.asarray([size, 0, 0]) - size / 2)
         ray_y = pv.Line(np.asarray([0, 0, 0]) - size / 2, np.asarray([0, size, 0]) - size / 2)
         ray_z = pv.Line(np.asarray([0, 0, 0]) - size / 2, np.asarray([0, 0, size]) - size / 2)
+
 
         accelerometer = [box, cable,ray_x,ray_y,ray_z]
 
@@ -379,7 +431,7 @@ class view3D():
         for i, row in df.iterrows():
 
             positions.append([row["Position_1"] * 1000, row["Position_2"] * 1000, row["Position_3"] * 1000])
-            labels.append(row["NodeNumber"])
+            labels.append(row["Name"])
 
         self.plot.add_point_labels(positions, labels, font=12,name = name,shape_color = RED,shape_opacity=0.5,**kwargs)
         self.global_labels.append([[positions, labels], name])
@@ -405,7 +457,7 @@ class view3D():
             z = row["Direction_3"]*size
 
             positions.append([row["Position_1"]*1000+x, row["Position_2"]*1000+y, row["Position_3"]*1000+z])
-            labels.append(row["NodeNumber"])
+            labels.append(row["Name"])
 
         self.plot.add_point_labels(positions, labels, font=12, name=name, shape_color=BLUE, shape_opacity=0.5,**kwargs)
         self.global_labels.append([[positions,labels],name])
@@ -440,6 +492,7 @@ class view3D():
             self.plot.remove_actor(_label[1],reset_camera =False)
 
         self.labels_visible = False
+
 
 
 if __name__ == '__main__':
