@@ -269,11 +269,20 @@ def plot_FRF(Data, dofs_i, dofs_j, Freq=None, PlotType=None):
         plt.ylabel("Phase Angle in Degrees")
         plt.grid()
 
+
+def response_sync_lstsq(response_vec):
+    _mode = response_vec.flatten()
+    z = np.arctan(np.average(np.imag(_mode) / np.real(_mode), weights=np.abs(_mode) ** 2))
+
+    response_vec_norm = response_vec * (np.cos(-1 * z) + 1j * np.sin(-1 * z))
+    return response_vec_norm
+
+
+
 def modeshape_sync_lstsq(mode_shape_vec):
     """
     Creates a straight line fit in the complex plane and substracts the phase from mode shapes.
     """
-    
     _n = np.zeros_like(mode_shape_vec)
     for i in range(np.shape(mode_shape_vec)[1]):
         _mode = mode_shape_vec[:,i]
@@ -314,15 +323,15 @@ def eulerAnglesToRotationMatrix(theta):
     :return:
     """
     R_x = np.array([[1, 0, 0],
-                    [0, math.cos(theta[0]), -math.sin(theta[0])],
-                    [0, math.sin(theta[0]), math.cos(theta[0])]
+                    [0, math.cos(theta[0]), math.sin(theta[0])],
+                    [0, -math.sin(theta[0]), math.cos(theta[0])]
                     ])
-    R_y = np.array([[math.cos(theta[1]), 0, math.sin(theta[1])],
+    R_y = np.array([[math.cos(theta[1]), 0, -math.sin(theta[1])],
                     [0, 1, 0],
-                    [-math.sin(theta[1]), 0, math.cos(theta[1])]
+                    [math.sin(theta[1]), 0, math.cos(theta[1])]
                     ])
-    R_z = np.array([[math.cos(theta[2]), -math.sin(theta[2]), 0],
-                    [math.sin(theta[2]), math.cos(theta[2]), 0],
+    R_z = np.array([[math.cos(theta[2]), math.sin(theta[2]), 0],
+                    [-math.sin(theta[2]), math.cos(theta[2]), 0],
                     [0, 0, 1]
                     ])
 
@@ -359,7 +368,7 @@ def unflattenFRFs(_modes_acc,Y):
         new_mode[i,:,:] = _modes_acc[i*_len:(i+1)*_len,:]
     return new_mode
 
-def radial_plot_3Dmodeshape(mode_shape):
+def complex_plot_3D(mode_shape):
     """
     Plots modeshape on a radial plot.
     :param mode_shape:
@@ -369,11 +378,10 @@ def radial_plot_3Dmodeshape(mode_shape):
     ax1 = plt.subplot(111,projection = "polar")
 
     for i,color in enumerate(["tab:red","tab:green","tab:blue"]):
-        for x in mode_shape[i,:]:
+        for x in mode_shape[:,i]:
             ax1.plot([0,np.angle(x)],[0,np.abs(x)],marker='.',color = color,alpha = 0.5)
 
     plt.yticks([])
-    return fig
 
 
 def mode_animation(mode_shape,scale, no_points=60):
@@ -384,8 +392,8 @@ def mode_animation(mode_shape,scale, no_points=60):
 
     for g, _t in enumerate(np.linspace(0, 2, no_points)):
         ann[:, :, g] = (np.real(mode_shape) * np.cos(2 * np.pi * _t) - np.imag(mode_shape) * np.sin(
-            2 * np.pi * _t)) * scale
-
+            2 * np.pi * _t))
+    ann = ann / np.max(ann) *scale
     return ann
 
 if __name__ == '__main__':

@@ -52,48 +52,94 @@ class view3D():
 
         self.displayed_bodies = []
 
-        self.mode_shape = None
+        self.obj_animation = None
+        self.modeshape_animation = None
 
 
-    def add_mode_shape(self,dict_shape,run_animation = False):
-        if self.mode_shape == None:
-            self.add_action(self.animate_toolbar, "Animate", self.animate_mesh, self.plot.app_window)
 
-        self.mode_shape = dict_shape
+    def add_modeshape(self,dict_shape,run_animation = False,add_note = False):
+        if self.modeshape_animation == None:
+            self.add_action(self.animate_toolbar, "Animate M", self.animate_modeshape, self.plot.app_window)
 
-        self.plot.add_text("Frequency = %4.1f Hz\nDamping = %4.3f%%\nComplexity = %4.1f%%" % (
-        self.mode_shape["freq"], self.mode_shape["damping"], self.mode_shape["mcf"]),
-                             position='upper_right', font_size=10, color="k", font="times", name="Mode")
+        self.modeshape_animation = dict_shape
+
+        if add_note:
+            _freq = self.modeshape_animation["freq"]
+            _damp = self.modeshape_animation["damp"]
+            _mcf = self.modeshape_animation["mcf"]
+
+            self.plot.add_text("Frequency = %4.1f Hz\nDamping = %4.3f%%\nComplexity = %4.1f%%" % (_freq,_damp,_mcf),
+                                 position='upper_right', font_size=10, color="k", font="times", name="Mode")
 
         if run_animation:
-            self.animate_mesh()
+            self.animate_modeshape()
 
+    def animate_modeshape(self):
 
-
-    def animate_mesh(self):
-
-        frameperiod = 1.0 / self.mode_shape["fps"]
+        frameperiod = 1.0 / self.modeshape_animation["fps"]
 
         now = time()
         nextframe = now + frameperiod
 
-        ann = self.mode_shape["animation_pts"]
-        set_lim = np.sqrt(np.mean(ann ** 2, axis=0))
+        ann = self.modeshape_animation["animation_pts"]
 
-        self.plot.update_scalar_bar_range(clim=[np.min(set_lim), np.max(set_lim)])
+        if self.modeshape_animation["scalars"]:
+            set_lim = np.sqrt(np.mean(ann ** 2, axis=0))
+            self.plot.update_scalar_bar_range(clim=[np.min(set_lim), np.max(set_lim)])
 
 
         for i in range(ann.shape[2]):
-            add_val = ann[:, :, i].T
+            add_val = ann[:, :, i]
 
-            self.plot.update_coordinates(self.mode_shape["or_pts"] + add_val, mesh=self.mode_shape["mesh"])
-            self.plot.update_scalars(np.sqrt(np.mean(add_val ** 2, axis=1)).reshape(24))
+            self.plot.update_coordinates(self.modeshape_animation["or_pts"] + add_val, mesh=self.modeshape_animation["mesh"],render = False)
+            if self.modeshape_animation["scalars"]:
+                self.plot.update_scalars(np.sqrt(np.mean(add_val ** 2, axis=1)).reshape(self.modeshape_animation["or_pts"].shape[0]),render = False)
+
+            self.plot.render()
 
             while now < nextframe:
                 sleep(nextframe - now)
                 now = time()
             nextframe += frameperiod
 
+
+    def add_objects_animation(self,dict_animation,run_animation = False,add_note = False):
+        if self.obj_animation == None:
+            self.add_action(self.animate_toolbar, "Animate O", self.animate_objects, self.plot.app_window)
+
+        self.obj_animation = dict_animation
+
+        if add_note:
+            self.plot.add_text("Frequency = %4.1f Hz" % (
+            self.obj_animation["freq"]), position='upper_right', font_size=10, color="k", font="times", name="Mode")
+
+        if run_animation:
+            self.animate_objects()
+
+    def animate_objects(self):
+        frameperiod = 1.0 / self.obj_animation["fps"]
+
+        now = time()
+        nextframe = now + frameperiod
+
+        ann = self.obj_animation["animation_pts"]
+
+        object_list = self.obj_animation["objects_list"]
+
+        for i in range(ann.shape[2]):
+            add_val = ann[:, :, i]
+
+            for _object, loc in zip(object_list, add_val):
+                for _pts, _mesh in zip(_object[0], _object[1]):
+
+                    self.plot.update_coordinates(_pts + loc, mesh = _mesh,render = False)
+
+            self.plot.render()
+
+            while now < nextframe:
+                sleep(nextframe - now)
+                now = time()
+            nextframe += frameperiod
 
     def add_action(self,toolbar, key, function, main_window):
         action = QAction(key, main_window)
@@ -215,6 +261,8 @@ class view3D():
             item.rotate_x(orientation[0])
             item.rotate_y(orientation[1])
             item.rotate_z(orientation[2])
+
+
             item.translate(_new)
 
         return accelerometer
@@ -270,21 +318,32 @@ class view3D():
                                          (row["Orientation_1"], row["Orientation_2"], row["Orientation_3"]),size = size)
 
             acc_actor = self.add_accelerometer(acc_mesh)
-            self.global_acc.append([acc_mesh,acc_actor])
+            acc_pts = []
+
+
+            for i in range(5):
+                acc_pts.append(acc_mesh[i].points.copy())
+
+
+            self.global_acc.append([acc_pts,acc_mesh,acc_actor])
+
+
 
         self.acc_visible = True
 
     def show_hide_accelerometers(self):
         if self.acc_visible == False:
             for _acc in self.global_acc:
-                for item in _acc[1]:
+                for item in _acc[2]:
                     self.plot.add_actor(item,reset_camera =False)
             self.acc_visible = True
 
         else:
             for _acc in self.global_acc:
-                for item in _acc[1]:
-                    self.plot.remove_actor(item, reset_camera=False)
+                for item in _acc[2]:
+                    self.plot.remove_actor(item, reset_camera=False)#,render = False)
+
+            #self.plot.render()
             self.acc_visible = False
 
     def show_imp(self,df,color = RED,**kwargs):
@@ -410,7 +469,7 @@ class view3D():
             positions.append([row["Position_1"] * 1000, row["Position_2"] * 1000, row["Position_3"] * 1000])
             labels.append(row["Name"])
 
-        self.plot.add_point_labels(positions, labels, font=12,name = name,shape_opacity=0.5,**kwargs)
+        self.plot.add_point_labels(positions, labels, font_size=12,name = name,shape_opacity=0.5,**kwargs)
         self.global_labels.append([[positions, labels], name])
         self.labels_visible = True
 
@@ -433,7 +492,7 @@ class view3D():
             positions.append([row["Position_1"] * 1000, row["Position_2"] * 1000, row["Position_3"] * 1000])
             labels.append(row["Name"])
 
-        self.plot.add_point_labels(positions, labels, font=12,name = name,shape_color = RED,shape_opacity=0.5,**kwargs)
+        self.plot.add_point_labels(positions, labels, font_size=12,name = name,shape_color = RED,font_family = "times",shape_opacity=0.5,**kwargs)
         self.global_labels.append([[positions, labels], name])
         self.labels_visible = True
 
@@ -459,7 +518,7 @@ class view3D():
             positions.append([row["Position_1"]*1000+x, row["Position_2"]*1000+y, row["Position_3"]*1000+z])
             labels.append(row["Name"])
 
-        self.plot.add_point_labels(positions, labels, font=12, name=name, shape_color=BLUE, shape_opacity=0.5,**kwargs)
+        self.plot.add_point_labels(positions, labels, font_size=12, name=name, shape_color=BLUE, font_family = "times",shape_opacity=0.5,**kwargs)
         self.global_labels.append([[positions,labels],name])
         self.labels_visible = True
 
@@ -483,7 +542,7 @@ class view3D():
 
         L = df["Grouping"].unique()
 
-        self.plot.add_point_labels(position, L, font=12,name = name,shape_opacity=0.5,shape_color = GREEN,**kwargs)
+        self.plot.add_point_labels(position, L, font_size=12,name = name,shape_opacity=0.5,shape_color = GREEN,**kwargs)
         self.global_labels.append([[position, L], name])
         self.labels_visible = True
 
