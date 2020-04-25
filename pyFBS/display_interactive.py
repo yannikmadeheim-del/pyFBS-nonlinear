@@ -79,7 +79,7 @@ if __name__ == '__main__':
     p = pv.Plotter()
     p.background_color = "#D4D4D4"
 
-    for i in range(20):
+    for i in range(2):
         _gg = Accelerometer(p, i)
         p.add_sphere_widget(_gg.callback, center=points, color=["k", "r", "g", "b"], radius=0.05)
         _gg.translate(np.random.random(3) * 10)
