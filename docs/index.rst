@@ -35,3 +35,8 @@ Welcome to pyFBS's documentation!
    ./code_documentation/display
    ./code_documentation/SEMM
 
+.. toctree::
+   :maxdepth: 2
+   :caption: References
+
+   ref
