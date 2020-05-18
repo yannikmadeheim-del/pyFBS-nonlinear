@@ -12,6 +12,7 @@ from scipy.sparse import linalg,diags
 import pandas as pd
 import pyansys
 from tqdm import tqdm
+from numpy.random import randn
 
 from scipy.sparse import linalg
 import scipy as sp
@@ -111,6 +112,15 @@ class MK_model(object):
         self.freq = freq
         self.FRF = FRF
 
+    def add_noise(self,n1 = 1e-3, n2 = 1e-3, n3 = 8e-4 ,n4 = 7e-4):
+
+        self.FRF_noise = np.zeros_like(self.FRF, dtype=complex)
+
+        for i in range(self.FRF.shape[0]):
+            for j in range(self.FRF.shape[1]):
+                noise = n1 * (randn(len(self.freq))) * np.abs(self.FRF[i, j]) + 1j * n2 * (randn(len(self.freq))) * np.abs(
+                    self.FRF[i, j]) + n3 * (randn(len(self.freq))) + 1j * n4 * (randn(len(self.freq)))
+                self.FRF_noise[i, j] = self.FRF[i, j] + noise
 
 
 if __name__ == '__main__':
