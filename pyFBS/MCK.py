@@ -20,7 +20,7 @@ from scipy import spatial
 
 
 class MK_model(object):
-    def __init__(self,ress_file,full_file,no_modes = 100,solve = True):
+    def __init__(self,ress_file,full_file,no_modes = 100,solve = True,modal_damping = 0.003):
         rst = pyansys.read_binary(ress_file)
         self.nodes = rst.geometry["nodes"][:, :3]  # only translational dofs
 
@@ -33,8 +33,12 @@ class MK_model(object):
         self.M += sp.sparse.triu(self.M, 1).T
         self.K += sp.sparse.triu(self.K, 1).T
 
+        self.modal_damping = modal_damping
+
         if solve:
             self.eig_freq, self.eigen_val, self.eigen_vec = self.eig_solve(self.M,self.K,no_modes)
+
+
 
 
     def eig_solve(self,mass_mat, stiff_mat, no_modes):
@@ -42,7 +46,7 @@ class MK_model(object):
         eigen_val, eigen_vec = sp.sparse.linalg.eigsh(stiff_mat, k=no_modes, M=mass_mat, sigma=10000, tol=1e-3)
 
         eigen_val = np.clip(eigen_val, 0, np.max(eigen_val))  # avoiding negative values
-        eigen_freq = np.sqrt(eigen_val)  # /(2*np.pi)
+        eigen_freq = np.sqrt(eigen_val)  #/(2*np.pi)
         return (eigen_freq, eigen_val, eigen_vec)
 
 
@@ -63,14 +67,50 @@ class MK_model(object):
             zip(dense_mesh_points[:, 0].ravel(), dense_mesh_points[:, 1].ravel(), dense_mesh_points[:, 2].ravel())))
         selected_dense_mesh_node_index = (tree.query(sparse_mesh_points))[1]
 
-        # print(selected_dense_mesh_node_index)
-        # print(np.unique(selected_dense_mesh_node_index))
+        return selected_dense_mesh_node_index
 
-        _, idx = np.unique(selected_dense_mesh_node_index, return_index=True)
-        return selected_dense_mesh_node_index[np.sort(idx)]
+    def FRF_synth(self,df_channel,df_impact):
+        imp = df_impact[["Position_1", "Position_2", "Position_3"]].to_numpy()
+        imp_dir = df_impact[["Direction_1", "Direction_2", "Direction_3"]].to_numpy()
 
-    def mode_superposition(self):
-        print("blah")
+        chn = df_channel[["Position_1", "Position_2", "Position_3"]].to_numpy()
+        chn_dir = df_channel[["Direction_1", "Direction_2", "Direction_3"]].to_numpy()
+
+        index_imp = self.find_nearest_locations(self.nodes, imp)
+        index_ch = self.find_nearest_locations(self.nodes, chn)
+
+        freq = np.linspace(1, 2000, 2000)
+        FRF = np.zeros((len(index_ch), len(index_imp), len(freq)), dtype=complex)
+
+        ome = 2 * np.pi * freq
+        damp = self.modal_damping
+
+        for j, ind_ch in enumerate(index_ch):
+            mask = self.dof_ref[:, 0] == ind_ch + 1
+            gg_chn = np.where(mask == True)
+
+            # each direction in channel
+            for k, sel2 in enumerate(gg_chn[0]):
+
+                # for loop for each impact
+                for i, ind in enumerate(index_imp):
+                    mask = self.dof_ref[:, 0] == ind + 1
+                    gg = np.where(mask == True)
+
+                    # for loop for each direction in impact
+                    for p, sel1 in enumerate(gg[0]):
+                        # print("IN:",i,"OUT:",j,"sel1",sel1,"sel2",sel2)
+
+                        # each modeshape
+                        for no in range(self.eigen_vec.shape[1]):
+                            FRF[j, i] += self.eigen_vec[sel1, no] * chn_dir[j, k] * self.eigen_vec[sel2, no] * imp_dir[
+                                i, p] / (-ome ** 2 + 2 * 1j * damp * ome * self.eig_freq[no] + self.eig_freq[no] ** 2)
+
+        FRF *= -(2 * np.pi * freq) ** 2
+
+        self.freq = freq
+        self.FRF = FRF
+
 
 
 if __name__ == '__main__':

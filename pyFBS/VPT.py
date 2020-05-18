@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from pyFBS.IO import Impacts, Channels
+from pyFBS.io import Impacts, Channels
 from collections import Counter
 from scipy.linalg import block_diag
 from scipy.linalg import block_diag,svd,norm

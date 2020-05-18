@@ -23,6 +23,7 @@ class view3D():
     """
     def __init__(self,show_origin = True):
         self.plot = pv.BackgroundPlotter(show = True,window_size = [1240,640])
+        self.plot.app_window.setWindowTitle("pyFBS v1.0")
         self.plot.background_color = BACKGROUND
 
         if show_origin:
