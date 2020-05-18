@@ -159,11 +159,8 @@
             
   <h1>Source code for pyFBS.SEMM</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">tqdm</span> <span class="k">import</span> <span class="n">tqdm_notebook</span> <span class="k">as</span> <span class="n">tqdm</span>
-<span class="kn">import</span> <span class="nn">lvm_read</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">pickle</span>
 <span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 
 
 
@@ -193,7 +190,19 @@
     <span class="k">return</span> <span class="n">AllResponseNodesDoF</span><span class="p">,</span> <span class="n">AllExcitationNodesDoF</span><span class="p">,</span> <span class="n">AllMeasurement</span></div>
 
 
-<span class="k">def</span> <span class="nf">SEMM</span><span class="p">(</span><span class="n">Y_num</span><span class="p">,</span> <span class="n">Y_exp</span><span class="p">,</span> <span class="n">Overlay</span><span class="p">,</span> <span class="n">DoF</span><span class="p">,</span> <span class="n">Loc_Y_num</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">SEMM_type</span><span class="o">=</span><span class="s1">&#39;fully-extend&#39;</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">red_order</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">sv</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
+    <span class="n">U</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">VT</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">svd</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+    <span class="n">kk</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">sv</span>
+    <span class="n">Uk</span> <span class="o">=</span> <span class="n">U</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:</span><span class="n">kk</span><span class="p">]</span>
+    <span class="n">Sk</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">A</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">kk</span><span class="p">,</span> <span class="n">kk</span><span class="p">))</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">A</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+        <span class="n">Sk</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:</span><span class="n">kk</span><span class="p">])</span>
+    <span class="n">Vk</span> <span class="o">=</span> <span class="n">VT</span><span class="p">[:,</span> <span class="p">:</span><span class="n">kk</span><span class="p">,</span> <span class="p">:]</span>
+
+    <span class="k">return</span> <span class="n">Uk</span> <span class="o">@</span> <span class="n">Sk</span> <span class="o">@</span> <span class="n">Vk</span>
+
+<span class="k">def</span> <span class="nf">SEMM</span><span class="p">(</span><span class="n">Y_num</span><span class="p">,</span> <span class="n">Y_exp</span><span class="p">,</span> <span class="n">Overlay</span><span class="p">,</span> <span class="n">DoF</span><span class="p">,</span> <span class="n">Loc_Y_num</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">SEMM_type</span><span class="o">=</span><span class="s1">&#39;fully-extend&#39;</span><span class="p">,</span><span class="n">red_comp</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span><span class="n">red_eq</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This function performs SEMM. It couples numerical (Y_num)</span>
 <span class="sd">    and experimental (Y_exp) model to hybrid model. Connections bettwen</span>
@@ -208,7 +217,7 @@
 <span class="sd">        Overlay {list} -- defines connections bettwen numerical and experimental model</span>
 <span class="sd">        DoF {int} -- number of DoFs per one node</span>
 <span class="sd">        Loc_Y_num {list} -- defines which nodes are represented in numerical model if it is not full squere matrix</span>
-<span class="sd">        SEMM_type {str} -- defined which type of SEMM will be performed - basic (&quot;basic&quot;) or fully extend (&quot;fully-extend&quot;)</span>
+<span class="sd">        SEMM_type {str} -- defined which type of SEMM will be performed - basic (&quot;basic&quot;) or fully extended (&quot;fully-extend&quot;) or fully extended with SVD truncation on compatibility or equilibrium (&quot;full-extended-svd&quot;)</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        numpy.ndarray -- hybrid model based on numerical and experiemral data</span>
@@ -335,10 +344,18 @@
         <span class="k">except</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">LinAlgError</span><span class="p">:</span>
             <span class="n">Y_SEMM</span> <span class="o">=</span> <span class="n">Y_par</span><span class="o">-</span><span class="n">Y_par</span><span class="p">[:,</span> <span class="p">:,</span> <span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">UniqueExcitationNodesDoF</span><span class="p">):]</span><span class="nd">@np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">pinv</span><span class="p">(</span><span class="n">Y_rem</span><span class="p">)</span><span class="o">@</span><span class="p">(</span>
                 <span class="n">Y_rem</span><span class="o">-</span><span class="n">Y_ov</span><span class="p">)</span><span class="nd">@np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">pinv</span><span class="p">(</span><span class="n">Y_rem</span><span class="p">)</span><span class="nd">@Y_par</span><span class="p">[:,</span> <span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">UniqueResponseNodesDoF</span><span class="p">):,</span> <span class="p">:]</span>
+
     <span class="k">elif</span> <span class="n">SEMM_type</span> <span class="o">==</span> <span class="s2">&quot;fully-extend&quot;</span><span class="p">:</span>
         <span class="c1"># Single-line method SEMM - fully-extend form - eq(31)</span>
         <span class="n">Y_SEMM</span> <span class="o">=</span> <span class="n">Y_par</span><span class="o">-</span><span class="n">Y_par</span><span class="nd">@np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">pinv</span><span class="p">(</span><span class="n">Y_par</span><span class="p">[:,</span> <span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">UniqueResponseNodesDoF</span><span class="p">):,</span> <span class="p">:])</span><span class="o">@</span><span class="p">(</span>
             <span class="n">Y_rem</span><span class="o">-</span><span class="n">Y_ov</span><span class="p">)</span><span class="nd">@np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">pinv</span><span class="p">(</span><span class="n">Y_par</span><span class="p">[:,</span> <span class="p">:,</span> <span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">UniqueExcitationNodesDoF</span><span class="p">):])</span><span class="nd">@Y_par</span>
+
+    <span class="k">elif</span> <span class="n">SEMM_type</span> <span class="o">==</span> <span class="s2">&quot;fully-extended-svd&quot;</span><span class="p">:</span>
+        <span class="n">Y_SEMM</span> <span class="o">=</span> <span class="n">Y_par</span> <span class="o">-</span> <span class="n">Y_par</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">pinv</span><span class="p">(</span><span class="n">red_order</span><span class="p">(</span><span class="n">Y_par</span><span class="p">[:,</span> <span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">UniqueResponseNodesDoF</span><span class="p">):,</span> <span class="p">:],</span><span class="n">sv</span> <span class="o">=</span> <span class="n">red_comp</span><span class="p">))</span>  <span class="o">@</span> <span class="p">(</span><span class="n">Y_rem</span> <span class="o">-</span> <span class="n">Y_ov</span><span class="p">)</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">pinv</span><span class="p">(</span><span class="n">red_order</span><span class="p">(</span><span class="n">Y_par</span><span class="p">[:,</span> <span class="p">:,</span> <span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">UniqueExcitationNodesDoF</span><span class="p">):],</span><span class="n">sv</span> <span class="o">=</span> <span class="n">red_eq</span><span class="p">))</span> <span class="o">@</span> <span class="n">Y_par</span>
+
+    <span class="c1">#U, s, VT = np.linalg.svd(Y_par[:, -len(UniqueResponseNodesDoF):, :])</span>
+    <span class="c1">#U, s, VT = np.linalg.svd(Y_par[:, :, -len(UniqueExcitationNodesDoF):])</span>
+    <span class="c1">#plt.semilogy(s)</span>
 
     <span class="c1"># rearranging SEMM model to input numerical form od DOFs</span>
     <span class="c1"># moved collumns</span>
