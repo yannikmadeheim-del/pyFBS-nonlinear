@@ -1,5 +1,12 @@
 import pyuff
 from pyFBS.io import Quantity
+from numpy import ndarray
+import matplotlib.pyplot as plt
+import math as mt
+import cmath as cmt
+import numpy as np
+import math
+
 
 #TODO: Clean the code class instance within function?!
 #TODO: introduce the same unit/quantity class from the io.py!!!
@@ -14,7 +21,6 @@ def read_uff_file(file_name):
     uff_file = pyuff.UFF(file_name)
     data = uff_file.read_sets()
 
-    #    data = data[2:len(data)]   #Should uncomment this for subsA.unv and subsB.unv files. (Data for tutorial Main_Data_Structure file)
 
     Directions = {0: "None", 1: "+X", 2: "+Y", 3: "+Z", -1: "-X", -2: "-Y", -3: "-Z"}
 
@@ -222,52 +228,6 @@ def read_uff_file(file_name):
     return Measurement_Data
 
 
-from numpy import ndarray
-import matplotlib.pyplot as plt
-import math as mt
-import cmath as cmt
-import numpy as np
-
-def plot_FRF(Data, dofs_i, dofs_j, Freq=None, PlotType=None):
-    if Freq is None:
-        Freq = np.arange(0, Data.nFreq)
-
-    if PlotType is None:
-        if isinstance(Data, ndarray):
-            db = 20 * np.log10(abs(Data[dofs_i, dofs_j, Freq[0]:len(Freq)]))
-        else:
-            db = 20 * np.log10(abs(Data.Data[dofs_i, dofs_j, Freq[0]:len(Freq)])).transpose()
-
-        plt.plot(db)
-        plt.xlabel("Frequency (Hz)")
-        plt.ylabel("Admittance (dB)")
-        plt.grid()
-
-    elif PlotType == "log":
-        plt.figure()
-        plt.subplot(2, 1, 1)
-        plt.semilogy(abs(Data.Data[dofs_i, dofs_j, Freq[0]:len(Freq)]))
-        plt.xlabel("Frequency (Hz)")
-        if Data.Channels[0].Unit is not None:
-            if type(Data.Channels[0].Unit) == str:
-                plt.ylabel("Admittance in " + Data.Channels[0].Unit)
-            else:
-                plt.ylabel("Admittance in " + Data.Channels[0].Unit.Name)
-        else:
-            plt.ylabel("Admittance")
-
-        plt.grid(which="both")
-
-    elif PlotType == "phase":
-        plt.subplot(2, 1, 2)
-        Data = Data.Data[dofs_i, dofs_j, Freq[0]:len(Freq)]
-        Data = [mt.degrees(cmt.phase(d)) for d in Data]
-        plt.plot(Data)
-        plt.ylim(-180, +180)
-        plt.yticks([-180, -90, 0, 90, 180])
-        plt.xlabel("Frequency (Hz)")
-        plt.ylabel("Phase Angle in Degrees")
-        plt.grid()
 
 
 def response_sync_lstsq(response_vec):
@@ -315,7 +275,6 @@ def MCF(mod):
     return mcf
 
 
-import math
 def eulerAnglesToRotationMatrix(theta):
     """
     Creates a rotational matrix based on the euler angles
@@ -395,6 +354,39 @@ def mode_animation(mode_shape,scale, no_points=60):
             2 * np.pi * _t))
     ann = ann / np.max(ann) *scale
     return ann
+
+
+def coh_frf(h_num, h_exp, check=False):
+    """
+    :param h_num: numerični kompleksni vektor FRF
+    :param h_exp: eksperimentalni kompleksni vektor FRF
+
+    :return: vrednost coherence kriterija
+    """
+
+    h_numk = np.conjugate(h_num)
+    h_expk = np.conjugate(h_exp)
+
+    def vector(h_, h_K):
+        """
+        :param h_: kompleksni vektor FRF
+        :param h_K: konjugirani kompleksni vektor FRF
+
+        :return: vektorski produkt
+        """
+
+        vec = np.dot(h_, h_K)
+        return vec
+
+    coh = (h_num + h_exp)
+
+    coh = np.abs(vector((h_num + h_exp), (h_numk + h_expk))) / 2 / (vector(h_numk, h_num) + vector(h_expk, h_exp))
+    coh_abs = np.abs(coh)
+
+    if check:
+        return coh, coh_abs
+    else:
+        return coh_abs
 
 if __name__ == '__main__':
     print("Test: Cat!")

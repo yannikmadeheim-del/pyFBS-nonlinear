@@ -69,7 +69,7 @@ class MK_model(object):
 
         return selected_dense_mesh_node_index
 
-    def FRF_synth(self,df_channel,df_impact):
+    def FRF_synth(self,df_channel,df_impact,f_start = 1,f_end = 2000, d_points = 2000):
         imp = df_impact[["Position_1", "Position_2", "Position_3"]].to_numpy()
         imp_dir = df_impact[["Direction_1", "Direction_2", "Direction_3"]].to_numpy()
 
@@ -79,7 +79,7 @@ class MK_model(object):
         index_imp = self.find_nearest_locations(self.nodes, imp)
         index_ch = self.find_nearest_locations(self.nodes, chn)
 
-        freq = np.linspace(1, 2000, 2000)
+        freq = np.linspace(f_start, f_end, d_points)
         FRF = np.zeros((len(index_ch), len(index_imp), len(freq)), dtype=complex)
 
         ome = 2 * np.pi * freq
