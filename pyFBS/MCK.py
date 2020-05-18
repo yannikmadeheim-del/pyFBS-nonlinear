@@ -1,137 +1,79 @@
 import re
-from pyFBS.IO import Channels
 
 from numpy import ndarray
 import matplotlib.pyplot as plt
 import math as mt
 import cmath as cmt
 import numpy as np
+import pyansys
+import numpy as np
+import scipy as sp
+from scipy.sparse import linalg,diags
+import pandas as pd
+import pyansys
+from tqdm import tqdm
 
-#TODO: Documentation on each class and class instance!!!
-
-class FRF(object):
-    """
-    FRF class for ...
-
-    """
-    def __init__(self):
-        self.Freqs = None
-        self.nFreq = None
-        self.Channels = None
-        self.nChannels = None
-        self.RefChannels = None
-        self.nRefChannels = None
-        self.Data = None
-        self.Name = None
-        self.Coherence = None
+from scipy.sparse import linalg
+import scipy as sp
+import numpy as np
+from scipy import spatial
 
 
-    def from_series_to_matrix(self,frfs, sensors, impacts, _coh = None):
+class MK_model(object):
+    def __init__(self,ress_file,full_file,no_modes = 100,solve = True):
+        rst = pyansys.read_binary(ress_file)
+        self.nodes = rst.geometry["nodes"][:, :3]  # only translational dofs
+
+        full = pyansys.read_binary(full_file)
+
+        self.dof_ref, self.K, self.M = full.load_km(sort=False)  # dof_ref: 0-x 1-y 2-z
+
+        self.K += diags(np.random.random(self.K.shape[0]) / 1e20, shape=self.K.shape)
+
+        self.M += sp.sparse.triu(self.M, 1).T
+        self.K += sp.sparse.triu(self.K, 1).T
+
+        if solve:
+            self.eig_freq, self.eigen_val, self.eigen_vec = self.eig_solve(self.M,self.K,no_modes)
+
+
+    def eig_solve(self,mass_mat, stiff_mat, no_modes):
+        # tolerances and sigma may significantly affect the output!
+        eigen_val, eigen_vec = sp.sparse.linalg.eigsh(stiff_mat, k=no_modes, M=mass_mat, sigma=10000, tol=1e-3)
+
+        eigen_val = np.clip(eigen_val, 0, np.max(eigen_val))  # avoiding negative values
+        eigen_freq = np.sqrt(eigen_val)  # /(2*np.pi)
+        return (eigen_freq, eigen_val, eigen_vec)
+
+
+    def find_nearest_locations(self,dense_mesh_points, sparse_mesh_points):
         """
-        Returns the uncoupled FRF matrix object.
+        This function finds the nearest coordinate locations of sparse mesh in the corresponding dense mesh.
+            :param dense_mesh_points: nodal coordinates of dense mesh in 3D space
+            :type dense_mesh_points: array
+            :param sparse_mesh_points: nodal coordinates of sparse mesh in 3D space
+            :type sparse_mesh_points: array
+            :param dense_mesh_node_id: nodal coordinates id of sparse mesh
+            :type dense_mesh_node_id: array
+            :return: Selected nodes by index and by id regarding the dense mesh
+            :rtype: (array(int), array(int))
 
-        :param sub_structure:
-        :param sensors:
-        :param impacts:
-        :return:
         """
+        tree = spatial.KDTree(list(
+            zip(dense_mesh_points[:, 0].ravel(), dense_mesh_points[:, 1].ravel(), dense_mesh_points[:, 2].ravel())))
+        selected_dense_mesh_node_index = (tree.query(sparse_mesh_points))[1]
 
-        sub_structure = self.assign_grouping_number(frfs, sensors, impacts)
+        # print(selected_dense_mesh_node_index)
+        # print(np.unique(selected_dense_mesh_node_index))
 
+        _, idx = np.unique(selected_dense_mesh_node_index, return_index=True)
+        return selected_dense_mesh_node_index[np.sort(idx)]
 
-
-        self.Freqs = sub_structure[0].DataSets.X_Channels.Data
-        self.nFreq = len(self.Freqs)
-
-        if _coh != None:
-            _temp = self.assign_grouping_number(_coh, sensors, impacts)
-            self.Coherence = self.create_matrix_data(_temp, self.nFreq)
-
-        self.Data = self.create_matrix_data(sub_structure, self.nFreq)
-
-        self.Measurement_Info = sub_structure[0].Measurement_Info.Date
-
-        Sensor_Names = sorted(set([d.DataSets.Y_Channels.Channel_Info.Name for d in sub_structure]))
-
-        Impact_Names = sorted(set([d.DataSets.Y_Channels.Ref_Channel_Info.Name for d in sub_structure]))
-
-        _Channels = [d.DataSets.Y_Channels.Channel_Info for d in sub_structure if d.DataSets.Y_Channels.Channel_Info.Name \
-                    in Sensor_Names and d.DataSets.Y_Channels.Ref_Channel_Info.Name == Impact_Names[0]]
-
-        _Ref_Channels = [d.DataSets.Y_Channels.Ref_Channel_Info for d in sub_structure if
-                        d.DataSets.Y_Channels.Ref_Channel_Info.Name \
-                        in Impact_Names and d.DataSets.Y_Channels.Channel_Info.Name == Sensor_Names[0]]
-
-
-        self.RefChannels = Channels(_Ref_Channels,impacts, _val = "impacts").Data
-        self.nRefChannels = len(_Ref_Channels)
-
-
-        self.Channels = Channels(_Channels,sensors,_val = "sensors").Data
-        self.nChannels = len(_Channels)
-
-    def assign_grouping_number(self,sub_structure, sensors, impacts):
-        """
-        Assigns the grouping number
-        :param sub_structure:
-        :param sensors:
-        :param impacts:
-        :return:
-        """
-        for i in range(0, len(sub_structure)):
-
-            for j in range(0, len(sensors.Data)):
-
-                if (sub_structure[i].DataSets.Y_Channels.Channel_Info.Node_Number == sensors.Data[j].Node_Number):
-                    sub_structure[i].DataSets.Y_Channels.Channel_Info.Grouping = sensors.Data[j].Grouping
-                    sub_structure[i].DataSets.Y_Channels.Channel_Info.Node.Grouping = sensors.Data[j].Grouping
-
-        for i in range(0, len(sub_structure)):
-
-            for j in range(0, len(impacts.Data)):
-
-                if (sub_structure[i].DataSets.Y_Channels.Ref_Channel_Info.Node_Number == impacts.Data[j].Node_Number):
-                    sub_structure[i].DataSets.Y_Channels.Ref_Channel_Info.Grouping = impacts.Data[j].Grouping
-                    sub_structure[i].DataSets.Y_Channels.Ref_Channel_Info.Node.Grouping = impacts.Data[j].Grouping
-
-        return sub_structure
-
-
-
-    def create_matrix_data(self,sub_structure, nFreq):
-        """
-
-        :param sub_structure:
-        :param nFreq:
-        :return:
-        """
-        iterator = 0
-
-        Names = set([d.DataSets.Y_Channels.Channel_Info.Name for d in sub_structure])
-        Nodes_Sensor = sorted([int(re.findall('\d+', item)[0]) for item in Names])
-        Nodes_Impact = sorted(set([d.DataSets.Y_Channels.Ref_Channel_Info.Node_Number for d in sub_structure]))
-
-        FRF_Matrix = np.zeros((len(Nodes_Sensor), len(Nodes_Impact), nFreq), complex)
-
-        Data = [d.DataSets.Y_Channels.Data for d in sub_structure]
-
-        if sub_structure[0].DataSets.Y_Channels.Ref_Channel_Info.Name != sub_structure[
-            1].DataSets.Y_Channels.Ref_Channel_Info.Name:
-
-            for i in range(0, len(Nodes_Sensor)):
-                for j in range(0, len(Nodes_Impact)):
-                    FRF_Matrix[i, j, :] = Data[j + iterator]
-                iterator = iterator + len(Nodes_Impact)
-
-        else:
-
-            for j in range(0, len(Nodes_Impact)):
-                for i in range(0, len(Nodes_Sensor)):
-                    FRF_Matrix[i, j, :] = Data[i + iterator]
-                iterator = iterator + len(Nodes_Sensor)
-
-        return FRF_Matrix
+    def mode_superposition(self):
+        print("blah")
 
 
 if __name__ == '__main__':
     print("Test: Dog!")
+
+
