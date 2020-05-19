@@ -24,6 +24,9 @@ class MK_model(object):
     def __init__(self,ress_file,full_file,no_modes = 100,solve = True,modal_damping = 0.003):
         rst = pyansys.read_binary(ress_file)
         self.nodes = rst.geometry["nodes"][:, :3]  # only translational dofs
+        self.mesh = rst.grid
+
+
 
         full = pyansys.read_binary(full_file)
 
@@ -35,6 +38,7 @@ class MK_model(object):
         self.K += sp.sparse.triu(self.K, 1).T
 
         self.modal_damping = modal_damping
+
 
         if solve:
             self.eig_freq, self.eigen_val, self.eigen_vec = self.eig_solve(self.M,self.K,no_modes)

@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 from time import time,sleep
 from PyQt5.QtWidgets import  QAction
+import imageio
 
 
 RED = "#d62728"
@@ -56,6 +57,8 @@ class view3D():
         self.obj_animation = None
         self.modeshape_animation = None
 
+        self.take_gif = False
+
 
 
     def add_modeshape(self,dict_shape,run_animation = False,add_note = False):
@@ -84,6 +87,9 @@ class view3D():
 
         ann = self.modeshape_animation["animation_pts"]
 
+        if self.take_gif:
+            self.plot.open_gif(self.gif_dir)
+
         if self.modeshape_animation["scalars"]:
             set_lim = np.sqrt(np.mean(ann ** 2, axis=0))
             self.plot.update_scalar_bar_range(clim=[np.min(set_lim), np.max(set_lim)])
@@ -97,12 +103,17 @@ class view3D():
                 self.plot.update_scalars(np.sqrt(np.mean(add_val ** 2, axis=1)).reshape(self.modeshape_animation["or_pts"].shape[0]),render = False)
 
             self.plot.render()
+            if self.take_gif:
+                self.plot.write_frame()
 
             while now < nextframe:
                 sleep(nextframe - now)
                 now = time()
             nextframe += frameperiod
 
+        if self.take_gif:
+            gif = imageio.mimread(self.gif_dir)
+            imageio.mimsave(self.gif_dir, gif, fps=30)
 
     def add_objects_animation(self,dict_animation,run_animation = False,add_note = False):
         if self.obj_animation == None:
