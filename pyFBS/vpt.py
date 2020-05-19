@@ -5,43 +5,42 @@ from pyFBS.utility import coh_frf
 
 class VPT(object):
     """
-    Description
-    In current form the code assumes two things:
-        1. the grouping is the same for VP_RefCh and VP_Ch and each VP has 6DoF
-        2. the additional DoF come after VP input/output channels and are not listed in VP channels
+    Virtual point transformation - Description
 
-    TODO: Remove the assumptions! Add variable DoF of VPT and variable order of input
-    TODO: Frequency dependent weighting matrix
-    Attributes:
-
+    :param ch: Channels used in the transformation (outputs - sensors).
+    :type ch: pandas.DataFrame
+    :param refch: Reference channels used in the transformation (input - impacts).
+    :type refch: pandas.DataFrame
+    :param vp_ch: Virtual point channels used in the transformation (output - VP).
+    :type vp_ch: pandas.DataFrame
+    :param vp_refch: Virtual point reference channels used in the transformation (input - VP).
+    :type vp_refch: pandas.DataFrame
+    :param Wu: Displacement weighting matrix.
+    :type Wu: numpy.array
+    :param Wf: Displacement weighting matrix.
+    :type Wf: numpy.array
     """
+    def __init__(self, ch, refch, vp_ch, vp_refch ,Wu = None, Wf = None):
+        # Load the physical input-output DoFs
+        self.Channels = ch
+        self.RefChannels = refch
 
-    def __init__(self, excel_file, ch="Channels", refch="Impacts", vp_ch="VP Channels", vp_refch="VP RefChannels",Wu = None, Wf = None):
+        # Load virtual input-output DoFs
+        self.Virtual_Channels = vp_ch
+        self.Virtual_RefChannels = vp_refch
 
-        self.Virtual_RefChannels = None
-        self.Virtual_Channels = None
-
-        self.Channels = None
-        self.RefChannels = None
-
-        # Edit names
-        self.Virtual_RefChannels = pd.read_excel(excel_file, sheet_name=vp_refch)
-        self.Virtual_Channels = pd.read_excel(excel_file, sheet_name=vp_ch)
-
-        self.Channels = pd.read_excel(excel_file, sheet_name=ch)
-        self.RefChannels = pd.read_excel(excel_file, sheet_name=refch)
-
-        # Define the
-        self.define_IDM_U()
-        self.define_IDM_F()
-
+        # Load Weighting matrices if None, no weighting is applied in the transformation
         self.Wu_p = Wu
         self.Wf_p = Wf
+
+        # Define the IDM_U and IDM_F matrix
+        self.define_IDM_U()
+        self.define_IDM_F()
 
 
     def define_IDM_U(self):
         """
-        Function to define the IDM U!
+        Calculates the Ru, Tu, Fu matrices based on the supplied position and orientation of Channels and Virtual Channels. In the current implementation only Rigid IDMs are supported.
         """
         ov_u, _vps, mask_u = self.find_overlap_ch(self.Channels, self.Virtual_Channels)
 
@@ -108,7 +107,7 @@ class VPT(object):
 
     def define_IDM_F(self):
         """
-        Function to define the IDM F!
+        Calculates the Rf, Tf, Ff matrices based on the supplied position and orientation of Channels and Virtual Channels. In the current implementation only Rigid IDMs are supported.
         """
         ov_f, _vps, mask_f = self.find_overlap_ch(self.RefChannels, self.Virtual_RefChannels)
         # print(mask_f)
@@ -172,7 +171,12 @@ class VPT(object):
 
     def R_matrix_U(self, pos, type="Acceleration"):
         """
-        Return the R matrix according to the position.
+        Calculate Ru matrix based on the channel position/orientation and sensor type.
+
+        :param pos: Position of the channel.
+        :type pos: numpy.array
+        :param type: Type of the channel (i.e. Acceleration or Angular Acceleration).
+        :returns: numpy.array, Ru
         """
         rx, ry, rz = pos[0], pos[1], pos[2]
 
@@ -189,6 +193,14 @@ class VPT(object):
         return _R
 
     def W_rotational(self, pos, dir, type="Angular Acceleration"):
+        """
+        Defines the weighting matrix based on the
+
+        :param pos: Position of the channel.
+        :type pos: numpy.array
+        :param type: Type of the channel (i.e. Acceleration or Angular Acceleration)
+        :type type: str
+        """
         rx, ry, rz = pos[0], pos[1], pos[2]
 
         _W = 1
@@ -202,13 +214,15 @@ class VPT(object):
             elif c == 2:
                 _W = np.sqrt(ry ** 2 + rx ** 2) ** 2
 
-        # print(pos,type,_W)
-
         return _W
 
     def R_matrix_F(self, pos):
         """
-        Return the R matrix according to the position.
+        Calculate Rf matrix based on the reference channel position/orientation.
+
+        :param pos: Position of the reference channel relative to virtual point.
+        :type pos: numpy.array
+        :returns: numpy.array, Rf
         """
         rx, ry, rz = pos[0], pos[1], pos[2]
 
@@ -223,19 +237,20 @@ class VPT(object):
 
     def find_overlap_ch(self, channelsA, channelsB):
         """
-        Finds an overlap of grouping through two
+        Finds an overlap of grouping number between two channel datasets.
+
         :param channelsA:
+        :type channelsA: pandas.DataFrame
         :param channelsB:
-        :return:
+        :type channelsB: pandas.DataFrame
+        :return GG: numpy.array, Overlap mask
         """
 
-        # Get the grouping
+        # Get the grouping numbers from DataFrames
         _group_ch = channelsA.Grouping.to_numpy()
-        # print(_group_ch)
-        # Get the
         _group_chVP = channelsB.Grouping.to_numpy()
-        # print(_group_chVP)
 
+        # Find overlap between the two channel datasets
         _overlap = []
         for a in np.unique(_group_chVP):
             _overlap.append(np.where(_group_ch == a))
@@ -244,11 +259,29 @@ class VPT(object):
 
         return _overlap, np.unique(_group_chVP, return_index=True), mask
 
+    def find_group(self,gr, gr_list):
+        """
+        Get a grouping overlap between two sets.
+
+        :param gr: blah
+        :type gr: list
+        :param gr_list: blah
+        :type gr_list: list
+        :return: numpy.array
+        """
+        _overlap = []
+        for a in np.unique(gr):
+            _overlap.append(np.where(gr_list == a))
+        return np.asarray(_overlap).reshape(-1)
+
     def apply_VPT(self, freq,FRF):
         """
-        Applies the VPT
-        :param Y_object:
-        :return:
+        Applies the Virtual Point Transformation on the supplied FRF matrix.
+
+        :param freq: Frequency vector.
+        :type freq: numpy.array
+        :param FRF: A matrix of Frequency Response Functions FRFs.
+        :type: numpy.array
         """
         _freq_lim = FRF.shape[2]
         _Y_vpt = np.zeros((self.Tu.shape[0], self.Tf.shape[1], _freq_lim), dtype=complex)
@@ -259,30 +292,28 @@ class VPT(object):
         self.vptFreqs = freq
         self.FRF = FRF
 
-    def find_group(self,gr, gr_list):
-        """
-        returns locations of grouping
-        :param gr:
-        :param gr_list:
-        :return:
-        """
-        _overlap = []
-        for a in np.unique(gr):
-            _overlap.append(np.where(gr_list == a))
-        return np.asarray(_overlap).reshape(-1)
-
     def consistency(self, grouping, ref_grouping):
+        """
+        Calculates the VP consistency indicators based on the supplied grouping numbers.
 
+        :param grouping: Grouping number of the VP.
+        :type grouping: float
+        :param ref_grouping: Grouping number of the reference VP.
+        :type ref_grouping: float
+        """
+
+        # get all groupings from the vpt
         _ch_all = self.Channels.Grouping.to_numpy()
         _chVP_all = self.Virtual_Channels.Grouping.to_numpy()
 
         _Rch_all = self.RefChannels.Grouping.to_numpy()
         _RchVP_all = self.Virtual_RefChannels.Grouping.to_numpy()
 
+        # extract the grouping mask
         ind_ch = self.find_group(grouping, _ch_all)
         ind_Rch = self.find_group(ref_grouping, _Rch_all)
 
-        # Sensor consistency
+        # Calculate sensor consistency
         sub_Y = self.FRF[ind_ch, :, :][:, ind_Rch, :]
         sub_Fu = self.Fu[ind_ch, :][:, ind_ch]
 
@@ -290,14 +321,19 @@ class VPT(object):
         u = np.zeros((sub_Y.shape[0], 1, sub_Y.shape[2]), dtype=complex)
 
         for i in range(sub_Y.shape[2]):
+            # filtered response
             u_f[:, :, i] = sub_Fu @ sub_Y[:, :, i] @ np.ones((sub_Y.shape[1], 1))
+            # initial response
             u[:, :, i] = sub_Y[:, :, i] @ np.ones((sub_Y.shape[1], 1))
 
         self.u_f = u_f[:,0,:]
         self.u = u[:,0,:]
 
+        # Calculate overall sensor consistency indicator
         self.overall_sensor = norm(self.u_f,axis = 0) / norm(self.u,axis = 0)
 
+
+        # Calculate specific sensor consistency indicator
         specific_sensor = []
         for i in range(self.u.shape[0]):
             specific_sensor.append(coh_frf(self.u_f[i, :], self.u[i, :]))
@@ -305,7 +341,7 @@ class VPT(object):
         self.specific_sensor = np.asarray(specific_sensor)
 
 
-        # Impact consistency
+        # Calculate impact consistency
         sub_Y = self.FRF[ind_ch, :, :][:, ind_Rch, :]
         sub_Ff = self.Ff[ind_Rch, :][:, ind_Rch]
 
@@ -313,25 +349,30 @@ class VPT(object):
         y = np.zeros((sub_Y.shape[1], 1, sub_Y.shape[2]), dtype=complex)
 
         for i in range(sub_Y.shape[2]):
+            # filtered response
             y_f[:, :, i] = (np.ones((sub_Y.shape[0], 1)).T @ sub_Y[:, :, i] @ sub_Ff).T
+            # initial response
             y[:, :, i] = (np.ones((sub_Y.shape[0], 1)).T @ sub_Y[:, :, i]).T
 
         self.y_f = y_f[:,0,:]
         self.y = y[:,0,:]
 
-
+        # Calculate overall impact consistency indicator
         self.overall_impact = norm(self.y_f,axis = 0) / norm(self.y,axis = 0)
 
-
+        # Calculate specific impact consistency indicator
         specific_impact = []
         for i in range(self.y.shape[0]):
             specific_impact.append(coh_frf(self.y_f[i,:],self.y[i,:]))
 
         self.specific_impact = np.asarray(specific_impact)
 
+
+
+if __name__ == '__main__':
     """
     Frequency-dependend weighting matrix
-    
+
     Wu = block_diag(*_Warray)
     Wu = block_diag(Wu, np.eye(len(np.where(mask_u != 0)[0])))
     self.Wu = Wu
@@ -371,7 +412,5 @@ class VPT(object):
     self.Tu_f = Tu_f
     self.Fu_f = Fu_f
     """
-
-if __name__ == '__main__':
     print("Test: Cat!")
 
