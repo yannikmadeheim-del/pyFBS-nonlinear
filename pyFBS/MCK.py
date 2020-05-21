@@ -6,12 +6,12 @@ import scipy as sp
 import numpy as np
 from scipy import spatial
 from scipy.linalg import block_diag
-
-
+import pickle
+from os import path
 
 class MK_model(object):
     """
-    Initialization of the finite element model. Mass and stiffness matrices are imported and also nodes, DoFs and complete mesh of finite elements are defined. 
+    Initialization of the finite element model. Mass and stiffness matrices are imported and also nodes, DoFs and complete mesh of finite elements are defined.
     If parameter ``solve`` is ``True``, also eigenfrequencies and eigenvectors are computed.
 
     :param ress_file: Path of the .rst file exported from Ansys
@@ -23,7 +23,7 @@ class MK_model(object):
     :param solve: If ``False`` just mass and stiffness matrices with corresponding nodes and their DoFs will be imported. If ``True`` also the eigenvalue problem will be solved.
     :type solve: bool
     """
-    def __init__(self,ress_file,full_file,no_modes = 100,solve = True):
+    def __init__(self,ress_file,full_file,no_modes = 100, allow_pickle = True,recalculate = False):
         rst = pyansys.read_binary(ress_file)
         self.nodes = rst.geometry["nodes"][:, :3]  # only translational dofs
         self.mesh = rst.grid
@@ -34,14 +34,31 @@ class MK_model(object):
 
         self.dof_ref, self.K, self.M = full.load_km(sort=True)  # dof_ref: 0-x 1-y 2-z
 
-        self.K += diags(np.random.random(self.K.shape[0]) / 1e20, shape=self.K.shape)
+        self._K = self.K + diags(np.random.random(self.K.shape[0]) / 1e20, shape=self.K.shape) # avoid error
 
         self.M += sp.sparse.triu(self.M, 1).T
-        self.K += sp.sparse.triu(self.K, 1).T
+        self._K += sp.sparse.triu(self._K, 1).T
 
+        p_file = '{}.pkl'.format(full_file)
+        # check if there is a .pkl file
+        same = False
+        if allow_pickle and path.exists(p_file):
+            # load the pickle file
+            _M,_K,_eig_freq,_eig_val,_eig_vec,_no_modes = pickle.load( open(p_file, "rb" ))
+            # check if the solution is the same
+            check_mas  = (_K != self.K).nnz == 0
+            check_stif = (_M != self.M).nnz == 0
+            check_no_modes = _no_modes == no_modes
+            same = np.all([check_mas,check_stif,check_no_modes])
+            if same:
+                self.M, self.K, self.eig_freq, self.eig_val, self.eig_vec, no_modes = pickle.load(open(p_file, "rb"))
 
-        if solve:
-            self.eig_freq, self.eig_val, self.eig_vec = self.eig_solve(self.M,self.K,no_modes)
+        # solve the problem
+        if same == False or recalculate == True:
+            self.eig_freq, self.eig_val, self.eig_vec = self.eig_solve(self.M,self._K,no_modes)
+
+            if allow_pickle:
+                pickle.dump([self.M, self.K, self.eig_freq, self.eig_val, self.eig_vec, no_modes], open(p_file, "wb"))
 
 
     @staticmethod
@@ -149,6 +166,18 @@ class MK_model(object):
 
         return sel1, sel2
 
+    def update_locations_df(self,df):
+        _df = df.copy(deep = True)
+        _loc = _df[["Position_1", "Position_2", "Position_3"]].to_numpy()
+        _index = self.find_nearest_locations(self.nodes,_loc)
+        for i,_ind in enumerate(_index):
+            _df.loc[i, ["Position_1", "Position_2", "Position_3"]] = self.nodes[_ind]
+
+        return _df
+
+
+
+
     def FRF_synth(self,df_channel,df_impact,f_start = 0, f_end = 2000, f_resolution= 1, limit_modes = None, modal_damping = None, frf_type = "receptance"):
         """
         Description
@@ -169,6 +198,7 @@ class MK_model(object):
         index_chn = self.find_nearest_locations(self.nodes, unique_nodes_chn)
         index_imp = self.find_nearest_locations(self.nodes, unique_nodes_imp)
 
+
         rotation_included = False
         response_points = index_chn + 1
         response_directions = [0, 1, 2]
@@ -187,6 +217,7 @@ class MK_model(object):
 
         loc1, loc2 = self.loc_definition(response_points, response_directions, excitation_points, excitation_directions,
                                     rotation_included, all_at_once=True)
+
 
         freq = np.arange(f_start, f_end, f_resolution)
 
@@ -233,9 +264,4 @@ class MK_model(object):
                 noise = n1 * (randn(len(self.freq))) * np.abs(self.FRF[i, j]) + 1j * n2 * (randn(len(self.freq))) * np.abs(
                     self.FRF[i, j]) + n3 * (randn(len(self.freq))) + 1j * n4 * (randn(len(self.freq)))
                 self.FRF_noise[i, j] = self.FRF[i, j] + noise
-
-
-if __name__ == '__main__':
-    print("Test: Dog!")
-
 
