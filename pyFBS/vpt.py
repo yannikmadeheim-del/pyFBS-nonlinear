@@ -1,4 +1,3 @@
-import pandas as pd
 import numpy as np
 from scipy.linalg import block_diag, svd, norm
 from pyFBS.utility import coh_frf
@@ -50,29 +49,24 @@ class VPT(object):
         for i in range(len(ov_u)):
             # gets the unique VP position
             _posVP = np.asarray(self.Virtual_Channels.iloc[i][["Position_1","Position_2","Position_3"]].to_numpy())
-
             # gets the current positions
             ov_c = ov_u[i]
-            r = np.zeros((len(ov_c[0]), 6))
 
+            r = np.zeros((len(ov_c[0]), 6))
             for j, ch in enumerate(ov_c[0]):
                 _pos = np.asarray(self.Channels.iloc[ch][["Position_1","Position_2","Position_3"]].to_numpy()).astype(float)
                 _dir = np.asarray(self.Channels.iloc[ch][["Direction_1","Direction_2","Direction_3"]].to_numpy()).astype(float)
-                #print(ch)
                 _group = self.Channels.iloc[ch]["Grouping"]
                 _type = self.Channels.iloc[ch]["Quantity"]
-
-
                 r[j, :] = _dir @ self.R_matrix_U(_posVP - _pos, type=_type)
-
                 _Warray.append(self.W_rotational(_pos, _dir, type=_type))
-
             R_all.append(r)
 
         Ru = block_diag(*R_all, np.eye(len(np.where(mask_u != 0)[0])))
 
         R_n = np.zeros_like(Ru)
 
+        # position the transformation matrix based on location it the .xlsx file
         R_all = np.asarray(R_all)[0, :, :]
         gg = 0
         trig = True
@@ -83,12 +77,11 @@ class VPT(object):
             else:
                 if trig:
                     R_n[i:i + R_all.shape[0], gg:gg + R_all.shape[1]] = R_all
-
                     gg += R_all.shape[1]
                     trig = False
-
         Ru = R_n
 
+        # definition of weighting matrix
         if self.Wu_p == None:
             Wu = block_diag(*_Warray)
             Wu = block_diag(Wu, np.eye(len(np.where(mask_u != 0)[0])))
@@ -97,6 +90,7 @@ class VPT(object):
             Wu = block_diag(Wu, np.eye(len(np.where(mask_u != 0)[0])))
 
 
+        # calculate the Tu, Fu matrices
         Tu = np.linalg.pinv(Ru.T @ Wu @ Ru) @ Ru.T @ Wu
         Fu = Ru @ Tu
 
@@ -116,31 +110,20 @@ class VPT(object):
         for i in range(len(ov_f)):
             # gets the unique VP position
             _posVP = np.asarray(self.Virtual_RefChannels.iloc[i][["Position_1","Position_2","Position_3"]].to_numpy())
-
             # gets the current positions
             ov_c = ov_f[i]
             r = np.zeros((len(ov_c[0]), 6))
-
             for j, ch in enumerate(ov_c[0]):
                 _pos = np.asarray(self.RefChannels.iloc[ch][["Position_1", "Position_2", "Position_3"]].to_numpy()).astype(float)
                 _dir = np.asarray(self.RefChannels.iloc[ch][["Direction_1", "Direction_2", "Direction_3"]].to_numpy()).astype(float)
-
                 _group = self.RefChannels.iloc[ch]["Grouping"]
                 _type = self.RefChannels.iloc[ch]["Quantity"]
-
-
                 r[j, :] = (self.R_matrix_F(_posVP - _pos) @ (_dir.T)).reshape(-1)
-
             R_all.append(r)
 
-        # print(np.where(mask_f != 0))
-        # R_n = np.eye(len(np.where(mask_f != 0)[0]))
-        # print(R_n)
-
+        # position the transformation matrix based on location it the .xlsx file
         Rf = block_diag(*R_all, np.eye(len(np.where(mask_f != 0)[0])))
-
         R_n = np.zeros_like(Rf)
-
         R_all = np.asarray(R_all)[0, :, :]
         gg = 0
         trig = True
@@ -156,11 +139,13 @@ class VPT(object):
                     trig = False
         Rf = R_n
 
+        # definition of weighting matrix
         if self.Wf_p == None:
             Wf = np.eye(np.max(Rf.shape))
         else:
             Wf = self.Wf_p
 
+        # calculate the Tf, Ff matrices
         Tf = Wf @ Rf @ np.linalg.pinv(Rf.T @ Wf @ Rf)
         Ff = Rf @ Tf.T
 
@@ -169,7 +154,8 @@ class VPT(object):
         self.Tf = Tf
         self.Ff = Ff
 
-    def R_matrix_U(self, pos, type="Acceleration"):
+    @staticmethod
+    def R_matrix_U(pos, type="Acceleration"):
         """
         Calculate Ru matrix based on the channel position/orientation and sensor type.
 
@@ -192,7 +178,8 @@ class VPT(object):
 
         return _R
 
-    def W_rotational(self, pos, dir, type="Angular Acceleration"):
+    @staticmethod
+    def W_rotational(pos, dir, type="Angular Acceleration"):
         """
         Defines the weighting matrix based on the
 
@@ -216,7 +203,8 @@ class VPT(object):
 
         return _W
 
-    def R_matrix_F(self, pos):
+    @staticmethod
+    def R_matrix_F(pos):
         """
         Calculate Rf matrix based on the reference channel position/orientation.
 
@@ -235,7 +223,8 @@ class VPT(object):
 
         return _R
 
-    def find_overlap_ch(self, channelsA, channelsB):
+    @staticmethod
+    def find_overlap_ch(channelsA, channelsB):
         """
         Finds an overlap of grouping number between two channel datasets.
 
@@ -259,7 +248,8 @@ class VPT(object):
 
         return _overlap, np.unique(_group_chVP, return_index=True), mask
 
-    def find_group(self,gr, gr_list):
+    @staticmethod
+    def find_group(gr, gr_list):
         """
         Get a grouping overlap between two sets.
 
@@ -274,6 +264,7 @@ class VPT(object):
             _overlap.append(np.where(gr_list == a))
         return np.asarray(_overlap).reshape(-1)
 
+
     def apply_VPT(self, freq,FRF):
         """
         Applies the Virtual Point Transformation on the supplied FRF matrix.
@@ -283,10 +274,12 @@ class VPT(object):
         :param FRF: A matrix of Frequency Response Functions FRFs.
         :type: numpy.array
         """
-        _freq_lim = FRF.shape[2]
-        _Y_vpt = np.zeros((self.Tu.shape[0], self.Tf.shape[1], _freq_lim), dtype=complex)
-        for i in range(_freq_lim):
-            _Y_vpt[:, :, i] = self.Tu @ FRF[:, :, i] @ self.Tf
+        #_freq_lim = FRF.shape[2]
+        #_Y_vpt = np.zeros((self.Tu.shape[0], self.Tf.shape[1], _freq_lim), dtype=complex)
+        #for i in range(_freq_lim):
+        #    _Y_vpt[:, :, i] = self.Tu @ FRF[:, :, i] @ self.Tf
+
+        _Y_vpt = self.Tu @ FRF @ self.Tf
 
         self.vptData = _Y_vpt
         self.vptFreqs = freq
@@ -314,7 +307,7 @@ class VPT(object):
         ind_Rch = self.find_group(ref_grouping, _Rch_all)
 
         # Calculate sensor consistency
-        sub_Y = self.FRF[ind_ch, :, :][:, ind_Rch, :]
+        sub_Y = np.transpose(self.FRF,(1,2,0))[ind_ch, :, :][:, ind_Rch, :]
         sub_Fu = self.Fu[ind_ch, :][:, ind_ch]
 
         u_f = np.zeros((sub_Y.shape[0], 1, sub_Y.shape[2]), dtype=complex)
@@ -342,7 +335,7 @@ class VPT(object):
 
 
         # Calculate impact consistency
-        sub_Y = self.FRF[ind_ch, :, :][:, ind_Rch, :]
+        sub_Y = np.transpose(self.FRF,(1,2,0))[:, ind_Rch, :]
         sub_Ff = self.Ff[ind_Rch, :][:, ind_Rch]
 
         y_f = np.zeros((sub_Y.shape[1], 1, sub_Y.shape[2]), dtype=complex)
@@ -367,9 +360,6 @@ class VPT(object):
 
         self.specific_impact = np.asarray(specific_impact)
 
-
-
-if __name__ == '__main__':
     """
     Frequency-dependend weighting matrix
 
@@ -412,5 +402,4 @@ if __name__ == '__main__':
     self.Tu_f = Tu_f
     self.Fu_f = Fu_f
     """
-    print("Test: Cat!")
 
