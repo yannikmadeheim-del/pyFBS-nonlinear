@@ -198,7 +198,7 @@ class MK_model(object):
         return _modeshape
 
 
-    def FRF_synth(self,df_channel,df_impact,f_start = 0, f_end = 2000, f_resolution= 1, limit_modes = None, modal_damping = None, frf_type = "receptance"):
+    def FRF_synth(self,df_channel,df_impact,f_start = 1, f_end = 2000, f_resolution= 1, limit_modes = None, modal_damping = None, frf_type = "receptance"):
         """
         Description
 
