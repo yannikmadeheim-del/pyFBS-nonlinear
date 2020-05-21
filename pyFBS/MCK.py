@@ -11,12 +11,17 @@ from scipy.linalg import block_diag
 
 class MK_model(object):
     """
-    Description
+    Initialization of the finite element model. Mass and stiffness matrices are imported and also nodes, DoFs and complete mesh of finite elements are defined. 
+    If parameter ``solve`` is ``True``, also eigenfrequencies and eigenvectors are computed.
 
-    :param ress_file:
-    :param full_file:
-    :param no_modes:
-    :param solve:
+    :param ress_file: Path of the .rst file exported from Ansys
+    :type ress_file: str
+    :param full_file: Path of the .full file exported from Ansys
+    :type full_file: str
+    :param no_modes: Number of modes to be included in output of the eigenvalue computation.
+    :type no_modes: int
+    :param solve: If ``False`` just mass and stiffness matrices with corresponding nodes and their DoFs will be imported. If ``True`` also the eigenvalue problem will be solved.
+    :type solve: bool
     """
     def __init__(self,ress_file,full_file,no_modes = 100,solve = True):
         rst = pyansys.read_binary(ress_file)
@@ -95,10 +100,10 @@ class MK_model(object):
 
         unique_nodes = nodes[np.sort(np.unique(nodes, axis=0, return_index=True)[1])]
         direction_nodes = []
-        for i, node in enumerate(unique_nodes):
+        for node in unique_nodes:
             loc = np.where((nodes == node).all(axis=1))
             direction_nodes.append(directions[loc])
-        return nodes, unique_nodes, np.asarray(direction_nodes)
+        return unique_nodes, np.asarray(direction_nodes)
 
     @staticmethod
     def loc_definition(response_point, response_direction, excitation_point, excitation_direction, rotation_included,
@@ -158,8 +163,8 @@ class MK_model(object):
         :param type:
         :return:
         """
-        nodes_chn, unique_nodes_chn, direction_nodes_chn = self.data_preparation(df_channel)
-        nodes_imp, unique_nodes_imp, direction_nodes_imp = self.data_preparation(df_impact)
+        unique_nodes_chn, direction_nodes_chn = self.data_preparation(df_channel)
+        unique_nodes_imp, direction_nodes_imp = self.data_preparation(df_impact)
 
         index_chn = self.find_nearest_locations(self.nodes, unique_nodes_chn)
         index_imp = self.find_nearest_locations(self.nodes, unique_nodes_imp)
@@ -188,29 +193,26 @@ class MK_model(object):
         ome = 2 * np.pi * freq
         ome2 = ome ** 2
         _eig_val2 = self.eig_freq ** 2
-        if not [x for x in (direction_nodes_chn, direction_nodes_imp) if x is None]:
-            m_p_chan = block_diag(*direction_nodes_chn) @ self.eig_vec[loc1, :no_modes]
-            m_p_imp = block_diag(*direction_nodes_imp) @ self.eig_vec[loc2, :no_modes]
-            m_p = np.einsum('ij,kj->jik', m_p_chan, m_p_imp)
-        else:
-            m_p = np.einsum('ij,kj->jik', self.eig_vec[loc1, :no_modes], self.eig_vec[loc2, :no_modes])
+
+        m_p_chan = block_diag(*direction_nodes_chn) @ self.eig_vec[loc1, :no_modes]
+        m_p_imp = block_diag(*direction_nodes_imp) @ self.eig_vec[loc2, :no_modes]
+        m_p = np.einsum('ij,kj->jik', m_p_chan, m_p_imp)
+        
         denominator = (_eig_val2[:no_modes, np.newaxis] - ome2) + np.einsum('ij,i->ij',
                                                                             (ome * self.eig_freq[:no_modes, np.newaxis]),
                                                                             (2 * 1j * damping[:no_modes]))
         FRF_matrix = np.einsum('ijk,il->ljk', m_p, 1 / denominator)
 
-        FRF_matrix = np.transpose(FRF_matrix,(1,2,0))
-
         if frf_type == "receptance":
             _temp = FRF_matrix
 
         elif frf_type == "mobility":
-            _temp = FRF_matrix * (1j*2*np.pi*freq)
+            _temp = np.einsum('ijk,i->ijk', FRF_matrix, (1j*2*np.pi*freq))
 
         elif frf_type == "accelerance":
-            _temp = FRF_matrix * -(2*np.pi*freq)**2
+            _temp = np.einsum('ijk,i->ijk', FRF_matrix, -(2*np.pi*freq)**2)
 
-        self.FRF = np.transpose(_temp,(2,0,1))
+        self.FRF = _temp
         self.freq = freq
 
 
