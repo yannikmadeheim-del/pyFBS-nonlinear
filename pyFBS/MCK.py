@@ -27,6 +27,9 @@ class MK_model(object):
         rst = pyansys.read_binary(ress_file)
         self.nodes = rst.geometry["nodes"][:, :3]  # only translational dofs
         self.mesh = rst.grid
+        self.mesh.points *= 1000
+        self.pts = self.mesh.points.copy()
+
         self.no_modes = no_modes
 
 
@@ -167,6 +170,12 @@ class MK_model(object):
         return sel1, sel2
 
     def update_locations_df(self,df):
+        """
+        Description
+
+        :param df:
+        :return:
+        """
         _df = df.copy(deep = True)
         _loc = _df[["Position_1", "Position_2", "Position_3"]].to_numpy()
         _index = self.find_nearest_locations(self.nodes,_loc)
@@ -175,7 +184,18 @@ class MK_model(object):
 
         return _df
 
+    def get_modeshape(self,select_mode):
+        """
+        Description
 
+        :param select_mode:
+        :return:
+        """
+        _modeshape = np.zeros_like(self.nodes)
+        for ref, mode in zip(self.dof_ref, self.eig_vec[:, select_mode]):
+            _modeshape[ref[0] - 1, ref[1]] = mode
+
+        return _modeshape
 
 
     def FRF_synth(self,df_channel,df_impact,f_start = 0, f_end = 2000, f_resolution= 1, limit_modes = None, modal_damping = None, frf_type = "receptance"):

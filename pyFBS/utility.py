@@ -1,20 +1,20 @@
-import pyuff
-from numpy import ndarray
 import matplotlib.pyplot as plt
-import math as mt
-import cmath as cmt
 import numpy as np
 import math
 
 
-
 def response_sync_lstsq(response_vec):
+    """
+    Description
+
+    :param response_vec:
+    :return:
+    """
     _mode = response_vec.flatten()
     z = np.arctan(np.average(np.imag(_mode) / np.real(_mode), weights=np.abs(_mode) ** 2))
 
     response_vec_norm = response_vec * (np.cos(-1 * z) + 1j * np.sin(-1 * z))
     return response_vec_norm
-
 
 
 def modeshape_sync_lstsq(mode_shape_vec):
@@ -156,8 +156,6 @@ def coh_frf(h_num, h_exp, check=False):
         vec = np.dot(h_, h_K)
         return vec
 
-    coh = (h_num + h_exp)
-
     coh = np.abs(vector((h_num + h_exp), (h_numk + h_expk))) / 2 / (vector(h_numk, h_num) + vector(h_expk, h_exp))
     coh_abs = np.abs(coh)
 
@@ -166,5 +164,31 @@ def coh_frf(h_num, h_exp, check=False):
     else:
         return coh_abs
 
-if __name__ == '__main__':
-    print("Test: Cat!")
+def dict_animation(_modeshape,a_type,mesh= None,pts = None,fps = 30,r_scale = 10,no_points = 60, object_list = None):
+    """
+    Description
+
+    :param _modeshape:
+    :param pts:
+    :param mesh:
+    :param a_type:
+    :param fps:
+    :param r_scale:
+    :param no_points:
+    :param object_list:
+    :return:
+    """
+    mode_dict = dict()
+
+    mode_dict["animation_pts"] = mode_animation(_modeshape, r_scale, no_points=no_points)
+    mode_dict["fps"] = fps
+
+    if a_type == "modeshape":
+        mode_dict["or_pts"] = pts
+        mode_dict["mesh"] = mesh
+        mode_dict["scalars"] = True
+
+    elif a_type == "object":
+        mode_dict["objects_list"] = object_list
+
+    return mode_dict

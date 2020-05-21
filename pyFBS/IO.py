@@ -9,8 +9,3 @@ from scipy.spatial.transform import Rotation as R
 
 
 
-
-
-
-if __name__ == '__main__':
-    print("Test: Dog!")

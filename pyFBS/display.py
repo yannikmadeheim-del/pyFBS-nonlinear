@@ -10,9 +10,7 @@ RED = "#d62728"
 BLUE = "#1f77b4"
 GREEN = "#2ca02c"
 
-#BACKGROUND = "#D4D4D4"
 BACKGROUND = "#FFFFFF"
-
 
 
 class view3D():
@@ -59,11 +57,19 @@ class view3D():
 
         self.take_gif = False
 
-
-
     def add_modeshape(self,dict_shape,run_animation = False,add_note = False):
+        """
+        Add a modeshape animation to the 3D view.
+
+        :param dict_animation: Modeshape animation information.
+        :type dict_animation: dict
+        :param run_animation: Run animation at start.
+        :type run_animation: bool
+        :param add_note: Add a note to a corner.
+        :type add_note: bool
+        """
         if self.modeshape_animation == None:
-            self.add_action(self.animate_toolbar, "Animate M", self.animate_modeshape, self.plot.app_window)
+            self.add_action(self.animate_toolbar, "Animate modeshape", self.animate_modeshape)
 
         self.modeshape_animation = dict_shape
 
@@ -79,7 +85,9 @@ class view3D():
             self.animate_modeshape()
 
     def animate_modeshape(self):
-
+        """
+        Animate modeshape from *add_modeshape* function.
+        """
         frameperiod = 1.0 / self.modeshape_animation["fps"]
 
         now = time()
@@ -116,19 +124,32 @@ class view3D():
             imageio.mimsave(self.gif_dir, gif, fps=30)
 
     def add_objects_animation(self,dict_animation,run_animation = False,add_note = False):
+        """
+        Add an object animation to the 3D view.
+
+        :param dict_animation: Object animation information.
+        :type dict_animation: dict
+        :param run_animation: Run animation at start.
+        :type run_animation: bool
+        :param add_note: Add a note to the corner.
+        :type add_note: bool
+        """
         if self.obj_animation == None:
-            self.add_action(self.animate_toolbar, "Animate O", self.animate_objects, self.plot.app_window)
+            self.add_action(self.animate_toolbar, "Animate objects", self.animate_objects)
 
         self.obj_animation = dict_animation
 
         if add_note:
-            self.plot.add_text("Frequency = %4.1f Hz" % (
-            self.obj_animation["freq"]), position='upper_right', font_size=10, color="k", font="times", name="Mode")
+            _text = "Frequency = %4.1f Hz" % (self.obj_animation["freq"])
+            self.plot.add_text(_text, position='upper_right', font_size=10, color="k", font="times", name="Mode")
 
         if run_animation:
             self.animate_objects()
 
     def animate_objects(self):
+        """
+        Animate objects from *add_objects_animation* function.
+        """
         frameperiod = 1.0 / self.obj_animation["fps"]
 
         now = time()
@@ -137,6 +158,9 @@ class view3D():
         ann = self.obj_animation["animation_pts"]
 
         object_list = self.obj_animation["objects_list"]
+
+        if self.take_gif:
+            self.plot.open_gif(self.gif_dir)
 
         for i in range(ann.shape[2]):
             add_val = ann[:, :, i]
@@ -147,17 +171,30 @@ class view3D():
                     self.plot.update_coordinates(_pts + loc, mesh = _mesh,render = False)
 
             self.plot.render()
+            if self.take_gif:
+                self.plot.write_frame()
 
             while now < nextframe:
                 sleep(nextframe - now)
                 now = time()
             nextframe += frameperiod
 
-    def add_action(self,toolbar, key, function, main_window):
-        action = QAction(key, main_window)
+        if self.take_gif:
+            gif = imageio.mimread(self.gif_dir)
+            imageio.mimsave(self.gif_dir, gif, fps=30)
+
+    def add_action(self,toolbar, key, function):
+        """
+        Connects a toolbar button with a certain function
+
+        :param toolbar: Toolbar.
+        :param key: Name of the toolbar.
+        :param function: Function to connect to.
+        """
+        action = QAction(key, self.plot.app_window)
         action.triggered.connect(function)
         toolbar.addAction(action)
-        return
+
 
 
     def add_csys(self,position = [0,0,0], size = 10):
@@ -266,15 +303,11 @@ class view3D():
 
 
         accelerometer = [box, cable,ray_x,ray_y,ray_z]
-
         _new = position
-
         for item in accelerometer:
             item.rotate_x(orientation[0])
             item.rotate_y(orientation[1])
             item.rotate_z(orientation[2])
-
-
             item.translate(_new)
 
         return accelerometer
@@ -294,7 +327,7 @@ class view3D():
         return [acc_1,acc_2,acc_3,acc_4,acc_5]
 
 
-    def add_vp(self,position,size = 10,color = GREEN):
+    def add_vp(self,position,size = 10,color = GREEN,**kwargs):
         """
         Adds a virtual point to 3D view.
 
@@ -306,11 +339,11 @@ class view3D():
         :type color: str, optional
         """
         sphere = pv.Sphere(radius = size, center = position)
-        vp_actor = self.plot.add_mesh(sphere, color=color)
+        vp_actor = self.plot.add_mesh(sphere, color=color,**kwargs)
         return sphere,vp_actor
 
 
-    def show_acc(self,df,size = 10):
+    def show_acc(self,df,size = 10,overwrite = True):
         """
         Adds accelerometers from the DataFrame to 3D view.
 
@@ -318,11 +351,14 @@ class view3D():
         :type df: pd.DataFrame
         """
         if self.global_acc != []:
-            self.acc_visible = True
-            self.show_hide_accelerometers()
-            self.global_acc = []
+            if overwrite:
+                self.acc_visible = True
+                self.show_hide_accelerometers()
+                self.global_acc = []
+            else:
+                pass
         else:
-            self.add_action(self.show_hide_toolbar, "Sensors", self.show_hide_accelerometers, self.plot.app_window)
+            self.add_action(self.show_hide_toolbar, "Sensors", self.show_hide_accelerometers)
 
         for i, row in df.iterrows():
 
@@ -332,33 +368,15 @@ class view3D():
             acc_actor = self.add_accelerometer(acc_mesh)
             acc_pts = []
 
-
             for i in range(5):
                 acc_pts.append(acc_mesh[i].points.copy())
 
-
             self.global_acc.append([acc_pts,acc_mesh,acc_actor])
-
-
-
         self.acc_visible = True
 
-    def show_hide_accelerometers(self):
-        if self.acc_visible == False:
-            for _acc in self.global_acc:
-                for item in _acc[2]:
-                    self.plot.add_actor(item,reset_camera =False)
-            self.acc_visible = True
 
-        else:
-            for _acc in self.global_acc:
-                for item in _acc[2]:
-                    self.plot.remove_actor(item, reset_camera=False)#,render = False)
 
-            #self.plot.render()
-            self.acc_visible = False
-
-    def show_imp(self,df,color = RED,**kwargs):
+    def show_imp(self,df,color = RED,overwrite = True,**kwargs):
         """
         Adds impacts from the DataFrame to 3D view.
 
@@ -367,11 +385,14 @@ class view3D():
         """
 
         if self.global_imp != []:
-            self.imp_visible = True
-            self.show_hide_impacts()
-            self.global_imp = []
+            if overwrite:
+                self.imp_visible = True
+                self.show_hide_impacts()
+                self.global_imp = []
+            else:
+                pass
         else:
-            self.add_action(self.show_hide_toolbar, "Impacts", self.show_hide_impacts, self.plot.app_window)
+            self.add_action(self.show_hide_toolbar, "Impacts", self.show_hide_impacts)
 
         for i, row in df.iterrows():
             imp_mesh,imp_actor = self.add_impact((row["Position_1"] * 1000, row["Position_2"] * 1000, row["Position_3"] * 1000),
@@ -381,19 +402,7 @@ class view3D():
         self.imp_visible = True
 
 
-    def show_hide_impacts(self):
-        if self.imp_visible == False:
-            for _imp in self.global_imp:
-                self.plot.add_actor(_imp[1],reset_camera =False)
-            self.imp_visible = True
-
-        else:
-            for _imp in self.global_imp:
-                self.plot.remove_actor(_imp[1],reset_camera =False)
-            self.imp_visible = False
-
-
-    def show_chn(self,df,color = BLUE,**kwargs):
+    def show_chn(self,df,color = BLUE,overwrite = True,**kwargs):
         """
         Adds channels from the DataFrame to 3D view.
 
@@ -402,11 +411,14 @@ class view3D():
         """
 
         if self.global_chn != []:
-            self.chn_visible = True
-            self.show_hide_channels()
-            self.global_chn = []
+            if overwrite:
+                self.chn_visible = True
+                self.show_hide_channels()
+                self.global_chn = []
+            else:
+                pass
         else:
-            self.add_action(self.show_hide_toolbar, "Channels", self.show_hide_channels, self.plot.app_window)
+            self.add_action(self.show_hide_toolbar, "Channels", self.show_hide_channels)
 
         for i, row in df.iterrows():
             chn_mesh,chn_actor = self.add_channel((row["Position_1"] * 1000, row["Position_2"] * 1000, row["Position_3"] * 1000),
@@ -415,20 +427,8 @@ class view3D():
 
         self.chn_visible = True
 
-    def show_hide_channels(self):
-        if self.chn_visible == False:
-            for _chn in self.global_chn:
-                self.plot.add_actor(_chn[1],reset_camera =False)
-            self.chn_visible = True
 
-        else:
-            for _chn in self.global_chn:
-                self.plot.remove_actor(_chn[1],reset_camera =False)
-
-            self.chn_visible = False
-
-
-    def show_vp(self,df,size = 10):
+    def show_vp(self,df,color = GREEN,overwrite = True,size = 10,**kwargs):
         """
         Adds virtual points from the DataFrame to 3D view.
 
@@ -436,32 +436,25 @@ class view3D():
         :type df: pd.DataFrame
         """
         if self.global_vps != []:
-            self.vps_visible = True
-            self.show_hide_vps()
-            self.global_vps = []
+            if overwrite:
+                self.vps_visible = True
+                self.show_hide_vps()
+                self.global_vps = []
+            else:
+                pass
         else:
-            self.add_action(self.show_hide_toolbar, "VPs", self.show_hide_vps, self.plot.app_window)
+            self.add_action(self.show_hide_toolbar, "VPs", self.show_hide_vps)
 
         x = df["Position_1"].unique()
         y = df["Position_2"].unique()
         z = df["Position_3"].unique()
         position = np.asarray([x, y, z]).T
         position *= 1000
-        vp_mesh,vp_actor = self.add_vp(position,size = size)
+        vp_mesh,vp_actor = self.add_vp(position,color = color,size = size,**kwargs)
         self.global_vps.append([vp_mesh, vp_actor])
         self.vps_visible = True
 
-    def show_hide_vps(self):
-        if self.vps_visible == False:
-            for _vp in self.global_vps:
-                self.plot.add_actor(_vp[1],reset_camera =False)
-            self.vps_visible = True
 
-        else:
-            for _vp in self.global_vps:
-                self.plot.remove_actor(_vp[1],reset_camera =False)
-
-            self.vps_visible = False
 
     def label_acc(self,df,name = "Accelerometers",**kwargs):
         """
@@ -473,7 +466,7 @@ class view3D():
         :type name: str, optional
         """
         if self.global_labels == []:
-            self.add_action(self.show_hide_toolbar, "Clear Labels", self.hide_labels, self.plot.app_window)
+            self.add_action(self.show_hide_toolbar, "Clear Labels", self.clear_labels)
 
         positions = []
         labels = []
@@ -495,7 +488,7 @@ class view3D():
         :type name: str, optional
         """
         if self.global_labels == []:
-            self.add_action(self.show_hide_toolbar, "Clear Labels", self.hide_labels, self.plot.app_window)
+            self.add_action(self.show_hide_toolbar, "Clear Labels", self.clear_labels)
 
         positions = []
         labels = []
@@ -518,7 +511,7 @@ class view3D():
         :type name: str, optional
         """
         if self.global_labels == []:
-            self.add_action(self.show_hide_toolbar, "Clear Labels", self.hide_labels, self.plot.app_window)
+            self.add_action(self.show_hide_toolbar, "Clear Labels", self.clear_labels)
 
         positions = []
         labels = []
@@ -544,7 +537,7 @@ class view3D():
         :type name: str, optional
         """
         if self.global_labels == []:
-            self.add_action(self.show_hide_toolbar, "Clear Labels", self.hide_labels, self.plot.app_window)
+            self.add_action(self.show_hide_toolbar, "Clear Labels", self.clear_labels)
 
         x = df["Position_1"].unique()
         y = df["Position_2"].unique()
@@ -558,13 +551,74 @@ class view3D():
         self.global_labels.append([[position, L], name])
         self.labels_visible = True
 
-    def hide_labels(self):
+
+    def show_hide_accelerometers(self):
+        """
+        Show or hide all the accelerometers in the 3D view.
+        """
+        if self.acc_visible == False:
+            for _acc in self.global_acc:
+                for item in _acc[2]:
+                    self.plot.add_actor(item,reset_camera =False)
+            self.acc_visible = True
+
+        else:
+            for _acc in self.global_acc:
+                for item in _acc[2]:
+                    self.plot.remove_actor(item, reset_camera=False)#,render = False)
+
+            self.acc_visible = False
+
+    def show_hide_impacts(self):
+        """
+        Show or hide all the impacts in the 3D view.
+        """
+        if self.imp_visible == False:
+            for _imp in self.global_imp:
+                self.plot.add_actor(_imp[1],reset_camera =False)
+            self.imp_visible = True
+
+        else:
+            for _imp in self.global_imp:
+                self.plot.remove_actor(_imp[1],reset_camera =False)
+            self.imp_visible = False
+
+    def show_hide_channels(self):
+        """
+        Show or hide all the channels in the 3D view.
+        """
+        if self.chn_visible == False:
+            for _chn in self.global_chn:
+                self.plot.add_actor(_chn[1],reset_camera =False)
+            self.chn_visible = True
+
+        else:
+            for _chn in self.global_chn:
+                self.plot.remove_actor(_chn[1],reset_camera =False)
+
+            self.chn_visible = False
+
+
+    def show_hide_vps(self):
+        """
+        Show or hide all the VPs in the 3D view.
+        """
+        if self.vps_visible == False:
+            for _vp in self.global_vps:
+                self.plot.add_actor(_vp[1],reset_camera =False)
+            self.vps_visible = True
+
+        else:
+            for _vp in self.global_vps:
+                self.plot.remove_actor(_vp[1],reset_camera =False)
+
+            self.vps_visible = False
+
+    def clear_labels(self):
+        """
+        Clear all labels in the 3D view.
+        """
         for _label in self.global_labels:
             self.plot.remove_actor(_label[1],reset_camera =False)
 
         self.labels_visible = False
-
-
-
-if __name__ == '__main__':
-    print("cat")
