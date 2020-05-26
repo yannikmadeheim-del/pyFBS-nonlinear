@@ -31,8 +31,10 @@ def LocOfExp(Overlay, DoF):
 
 
 def red_order(A, sv = 0):
+    print(A.shape)
     U, s, VT = np.linalg.svd(A)
     kk = s.shape[1] - sv
+    print(kk)
     Uk = U[:, :, :kk]
     Sk = np.zeros((A.shape[0], kk, kk))
 

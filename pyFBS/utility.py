@@ -192,3 +192,58 @@ def dict_animation(_modeshape,a_type,mesh= None,pts = None,fps = 30,r_scale = 10
         mode_dict["objects_list"] = object_list
 
     return mode_dict
+
+
+def CMIF(FRF, singular_vectors=False):
+    """
+    Calculates a CMIF parameter on an FRF matrix
+
+    :param FRF:
+    :param singular_vector:
+    :return:
+    """
+    _f = FRF.shape[0]
+    val = np.min([FRF.shape[1], FRF.shape[2]])
+
+    _S = np.zeros((_f, val))
+
+    if singular_vectors:
+        _U = np.zeros((_f, FRF.shape[1], FRF.shape[1]), dtype="complex")
+        _V = np.zeros((_f, FRF.shape[2], FRF.shape[2]), dtype="complex")
+
+    for i in range(_f):
+        if singular_vectors:
+            U, S, VH = np.linalg.svd(FRF[i, :, :], full_matrices=True, compute_uv=True)
+            V = np.conj(VH).T
+            _S[i, :] = S
+            _U[i, :, :] = U
+            _V[i, :, :] = V
+
+        else:
+            S = np.linalg.svd(FRF[i, :, :], full_matrices=True, compute_uv=False)
+            _S[i, :] = S
+
+    if singular_vectors:
+        return _U, _S, _V
+    else:
+        return _S
+
+
+def TSVD(matrix,reduction = 0):
+    """
+    Performs a TSVD on a suplied FRF matrix
+
+    :param matrix:
+    :param reduction: number of removed singular values
+    :return:
+    """
+    U, s, VH = np.linalg.svd(matrix)
+    kk = s.shape[1] - reduction
+    Uk = U[:, :, :kk]
+    Sk = np.zeros((matrix.shape[0], kk, kk))
+
+    for i in range(matrix.shape[0]):
+        Sk[i] = np.diag(s[i, :kk])
+    Vk = VH[:, :kk, :]
+
+    return Uk @ Sk @ Vk

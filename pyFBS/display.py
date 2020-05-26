@@ -20,13 +20,16 @@ class view3D():
     :param show_origin: Display the CSYS in origin
     :type show_origin: bool
     """
-    def __init__(self,show_origin = True):
-        self.plot = pv.BackgroundPlotter(show = True,window_size = [1240,640])
+    def __init__(self,show_origin = True,show_axes = True,**kwargs):
+        self.plot = pv.BackgroundPlotter(show = True,**kwargs)
         self.plot.app_window.setWindowTitle("pyFBS v1.0")
         self.plot.background_color = BACKGROUND
 
         if show_origin:
             self.add_csys([0,0,0])
+
+        if show_axes:
+            self.plot.add_axes()
 
         # Variables
         self.global_acc = []
