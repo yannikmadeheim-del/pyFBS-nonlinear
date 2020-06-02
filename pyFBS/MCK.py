@@ -193,6 +193,7 @@ class MK_model(object):
         """
         _modeshape = np.zeros_like(self.nodes)
         for ref, mode in zip(self.dof_ref, self.eig_vec[:, select_mode]):
+            #print(ref)
             _modeshape[ref[0] - 1, ref[1]] = mode
 
         return _modeshape
@@ -239,7 +240,10 @@ class MK_model(object):
                                     rotation_included, all_at_once=True)
 
 
-        freq = np.arange(f_start, f_end, f_resolution)
+        if f_start == 0:
+            # approximation at 0Hz
+            freq = np.arange(f_start+1e-3, f_end, f_resolution)
+        _freq = np.arange(f_start, f_end, f_resolution)
 
         ome = 2 * np.pi * freq
         ome2 = ome ** 2
@@ -264,6 +268,7 @@ class MK_model(object):
             _temp = np.einsum('ijk,i->ijk', FRF_matrix, -(2*np.pi*freq)**2)
 
         self.FRF = _temp
+        freq = _freq
         self.freq = freq
 
 
