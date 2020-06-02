@@ -16,7 +16,7 @@ BACKGROUND = "#FFFFFF"
 
 class view3D():
     """
-    A 3D visualization tool for the pyFBS.
+    A 3D visualization tool for the pyFBS. The units of the 3D display are in milimeters.
 
     :param show_origin: Display the CSYS in origin
     :type show_origin: bool
@@ -257,11 +257,12 @@ class view3D():
 
         _new = position
 
-        for item in accelerometer:
-            item.rotate_x(orientation[0])
-            item.rotate_y(orientation[1])
-            item.rotate_z(orientation[2])
+        from scipy.spatial.transform import Rotation as R
+        r = R.from_euler('zyx', [orientation[0], orientation[1], orientation[2]], degrees=True)
+        rot = r.as_matrix().T
 
+        for item in accelerometer:
+            item.points = (rot@item.points.T).T
 
             item.translate(_new)
 
@@ -282,7 +283,7 @@ class view3D():
         return [acc_1,acc_2,acc_3,acc_4,acc_5]
 
 
-    def add_vp(self,position,size = 10,color = GREEN):
+    def add_vp(self,position,size = 10,color = GREEN,**kwargs):
         """
         Adds a virtual point to 3D view.
 
@@ -294,7 +295,7 @@ class view3D():
         :type color: str, optional
         """
         sphere = pv.Sphere(radius = size, center = position)
-        vp_actor = self.plot.add_mesh(sphere, color=color)
+        vp_actor = self.plot.add_mesh(sphere, color=color,**kwargs)
         return sphere,vp_actor
 
 
