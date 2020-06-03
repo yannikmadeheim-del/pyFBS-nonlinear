@@ -102,11 +102,11 @@ def SEMM(Y_num, Y_exp, df_chn_num, df_imp_num, df_chn_exp, df_imp_exp, SEMM_type
     # Data preparation for building parent, remowed and overlay model
     # Reviewing all experimental obtained DoFs
     maching_locations_chn = find_locations_in_data_frames(df_chn_num, df_chn_exp)
-    if maching_locations_chn.shape.shape[0] != df_chn_exp.shape[0]:
+    if maching_locations_chn.shape[0] != df_chn_exp.shape[0]:
         raise Exception('Not all locations in the channel data frame have their exact locations in the numeric channel data frame.')
 
     maching_locations_imp = find_locations_in_data_frames(df_imp_num, df_imp_exp)
-    if maching_locations_imp.shape.shape[0] != df_imp_exp.shape[0]:
+    if maching_locations_imp.shape[0] != df_imp_exp.shape[0]:
         raise Exception('Not all locations in the impact data frame have their exact locations in the numeric impact data frame.')
 
     all_resp_nodes_DoF = np.repeat(maching_locations_chn[:, 0], len(maching_locations_imp[:, 0]))
