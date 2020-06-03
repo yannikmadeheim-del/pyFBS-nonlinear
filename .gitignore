@@ -105,3 +105,4 @@ ENV/
 .vscode/
 pyFBS/__pycache__
 *.pkl
+pyFBS/__pycache__
