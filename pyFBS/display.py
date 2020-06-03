@@ -1,12 +1,14 @@
 import pyvista as pv
-import numpy as np
 import pandas as pd
 from time import time,sleep
 from PyQt5.QtWidgets import QAction
+from PyQt5 import  QtGui
 import imageio
 from pyFBS.utility import *
 import keyboard as kb
 from scipy.spatial.transform import Rotation as R
+from pathlib import Path
+import os
 
 RED = "#d62728"
 BLUE = "#1f77b4"
@@ -24,7 +26,9 @@ class view3D():
     """
     def __init__(self,show_origin = True,show_axes = True,**kwargs):
         self.plot = pv.BackgroundPlotter(show = True,**kwargs)
-        self.plot.app_window.setWindowTitle("pyFBS v1.0")
+        self.plot.app_window.setWindowTitle("pyFBS")
+        icon = str(Path(__file__).parents[1]) + os.sep + "data" + os.sep + "icon.ico"
+        self.plot.app_window.setWindowIcon(QtGui.QIcon(icon))
         self.plot.background_color = BACKGROUND
         self.plot.enable_parallel_projection()
 
@@ -32,7 +36,7 @@ class view3D():
             self.add_csys([0,0,0])
 
         if show_axes:
-            self.plot.add_axes()
+            self.plot.add_axes(labels_off=True)
 
         # Static Variables
         self.global_acc = []
@@ -246,7 +250,7 @@ class view3D():
         actor = self.plot.add_mesh(mesh,name = name,**kwargs)
         self.displayed_bodies.append([name,actor])
 
-        return mesh,actor
+        return mesh
 
 
     def add_impact(self, position, direction, size = 10, color = RED, **kwargs):

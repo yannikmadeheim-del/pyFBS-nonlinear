@@ -16,6 +16,7 @@ import os
 example_auto_testbench = {}
 
 
+
 # geometry files - stl
 ts = str(Path(__file__).parents[1] )+os.sep+"data" +os.sep + "automotive_testbench" + os.sep + "STL" + os.sep + "ts.stl"
 transmission_mount = str(Path(__file__).parents[1] )+os.sep+"data" +os.sep + "automotive_testbench" + os.sep + "STL" + os.sep + "transmission_mount.stl"
@@ -65,7 +66,7 @@ example_lab_testbench["STL"] = {"A": A,"B": B,"AB": AB}
 
 
 # measurements
-xlsx = str(Path(__file__).parents[1] )+os.sep+"data" +os.sep + "lab_testbench" + os.sep + "Measurements" + os.sep + "loc_file.xlsx"
+xlsx = str(Path(__file__).parents[1] )+os.sep+"data" +os.sep + "lab_testbench" + os.sep + "Measurements" + os.sep + "AM_Measurements.xlsx"
 Y_A = str(Path(__file__).parents[1] )+os.sep+"data" +os.sep + "lab_testbench" + os.sep + "Measurements" + os.sep + "Y_A.p"
 Y_B = str(Path(__file__).parents[1] )+os.sep+"data" +os.sep + "lab_testbench" + os.sep + "Measurements" + os.sep + "Y_B.p"
 Y_AB = str(Path(__file__).parents[1] )+os.sep+"data" +os.sep + "lab_testbench" + os.sep + "Measurements" + os.sep + "Y_AB.p"
