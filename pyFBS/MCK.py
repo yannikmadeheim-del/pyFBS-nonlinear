@@ -36,6 +36,8 @@ class MK_model(object):
         full = pyansys.read_binary(full_file)
 
         self.dof_ref, self.K, self.M = full.load_km(sort=True)  # dof_ref: 0-x 1-y 2-z
+        if self.dof_ref[0, 0]!=1:
+            self.dof_ref[:, 0] = self.dof_ref[:, 0] - (self.dof_ref[0, 0]-1)
 
         self._K = self.K + diags(np.random.random(self.K.shape[0]) / 1e20, shape=self.K.shape) # avoid error
 
@@ -219,8 +221,11 @@ class MK_model(object):
         index_chn = self.find_nearest_locations(self.nodes, unique_nodes_chn)
         index_imp = self.find_nearest_locations(self.nodes, unique_nodes_imp)
 
-
-        rotation_included = False
+        if np.max(self.dof_ref[:, 1])==5:
+            rotation_included = True
+        elif np.max(self.dof_ref[:, 1])==2:
+            rotation_included = False
+            
         response_points = index_chn + 1
         response_directions = [0, 1, 2]
         excitation_points = index_imp + 1
@@ -242,10 +247,11 @@ class MK_model(object):
 
         if f_start == 0:
             # approximation at 0Hz
-            freq = np.arange(f_start+1e-3, f_end, f_resolution)
-        _freq = np.arange(f_start, f_end, f_resolution)
+            _freq = np.arange(f_start+1e-3, f_end, f_resolution)
+        else:
+            _freq = np.arange(f_start, f_end, f_resolution)
 
-        ome = 2 * np.pi * freq
+        ome = 2 * np.pi * _freq
         ome2 = ome ** 2
         _eig_val2 = self.eig_freq ** 2
 
