@@ -1,6 +1,9 @@
 import matplotlib.pyplot as plt
 import numpy as np
-import math
+from numpy import cross, eye
+from scipy.linalg import expm, norm
+import pandas as pd
+from scipy.spatial.transform import Rotation as R
 
 
 def response_sync_lstsq(response_vec):
@@ -53,28 +56,6 @@ def MCF(mod):
     return mcf
 
 
-def eulerAnglesToRotationMatrix(theta):
-    """
-    Creates a rotational matrix based on the euler angles
-    :param theta:
-    :return:
-    """
-    R_x = np.array([[1, 0, 0],
-                    [0, math.cos(theta[0]), math.sin(theta[0])],
-                    [0, -math.sin(theta[0]), math.cos(theta[0])]
-                    ])
-    R_y = np.array([[math.cos(theta[1]), 0, -math.sin(theta[1])],
-                    [0, 1, 0],
-                    [math.sin(theta[1]), 0, math.cos(theta[1])]
-                    ])
-    R_z = np.array([[math.cos(theta[2]), math.sin(theta[2]), 0],
-                    [-math.sin(theta[2]), math.cos(theta[2]), 0],
-                    [0, 0, 1]
-                    ])
-
-    R = np.dot(R_x, np.dot(R_y, R_z))
-
-    return R
 
 
 def flatten_FRFs(Y):
@@ -111,7 +92,7 @@ def complex_plot_3D(mode_shape):
     :param mode_shape:
     :return:
     """
-    fig = plt.figure(figsize = (3,3))
+    plt.figure(figsize = (3,3))
     ax1 = plt.subplot(111,projection = "polar")
 
     for i,color in enumerate(["tab:red","tab:green","tab:blue"]):
@@ -119,7 +100,6 @@ def complex_plot_3D(mode_shape):
             ax1.plot([0,np.angle(x)],[0,np.abs(x)],marker='.',color = color,alpha = 0.5)
 
     plt.yticks([])
-
 
 def mode_animation(mode_shape,scale, no_points=60):
     """
@@ -247,3 +227,124 @@ def TSVD(matrix,reduction = 0):
     Vk = VH[:, :kk, :]
 
     return Uk @ Sk @ Vk
+
+def M(axis, theta):
+    """
+    Euler-Rodrigues formula
+    """
+    t = expm(cross(eye(3), axis / norm(axis) * (theta)))
+    # print(theta)
+
+    return t
+
+
+def angle(vector1, vector2):
+    """
+    Returns the angle in radians between given vectors
+    """
+    v1_u = unit_vector(vector1)
+    v2_u = unit_vector(vector2)
+    minor = np.linalg.det(
+        np.stack((v1_u[-2:], v2_u[-2:]))
+    )
+    if minor == 0:
+        sign = 1
+    else:
+        sign = -np.sign(minor)
+    dot_p = np.dot(v1_u, v2_u)
+    dot_p = min(max(dot_p, -1.0), 1.0)
+    return sign * np.arccos(dot_p)
+
+
+def rotation_matrix_from_vectors(vec1, vec2):
+    """
+    Find the rotation matrix that aligns vec1 to vec2
+
+    :param vec1: A 3d "source" vector
+    :param vec2: A 3d "destination" vector
+    :return mat: A transform matrix (3x3) which when applied to vec1, aligns it with vec2.
+    """
+    vec1 += np.random.random(3) / 1e10  # just to avoid possible math errors
+    vec2 += np.random.random(3) / 1e10  # just to avoid possible math errors
+
+    a, b = (vec1 / np.linalg.norm(vec1)).reshape(3), (vec2 / np.linalg.norm(vec2)).reshape(3)
+
+    if (np.abs(a) == np.abs(b)).all():
+        return np.diag([1, 1, 1])
+    else:
+        v = np.cross(a, b)
+        c = np.dot(a, b)
+        s = np.linalg.norm(v)
+        kmat = np.array([[0, -v[2], v[1]], [v[2], 0, -v[0]], [-v[1], v[0], 0]])
+        rotation_matrix = np.eye(3) + kmat + kmat.dot(kmat) * ((1 - c) / (s ** 2))
+
+        return rotation_matrix
+
+
+def unit_vector(vector):
+    """
+    Returns the unit vector of the vector.
+    """
+    return vector / np.linalg.norm(vector)
+
+
+def angle_between(v1, v2):
+    """
+    Returns the angle in radians between vectors 'v1' and 'v2'
+    """
+    v1_u = unit_vector(v1)
+    v2_u = unit_vector(v2)
+    return np.arccos(np.clip(np.dot(v1_u, v2_u), -1.0, 1.0))
+
+def generate_channels_from_sensors(df):
+    """
+    Description
+
+    :param df:
+    :return:
+    """
+    columns_chann = ["Name", "Description", "Type", "DirectionLabel", "Quantity", "Unit", "Component", "NodeNumber",
+                     "Grouping", "Position_1", "Position_2", "Position_3", "Direction_1", "Direction_2", "Direction_3"]
+    df_ch = pd.DataFrame(columns=columns_chann)
+
+    axes = ["x", "y", "z"]
+    for s, angle in enumerate(df[["Orientation_1", "Orientation_2", "Orientation_3"]].to_numpy()):
+        r = R.from_euler('xyz', angle, degrees=True)
+        rot = r.as_matrix().T
+        for i in range(3):
+            data_chn = np.asarray([[df["Name"][s] + axes[i], df["Description"][s], df["Type"][s], None, None, None,
+                                    None, None, df["Grouping"][s], df["Position_1"][s], df["Position_2"][s],
+                                    df["Position_3"][s], rot[i][0], rot[i][1], rot[i][2]]])
+            df_row = pd.DataFrame(data=data_chn, columns=columns_chann)
+            df_ch = df_ch.append(df_row,ignore_index = True)
+
+    return df_ch
+
+def generate_sensors_from_channels(df):
+    """
+    Description
+
+    :param df:
+    :return:
+    """
+    columns_sen = ["Name", "Description", "Type", "DirectionLabel", "Quantity", "Unit", "Component", "NodeNumber",
+                     "Grouping", "Position_1", "Position_2", "Position_3", "Orientation_1", "Orientation_2", "Orientation_3"]
+    df_sen = pd.DataFrame(columns=columns_sen)
+
+    for i in range(int(len(df)/3)):
+        sen_or = df[["Direction_1", "Direction_2", "Direction_3"]].to_numpy()[3 * (i):3 * (i + 1)]
+        sen_pos = df[["Position_1", "Position_2", "Position_3"]].to_numpy()[3 * (i)]
+        #sen_name = df[["Name"]].to_numpy()[3 * (i):3 * (i + 1)]
+
+        r = R.from_matrix(sen_or)
+        r = r.inv()
+
+        orient = r.as_euler('xyz', degrees=True)
+
+        data_chn = np.asarray([["S"+str(i+1),None,None,None,None,None,None,None,None,sen_pos[0],sen_pos[1],sen_pos[2],orient[0],orient[1],orient[2]]])
+
+
+        df_row = pd.DataFrame(data=data_chn, columns=columns_sen)
+        df_sen = df_sen.append(df_row,ignore_index = True)
+
+    return df_sen

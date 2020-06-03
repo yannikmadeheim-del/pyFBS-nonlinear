@@ -2,9 +2,11 @@ import pyvista as pv
 import numpy as np
 import pandas as pd
 from time import time,sleep
-from PyQt5.QtWidgets import  QAction
+from PyQt5.QtWidgets import QAction
 import imageio
-
+from pyFBS.utility import *
+import keyboard as kb
+from scipy.spatial.transform import Rotation as R
 
 RED = "#d62728"
 BLUE = "#1f77b4"
@@ -24,6 +26,7 @@ class view3D():
         self.plot = pv.BackgroundPlotter(show = True,**kwargs)
         self.plot.app_window.setWindowTitle("pyFBS v1.0")
         self.plot.background_color = BACKGROUND
+        self.plot.enable_parallel_projection()
 
         if show_origin:
             self.add_csys([0,0,0])
@@ -31,7 +34,7 @@ class view3D():
         if show_axes:
             self.plot.add_axes()
 
-        # Variables
+        # Static Variables
         self.global_acc = []
         self.acc_visible = False
 
@@ -50,6 +53,7 @@ class view3D():
         self.name = None
         self.name_ev = None
 
+        # Toolbars
         self.show_hide_toolbar = self.plot.app_window.addToolBar('Show/hide Actors')
         self.animate_toolbar = self.plot.app_window.addToolBar('Animate Modeshape')
 
@@ -59,6 +63,12 @@ class view3D():
         self.modeshape_animation = None
 
         self.take_gif = False
+        self.gif_dir = "sample.gif"
+
+        #
+        self.all_accs_dynamic = []
+        self.all_imps_dynamic = []
+        self.all_vps_dynamic = []
 
     def add_modeshape(self,dict_shape,run_animation = False,add_note = False):
         """
@@ -183,7 +193,7 @@ class view3D():
             nextframe += frameperiod
 
         if self.take_gif:
-            gif = imageio.mimread(self.gif_dir)
+            gif = imageio.mimread(self.gif_dir, memtest=False)
             imageio.mimsave(self.gif_dir, gif, fps=30)
 
     def add_action(self,toolbar, key, function):
@@ -197,7 +207,6 @@ class view3D():
         action = QAction(key, self.plot.app_window)
         action.triggered.connect(function)
         toolbar.addAction(action)
-
 
 
     def add_csys(self,position = [0,0,0], size = 10):
@@ -235,8 +244,9 @@ class view3D():
         """
         mesh = pv.PolyData(stl_path)
         actor = self.plot.add_mesh(mesh,name = name,**kwargs)
-
         self.displayed_bodies.append([name,actor])
+
+        return mesh,actor
 
 
     def add_impact(self, position, direction, size = 10, color = RED, **kwargs):
@@ -256,7 +266,6 @@ class view3D():
         arrow.translate(-1*np.asarray(direction))
         arrow.points *= size
         arrow.translate(np.asarray(position))
-
         imp_actor = self.plot.add_mesh(arrow, color=color,reset_camera = False, **kwargs)
 
         return arrow,imp_actor
@@ -275,11 +284,12 @@ class view3D():
         :param color: Color of the channel
         :type color: str, optional
         """
+
         arrow = pv.Arrow(start=(0.0, 0.0, 0.0), direction=direction)
         arrow.points *= size
         arrow.points += np.asarray(position)
-
         chn_actor = self.plot.add_mesh(arrow, color=color,reset_camera =False, **kwargs)
+
         return arrow,chn_actor
 
 
@@ -304,13 +314,11 @@ class view3D():
         ray_y = pv.Line(np.asarray([0, 0, 0]) - size / 2, np.asarray([0, size, 0]) - size / 2)
         ray_z = pv.Line(np.asarray([0, 0, 0]) - size / 2, np.asarray([0, 0, size]) - size / 2)
 
-
         accelerometer = [box, cable,ray_x,ray_y,ray_z]
         _new = position
 
-        from scipy.spatial.transform import Rotation as R
-        r = R.from_euler('zyx', [orientation[0], orientation[1], orientation[2]], degrees=True)
-        rot = r.as_matrix().T
+        r = R.from_euler('xyz', [orientation[0], orientation[1], orientation[2]], degrees=True)
+        rot = r.as_matrix()
 
         for item in accelerometer:
             item.points = (rot@item.points.T).T
@@ -346,9 +354,198 @@ class view3D():
         :type color: str, optional
         """
         sphere = pv.Sphere(radius = size, center = position)
-        vp_actor = self.plot.add_mesh(sphere, color=color,**kwargs)
+        vp_actor = self.plot.add_mesh(sphere, color=color,**kwargs,reset_camera= False)
         return sphere,vp_actor
 
+
+    def acc_callback(self,point, orientation = None):
+        """
+        Description
+
+        :param point:
+        :return:
+        """
+        i = int(len(self.all_accs_dynamic)+len(self.all_imps_dynamic)+len(self.all_vps_dynamic))
+        size = 10
+        if orientation == None:
+            acc = self.create_accelerometer([size/2, size/2, size/2], [0, 0, 0], size=size)
+            rot = np.diag([1]*3)
+        else:
+            acc = self.create_accelerometer([size/2, size/2, size/2], orientation, size=size)
+            r = R.from_euler('xyz', orientation, degrees=True)
+            rot = r.as_matrix()
+        self.add_accelerometer(acc)
+        _gg = DynamicPosition(acc, self.plot, i, mesh=self.mesh, size=10,rot = rot)
+        self.plot.add_sphere_widget(_gg.callback, center=_gg.points, color=["k", "r", "g", "b"], radius=10 / 15)
+        _gg.translate(point)
+        _gg.turn_on = True
+        self.all_accs_dynamic.append(_gg)
+
+    def add_acc_dynamic(self, mesh, predefined=None):
+        """
+        Description
+
+        :param mesh:
+        :param predefined:
+        :return:
+        """
+        self.mesh = mesh
+
+        if isinstance(predefined, pd.DataFrame):
+            for i, row in predefined.iterrows():
+                point = [row["Position_1"] * 1000, row["Position_2"] * 1000, row["Position_3"] * 1000]
+                orientation = [row["Orientation_1"], row["Orientation_2"], row["Orientation_3"]]
+                self.acc_callback(point, orientation=orientation)
+
+        self.plot.enable_point_picking(callback=self.acc_callback, color="r", show_message="", show_point=False)
+        self.plot.add_text("Press P too add an accelerometer (hold down letter T to disable snapping to mesh).",
+                           font_size=10, color="k", font="times", name="text")
+
+    def imp_callback(self,point, direction = None):
+        """
+        Description
+
+        :param point:
+        :return:
+        """
+        i = int(len(self.all_accs_dynamic)+len(self.all_imps_dynamic)+len(self.all_vps_dynamic))
+        size = 10
+        if direction == None:
+            imp, _ = self.add_impact([size/2, size/2, size/2], [0, 0, 1], size=10)
+            rot = np.diag([1]*3)
+        else:
+
+            imp, _ = self.add_impact([size/2, size/2, size/2],direction, size=10)
+            rot = rotation_matrix_from_vectors(direction, [0, 0, 1])
+        _gg = DynamicPosition([imp], self.plot, i, mesh=self.mesh, size=10,rot = rot,snap_outward = False)
+        self.plot.add_sphere_widget(_gg.callback, center=_gg.points, color=["k", "r", "g", "b"], radius=10 / 15)
+        _gg.translate(point)
+        _gg.turn_on = True
+        self.all_imps_dynamic.append(_gg)
+
+    def add_imp_dynamic(self, mesh, predefined=None):
+        """
+        Description
+
+        :param mesh:
+        :param predefined:
+        :return:
+        """
+        self.mesh = mesh
+
+        if isinstance(predefined, pd.DataFrame):
+            for i, row in predefined.iterrows():
+                point = [row["Position_1"] * 1000, row["Position_2"] * 1000, row["Position_3"] * 1000]
+                direction = [row["Direction_1"], row["Direction_2"], row["Direction_3"]]
+                self.imp_callback(point, direction=direction)
+
+        self.plot.enable_point_picking(callback=self.imp_callback, color="r", show_message="", show_point=False)
+        self.plot.add_text("Press P too add an impact (hold down letter t to disable snapping to mesh).", font_size = 10,color = "k",font  = "times",name = "text")
+
+    def vp_callback(self,point):
+        """
+        Description
+
+        :param point:
+        :return:
+        """
+        i = int(len(self.all_accs_dynamic)+len(self.all_imps_dynamic)+len(self.all_vps_dynamic))
+        size = 4
+
+        acc, _ = self.add_vp([size/2, size/2, size/2], size=size, opacity=.1)
+
+        _gg = DynamicPosition([acc], self.plot, i, mesh=self.mesh, size=4, snap_outward=False)
+        self.plot.add_sphere_widget(_gg.callback, center=_gg.points, color=["k", "r", "g", "b"], radius=4 / 15)
+
+        _gg.turn_on = True
+        _gg.translate(point)
+
+        self.all_vps_dynamic.append(_gg)
+
+    def add_vp_dynamic(self, mesh, predefined=None):
+        """
+        Description
+
+        :param mesh:
+        :param predefined:
+        :return:
+        """
+        self.mesh = mesh
+
+        if isinstance(predefined, pd.DataFrame):
+
+            x = predefined["Position_1"].unique()
+            y = predefined["Position_2"].unique()
+            z = predefined["Position_3"].unique()
+            position = np.asarray([x, y, z]).T
+            position *= 1000
+            for pos in position:
+                self.vp_callback(pos)
+
+        self.plot.enable_point_picking(callback=self.vp_callback, color="r", show_message="", show_point=False)
+        self.plot.add_text("Press P too add a VP (hold down letter T to disable snapping to mesh).", font_size=10, color="k", font="times", name="text")
+
+    def get_imp_data(self):
+        """
+        Description
+
+        :return:
+        """
+        columns_chann = ["Name", "Description", "Type", "DirectionLabel", "Quantity", "Unit", "Component", "NodeNumber",
+                         "Grouping", "Position_1", "Position_2", "Position_3", "Direction_1", "Direction_2",
+                         "Direction_3"]
+        df = pd.DataFrame(columns=columns_chann)
+
+        for i, _imp in enumerate(self.all_imps_dynamic):
+            pos, _dir = _imp.get_pos_orient(one_dir=2)
+
+            data_chn = np.asarray([["Impact " + str(1 + i), None, None, None, None, None, None, None, None, pos[0],
+                                    pos[1], pos[2], _dir[0], _dir[1], _dir[2]]])
+
+            df_row = pd.DataFrame(data=data_chn, columns=columns_chann)
+            df = df.append(df_row, ignore_index=True)
+
+        return df
+
+    def get_acc_data(self):
+        """
+        Description
+
+        :return:
+        """
+        columns_chann = ["Name", "Description", "Type", "DirectionLabel", "Quantity", "Unit", "Component", "NodeNumber",
+                         "Grouping", "Position_1", "Position_2", "Position_3", "Orientation_1", "Orientation_2",
+                         "Orientation_3"]
+        df = pd.DataFrame(columns=columns_chann)
+
+        for i, _acc in enumerate(self.all_accs_dynamic):
+            pos, euler_dir = _acc.get_pos_orient(euler_angles=True)
+            data_chn = np.asarray([["Sensor " + str(1 + i), None, None, None, None, None, None, None, None, pos[0],pos[1],pos[2],euler_dir[0],euler_dir[1],euler_dir[2] ]])
+
+            df_row = pd.DataFrame(data=data_chn, columns=columns_chann)
+            df = df.append(df_row, ignore_index=True)
+
+        return df
+
+    def get_vp_data(self):
+        """
+        Description
+
+        :return:
+        """
+        columns_chann = ["Name", "Description", "Type", "DirectionLabel", "Quantity", "Unit", "Component", "NodeNumber",
+                         "Grouping", "Position_1", "Position_2", "Position_3", "Orientation_1", "Orientation_2",
+                         "Orientation_3"]
+        df = pd.DataFrame(columns=columns_chann)
+
+        for i, _acc in enumerate(self.all_vps_dynamic):
+            pos, euler_dir = _acc.get_pos_orient(euler_angles=True)
+            data_chn = np.asarray([["VP " + str(1 + i), None, None, None, None, None, None, None, None, pos[0],pos[1],pos[2],euler_dir[0],euler_dir[1],euler_dir[2] ]])
+
+            df_row = pd.DataFrame(data=data_chn, columns=columns_chann)
+            df = df.append(df_row, ignore_index=True)
+
+        return df
 
     def show_acc(self,df,size = 10,overwrite = True):
         """
@@ -462,7 +659,6 @@ class view3D():
         self.vps_visible = True
 
 
-
     def label_acc(self,df,name = "Accelerometers",**kwargs):
         """
         Adds labels to accelerometers from the DataFrame to 3D view.
@@ -554,7 +750,7 @@ class view3D():
 
         L = df["Grouping"].unique()
 
-        self.plot.add_point_labels(position, L, font_size=12,name = name,shape_opacity=0.5,shape_color = GREEN,**kwargs)
+        self.plot.add_point_labels(position, L, font_size=12,name = name,font_family = "times",shape_opacity=0.5,shape_color = GREEN,**kwargs)
         self.global_labels.append([[position, L], name])
         self.labels_visible = True
 
@@ -629,3 +825,243 @@ class view3D():
             self.plot.remove_actor(_label[1],reset_camera =False)
 
         self.labels_visible = False
+
+
+class DynamicPosition():
+    """
+    Description
+
+    """
+
+    def __init__(self, objects, p, N, mesh=None, snap_outward=True, size=1, rot = np.diag([1]*3)):
+
+        self.size = size
+        self.points = np.array([[size / 2, size / 2, size / 2],
+                                [0, size / 2, size / 2],
+                                [size / 2, 0, size / 2],
+                                [size / 2, size / 2, 0]])
+
+        # Creates a bounding box
+        self.box = pv.Box((-size, size, -size, size, -size, size))
+        self.box.translate([size, size, size])
+        self.box.points /= 2
+
+        # defines the objects
+        objects.insert(0, self.box)
+        self.objects = objects
+
+        # get the number of dynamic stuff in the display window
+        self.N = int(N * 4)
+
+        # local orientation of the bounding box/object
+        self.local_orientation = np.asarray([[1, 0, 0],
+                                             [0, 1, 0],
+                                             [0, 0, 1]])
+
+        # local positions of the point widgets
+        self.local_widgets = np.array([[0.0, 0.0, 0.0],
+                                       [-0.5, 0, 0],
+                                       [0, -0.5, 0],
+                                       [0, 0, -0.5]]) * size
+
+        # local normals on which the snapping happens
+        self.local_normals = np.asarray([[1, 0, 0],
+                                         [0, 1, 0],
+                                         [0, 0, 1],
+                                         [-1, 0, 0],
+                                         [0, -1, 0],
+                                         [0, 0, -1]]).T
+
+        # ray_size on which the snapping to the mesh happens
+        ray_size = 4 * size
+        self.local_rays = np.asarray([[1, 0, 0],
+                                      [0, 1, 0],
+                                      [0, 0, 1],
+                                      [-1, 0, 0],
+                                      [0, -1, 0],
+                                      [0, 0, -1]]).T * ray_size
+
+        self.local_orientation = (rot @ (self.local_orientation).T).T
+
+        self.local_widgets = (rot @ (self.local_widgets).T).T
+        self.local_normals = rot @ self.local_normals
+        self.local_rays = rot @ self.local_rays
+
+        # computes mesh normals
+        self.mesh = mesh
+        self.mesh.compute_normals(auto_orient_normals=True, inplace=True)
+
+        # disables the rotation of the object
+        self.turn_on = False
+
+        self.snap_outward = snap_outward
+
+        # define display
+        self.p = p
+
+    def get_pos_orient(self, euler_angles=False, one_dir=None, eps=1e-10):
+        """
+        Description
+
+        :param euler_angles:
+        :param one_dir:
+        :param eps:
+        :return:
+        """
+        position = self.box.center_of_mass()
+
+        # return euler_angles
+        if euler_angles:
+            r = R.from_matrix(self.local_orientation)
+            r = r.inv()
+            orientation = r.as_euler('xyz', degrees=True)
+
+        # only one direction
+        elif one_dir != None:
+            orientation = self.local_orientation[:, one_dir]
+
+            #position -= self.local_orientation[:,one_dir]*self.size/2
+
+        # whole orientation
+        else:
+            orientation = self.local_orientation
+
+        # set to zero for very small numbers
+        orientation[np.abs(orientation) < eps] = 0
+
+        return position/1000, orientation
+
+    def translate(self, point, snap=False):
+        """
+        Description
+
+        :param point:
+        :param snap:
+        :return:
+        """
+
+        # definest rays to find intersection with the supplied mesh
+        point1x = point + self.local_rays[:, 0]
+        point2x = point + self.local_rays[:, 3]
+
+        point1y = point + self.local_rays[:, 1]
+        point2y = point + self.local_rays[:, 4]
+
+        point1z = point + self.local_rays[:, 2]
+        point2z = point + self.local_rays[:, 5]
+
+        # performs ray trace in three direction
+        points_x, ind_x = self.mesh.ray_trace(point1x, point2x)
+        points_y, ind_y = self.mesh.ray_trace(point1y, point2y)
+        points_z, ind_z = self.mesh.ray_trace(point1z, point2z)
+
+        # stacks all the ray intersections
+        points = np.vstack([points_x, points_y, points_z])
+        ind = np.hstack([ind_x, ind_y, ind_z])
+
+        # default option - no rotation
+        rot = np.diag([1, 1, 1])
+
+        # if there is an intersection and if "t" is not pressed go forward
+        if points.size != 0 and not (kb.is_pressed('t')):
+            list_ind = []
+            # go through all the intersections
+            for i in range(len(points)):
+                _point = points[i]
+                p1 = _point
+                p2 = point
+                gg = np.sqrt(((p1[0] - p2[0]) ** 2) + ((p1[1] - p2[1]) ** 2) + ((p1[2] - p2[2]) ** 2))
+
+                list_ind.append(gg)
+
+            # find the closest to the box center
+            _sel = np.argmin(list_ind)
+
+            # find the nearest normal
+            v2 = self.mesh.cell_normals[int(ind[_sel])]
+            th = []
+            for _loc in self.local_normals.T:
+                th.append(angle_between(_loc, v2))
+            closest_orient = self.local_normals.T[np.argmin(th)]
+
+            # find orientation between box orientation and cell normal
+            f = self.mesh.cell_normals[int(ind[_sel])]
+            t = closest_orient + np.random.random(3) / 1e20
+
+            # push box 0.5 away from the normal
+            if self.snap_outward:
+                point = points[_sel] + f / 2 * self.size
+            else:
+                point = points[_sel]
+
+            # define rotational matrix to allign with the surface normal
+            rot = rotation_matrix_from_vectors(t, f)
+
+        # move everything to a new location
+        _new = point - self.box.center_of_mass()
+
+        # snaps to the mesh and moves point widgets to the new location
+        if snap:
+            # translates
+            for item in self.objects:
+                item.translate(_new)
+
+            self.p.sphere_widgets[self.N + 0].SetCenter(point)
+            t_new = self.box.center_of_mass()
+
+            for k in range(3):
+                self.local_widgets[k + 1, :] = rot @ self.local_widgets[k + 1, :]
+                self.p.sphere_widgets[self.N + k + 1].SetCenter(self.local_widgets[k + 1, :] + t_new)
+
+            # orient the local csys of accelerometer with the new rotation
+            self.local_orientation = (rot @ (self.local_orientation).T).T
+            self.local_normals = rot @ self.local_normals
+            self.local_rays = rot @ self.local_rays
+
+            # rotate everything within accelerometer
+            for item in self.objects:
+                item.points = (rot @ (item.points - t_new).T).T + t_new
+
+        else:
+            for item in self.objects:
+                item.translate(_new)
+            for i in range(4):
+                self.p.sphere_widgets[self.N + i].SetCenter(_new + np.asarray(self.p.sphere_widgets[self.N + i].GetCenter()))
+
+    def callback(self, point, i):
+        """
+        Description
+
+        :param point:
+        :param i:
+        :return:
+        """
+        # 3D translation in space
+        if i == 0:
+            self.translate(point, snap=True)
+
+        # 3D rotation in space
+        else:
+            if self.turn_on:
+                # get the center of acc
+                _new = self.box.center_of_mass()
+                _vec1 = np.asarray(point - _new)
+                _vec2 = (np.asarray(self.local_widgets[i, :]))
+
+                # define the rotational matrix based on angle of rotation
+                theta = angle(_vec1, _vec2)
+                rot = M(self.local_orientation[i - 1, :], theta)
+
+                # rotate everything within accelerometer
+                for item in self.objects:
+                    item.points = (rot @ (item.points - _new).T).T + _new
+
+                    # orient the local csys of accelerometer with the new rotation
+                self.local_orientation = (rot @ (self.local_orientation).T).T
+                self.local_normals = rot @ self.local_normals
+                self.local_rays = rot @ self.local_rays
+
+                # position all widgets to the new position
+                for k in range(4):
+                    self.local_widgets[k, :] = rot @ self.local_widgets[k, :]
+                    self.p.sphere_widgets[self.N + k].SetCenter(self.local_widgets[k, :] + _new)

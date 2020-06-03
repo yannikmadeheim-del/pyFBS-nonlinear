@@ -1,3 +1,5 @@
+
+# import everything
 from .io import *
 from .utility import *
 from .VPT import *
@@ -6,9 +8,9 @@ from .SEMM import *
 from .MCK import *
 
 
+# relative directories for example datasets
 from pathlib import Path
 import os 
-
 
 # automotive testbench
 example_auto_testbench = {}
