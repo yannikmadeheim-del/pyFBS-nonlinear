@@ -26,14 +26,18 @@ def red_order(A, sv=0):
     return Uk @ Sk @ Vk
 
 
-def find_locations_in_data_frames(df_1, df_2, df=True):
-    if df == True:
-        df_1_val = df_1[["Position_1", "Position_2", "Position_3",
-                         "Direction_1", "Direction_2", "Direction_3"]].values
-        df_2_val = df_2[["Position_1", "Position_2", "Position_3",
-                         "Direction_1", "Direction_2", "Direction_3"]].values
-    else:
-        df_1_val, df_2_val = df_1, df_2
+def find_locations_in_data_frames(df_1, df_2):
+    """Find matching locations of data frames ``df_1`` and ``df_2``.
+
+    :param df_1: Data frame 1
+    :type df_1: pandas.DataFrame
+    :param df_2: Data frame 2
+    :type df_2: pandas.DataFrame
+    :return: Vector of matching locations of both data frames.
+    :rtype: array(float)
+    """
+    df_1_val = df_1[["Position_1", "Position_2", "Position_3", "Direction_1", "Direction_2", "Direction_3"]].values
+    df_2_val = df_2[["Position_1", "Position_2", "Position_3", "Direction_1", "Direction_2", "Direction_3"]].values
     return np.array(np.all((df_1_val[:, None, :] == df_2_val[None, :, :]), axis=-1).nonzero()).T
 
 
@@ -59,9 +63,7 @@ def SEMM(Y_num, Y_exp, df_chn_num, df_imp_num, df_chn_exp, df_imp_exp, SEMM_type
     :type red_comp: int
     :param red_eq: Defines how many maximum singular values will not be taken into account in ensuring equilibrium conditions
     :type red_eq: int
-    :return: ``Y_SEMM``
-
-        |  Hybrid model based on numerical and experimental data
+    :return: Hybrid model based on numerical and experimental data
     :rtype: array(float)
 
     The form of the FRFs in the numerical matrix must match the ``df_chn_num`` and ``df_imp_num`` parameters. 
@@ -80,32 +82,43 @@ def SEMM(Y_num, Y_exp, df_chn_num, df_imp_num, df_chn_exp, df_imp_exp, SEMM_type
     if len(Y_exp.shape) != 3:
         raise Exception('Input experimental matrx must be 3D matrix.')
 
+    if df_chn_exp.shape[0] != Y_exp.shape[1]:
+        raise Exception('The input channel data frame must contain those DoFs that are represented in the experimental model.')
+
+    if df_imp_exp.shape[0] != Y_exp.shape[2]:
+        raise Exception('The input impact data frame must contain those DoFs that are represented in the experimental model.')
+
+    if df_chn_num.shape[0] != Y_num.shape[1]:
+        raise Exception('The input channel data frame must contain those DoFs that are represented in the numerical model.')
+
+    if df_imp_num.shape[0] != Y_num.shape[2]:
+        raise Exception('The input impact data frame must contain those DoFs that are represented in the numerical model.')
+
     # Initialization data
     Y_par = np.asarray(np.copy(Y_num))
     Y_exp = np.asarray(Y_exp)
-    Y_exp = np.copy(Y_exp).reshape(
-        Y_exp.shape[0], Y_exp.shape[1]*Y_exp.shape[2])
+    Y_exp = np.copy(Y_exp).reshape(Y_exp.shape[0], Y_exp.shape[1]*Y_exp.shape[2])
 
     # Data preparation for building parent, remowed and overlay model
     # Reviewing all experimental obtained DoFs
-    maching_locations_chn = find_locations_in_data_frames(
-        df_chn_num, df_chn_exp)
-    maching_locations_imp = find_locations_in_data_frames(
-        df_imp_num, df_imp_exp)
-    all_resp_nodes_DoF = np.repeat(
-        maching_locations_chn[:, 0], len(maching_locations_imp[:, 0]))
-    all_exc_nodes_DoF = np.array(
-        list(maching_locations_imp[:, 0])*len(maching_locations_chn[:, 0]))
+    maching_locations_chn = find_locations_in_data_frames(df_chn_num, df_chn_exp)
+    if maching_locations_chn.shape.shape[0] != df_chn_exp.shape[0]:
+        raise Exception('Not all locations in the channel data frame have their exact locations in the numeric channel data frame.')
+
+    maching_locations_imp = find_locations_in_data_frames(df_imp_num, df_imp_exp)
+    if maching_locations_imp.shape.shape[0] != df_imp_exp.shape[0]:
+        raise Exception('Not all locations in the impact data frame have their exact locations in the numeric impact data frame.')
+
+    all_resp_nodes_DoF = np.repeat(maching_locations_chn[:, 0], len(maching_locations_imp[:, 0]))
+    all_exc_nodes_DoF = np.array(list(maching_locations_imp[:, 0])*len(maching_locations_chn[:, 0]))
 
     # Define unique locations of performed excitations and responses
     uniq_resp_nodes_DoF = np.unique(all_resp_nodes_DoF)
     uniq_exc_nodes_DoF = np.unique(all_exc_nodes_DoF)
 
     # Define unique locations of performed excitations and responses started counting from 0
-    all_resp_nodes_DoF_0 = [list(uniq_resp_nodes_DoF).index(i)
-                            for i in all_resp_nodes_DoF]
-    all_exc_nodes_DoF_0 = [list(uniq_exc_nodes_DoF).index(i)
-                            for i in all_exc_nodes_DoF]
+    all_resp_nodes_DoF_0 = [list(uniq_resp_nodes_DoF).index(i) for i in all_resp_nodes_DoF]
+    all_exc_nodes_DoF_0 = [list(uniq_exc_nodes_DoF).index(i) for i in all_exc_nodes_DoF]
 
     # Construction of parent model
     # moved collumns
@@ -122,11 +135,9 @@ def SEMM(Y_num, Y_exp, df_chn_num, df_imp_num, df_chn_exp, df_imp_exp, SEMM_type
     Y_rem = _all_exc_nodes_DoF[:, (uniq_resp_nodes_DoF), :]
 
     # Construction of overlay model
-    Y_ov = np.zeros((Y_par.shape[0], len(uniq_resp_nodes_DoF), len(
-        uniq_exc_nodes_DoF)), dtype=complex)
+    Y_ov = np.zeros((Y_par.shape[0], len(uniq_resp_nodes_DoF), len(uniq_exc_nodes_DoF)), dtype=complex)
     for i in range(Y_exp.shape[1]):
-        Y_ov[:, all_resp_nodes_DoF_0[i],
-             all_exc_nodes_DoF_0[i]] = Y_exp[:Y_par.shape[0], i]
+        Y_ov[:, all_resp_nodes_DoF_0[i], all_exc_nodes_DoF_0[i]] = Y_exp[:Y_par.shape[0], i]
 
     if SEMM_type == "basic":
         # Single-line method SEMM - basic form - eq(21)

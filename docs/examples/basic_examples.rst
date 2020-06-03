@@ -176,7 +176,7 @@ Using the SEMM function
 ***********************
 
 The function enables the implementation of three SEMM method formulations: ``basic``, ``fully-extend`` and ``fully-extend-svd``, which is defined in the ``SEMM_type`` parameter.
-The ``red_comp`` and ``red_eq`` parameters can be used to influence the number of eigenvalues used to ensure equilibrium and compatibility conditions when the ``fully-extended-svd`` formulation is used.
+The ``red_comp`` and ``red_eq`` parameters can be used to influence the number of eigenvalues used to ensure equilibrium and compatibility conditions when the ``fully-extend-svd`` formulation is used.
 
 The result is a hybrid model that contains the DoFs represented in the numerical model.
 
@@ -185,12 +185,12 @@ It is essential that the order of measurements in the experimental model ``Y_exp
 
 .. code-block:: python
 
-   Y_AB_SEMM = pyFBS.newSEMM(MK.FRF, Y_exp[:, 0:15, 5:20],
-                            df_chn_num = df_chn, 
-                            df_imp_num = df_imp, 
-                            df_chn_exp = df_chn[0:15], 
-                            df_imp_exp = df_imp[5:20], 
-                            SEMM_type='fully-extended-svd', red_comp=10, red_eq=10)
+   Y_AB_SEMM = pyFBS.SEMM(MK.FRF, Y_exp[:, 0:15, 5:20],
+                          df_chn_num = df_chn, 
+                          df_imp_num = df_imp, 
+                          df_chn_exp = df_chn[0:15], 
+                          df_imp_exp = df_imp[5:20], 
+                          SEMM_type='fully-extend-svd', red_comp=10, red_eq=10)
 
 The results can also be displayed using the matplotlib library:
 
@@ -208,18 +208,18 @@ The results can also be displayed using the matplotlib library:
    plt.semilogy(MK.freq,np.abs(MK.FRF[:,s1,s2]), label = "Num.")
    plt.semilogy(freq,np.abs(Y_exp[:, s1,s2]), label = "Exp.")
    plt.semilogy(freq,np.abs(Y_AB_SEMM[:, s1,s2]), label = "SEMM")
-   plt.ylabel("Accelerance")
+   plt.ylabel("Accelerance [m/s$^2$/N]")
    plt.legend()
 
    plt.subplot(413)
    plt.plot(MK.freq,np.angle(MK.FRF[:,s1,s2]))
    plt.plot(freq,np.angle(Y_exp[:, s1,s2]))
    plt.plot(MK.freq,np.angle(Y_AB_SEMM[:,s1,s2]))
-   plt.xlabel("f")
-   plt.ylabel("Angle")
+   plt.xlabel("f [Hz]")
+   plt.ylabel("Angle [rad]")
 
 .. figure:: ./data/SEMM_result.png
    :width: 800px
    
-   Comparison of different formulations of SEMM method.
+   Comparison of FRFs.
 
