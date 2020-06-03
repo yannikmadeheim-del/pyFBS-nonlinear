@@ -1,137 +1,292 @@
-import re
-from pyFBS.IO import Channels
+from scipy.sparse import linalg,diags
+import pyansys
+from numpy.random import randn
 
-from numpy import ndarray
-import matplotlib.pyplot as plt
-import math as mt
-import cmath as cmt
+import scipy as sp
 import numpy as np
+from scipy import spatial
+from scipy.linalg import block_diag
+import pickle
+from os import path
 
-#TODO: Documentation on each class and class instance!!!
-
-class FRF(object):
+class MK_model(object):
     """
-    FRF class for ...
+    Initialization of the finite element model. Mass and stiffness matrices are imported and also nodes, DoFs and complete mesh of finite elements are defined.
+    If parameter ``solve`` is ``True``, also eigenfrequencies and eigenvectors are computed.
 
+    :param ress_file: Path of the .rst file exported from Ansys
+    :type ress_file: str
+    :param full_file: Path of the .full file exported from Ansys
+    :type full_file: str
+    :param no_modes: Number of modes to be included in output of the eigenvalue computation.
+    :type no_modes: int
+    :param solve: If ``False`` just mass and stiffness matrices with corresponding nodes and their DoFs will be imported. If ``True`` also the eigenvalue problem will be solved.
+    :type solve: bool
     """
-    def __init__(self):
-        self.Freqs = None
-        self.nFreq = None
-        self.Channels = None
-        self.nChannels = None
-        self.RefChannels = None
-        self.nRefChannels = None
-        self.Data = None
-        self.Name = None
-        self.Coherence = None
+    def __init__(self,ress_file,full_file,no_modes = 100, allow_pickle = True,recalculate = False):
+        rst = pyansys.read_binary(ress_file)
+        self.nodes = rst.geometry["nodes"][:, :3]  # only translational dofs
+        self.mesh = rst.grid
+        self.mesh.points *= 1000
+        self.pts = self.mesh.points.copy()
+
+        self.no_modes = no_modes
 
 
-    def from_series_to_matrix(self,frfs, sensors, impacts, _coh = None):
+        full = pyansys.read_binary(full_file)
+
+        self.dof_ref, self.K, self.M = full.load_km(sort=True)  # dof_ref: 0-x 1-y 2-z
+
+        self._K = self.K + diags(np.random.random(self.K.shape[0]) / 1e20, shape=self.K.shape) # avoid error
+
+        self.M += sp.sparse.triu(self.M, 1).T
+        self._K += sp.sparse.triu(self._K, 1).T
+
+        p_file = '{}.pkl'.format(full_file)
+        # check if there is a .pkl file
+        same = False
+        if allow_pickle and path.exists(p_file):
+            # load the pickle file
+            _M,_K,_eig_freq,_eig_val,_eig_vec,_no_modes = pickle.load( open(p_file, "rb" ))
+            # check if the solution is the same
+            check_mas  = (_K != self.K).nnz == 0
+            check_stif = (_M != self.M).nnz == 0
+            check_no_modes = _no_modes == no_modes
+            same = np.all([check_mas,check_stif,check_no_modes])
+            if same:
+                self.M, self.K, self.eig_freq, self.eig_val, self.eig_vec, no_modes = pickle.load(open(p_file, "rb"))
+
+        # solve the problem
+        if same == False or recalculate == True:
+            self.eig_freq, self.eig_val, self.eig_vec = self.eig_solve(self.M,self._K,no_modes)
+
+            if allow_pickle:
+                pickle.dump([self.M, self.K, self.eig_freq, self.eig_val, self.eig_vec, no_modes], open(p_file, "wb"))
+
+
+    @staticmethod
+    def eig_solve(mass_mat, stiff_mat, no_modes):
         """
-        Returns the uncoupled FRF matrix object.
+        Description
 
-        :param sub_structure:
-        :param sensors:
-        :param impacts:
+        :param mass_mat:
+        :param stiff_mat:
+        :param no_modes:
         :return:
         """
+        # tolerances and sigma may significantly affect the output!
+        eigen_val, eigen_vec = sp.sparse.linalg.eigsh(stiff_mat, k=no_modes, M=mass_mat, sigma=10000, tol=1e-3)
 
-        sub_structure = self.assign_grouping_number(frfs, sensors, impacts)
-
-
-
-        self.Freqs = sub_structure[0].DataSets.X_Channels.Data
-        self.nFreq = len(self.Freqs)
-
-        if _coh != None:
-            _temp = self.assign_grouping_number(_coh, sensors, impacts)
-            self.Coherence = self.create_matrix_data(_temp, self.nFreq)
-
-        self.Data = self.create_matrix_data(sub_structure, self.nFreq)
-
-        self.Measurement_Info = sub_structure[0].Measurement_Info.Date
-
-        Sensor_Names = sorted(set([d.DataSets.Y_Channels.Channel_Info.Name for d in sub_structure]))
-
-        Impact_Names = sorted(set([d.DataSets.Y_Channels.Ref_Channel_Info.Name for d in sub_structure]))
-
-        _Channels = [d.DataSets.Y_Channels.Channel_Info for d in sub_structure if d.DataSets.Y_Channels.Channel_Info.Name \
-                    in Sensor_Names and d.DataSets.Y_Channels.Ref_Channel_Info.Name == Impact_Names[0]]
-
-        _Ref_Channels = [d.DataSets.Y_Channels.Ref_Channel_Info for d in sub_structure if
-                        d.DataSets.Y_Channels.Ref_Channel_Info.Name \
-                        in Impact_Names and d.DataSets.Y_Channels.Channel_Info.Name == Sensor_Names[0]]
+        eigen_val = np.clip(eigen_val, 0, np.max(eigen_val))  # avoiding negative values
+        eigen_freq = np.sqrt(eigen_val)  #/(2*np.pi)
+        return (eigen_freq, eigen_val, eigen_vec)
 
 
-        self.RefChannels = Channels(_Ref_Channels,impacts, _val = "impacts").Data
-        self.nRefChannels = len(_Ref_Channels)
-
-
-        self.Channels = Channels(_Channels,sensors,_val = "sensors").Data
-        self.nChannels = len(_Channels)
-
-    def assign_grouping_number(self,sub_structure, sensors, impacts):
+    @staticmethod
+    def find_nearest_locations(dense_mesh_points, sparse_mesh_points, dense_mesh_node_id=None):
         """
-        Assigns the grouping number
-        :param sub_structure:
-        :param sensors:
-        :param impacts:
-        :return:
+        This function finds the nearest coordinate locations of sparse mesh in the corresponding dense mesh.
+
+        :param dense_mesh_points: nodal coordinates of dense mesh in 3D space
+        :type dense_mesh_points: array
+        :param sparse_mesh_points: nodal coordinates of sparse mesh in 3D space
+        :type sparse_mesh_points: array
+        :param dense_mesh_node_id: nodal coordinates id of sparse mesh
+        :type dense_mesh_node_id: array
+        :return: Selected nodes by index and by id regarding the dense mesh
+        :rtype: (array(int), array(int))
+
         """
-        for i in range(0, len(sub_structure)):
+        tree = spatial.KDTree(list(zip(dense_mesh_points[:, 0].ravel(), dense_mesh_points[:, 1].ravel(), dense_mesh_points[:, 2].ravel())))
+        selected_dense_mesh_node_index = (tree.query(sparse_mesh_points))[1]
 
-            for j in range(0, len(sensors.Data)):
-
-                if (sub_structure[i].DataSets.Y_Channels.Channel_Info.Node_Number == sensors.Data[j].Node_Number):
-                    sub_structure[i].DataSets.Y_Channels.Channel_Info.Grouping = sensors.Data[j].Grouping
-                    sub_structure[i].DataSets.Y_Channels.Channel_Info.Node.Grouping = sensors.Data[j].Grouping
-
-        for i in range(0, len(sub_structure)):
-
-            for j in range(0, len(impacts.Data)):
-
-                if (sub_structure[i].DataSets.Y_Channels.Ref_Channel_Info.Node_Number == impacts.Data[j].Node_Number):
-                    sub_structure[i].DataSets.Y_Channels.Ref_Channel_Info.Grouping = impacts.Data[j].Grouping
-                    sub_structure[i].DataSets.Y_Channels.Ref_Channel_Info.Node.Grouping = impacts.Data[j].Grouping
-
-        return sub_structure
-
-
-
-    def create_matrix_data(self,sub_structure, nFreq):
-        """
-
-        :param sub_structure:
-        :param nFreq:
-        :return:
-        """
-        iterator = 0
-
-        Names = set([d.DataSets.Y_Channels.Channel_Info.Name for d in sub_structure])
-        Nodes_Sensor = sorted([int(re.findall('\d+', item)[0]) for item in Names])
-        Nodes_Impact = sorted(set([d.DataSets.Y_Channels.Ref_Channel_Info.Node_Number for d in sub_structure]))
-
-        FRF_Matrix = np.zeros((len(Nodes_Sensor), len(Nodes_Impact), nFreq), complex)
-
-        Data = [d.DataSets.Y_Channels.Data for d in sub_structure]
-
-        if sub_structure[0].DataSets.Y_Channels.Ref_Channel_Info.Name != sub_structure[
-            1].DataSets.Y_Channels.Ref_Channel_Info.Name:
-
-            for i in range(0, len(Nodes_Sensor)):
-                for j in range(0, len(Nodes_Impact)):
-                    FRF_Matrix[i, j, :] = Data[j + iterator]
-                iterator = iterator + len(Nodes_Impact)
-
+        if not (dense_mesh_node_id is None):
+            selected_dense_mesh_node_id = dense_mesh_node_id[selected_dense_mesh_node_index]
+            selected_dense_mesh_node_id = list(map(int, selected_dense_mesh_node_id))
+            return selected_dense_mesh_node_index, selected_dense_mesh_node_id
         else:
+            return selected_dense_mesh_node_index
 
-            for j in range(0, len(Nodes_Impact)):
-                for i in range(0, len(Nodes_Sensor)):
-                    FRF_Matrix[i, j, :] = Data[i + iterator]
-                iterator = iterator + len(Nodes_Sensor)
+    @staticmethod
+    def data_preparation(df):
+        """
+        Description
 
-        return FRF_Matrix
+        :param df:
+        :return:
+        """
+        nodes = df[["Position_1", "Position_2", "Position_3"]].values
+        directions = df[["Direction_1", "Direction_2", "Direction_3"]].values
+
+        unique_nodes = nodes[np.sort(np.unique(nodes, axis=0, return_index=True)[1])]
+        direction_nodes = []
+        for node in unique_nodes:
+            loc = np.where((nodes == node).all(axis=1))
+            direction_nodes.append(directions[loc])
+        return unique_nodes, np.asarray(direction_nodes)
+
+    @staticmethod
+    def loc_definition(response_point, response_direction, excitation_point, excitation_direction, rotation_included,
+                       all_at_once=False):
+        """
+        Computation of DoF od specific node in specific direction to find location in modal matrix or global receptance matrix.
+
+        :param response_point: number of node where responce is observed
+        :type response_point: int or array(int)
+        :param response_direction: direction of observed responnce (0-x, 1-y, 2-z)
+        :type response_point: int or array(int)
+        :param excitation_point: number of node where excitation is performed
+        :type excitation_point: int or array(int)
+        :param excitation_direction: direction of performed excitation (0-x, 1-y, 2-z)
+        :type excitation_direction: int or array(int)
+        :param rotation_included: definition of roations inclusion in DoFs in system
+        :type rotation_included: bool
+        :param all_at_once: compute all location as once, when response_point and excitation_point are arrays
+        :type all_at_once: bool
+        :return: sel1, sel2
+        :rtype: (int, int)
+        """
+        if rotation_included:
+            N_DOFs = 6
+        else:
+            N_DOFs = 3
+
+        if all_at_once == False:
+            sel1 = (response_point - 1) * N_DOFs + response_direction
+            sel2 = (excitation_point - 1) * N_DOFs + excitation_direction
+            # print(sel1,sel2)
+        elif all_at_once == True:
+            _sel1 = (response_point - 1) * N_DOFs
+            _sel2 = (excitation_point - 1) * N_DOFs
+            sel1 = []
+            sel2 = []
+            for i in response_direction:
+                sel1.append(_sel1 + i)
+            for i in excitation_direction:
+                sel2.append(_sel2 + i)
+            sel1 = np.ravel(sel1, 'F')  # combine all together in alternating way
+            sel2 = np.ravel(sel2, 'F')  # combine all together in alternating way
+
+        return sel1, sel2
+
+    def update_locations_df(self,df):
+        """
+        Description
+
+        :param df:
+        :return:
+        """
+        _df = df.copy(deep = True)
+        _loc = _df[["Position_1", "Position_2", "Position_3"]].to_numpy()
+        _index = self.find_nearest_locations(self.nodes,_loc)
+        for i,_ind in enumerate(_index):
+            _df.loc[i, ["Position_1", "Position_2", "Position_3"]] = self.nodes[_ind]
+
+        return _df
+
+    def get_modeshape(self,select_mode):
+        """
+        Description
+
+        :param select_mode:
+        :return:
+        """
+        _modeshape = np.zeros_like(self.nodes)
+        for ref, mode in zip(self.dof_ref, self.eig_vec[:, select_mode]):
+            #print(ref)
+            _modeshape[ref[0] - 1, ref[1]] = mode
+
+        return _modeshape
 
 
-if __name__ == '__main__':
-    print("Test: Dog!")
+    def FRF_synth(self,df_channel,df_impact,f_start = 1, f_end = 2000, f_resolution= 1, limit_modes = None, modal_damping = None, frf_type = "receptance"):
+        """
+        Description
+
+        :param df_channel:s
+        :param df_impact:
+        :param f_start:
+        :param f_end:
+        :param f_resolution:
+        :param limit_modes:
+        :param modal_damping:
+        :param type:
+        :return:
+        """
+        unique_nodes_chn, direction_nodes_chn = self.data_preparation(df_channel)
+        unique_nodes_imp, direction_nodes_imp = self.data_preparation(df_impact)
+
+        index_chn = self.find_nearest_locations(self.nodes, unique_nodes_chn)
+        index_imp = self.find_nearest_locations(self.nodes, unique_nodes_imp)
+
+
+        rotation_included = False
+        response_points = index_chn + 1
+        response_directions = [0, 1, 2]
+        excitation_points = index_imp + 1
+        excitation_directions = [0, 1, 2]
+
+        if limit_modes == None:
+            no_modes = self.no_modes
+        else:
+            no_modes = limit_modes
+
+        if modal_damping == None:
+            damping = np.asarray([0] * no_modes)
+        elif type(modal_damping) == float:
+            damping = np.asarray([modal_damping] * no_modes)
+
+        loc1, loc2 = self.loc_definition(response_points, response_directions, excitation_points, excitation_directions,
+                                    rotation_included, all_at_once=True)
+
+
+        if f_start == 0:
+            # approximation at 0Hz
+            freq = np.arange(f_start+1e-3, f_end, f_resolution)
+        _freq = np.arange(f_start, f_end, f_resolution)
+
+        ome = 2 * np.pi * freq
+        ome2 = ome ** 2
+        _eig_val2 = self.eig_freq ** 2
+
+        m_p_chan = block_diag(*direction_nodes_chn) @ self.eig_vec[loc1, :no_modes]
+        m_p_imp = block_diag(*direction_nodes_imp) @ self.eig_vec[loc2, :no_modes]
+        m_p = np.einsum('ij,kj->jik', m_p_chan, m_p_imp)
+        
+        denominator = (_eig_val2[:no_modes, np.newaxis] - ome2) + np.einsum('ij,i->ij',
+                                                                            (ome * self.eig_freq[:no_modes, np.newaxis]),
+                                                                            (2 * 1j * damping[:no_modes]))
+        FRF_matrix = np.einsum('ijk,il->ljk', m_p, 1 / denominator)
+
+        if frf_type == "receptance":
+            _temp = FRF_matrix
+
+        elif frf_type == "mobility":
+            _temp = np.einsum('ijk,i->ijk', FRF_matrix, (1j*2*np.pi*freq))
+
+        elif frf_type == "accelerance":
+            _temp = np.einsum('ijk,i->ijk', FRF_matrix, -(2*np.pi*freq)**2)
+
+        self.FRF = _temp
+        freq = _freq
+        self.freq = freq
+
+
+    def add_noise(self,n1 = 1e-3, n2 = 1e-3, n3 = 8e-4 ,n4 = 7e-4):
+        """
+        Aditive noise
+
+        :param n1:
+        :param n2:
+        :param n3:
+        :param n4:
+        :return:
+        """
+        self.FRF_noise = np.zeros_like(self.FRF, dtype=complex)
+
+        for i in range(self.FRF.shape[0]):
+            for j in range(self.FRF.shape[1]):
+                noise = n1 * (randn(len(self.freq))) * np.abs(self.FRF[i, j]) + 1j * n2 * (randn(len(self.freq))) * np.abs(
+                    self.FRF[i, j]) + n3 * (randn(len(self.freq))) + 1j * n4 * (randn(len(self.freq)))
+                self.FRF_noise[i, j] = self.FRF[i, j] + noise
+

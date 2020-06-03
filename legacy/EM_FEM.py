@@ -31,21 +31,23 @@ Output = 'Yqm_EM'
 
 #%% MCK and Modal Model
 
-full_file = './Hyundai_TPA/Datasets/ansys/EM/EM.full'
-result_file = './Hyundai_TPA/Datasets/ansys/EM/EM.rst'
+full_file = '../data/AM_automotive_testbench/FEM/EM/EM.full'
+result_file = '../data/AM_automotive_testbench/FEM/EM/EM.rst'
 
 k, m, dof_reference_table, ndof_per_node, nodes_and_coordinates = read_ansys_full_file(full_file, result_file)
 
 mck_A = MCK_Model(k, m, nodes_and_coordinates)
 mck_A.DOFMapping = dof_reference_table
 
-nModes = 100
+nModes = 12
 mModel_A_d = to_modal_model(mck_A, nModes)
 mModel_A_d.ndofs = ndof_per_node
 
 zeta = 0.003
 add_damping(mModel_A_d, 'modal', zeta)
 
+
+"""
 #%% FRF Measurement - DoF Selection
 
 sensors = fromXls_Sensor("./Hyundai_TPA/meta/EM_fem.xlsx", 'Sensors', 'Channels')
@@ -100,5 +102,7 @@ plot(Yqm_FEM, 0, 2, PlotType = 'phase')
 
 #%% Writing results
 
-with open("./Hyundai_TPA/export/FEM_Mounts/" + Output, 'wb') as output:
-    pickle.dump(Yqm_FEM, output, pickle.HIGHEST_PROTOCOL)
+#with open("./Hyundai_TPA/export/FEM_Mounts/" + Output, 'wb') as output:
+#    pickle.dump(Yqm_FEM, output, pickle.HIGHEST_PROTOCOL)
+
+"""
