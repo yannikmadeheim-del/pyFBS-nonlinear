@@ -247,11 +247,13 @@ class MK_model(object):
 
         if f_start == 0:
             # approximation at 0Hz
-            _freq = np.arange(f_start+1e-3, f_end, f_resolution)
+            freq = np.arange(f_start+1e-3, f_end, f_resolution)
         else:
-            _freq = np.arange(f_start, f_end, f_resolution)
+            freq = np.arange(f_start, f_end, f_resolution)
 
-        ome = 2 * np.pi * _freq
+        _freq = np.arange(f_start, f_end, f_resolution)
+
+        ome = 2 * np.pi * freq
         ome2 = ome ** 2
         _eig_val2 = self.eig_freq ** 2
 

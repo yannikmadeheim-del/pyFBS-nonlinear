@@ -282,7 +282,7 @@ class VPT(object):
         _Y_vpt = self.Tu @ FRF @ self.Tf
 
         self.vptData = _Y_vpt
-        self.vptFreqs = freq
+        self.freq = freq
         self.FRF = FRF
 
     def consistency(self, grouping, ref_grouping):

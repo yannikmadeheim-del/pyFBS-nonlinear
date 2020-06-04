@@ -348,3 +348,21 @@ def generate_sensors_from_channels(df):
         df_sen = df_sen.append(df_row,ignore_index = True)
 
     return df_sen
+
+def coh_on_FRF(FRF_matrix):
+    """
+    Description
+
+    :param FRF_matrix:
+    :return:
+    """
+    _out = FRF_matrix.shape[1]
+    _in = FRF_matrix.shape[2]
+
+    coh_crit = np.zeros((_out, _in))
+
+    for i in range(_out):
+        for j in range(_in):
+            coh_crit[i, j] = coh_frf(FRF_matrix[:, i, j], FRF_matrix[:, j, i])
+
+    return coh_crit
