@@ -44,9 +44,13 @@ Y_TS = str(Path(__file__).parents[1] )+os.sep+"data" +os.sep + "automotive_testb
 xlsx_ODS = str(Path(__file__).parents[1] )+os.sep+"data" +os.sep + "automotive_testbench" + os.sep + "Measurements" + os.sep + "ODS.xlsx"
 Y_ODS = str(Path(__file__).parents[1] )+os.sep+"data" +os.sep + "automotive_testbench" + os.sep + "Measurements" + os.sep + "ODS.p"
 
+xlsx_modal = str(Path(__file__).parents[1] )+os.sep+"data" +os.sep + "automotive_testbench" + os.sep + "Measurements" + os.sep + "modal.xlsx"
+Y_m_1 = str(Path(__file__).parents[1] )+os.sep+"data" +os.sep + "automotive_testbench" + os.sep + "Measurements" + os.sep + "frame_rubbermounts_sourceplate.p"
+Y_m_2 = str(Path(__file__).parents[1] )+os.sep+"data" +os.sep + "automotive_testbench" + os.sep + "Measurements" + os.sep + "frame_rubbermounts.p"
 
-example_auto_testbench["meas"] = {"xlsx_A":xlsx_A,"xlsx_AB_ref":xlsx_AB_ref,"xlsx_B_ref":xlsx_B_ref,"xlsx_BTS":xlsx_BTS,"xlsx_TS":xlsx_TS,"xlsx_ODS":xlsx_ODS,
-                                  "Y_A":Y_A,"Y_AB_ref":Y_AB_ref,"Y_B_ref":Y_B_ref,"Y_BTS":Y_BTS,"Y_TS":Y_TS,"Y_ODS":Y_ODS}
+
+
+example_auto_testbench["meas"] = {"xlsx_A":xlsx_A,"xlsx_AB_ref":xlsx_AB_ref,"xlsx_B_ref":xlsx_B_ref,"xlsx_BTS":xlsx_BTS,"xlsx_TS":xlsx_TS,"xlsx_ODS":xlsx_ODS,"xlsx_modal":xlsx_modal,"Y_m_1":Y_m_1,"Y_m_2":Y_m_2,"Y_A":Y_A,"Y_AB_ref":Y_AB_ref,"Y_B_ref":Y_B_ref,"Y_BTS":Y_BTS,"Y_TS":Y_TS,"Y_ODS":Y_ODS}
 
 TM_rst = str(Path(__file__).parents[1] )+os.sep+"data" +os.sep + "automotive_testbench" + os.sep + "FEM" + os.sep + "TM.rst"
 RM_rst = str(Path(__file__).parents[1] )+os.sep+"data" +os.sep + "automotive_testbench" + os.sep + "FEM" + os.sep + "RM.rst"

@@ -27,7 +27,7 @@ def modeshape_sync_lstsq(mode_shape_vec):
     _n = np.zeros_like(mode_shape_vec)
     for i in range(np.shape(mode_shape_vec)[1]):
         _mode = mode_shape_vec[:,i]
-        z = np.arctan(np.average(np.imag(_mode)/np.real(_mode),weights = np.abs(_mode)**2))
+        z = np.arctan(np.average(np.imag(_mode)/np.real(_mode),weights = np.abs(_mode)**1e4))
             
         _n[:,i] = _mode*(np.cos(-1*z)+1j*np.sin(-1*z))
     return _n
@@ -366,3 +366,20 @@ def coh_on_FRF(FRF_matrix):
             coh_crit[i, j] = coh_frf(FRF_matrix[:, i, j], FRF_matrix[:, j, i])
 
     return coh_crit
+
+
+def orient_in_global(mode, df_chn, df_acc):
+    n_sen = len(df_acc)
+    n_ax = 3
+
+    empty = np.zeros((n_sen, n_ax), dtype=complex)
+
+    # channel data for animation!
+    _dir = df_chn[["Direction_1", "Direction_2", "Direction_3"]].to_numpy()
+    for i in range(n_sen):
+        for j in range(n_ax):
+            sel = (i) * 3 + j
+            empty[i, :] += _dir[sel:sel + 1, :].T @ np.asarray([mode[sel]])
+
+    return empty
+

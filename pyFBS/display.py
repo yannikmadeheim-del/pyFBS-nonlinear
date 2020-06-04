@@ -95,7 +95,7 @@ class view3D():
             _damp = self.modeshape_animation["damp"]
             _mcf = self.modeshape_animation["mcf"]
 
-            self.plot.add_text("Frequency = %4.1f Hz\nDamping = %4.3f%%\nComplexity = %4.1f%%" % (_freq,_damp,_mcf),
+            self.plot.add_text("Frequency = %4.1f Hz\nDamping = %4.3f%%\nMCF = %4.1f%%" % (_freq,_damp,_mcf),
                                  position='upper_right', font_size=10, color="k", font="times", name="Mode")
 
         if run_animation:
@@ -125,7 +125,7 @@ class view3D():
 
             self.plot.update_coordinates(self.modeshape_animation["or_pts"] + add_val, mesh=self.modeshape_animation["mesh"],render = False)
             if self.modeshape_animation["scalars"]:
-                self.plot.update_scalars(np.sqrt(np.mean(add_val ** 2, axis=1)).reshape(self.modeshape_animation["or_pts"].shape[0]),render = False)
+                self.plot.update_scalars(np.sqrt(np.mean(add_val ** 2, axis=1)).reshape(self.modeshape_animation["or_pts"].shape[0]), mesh=self.modeshape_animation["mesh"] ,render = False)
 
             self.plot.render()
             if self.take_gif:
