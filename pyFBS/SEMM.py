@@ -1,29 +1,8 @@
 import numpy as np
 import copy
 import matplotlib.pyplot as plt
+from pyFBS.utility import *
 
-
-def red_order(A, sv=0):
-    """
-    Filtration of input matrix ``A`` with singular value decomposition by reducing considered singular values.
-
-    :param A: Matrix to be filtered by singular value decomposition
-    :type A: array(float)
-    :param sv: Number of singular values not taken into account by reconstruction of the matrix A
-    :type sv: int
-    :return: Filtered matrix A
-    :rtype: array(float)
-    """
-    U, s, VT = np.linalg.svd(A)
-    kk = s.shape[1] - sv
-    Uk = U[:, :, :kk]
-    Sk = np.zeros((A.shape[0], kk, kk))
-
-    for i in range(A.shape[0]):
-        Sk[i] = np.diag(s[i, :kk])
-    Vk = VT[:, :kk, :]
-
-    return Uk @ Sk @ Vk
 
 
 def find_locations_in_data_frames(df_1, df_2):
@@ -154,8 +133,8 @@ def SEMM(Y_num, Y_exp, df_chn_num, df_imp_num, df_chn_exp, df_imp_exp, SEMM_type
             Y_rem-Y_ov)@np.linalg.pinv(Y_par[:, :, -len(uniq_exc_nodes_DoF):])@Y_par
 
     elif SEMM_type == "fully-extend-svd":
-        Y_SEMM = Y_par - Y_par @ np.linalg.pinv(red_order(Y_par[:, -len(uniq_resp_nodes_DoF):, :], sv=red_comp))  @ (
-            Y_rem - Y_ov) @ np.linalg.pinv(red_order(Y_par[:, :, -len(uniq_exc_nodes_DoF):], sv=red_eq)) @ Y_par
+        Y_SEMM = Y_par - Y_par @ np.linalg.pinv(TSVD(Y_par[:, -len(uniq_resp_nodes_DoF):, :], reduction=red_comp))  @ (
+            Y_rem - Y_ov) @ np.linalg.pinv(TSVD(Y_par[:, :, -len(uniq_exc_nodes_DoF):], reduction=red_eq)) @ Y_par
 
     #U, s, VT = np.linalg.svd(Y_par[:, -len(uniq_resp_nodes_DoF):, :])
     #U, s, VT = np.linalg.svd(Y_par[:, :, -len(uniq_exc_nodes_DoF):])

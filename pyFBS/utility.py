@@ -211,11 +211,14 @@ def CMIF(FRF, singular_vectors=False):
 
 def TSVD(matrix,reduction = 0):
     """
-    Performs a TSVD on a suplied FRF matrix
+    Filters a FRF matrix  with a truncated singular value decomposition (TSVD) by removing the smallest singular values.
 
-    :param matrix:
-    :param reduction: number of removed singular values
-    :return:
+    :param matrix: Matrix to be filtered by singular value decomposition
+    :type matrix: array(float)
+    :param reduction: Number of singular values not taken into account by reconstruction of the matrix A
+    :type reduction: int
+    :return: Filtered matrix
+    :rtype: array(float)
     """
     U, s, VH = np.linalg.svd(matrix)
     kk = s.shape[1] - reduction
@@ -233,8 +236,6 @@ def M(axis, theta):
     Euler-Rodrigues formula
     """
     t = expm(cross(eye(3), axis / norm(axis) * (theta)))
-    # print(theta)
-
     return t
 
 
@@ -369,6 +370,14 @@ def coh_on_FRF(FRF_matrix):
 
 
 def orient_in_global(mode, df_chn, df_acc):
+    """
+    Description
+
+    :param mode:
+    :param df_chn:
+    :param df_acc:
+    :return:
+    """
     n_sen = len(df_acc)
     n_ax = 3
 
