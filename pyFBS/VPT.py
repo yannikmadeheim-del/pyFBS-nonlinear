@@ -166,12 +166,12 @@ class VPT(object):
         """
         rx, ry, rz = pos[0], pos[1], pos[2]
 
-        if type == "Acceleration":
-            _R = np.asarray([[1, 0, 0, 0, rz, -ry],
-                             [0, 1, 0, -rz, 0, rx],
-                             [0, 0, 1, ry, -rx, 0]])
 
-        elif type == "Angular Acceleration":
+        _R = np.asarray([[1, 0, 0, 0, rz, -ry],
+                         [0, 1, 0, -rz, 0, rx],
+                         [0, 0, 1, ry, -rx, 0]])
+
+        if type == "Angular Acceleration":
             _R = np.asarray([[0, 0, 0, 1, 0, 0],
                              [0, 0, 0, 0, 1, 0],
                              [0, 0, 0, 0, 0, 1]])
