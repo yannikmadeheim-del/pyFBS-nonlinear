@@ -24,9 +24,16 @@ class view3D():
     :param show_origin: Display the CSYS in origin
     :type show_origin: bool
     """
-    def __init__(self,show_origin = True,show_axes = True,**kwargs):
+    def __init__(self,show_origin = True,show_axes = True,title = None,**kwargs):
         self.plot = pv.BackgroundPlotter(show = True,**kwargs)
-        self.plot.app_window.setWindowTitle("pyFBS")
+
+        if title != None:
+            self.plot.app_window.setWindowTitle("pyFBS - " + str(title))
+        else:
+            self.plot.app_window.setWindowTitle("pyFBS ")
+
+
+
         icon = str(Path(__file__).parents[1]) + os.sep + "data" + os.sep + "icon.ico"
         self.plot.app_window.setWindowIcon(QtGui.QIcon(icon))
         self.plot.background_color = BACKGROUND
@@ -418,9 +425,13 @@ class view3D():
             imp, _ = self.add_impact([size/2, size/2, size/2], [0, 0, 1], size=10)
             rot = np.diag([1]*3)
         else:
-
+            #imp, _ = self.add_impact([size/2, size/2, size/2],[0, 0, 1], size=10)
             imp, _ = self.add_impact([size/2, size/2, size/2],direction, size=10)
-            rot = rotation_matrix_from_vectors(direction, [0, 0, 1])
+            # somethin wrong here o.O
+
+            #rot = np.diag([1]*3)
+            rot = rotation_matrix_from_vectors(direction,[0, 0, 1]).T
+
         _gg = DynamicPosition([imp], self.plot, i, mesh=self.mesh, size=10,rot = rot,snap_outward = False)
         self.plot.add_sphere_widget(_gg.callback, center=_gg.points, color=["k", "r", "g", "b"], radius=10 / 15)
         _gg.translate(point)
@@ -681,7 +692,7 @@ class view3D():
             positions.append([row["Position_1"] * 1000, row["Position_2"] * 1000, row["Position_3"] * 1000])
             labels.append(row["Name"])
 
-        self.plot.add_point_labels(positions, labels, font_size=12,name = name,shape_opacity=0.5,**kwargs)
+        self.plot.add_point_labels(positions, labels, font_size=12,name = name,shape_opacity=.5,show_points=False,**kwargs)
         self.global_labels.append([[positions, labels], name])
         self.labels_visible = True
 
@@ -704,7 +715,7 @@ class view3D():
             positions.append([row["Position_1"] * 1000, row["Position_2"] * 1000, row["Position_3"] * 1000])
             labels.append(row["Name"])
 
-        self.plot.add_point_labels(positions, labels, font_size=12,name = name,shape_color = RED,font_family = "times",shape_opacity=0.5,**kwargs)
+        self.plot.add_point_labels(positions, labels, font_size=12,name = name,shape_color = RED,font_family = "times",shape_opacity=0.5,show_points=False,**kwargs)
         self.global_labels.append([[positions, labels], name])
         self.labels_visible = True
 
@@ -730,7 +741,7 @@ class view3D():
             positions.append([row["Position_1"]*1000+x, row["Position_2"]*1000+y, row["Position_3"]*1000+z])
             labels.append(row["Name"])
 
-        self.plot.add_point_labels(positions, labels, font_size=12, name=name, shape_color=BLUE, font_family = "times",shape_opacity=0.5,**kwargs)
+        self.plot.add_point_labels(positions, labels, font_size=12, name=name, shape_color=BLUE, font_family = "times",shape_opacity=0.5,show_points=False,**kwargs)
         self.global_labels.append([[positions,labels],name])
         self.labels_visible = True
 
@@ -754,7 +765,7 @@ class view3D():
 
         L = df["Grouping"].unique()
 
-        self.plot.add_point_labels(position, L, font_size=12,name = name,font_family = "times",shape_opacity=0.5,shape_color = GREEN,**kwargs)
+        self.plot.add_point_labels(position, L, font_size=12,name = name,font_family = "times",shape_opacity=0.5,shape_color = GREEN,show_points=False,**kwargs)
         self.global_labels.append([[position, L], name])
         self.labels_visible = True
 
@@ -885,7 +896,7 @@ class DynamicPosition():
                                       [0, -1, 0],
                                       [0, 0, -1]]).T * ray_size
 
-        self.local_orientation = (rot @ (self.local_orientation).T).T
+        self.local_orientation = (rot @ (self.local_orientation))
 
         self.local_widgets = (rot @ (self.local_widgets).T).T
         self.local_normals = rot @ self.local_normals
@@ -917,14 +928,13 @@ class DynamicPosition():
         # return euler_angles
         if euler_angles:
             r = R.from_matrix(self.local_orientation)
-            r = r.inv()
             orientation = r.as_euler('xyz', degrees=True)
 
         # only one direction
         elif one_dir != None:
-            orientation = self.local_orientation[:, one_dir]
-
-            #position -= self.local_orientation[:,one_dir]*self.size/2
+            r = R.from_matrix(self.local_orientation)
+            r = r.as_matrix().T
+            orientation = r[one_dir,:]
 
         # whole orientation
         else:
@@ -1018,7 +1028,7 @@ class DynamicPosition():
                 self.p.sphere_widgets[self.N + k + 1].SetCenter(self.local_widgets[k + 1, :] + t_new)
 
             # orient the local csys of accelerometer with the new rotation
-            self.local_orientation = (rot @ (self.local_orientation).T).T
+            self.local_orientation = (rot @ (self.local_orientation))
             self.local_normals = rot @ self.local_normals
             self.local_rays = rot @ self.local_rays
 
@@ -1061,7 +1071,7 @@ class DynamicPosition():
                     item.points = (rot @ (item.points - _new).T).T + _new
 
                     # orient the local csys of accelerometer with the new rotation
-                self.local_orientation = (rot @ (self.local_orientation).T).T
+                self.local_orientation = (rot @ (self.local_orientation))
                 self.local_normals = rot @ self.local_normals
                 self.local_rays = rot @ self.local_rays
 
