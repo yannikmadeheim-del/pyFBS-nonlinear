@@ -19,7 +19,9 @@ class VPT(object):
     :param Wf: Displacement weighting matrix.
     :type Wf: numpy.array
     """
-    def __init__(self, ch, refch, vp_ch, vp_refch ,Wu = None, Wf = None):
+    def __init__(self, ch, refch, vp_ch, vp_refch ,Wu = None, Wf = None,sort_matrix = True):
+        self.sort_matrix = sort_matrix
+
         # Load the physical input-output DoFs
         self.Channels = ch
         self.RefChannels = refch
@@ -64,22 +66,23 @@ class VPT(object):
 
         Ru = block_diag(*R_all, np.eye(len(np.where(mask_u != 0)[0])))
 
-        R_n = np.zeros_like(Ru)
+        if self.sort_matrix:
+            R_n = np.zeros_like(Ru)
+            # position the transformation matrix based on location it the .xlsx file
+            R_all = np.asarray(R_all)[0, :, :]
+            gg = 0
+            trig = True
+            for i, k in enumerate(mask_u):
+                if k == 1:
+                    R_n[i, gg] = 1
+                    gg += k
+                else:
+                    if trig:
+                        R_n[i:i + R_all.shape[0], gg:gg + R_all.shape[1]] = R_all
+                        gg += R_all.shape[1]
+                        trig = False
+            Ru = R_n
 
-        # position the transformation matrix based on location it the .xlsx file
-        R_all = np.asarray(R_all)[0, :, :]
-        gg = 0
-        trig = True
-        for i, k in enumerate(mask_u):
-            if k == 1:
-                R_n[i, gg] = 1
-                gg += k
-            else:
-                if trig:
-                    R_n[i:i + R_all.shape[0], gg:gg + R_all.shape[1]] = R_all
-                    gg += R_all.shape[1]
-                    trig = False
-        Ru = R_n
 
         # definition of weighting matrix
         if self.Wu_p == None:
@@ -123,21 +126,23 @@ class VPT(object):
 
         # position the transformation matrix based on location it the .xlsx file
         Rf = block_diag(*R_all, np.eye(len(np.where(mask_f != 0)[0])))
-        R_n = np.zeros_like(Rf)
-        R_all = np.asarray(R_all)[0, :, :]
-        gg = 0
-        trig = True
-        for i, k in enumerate(mask_f):
-            if k == 1:
-                R_n[i, gg] = 1
-                gg += k
-            else:
-                if trig:
-                    R_n[i:i + R_all.shape[0], gg:gg + R_all.shape[1]] = R_all
 
-                    gg += R_all.shape[1]
-                    trig = False
-        Rf = R_n
+        if self.sort_matrix:
+            R_n = np.zeros_like(Rf)
+            R_all = np.asarray(R_all)[0, :, :]
+            gg = 0
+            trig = True
+            for i, k in enumerate(mask_f):
+                if k == 1:
+                    R_n[i, gg] = 1
+                    gg += k
+                else:
+                    if trig:
+                        R_n[i:i + R_all.shape[0], gg:gg + R_all.shape[1]] = R_all
+
+                        gg += R_all.shape[1]
+                        trig = False
+            Rf = R_n
 
         # definition of weighting matrix
         if self.Wf_p == None:
