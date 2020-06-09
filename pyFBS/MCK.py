@@ -275,6 +275,8 @@ class MK_model(object):
             _freq = np.arange(f_start+1e-3, f_end, f_resolution)
         else:
             _freq = np.arange(f_start, f_end, f_resolution)
+        
+        freq = np.arange(f_start, f_end, f_resolution)
 
         ome = 2 * np.pi * _freq
         ome2 = ome ** 2
@@ -299,7 +301,6 @@ class MK_model(object):
             _temp = np.einsum('ijk,i->ijk', FRF_matrix, -(2*np.pi*_freq)**2)
 
         self.FRF = _temp
-        freq = _freq
         self.freq = freq
 
 
