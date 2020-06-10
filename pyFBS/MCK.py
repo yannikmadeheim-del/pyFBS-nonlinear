@@ -12,18 +12,22 @@ from os import path
 class MK_model(object):
     """
     Initialization of the finite element model. Mass and stiffness matrices are imported and also nodes, DoFs and complete mesh of finite elements are defined.
-    If parameter ``solve`` is ``True``, also eigenfrequencies and eigenvectors are computed.
-
-    :param ress_file: Path of the .rst file exported from Ansys
+    If parameter ``recalculate`` is ``Ture`` eigenvalues and eigenvectors are calculated. 
+    For faster processing by default pickle file is generated where mass and stiffness matrices are stored and also computed eigenvalues, eigenvectors and used number of modes.
+    If changes are detected in the mass or stiffness matrix with respect to the stored pickle file, the calculation of eigenvalues and eigenvectors is repeated.
+    
+    :param ress_file: path of the .rst file exported from Ansys
     :type ress_file: str
-    :param full_file: Path of the .full file exported from Ansys
+    :param full_file: path of the .full file exported from Ansys
     :type full_file: str
-    :param no_modes: Number of modes to be included in output of the eigenvalue computation.
+    :param no_modes: number of modes to be included in output of the eigenvalue computation
     :type no_modes: int
-    :param solve: If ``False`` just mass and stiffness matrices with corresponding nodes and their DoFs will be imported. If ``True`` also the eigenvalue problem will be solved.
-    :type solve: bool
+    :param allow_pickle: if ``True``, pickle file will be generated to store data or will pickle file be used to load data
+    :type allow_pickle: bool
+    :param recalculate: if ``False`` just mass and stiffness matrices with corresponding nodes and their DoFs will be imported. If ``True`` also the eigenvalue problem will be solved.
+    :type recalculate: bool
     """
-    def __init__(self,ress_file,full_file,no_modes = 100, allow_pickle = True,recalculate = False):
+    def __init__(self, ress_file, full_file, no_modes = 100, allow_pickle = True, recalculate = False):
         rst = pyansys.read_binary(ress_file)
         self.nodes = rst.geometry["nodes"][:, :3]  # only translational dofs
         self.mesh = rst.grid
@@ -43,6 +47,11 @@ class MK_model(object):
 
         self.M += sp.sparse.triu(self.M, 1).T
         self._K += sp.sparse.triu(self._K, 1).T
+
+        if np.max(self.dof_ref[:, 1])==5:
+            self.rotation_included = True
+        elif np.max(self.dof_ref[:, 1])==2:
+            self.rotation_included = False
 
         p_file = '{}.pkl'.format(full_file)
         # check if there is a .pkl file
@@ -69,12 +78,16 @@ class MK_model(object):
     @staticmethod
     def eig_solve(mass_mat, stiff_mat, no_modes):
         """
-        Description
+        Find eigenvalues and eigenvectors for given mass matrix ``mass_mat`` and stiffness matrix ``stiff_mat``.
 
-        :param mass_mat:
-        :param stiff_mat:
-        :param no_modes:
+        :param mass_mat: mass matrix
+        :type mass_mat: scipy.sparse
+        :param stiff_mat: stiffness matrix
+        :type stiff_mat: scipy.sparse
+        :param no_modes: number of considered modes
+        :type no_modes: int
         :return:
+        :rtype: (array(float), array(float), array(float))
         """
         # tolerances and sigma may significantly affect the output!
         eigen_val, eigen_vec = sp.sparse.linalg.eigsh(stiff_mat, k=no_modes, M=mass_mat, sigma=10000, tol=1e-3)
@@ -90,11 +103,11 @@ class MK_model(object):
         This function finds the nearest coordinate locations of sparse mesh in the corresponding dense mesh.
 
         :param dense_mesh_points: nodal coordinates of dense mesh in 3D space
-        :type dense_mesh_points: array
+        :type dense_mesh_points: array(float)
         :param sparse_mesh_points: nodal coordinates of sparse mesh in 3D space
-        :type sparse_mesh_points: array
+        :type sparse_mesh_points: array(float)
         :param dense_mesh_node_id: nodal coordinates id of sparse mesh
-        :type dense_mesh_node_id: array
+        :type dense_mesh_node_id: array(int)
         :return: Selected nodes by index and by id regarding the dense mesh
         :rtype: (array(int), array(int))
 
@@ -112,10 +125,12 @@ class MK_model(object):
     @staticmethod
     def data_preparation(df):
         """
-        Description
+        Returns unique locations of all nodal coordinates in ``df`` and all directions for each node.
 
-        :param df:
-        :return:
+        :param df: data frame of locations and corresponding directions 
+        :type df: pandas.DataFrame
+        :return: unique nodal coordinates and directions for each node
+        :rtype: (array(float), array(int))
         """
         nodes = df[["Position_1", "Position_2", "Position_3"]].values
         directions = df[["Direction_1", "Direction_2", "Direction_3"]].values
@@ -173,10 +188,13 @@ class MK_model(object):
 
     def update_locations_df(self,df):
         """
-        Description
+        Update locations in data frame ``df`` to nearest nodal locations of the finite element model.
+        Directions remain the same.
 
-        :param df:
-        :return:
+        :param df: data frame of locations, for which the nearest locations in the numerical model will be found.
+        :type df: pandas.DataFrame
+        :return: updated data frame
+        :rtype: pandas.DataFrame
         """
         _df = df.copy(deep = True)
         _loc = _df[["Position_1", "Position_2", "Position_3"]].to_numpy()
@@ -188,14 +206,20 @@ class MK_model(object):
 
     def get_modeshape(self,select_mode):
         """
-        Description
+        Return desired mode shape. 
 
-        :param select_mode:
-        :return:
+        :param select_mode: order of mode shape, starting from 0
+        :type select_mode: int
+        :return: selected modes shape
+        :rtype: array(float)
         """
         _modeshape = np.zeros_like(self.nodes)
-        for ref, mode in zip(self.dof_ref, self.eig_vec[:, select_mode]):
-            #print(ref)
+        _mode = self.eig_vec[:, select_mode]
+        _dof_ref = self.dof_ref
+        if self.rotation_included: # to skip rotational modeshape
+            _mode = np.asarray([val for m, val in enumerate(_mode) if m % (3 * 2) < 3])
+            _dof_ref = np.asarray([val for m, val in enumerate(_dof_ref) if m % (3 * 2) < 3])
+        for ref, mode in zip(_dof_ref, _mode):
             _modeshape[ref[0] - 1, ref[1]] = mode
 
         return _modeshape
@@ -203,28 +227,30 @@ class MK_model(object):
 
     def FRF_synth(self,df_channel,df_impact,f_start = 1, f_end = 2000, f_resolution= 1, limit_modes = None, modal_damping = None, frf_type = "receptance"):
         """
-        Description
+        Synthetisation of frequency response functions using the mode superposition method.
 
-        :param df_channel:s
-        :param df_impact:
-        :param f_start:
-        :param f_end:
-        :param f_resolution:
-        :param limit_modes:
-        :param modal_damping:
-        :param type:
-        :return:
+        :param df_channel: locations and directions of responses where FRFs will be generated
+        :type df_channel: pandas.DataFrame
+        :param df_impact: locations and directions of impacts where FRFs will be generated
+        :type df_impact: pandas.DataFrame
+        :param f_start: starting point of the frequency range
+        :type f_start: int or float
+        :param f_end: endpoint of the frequency range
+        :type f_end: int or float
+        :param f_resolution: resolution of frequency range
+        :type f_resolution: int or float
+        :param limit_modes: number of modes used for FRF synthesis
+        :type limit_modes: int
+        :param modal_damping: viscose modal damping ratio (constant for whole frequency range or ``None``)
+        :type modal_damping: float or None
+        :param frf_type: define calculated FRF type (``receptance``, ``mobility`` or ``accelerance``)
+        :type frf_type: str
         """
         unique_nodes_chn, direction_nodes_chn = self.data_preparation(df_channel)
         unique_nodes_imp, direction_nodes_imp = self.data_preparation(df_impact)
 
         index_chn = self.find_nearest_locations(self.nodes, unique_nodes_chn)
         index_imp = self.find_nearest_locations(self.nodes, unique_nodes_imp)
-
-        if np.max(self.dof_ref[:, 1])==5:
-            rotation_included = True
-        elif np.max(self.dof_ref[:, 1])==2:
-            rotation_included = False
             
         response_points = index_chn + 1
         response_directions = [0, 1, 2]
@@ -241,19 +267,18 @@ class MK_model(object):
         elif type(modal_damping) == float:
             damping = np.asarray([modal_damping] * no_modes)
 
-        loc1, loc2 = self.loc_definition(response_points, response_directions, excitation_points, excitation_directions,
-                                    rotation_included, all_at_once=True)
-
+        loc1, loc2 = self.loc_definition(response_points, response_directions, excitation_points, excitation_directions, 
+                                         self.rotation_included, all_at_once=True)
 
         if f_start == 0:
             # approximation at 0Hz
-            freq = np.arange(f_start+1e-3, f_end, f_resolution)
+            _freq = np.arange(f_start+1e-3, f_end, f_resolution)
         else:
-            freq = np.arange(f_start, f_end, f_resolution)
+            _freq = np.arange(f_start, f_end, f_resolution)
+        
+        freq = np.arange(f_start, f_end, f_resolution)
 
-        _freq = np.arange(f_start, f_end, f_resolution)
-
-        ome = 2 * np.pi * freq
+        ome = 2 * np.pi * _freq
         ome2 = ome ** 2
         _eig_val2 = self.eig_freq ** 2
 
@@ -270,31 +295,33 @@ class MK_model(object):
             _temp = FRF_matrix
 
         elif frf_type == "mobility":
-            _temp = np.einsum('ijk,i->ijk', FRF_matrix, (1j*2*np.pi*freq))
+            _temp = np.einsum('ijk,i->ijk', FRF_matrix, (1j*2*np.pi*_freq))
 
         elif frf_type == "accelerance":
-            _temp = np.einsum('ijk,i->ijk', FRF_matrix, -(2*np.pi*freq)**2)
+            _temp = np.einsum('ijk,i->ijk', FRF_matrix, -(2*np.pi*_freq)**2)
 
         self.FRF = _temp
-        freq = _freq
         self.freq = freq
 
 
     def add_noise(self,n1 = 1e-3, n2 = 1e-3, n3 = 8e-4 ,n4 = 7e-4):
         """
-        Aditive noise
+        Additive noise to synthesized FRFs by random values as per standard normal distribution with defined scaling factors.
 
-        :param n1:
-        :param n2:
-        :param n3:
-        :param n4:
-        :return:
+        :param n1: amplitude of real part shift scalied with FRF absolute amplitude
+        :type n1: float
+        :param n2: amplitude of imag part shift scalied with FRF absolute amplitude
+        :type n2: float
+        :param n3: amplitude of real part shift
+        :type n3: float
+        :param n4: amplitude of real part shift
+        :type n4: float
         """
-        self.FRF_noise = np.zeros_like(self.FRF, dtype=complex)
+        rand1 = n1 * np.random.randn(*self.FRF.shape)
+        rand2 = n2 * np.random.randn(*self.FRF.shape) * 1j
+        rand3 = n3 * np.random.randn(*self.FRF.shape)
+        rand4 = n4 * np.random.randn(*self.FRF.shape) * 1j
 
-        for i in range(self.FRF.shape[0]):
-            for j in range(self.FRF.shape[1]):
-                noise = n1 * (randn(len(self.freq))) * np.abs(self.FRF[i, j]) + 1j * n2 * (randn(len(self.freq))) * np.abs(
-                    self.FRF[i, j]) + n3 * (randn(len(self.freq))) + 1j * n4 * (randn(len(self.freq)))
-                self.FRF_noise[i, j] = self.FRF[i, j] + noise
+        noise = np.einsum("ijk,ijk->ijk", np.abs(self.FRF), rand1) + np.einsum("ijk,ijk->ijk", np.abs(self.FRF), rand2) + rand3 + rand4
 
+        self.FRF_noise = self.FRF + noise

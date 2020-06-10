@@ -35,6 +35,7 @@ Welcome to pyFBS's documentation!
    ./code_documentation/display
    ./code_documentation/SEMM
    ./code_documentation/VPT
+   ./code_documentation/MCK
 
 
 .. toctree::
