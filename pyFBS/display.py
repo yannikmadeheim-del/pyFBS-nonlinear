@@ -34,7 +34,7 @@ class view3D():
 
 
 
-        icon = str(Path(__file__).parents[1]) + os.sep + "data" + os.sep + "icon.ico"
+        icon = str(Path(__file__).parents[1]) + os.sep + "data" + os.sep + "logo-small_up.ico"
         self.plot.app_window.setWindowIcon(QtGui.QIcon(icon))
         self.plot.background_color = BACKGROUND
         #self.plot.enable_parallel_projection()
