@@ -11,8 +11,6 @@ def load_uff_file_PAK(uff_file_data,uff_file_output,uff_file_input):
     """
     Description
 
-    :param uff_file:
-    :return:
     """
 
     uff_file_out = pyuff.UFF(uff_file_output)

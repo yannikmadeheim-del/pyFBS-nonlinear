@@ -31,12 +31,20 @@ sys.path.insert(0, os.path.abspath('..'))
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = [
-    'sphinx.ext.autodoc',
-    'sphinx.ext.intersphinx',
-    'sphinx.ext.ifconfig',
-    'sphinx.ext.viewcode',
-    'sphinx.ext.githubpages']
+
+#extensions = [
+#    'sphinx.ext.autodoc',
+#    'sphinx.ext.intersphinx',
+#    'sphinx.ext.ifconfig',
+#    'sphinx.ext.viewcode',
+#    'sphinx.ext.githubpages',
+#	'sphinxcontrib.bibtex']
+	
+extensions = ['sphinx.ext.autodoc', 'sphinx.ext.intersphinx', 'sphinx.ext.todo',
+              'sphinx.ext.autosummary', 'sphinx.ext.viewcode', 'sphinx.ext.coverage',
+              'sphinx.ext.doctest', 'sphinx.ext.ifconfig', 'sphinx.ext.mathjax',
+              'sphinx.ext.napoleon','sphinxcontrib.bibtex']
+			  
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
@@ -51,8 +59,8 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'pyFBS'
-copyright = "2019, Tomaž Bregar"
-author = "Tomaž Bregar"
+copyright = "2020, pyFBS Developers"
+author = "pyFBS Developers"
 
 # The version info for the project you're documenting, acts as replacement
 # for |version| and |release|, also used in various other places throughout
@@ -148,6 +156,14 @@ man_pages = [
      [author], 1)
 ]
 
+html_favicon = 'logo-small_up.ico'
+
+html_theme_options = {
+    'logo_only': True,
+    'body_max_width': '30%'
+}
+
+html_logo = "logo_big.JPG"
 
 # -- Options for Texinfo output ----------------------------------------
 

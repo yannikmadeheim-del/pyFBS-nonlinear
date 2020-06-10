@@ -4,20 +4,30 @@ from pyFBS.utility import coh_frf
 
 class VPT(object):
     """
-    Virtual point transformation - Description
+    Virtual point transformation
 
-    :param ch: Channels used in the transformation (outputs - sensors).
-    :type ch: pandas.DataFrame
-    :param refch: Reference channels used in the transformation (input - impacts).
-    :type refch: pandas.DataFrame
-    :param vp_ch: Virtual point channels used in the transformation (output - VP).
-    :type vp_ch: pandas.DataFrame
-    :param vp_refch: Virtual point reference channels used in the transformation (input - VP).
-    :type vp_refch: pandas.DataFrame
-    :param Wu: Displacement weighting matrix.
-    :type Wu: numpy.array
-    :param Wf: Displacement weighting matrix.
-    :type Wf: numpy.array
+    Parameters
+    ----------
+
+    ch : pandas.DataFrame
+        Channels used in the transformation (outputs - sensors).
+    refch : pandas.DataFrame
+        Reference channels used in the transformation (input - impacts).
+    vp_ch : pandas.DataFrame
+        Virtual point channels used in the transformation (output - VP).
+    vp_refch : pandas.DataFrame
+        Virtual point reference channels used in the transformation (input - VP).
+    Wu : numpy.array
+        Displacement weighting matrix.
+    Wf : numpy.array
+        Force weighting matrix.
+
+    References
+    ----------
+
+    .. [1]  M. V. van der Seijs, Experimental Dynamic Substructuring: Analysis and design strategies for vehicle development, Ph.D. thesis, TU Delft (2016).
+
+
     """
     def __init__(self, ch, refch, vp_ch, vp_refch ,Wu = None, Wf = None,sort_matrix = True):
         self.sort_matrix = sort_matrix
