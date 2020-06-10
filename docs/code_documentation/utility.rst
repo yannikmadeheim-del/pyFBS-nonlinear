@@ -1,10 +1,9 @@
 =============
-pyFBS.view3D
+pyFBS.utility
 =============
 Short description
 
-.. autoclass:: pyFBS.view3D
+.. autoclass:: pyFBS.utility
     :members:
-
 
 

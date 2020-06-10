@@ -33,8 +33,13 @@ Welcome to pyFBS's documentation!
    :caption: Code Documentation
    
    ./code_documentation/display
-   ./code_documentation/SEMM
+   ./code_documentation/MCK
    ./code_documentation/VPT
+   ./code_documentation/SEMM
+   ./code_documentation/IO
+   ./code_documentation/utility
+
+
 
 
 .. toctree::

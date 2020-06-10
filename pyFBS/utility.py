@@ -27,7 +27,7 @@ def modeshape_sync_lstsq(mode_shape_vec):
     _n = np.zeros_like(mode_shape_vec)
     for i in range(np.shape(mode_shape_vec)[1]):
         _mode = mode_shape_vec[:,i]
-        z = np.arctan(np.average(np.imag(_mode)/np.real(_mode),weights = np.abs(_mode)**2))
+        z = np.arctan(np.average(np.imag(_mode)/np.real(_mode),weights = np.abs(_mode)**1e4))
             
         _n[:,i] = _mode*(np.cos(-1*z)+1j*np.sin(-1*z))
     return _n
@@ -211,11 +211,14 @@ def CMIF(FRF, singular_vectors=False):
 
 def TSVD(matrix,reduction = 0):
     """
-    Performs a TSVD on a suplied FRF matrix
+    Filters a FRF matrix  with a truncated singular value decomposition (TSVD) by removing the smallest singular values.
 
-    :param matrix:
-    :param reduction: number of removed singular values
-    :return:
+    :param matrix: Matrix to be filtered by singular value decomposition
+    :type matrix: array(float)
+    :param reduction: Number of singular values not taken into account by reconstruction of the matrix A
+    :type reduction: int
+    :return: Filtered matrix
+    :rtype: array(float)
     """
     U, s, VH = np.linalg.svd(matrix)
     kk = s.shape[1] - reduction
@@ -233,8 +236,6 @@ def M(axis, theta):
     Euler-Rodrigues formula
     """
     t = expm(cross(eye(3), axis / norm(axis) * (theta)))
-    # print(theta)
-
     return t
 
 
@@ -348,3 +349,46 @@ def generate_sensors_from_channels(df):
         df_sen = df_sen.append(df_row,ignore_index = True)
 
     return df_sen
+
+def coh_on_FRF(FRF_matrix):
+    """
+    Description
+
+    :param FRF_matrix:
+    :return:
+    """
+    _out = FRF_matrix.shape[1]
+    _in = FRF_matrix.shape[2]
+
+    coh_crit = np.zeros((_out, _in))
+
+    for i in range(_out):
+        for j in range(_in):
+            coh_crit[i, j] = coh_frf(FRF_matrix[:, i, j], FRF_matrix[:, j, i])
+
+    return coh_crit
+
+
+def orient_in_global(mode, df_chn, df_acc):
+    """
+    Description
+
+    :param mode:
+    :param df_chn:
+    :param df_acc:
+    :return:
+    """
+    n_sen = len(df_acc)
+    n_ax = 3
+
+    empty = np.zeros((n_sen, n_ax), dtype=complex)
+
+    # channel data for animation!
+    _dir = df_chn[["Direction_1", "Direction_2", "Direction_3"]].to_numpy()
+    for i in range(n_sen):
+        for j in range(n_ax):
+            sel = (i) * 3 + j
+            empty[i, :] += _dir[sel:sel + 1, :].T @ np.asarray([mode[sel]])
+
+    return empty
+

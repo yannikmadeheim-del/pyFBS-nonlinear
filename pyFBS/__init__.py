@@ -16,6 +16,7 @@ import os
 example_auto_testbench = {}
 
 
+
 # geometry files - stl
 ts = str(Path(__file__).parents[1] )+os.sep+"data" +os.sep + "automotive_testbench" + os.sep + "STL" + os.sep + "ts.stl"
 transmission_mount = str(Path(__file__).parents[1] )+os.sep+"data" +os.sep + "automotive_testbench" + os.sep + "STL" + os.sep + "transmission_mount.stl"
@@ -39,8 +40,17 @@ Y_B_ref = str(Path(__file__).parents[1] )+os.sep+"data" +os.sep + "automotive_te
 Y_BTS = str(Path(__file__).parents[1] )+os.sep+"data" +os.sep + "automotive_testbench" + os.sep + "Measurements" + os.sep + "BTS.p"
 Y_TS = str(Path(__file__).parents[1] )+os.sep+"data" +os.sep + "automotive_testbench" + os.sep + "Measurements" + os.sep + "TS.p"
 
-example_auto_testbench["meas"] = {"xlsx_A":xlsx_A,"xlsx_AB_ref":xlsx_AB_ref,"xlsx_B_ref":xlsx_B_ref,"xlsx_BTS":xlsx_BTS,"xlsx_TS":xlsx_TS,
-                                  "Y_A":Y_A,"Y_AB_ref":Y_AB_ref,"Y_B_ref":Y_B_ref,"Y_BTS":Y_BTS,"Y_TS":Y_TS}
+
+xlsx_ODS = str(Path(__file__).parents[1] )+os.sep+"data" +os.sep + "automotive_testbench" + os.sep + "Measurements" + os.sep + "ODS.xlsx"
+Y_ODS = str(Path(__file__).parents[1] )+os.sep+"data" +os.sep + "automotive_testbench" + os.sep + "Measurements" + os.sep + "ODS.p"
+
+xlsx_modal = str(Path(__file__).parents[1] )+os.sep+"data" +os.sep + "automotive_testbench" + os.sep + "Measurements" + os.sep + "modal.xlsx"
+Y_m_1 = str(Path(__file__).parents[1] )+os.sep+"data" +os.sep + "automotive_testbench" + os.sep + "Measurements" + os.sep + "frame_rubbermounts_sourceplate.p"
+Y_m_2 = str(Path(__file__).parents[1] )+os.sep+"data" +os.sep + "automotive_testbench" + os.sep + "Measurements" + os.sep + "frame_rubbermounts.p"
+
+
+
+example_auto_testbench["meas"] = {"xlsx_A":xlsx_A,"xlsx_AB_ref":xlsx_AB_ref,"xlsx_B_ref":xlsx_B_ref,"xlsx_BTS":xlsx_BTS,"xlsx_TS":xlsx_TS,"xlsx_ODS":xlsx_ODS,"xlsx_modal":xlsx_modal,"Y_m_1":Y_m_1,"Y_m_2":Y_m_2,"Y_A":Y_A,"Y_AB_ref":Y_AB_ref,"Y_B_ref":Y_B_ref,"Y_BTS":Y_BTS,"Y_TS":Y_TS,"Y_ODS":Y_ODS}
 
 TM_rst = str(Path(__file__).parents[1] )+os.sep+"data" +os.sep + "automotive_testbench" + os.sep + "FEM" + os.sep + "TM.rst"
 RM_rst = str(Path(__file__).parents[1] )+os.sep+"data" +os.sep + "automotive_testbench" + os.sep + "FEM" + os.sep + "RM.rst"
@@ -65,12 +75,15 @@ example_lab_testbench["STL"] = {"A": A,"B": B,"AB": AB}
 
 
 # measurements
-xlsx = str(Path(__file__).parents[1] )+os.sep+"data" +os.sep + "lab_testbench" + os.sep + "Measurements" + os.sep + "loc_file.xlsx"
+xlsx = str(Path(__file__).parents[1] )+os.sep+"data" +os.sep + "lab_testbench" + os.sep + "Measurements" + os.sep + "AM_Measurements.xlsx"
 Y_A = str(Path(__file__).parents[1] )+os.sep+"data" +os.sep + "lab_testbench" + os.sep + "Measurements" + os.sep + "Y_A.p"
 Y_B = str(Path(__file__).parents[1] )+os.sep+"data" +os.sep + "lab_testbench" + os.sep + "Measurements" + os.sep + "Y_B.p"
 Y_AB = str(Path(__file__).parents[1] )+os.sep+"data" +os.sep + "lab_testbench" + os.sep + "Measurements" + os.sep + "Y_AB.p"
 
-example_lab_testbench["meas"] = {"xlsx": xlsx, "Y_A": Y_A,"Y_B": Y_B,"Y_AB": Y_AB}
+xlsx_coupling = str(Path(__file__).parents[1] )+os.sep+"data" +os.sep + "lab_testbench" + os.sep + "Measurements" + os.sep + "coupling_example.xlsx"
+xlsx_decoupling = str(Path(__file__).parents[1] )+os.sep+"data" +os.sep + "lab_testbench" + os.sep + "Measurements" + os.sep + "decoupling_example.xlsx"
+
+example_lab_testbench["meas"] = {"xlsx": xlsx,"xlsx_coupling": xlsx_coupling,"xlsx_decoupling": xlsx_decoupling, "Y_A": Y_A,"Y_B": Y_B,"Y_AB": Y_AB}
 
 # FEM 
 A_rst = str(Path(__file__).parents[1] )+os.sep+"data" +os.sep + "lab_testbench" + os.sep + "FEM" + os.sep + "A" + os.sep + "file.rst"

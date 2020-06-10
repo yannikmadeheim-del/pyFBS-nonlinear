@@ -4,22 +4,34 @@ from pyFBS.utility import coh_frf
 
 class VPT(object):
     """
-    Virtual point transformation - Description
+    Virtual point transformation
 
-    :param ch: Channels used in the transformation (outputs - sensors).
-    :type ch: pandas.DataFrame
-    :param refch: Reference channels used in the transformation (input - impacts).
-    :type refch: pandas.DataFrame
-    :param vp_ch: Virtual point channels used in the transformation (output - VP).
-    :type vp_ch: pandas.DataFrame
-    :param vp_refch: Virtual point reference channels used in the transformation (input - VP).
-    :type vp_refch: pandas.DataFrame
-    :param Wu: Displacement weighting matrix.
-    :type Wu: numpy.array
-    :param Wf: Displacement weighting matrix.
-    :type Wf: numpy.array
+    Parameters
+    ----------
+
+    ch : pandas.DataFrame
+        Channels used in the transformation (outputs - sensors).
+    refch : pandas.DataFrame
+        Reference channels used in the transformation (input - impacts).
+    vp_ch : pandas.DataFrame
+        Virtual point channels used in the transformation (output - VP).
+    vp_refch : pandas.DataFrame
+        Virtual point reference channels used in the transformation (input - VP).
+    Wu : numpy.array
+        Displacement weighting matrix.
+    Wf : numpy.array
+        Force weighting matrix.
+
+    References
+    ----------
+
+    .. [1]  M. V. van der Seijs, Experimental Dynamic Substructuring: Analysis and design strategies for vehicle development, Ph.D. thesis, TU Delft (2016).
+
+
     """
-    def __init__(self, ch, refch, vp_ch, vp_refch ,Wu = None, Wf = None):
+    def __init__(self, ch, refch, vp_ch, vp_refch ,Wu = None, Wf = None,sort_matrix = True):
+        self.sort_matrix = sort_matrix
+
         # Load the physical input-output DoFs
         self.Channels = ch
         self.RefChannels = refch
@@ -64,22 +76,23 @@ class VPT(object):
 
         Ru = block_diag(*R_all, np.eye(len(np.where(mask_u != 0)[0])))
 
-        R_n = np.zeros_like(Ru)
+        if self.sort_matrix:
+            R_n = np.zeros_like(Ru)
+            # position the transformation matrix based on location it the .xlsx file
+            R_all = np.asarray(R_all)[0, :, :]
+            gg = 0
+            trig = True
+            for i, k in enumerate(mask_u):
+                if k == 1:
+                    R_n[i, gg] = 1
+                    gg += k
+                else:
+                    if trig:
+                        R_n[i:i + R_all.shape[0], gg:gg + R_all.shape[1]] = R_all
+                        gg += R_all.shape[1]
+                        trig = False
+            Ru = R_n
 
-        # position the transformation matrix based on location it the .xlsx file
-        R_all = np.asarray(R_all)[0, :, :]
-        gg = 0
-        trig = True
-        for i, k in enumerate(mask_u):
-            if k == 1:
-                R_n[i, gg] = 1
-                gg += k
-            else:
-                if trig:
-                    R_n[i:i + R_all.shape[0], gg:gg + R_all.shape[1]] = R_all
-                    gg += R_all.shape[1]
-                    trig = False
-        Ru = R_n
 
         # definition of weighting matrix
         if self.Wu_p == None:
@@ -123,21 +136,23 @@ class VPT(object):
 
         # position the transformation matrix based on location it the .xlsx file
         Rf = block_diag(*R_all, np.eye(len(np.where(mask_f != 0)[0])))
-        R_n = np.zeros_like(Rf)
-        R_all = np.asarray(R_all)[0, :, :]
-        gg = 0
-        trig = True
-        for i, k in enumerate(mask_f):
-            if k == 1:
-                R_n[i, gg] = 1
-                gg += k
-            else:
-                if trig:
-                    R_n[i:i + R_all.shape[0], gg:gg + R_all.shape[1]] = R_all
 
-                    gg += R_all.shape[1]
-                    trig = False
-        Rf = R_n
+        if self.sort_matrix:
+            R_n = np.zeros_like(Rf)
+            R_all = np.asarray(R_all)[0, :, :]
+            gg = 0
+            trig = True
+            for i, k in enumerate(mask_f):
+                if k == 1:
+                    R_n[i, gg] = 1
+                    gg += k
+                else:
+                    if trig:
+                        R_n[i:i + R_all.shape[0], gg:gg + R_all.shape[1]] = R_all
+
+                        gg += R_all.shape[1]
+                        trig = False
+            Rf = R_n
 
         # definition of weighting matrix
         if self.Wf_p == None:
@@ -166,12 +181,12 @@ class VPT(object):
         """
         rx, ry, rz = pos[0], pos[1], pos[2]
 
-        if type == "Acceleration":
-            _R = np.asarray([[1, 0, 0, 0, rz, -ry],
-                             [0, 1, 0, -rz, 0, rx],
-                             [0, 0, 1, ry, -rx, 0]])
 
-        elif type == "Angular Acceleration":
+        _R = np.asarray([[1, 0, 0, 0, rz, -ry],
+                         [0, 1, 0, -rz, 0, rx],
+                         [0, 0, 1, ry, -rx, 0]])
+
+        if type == "Angular Acceleration":
             _R = np.asarray([[0, 0, 0, 1, 0, 0],
                              [0, 0, 0, 0, 1, 0],
                              [0, 0, 0, 0, 0, 1]])
@@ -282,7 +297,7 @@ class VPT(object):
         _Y_vpt = self.Tu @ FRF @ self.Tf
 
         self.vptData = _Y_vpt
-        self.vptFreqs = freq
+        self.freq = freq
         self.FRF = FRF
 
     def consistency(self, grouping, ref_grouping):
