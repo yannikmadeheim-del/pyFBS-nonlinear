@@ -147,6 +147,12 @@ class view3D():
             gif = imageio.mimread(self.gif_dir)
             imageio.mimsave(self.gif_dir, gif, fps=30)
 
+    def clear_modeshape(self):
+        self.plot.update_coordinates(self.modeshape_animation["or_pts"], mesh=self.modeshape_animation["mesh"],render = True)
+        self.plot.update_scalars(np.zeros(self.modeshape_animation["or_pts"].shape[0]), mesh=self.modeshape_animation["mesh"] ,render = False)
+        self.plot.update_scalar_bar_range(clim=[0,100])
+
+
     def add_objects_animation(self,dict_animation,run_animation = False,add_note = False):
         """
         Add an object animation to the 3D view.
