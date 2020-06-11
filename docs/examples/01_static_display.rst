@@ -1,101 +1,140 @@
+##########
+3D Display
+##########
 
-=================
-Static 3D display
-=================
-A simple example of the 3D display. Sensors, impacts, channels, virtual points and the structure can be depicted in 3D view in a simple and intuitive way.
+The :mod:`pyFBS` supports  can visualized in a 3D display. The 3D display enables depiction of structures, sensors, impacts, channels and virtual points in a simple and intuitive way. 
+Furthermore, the 3D display supports motion animation, where objects or mode shapes can be animated with ease. For the 3D visualization a python package `PyVista <https://docs.pyvista.org/index.html>`_ is used.
+
+.. note:: 
+   Example showing the basic use of the 3D display: :download:`01_static_display.ipynb <../../examples/01_static_display.ipynb>`.
 
 
-3D viewer
-*********
-
-First open a blank 3D display with a CSYS depicted in the origin. 
+To open a blank 3D display simply make an instance of the :class:`pyFBS.view3D`:
 
 .. code-block:: python
 
-	import pyFBS
-	view3D = pyFBS.display.view3D()
+	view3D = pyFBS.view3D()
 
-Structure
-*********
-Structures can be added to 3Dview in a simple manner. Currently, only  STL file format is supported for the 3D display in the pyFBS.
-	
+A rendering window will open in the background, which will not pause the code execution (for more details refer to the :class:`pyvista.BackgroundPlotter`). By default a coordinate system is placed in the origin and an orientation marker is placed in the bottom-left corner. 
+
+*****************
+Geometric objects
+*****************
+Geometric objects can be added to the 3D display in a simple manner. For simple objects (cylinders, spheres, boxes, ...) `PyVista methods <https://docs.pyvista.org/examples/00-load/create-geometric-objects.html#sphx-glr-examples-00-load-create-geometric-objects-py>`_ 
+can be used for the geometry generation. For displaying a more complex geometric objects a STL file can be loaded in the 3D display: 
+
 .. code-block:: python
-	
-	path_stl = "../data/AM_substructuring_testbench/STL/AM_AB_final.stl"
-	view3D = pyFBS.display.view3D(path_stl)
-	view3D.add_stl(AB_stl)
+ 
+	path_to_stl = pyFBS.example_lab_testbench["STL"]["AB"]
+	view3D.add_stl(path_to_stl,name = "AB")
+
+After the code execution the geometric object will apear in the rendering window: 
 
 .. figure:: ./data/3D_view.png
-   :width: 500px
+   :width: 800px
+
+   An example of a laboratory substructuring testbench depicted in the pyFBS 3D display.
+
+Multiple geometric objects can be added to the display with different colors and even opacity (checkout :func:`pyvista.BackgroundPlotter.add_mesh` for all options). When adding multiple geometric objects, care should be taken that different ``name`` variable is provided, otherwise the object with the same name will be overwritten (discarded from the 3D display). 
    
-   AM substructuring testbench depicted in the pyFBS 3Dviewer. 
+******************
+Degrees of Freedom
+******************
+In the 3D display accelerometers, channels, impacts and virtual points can be shown. The positional and orientation information for each separate degree of freedom is defined in a :mod:`pandas.DataFrame`. 
 
 Accelerometers
-**************
-Accelerometers can be added to 3D view based on the information from the DataFrame.
+==============
+Accelerometers can be added to 3D display directly from the :mod:`pd.DataFrame`:
 
 .. code-block:: python
-	
-	path_xlsx = "../data/AM_substructuring_testbench/Measurements/decoupling/Excel/AM_Measurements.xlsx"
-	df = pd.read_excel(path_xlsx, sheetname='Sensors_AB')
-	view3D.show_acc(df)
 
+	path_to_xlsx = pyFBS.example_lab_testbench["meas"]["xlsx"]
+	
+	df_acc = pd.read_excel(path_to_xlsx, sheetname='Sensors_AB')
+	view3D.show_acc(df_acc)
+
+After the code execution accelerometers will be shown in the 3D display.
 
 .. figure:: ./data/acc.png
-   :width: 500px
-   
-   Accelerometers on the AM substructuring testbench depicted in the pyFBS 3Dviewer. 
+   :width: 800px
+
+   Accelerometers on the laboratory substructuring testbench.
 
 Channels
-********
-Channels associated with each accelerometer can be added to 3D view based on the information supplied from the DataFrame.
+========
+Channels associated with accelerometers can be added to the 3D display directly from the :mod:`pd.DataFrame`:
 
 .. code-block:: python
-	
-	df = pd.read_excel(path_xlsx, sheetname='Channels_AB')
-	view3D.show_chn(df)
+
+	df_chn = pd.read_excel(path_to_xlsx, sheetname='Channels_AB')
+	view3D.show_chn(df_chn)
+
+After the code execution channels will be shown in the 3D display.	
 
 .. figure:: ./data/chn.png
-   :width: 500px
-   
-   Channels from accelerometers on the AM substructuring testbench depicted in the pyFBS 3Dviewer. 
+   :width: 800px
+
+   Channels from the corresponding accelerometers on the laboratory substructuring testbench.
 
 
 Impacts
-*******
-Impact can be added to 3D view based on the information supplied  from the DataFrame.
+=======
+Impacts can be added to the 3D display directly from the :mod:`pd.DataFrame`:
 
 .. code-block:: python
-	
-	df = pd.read_excel(path_xlsx, sheetname='Impacts_AB')
-	view3D.show_imp(df)
+
+	df_imp = pd.read_excel(path_xlsx, sheetname='Impacts_AB')
+	view3D.show_imp(df_imp)
+
+After the code execution impacts will be shown in the 3D display.	
 
 
 .. figure:: ./data/imp.png
-   :width: 500px
-   
-   Impacts on the AM substructuring testbench depicted in the pyFBS 3Dviewer. 
+   :width: 800px
+
+   Impacts on the laboratory substructuring testbench.
 
 
 Virtual points
-**************
-Virtual points can be added to 3D view based on the information supplied  from the DataFrame.
+==============
+Virtual points can also be added to the 3D display directly from the :mod:`pd.DataFrame`:
 
 .. code-block:: python
-	
-	df = pd.read_excel(path_xlsx, sheetname='VP_Channels')
-	view3D.show_vp(df)
 
+	df_vps = pd.read_excel(path_xlsx, sheetname='VP_Channels')
+	view3D.show_vp(df_vps)
+
+After the code execution virtual points will be shown in the 3D display.	
+	
 .. figure:: ./data/VP.png
-   :width: 500px
-   
-   Channels from accelerometers on the AM substructuring testbench depicted in the pyFBS 3Dviewer. 
+   :width: 800px
+
+   Virtual point on the laboratory substructuring testbench.
 
 Labels
-******
-Accelerometer, channels, impacts or virtual points can be labeled or enumerated based on the information from the DataFrame.
+======
+Accelerometer, channels, impacts and virtual points can also be labeled or enumerated based on the information from the corresponding :mod:`pd.DataFrame`:
 
-.. figure:: ./data/labels.gif
-   :width: 500px
+.. code-block:: python
+
+	view3D.label_acc(df_vps)
+	view3D.label_chn(df_chn)
+	view3D.label_imp(df_imp)
+	view3D.label_vp(df_vps)
+
+Corresponding labels will appear in the 3D display after the code execution.
+
+.. figure:: ./data/labels.PNG
+   :width: 800px
+
+   Displayed labels of accelerometers, channels, impacts and virtual points laboraty substructuring testbench.
    
-   Accelerometer, channels, impacts and virtual points on the AM substructuring testbench depicted in the pyFBS 3Dviewer.
+*******************************
+Interaction with the 3D display
+*******************************
+Basic interaction with the 3D display is relatively simple. Mouse ``left-click`` can be used to rotate the rendering scene and ``middle-click`` to pan the rendering scene. For more information refer to the `PyVista plotting shortcuts <https://docs.pyvista.org/plotting/plotting.html>`_.
+
+.. figure:: ./data/interaction.gif
+   :width: 800px
+
+   Interaction with the 3D display.

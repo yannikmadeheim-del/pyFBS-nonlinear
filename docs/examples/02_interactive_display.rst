@@ -1,4 +1,4 @@
-===================
-Interactive display
-===================
+=======================
+Interactive positioning
+=======================
 Description
