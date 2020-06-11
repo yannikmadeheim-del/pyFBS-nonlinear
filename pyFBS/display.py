@@ -680,7 +680,7 @@ class view3D():
         self.vps_visible = True
 
 
-    def label_acc(self,df,name = "Accelerometers",**kwargs):
+    def label_acc(self,df,name = "Accelerometers",font_size = 12,**kwargs):
         """
         Adds labels to accelerometers from the DataFrame to 3D view.
 
@@ -698,11 +698,11 @@ class view3D():
             positions.append([row["Position_1"] * 1000, row["Position_2"] * 1000, row["Position_3"] * 1000])
             labels.append(row["Name"])
 
-        self.plot.add_point_labels(positions, labels, font_size=12,name = name,shape_opacity=.5,show_points=False,**kwargs)
+        self.plot.add_point_labels(positions, labels, font_size=font_size,name = name,shape_opacity=.5,show_points=False,**kwargs)
         self.global_labels.append([[positions, labels], name])
         self.labels_visible = True
 
-    def label_imp(self,df,name = "Impacts",**kwargs):
+    def label_imp(self,df,name = "Impacts",font_size= 12,**kwargs):
         """
         Adds labels to impacts from the DataFrame to 3D view.
 
@@ -721,11 +721,11 @@ class view3D():
             positions.append([row["Position_1"] * 1000, row["Position_2"] * 1000, row["Position_3"] * 1000])
             labels.append(row["Name"])
 
-        self.plot.add_point_labels(positions, labels, font_size=12,name = name,shape_color = RED,font_family = "times",shape_opacity=0.5,show_points=False,**kwargs)
+        self.plot.add_point_labels(positions, labels, font_size=font_size,name = name,shape_color = RED,font_family = "times",shape_opacity=0.5,show_points=False,**kwargs)
         self.global_labels.append([[positions, labels], name])
         self.labels_visible = True
 
-    def label_chn(self,df,name = "Channels",size = 10,**kwargs):
+    def label_chn(self,df,name = "Channels",size = 10,font_size = 12,**kwargs):
         """
         Adds labels to channels from the DataFrame to 3D view.
 
@@ -747,11 +747,11 @@ class view3D():
             positions.append([row["Position_1"]*1000+x, row["Position_2"]*1000+y, row["Position_3"]*1000+z])
             labels.append(row["Name"])
 
-        self.plot.add_point_labels(positions, labels, font_size=12, name=name, shape_color=BLUE, font_family = "times",shape_opacity=0.5,show_points=False,**kwargs)
+        self.plot.add_point_labels(positions, labels, font_size=font_size, name=name, shape_color=BLUE, font_family = "times",shape_opacity=0.5,show_points=False,**kwargs)
         self.global_labels.append([[positions,labels],name])
         self.labels_visible = True
 
-    def label_vp(self,df,name = "VPs",**kwargs):
+    def label_vp(self,df,name = "VPs",font_size = 12,**kwargs):
         """
         Adds labels to virtual point from the DataFrame to 3D view.
 
@@ -771,7 +771,7 @@ class view3D():
 
         L = df["Grouping"].unique()
 
-        self.plot.add_point_labels(position, L, font_size=12,name = name,font_family = "times",shape_opacity=0.5,shape_color = GREEN,show_points=False,**kwargs)
+        self.plot.add_point_labels(position, L, font_size=font_size,name = name,font_family = "times",shape_opacity=0.5,shape_color = GREEN,show_points=False,**kwargs)
         self.global_labels.append([[position, L], name])
         self.labels_visible = True
 
