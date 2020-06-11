@@ -43,7 +43,10 @@ sys.path.insert(0, os.path.abspath('..'))
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.intersphinx', 'sphinx.ext.todo',
               'sphinx.ext.autosummary', 'sphinx.ext.viewcode', 'sphinx.ext.coverage',
               'sphinx.ext.doctest', 'sphinx.ext.ifconfig', 'sphinx.ext.mathjax',
-              'sphinx.ext.napoleon','sphinxcontrib.bibtex']
+              'sphinx.ext.napoleon','sphinxcontrib.bibtex','sphinx.ext.autodoc',
+              'sphinx.ext.doctest','sphinx.ext.autosummary','sphinx.ext.extlinks',
+              'sphinx.ext.coverage',
+              ]
 			  
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -59,8 +62,8 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'pyFBS'
-copyright = "2020, pyFBS Developers"
-author = "pyFBS Developers"
+copyright = "2020, The pyFBS Developers"
+author = "The pyFBS Developers"
 
 # The version info for the project you're documenting, acts as replacement
 # for |version| and |release|, also used in various other places throughout
@@ -107,7 +110,7 @@ html_theme = 'sphinx_rtd_theme'
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = []
+html_static_path = ['_static']
 
 
 # -- Options for HTMLHelp output ---------------------------------------
@@ -134,6 +137,26 @@ latex_elements = {
     # Latex figure (float) alignment
     #
     'figure_align': 'htbp',
+}
+
+import sphinx_rtd_theme
+html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
+
+html_context = {
+    # Enable the "Edit in GitHub link within the header of each page.
+    'display_github': False,
+    # Set the following variables to generate the resulting github URL for each page.
+    # Format Template: https://{{ github_host|default("github.com") }}/{{ github_user }}/{{ github_repo }}/blob/{{ github_version }}{{ conf_py_path }}{{ pagename }}{{ suffix }}
+    'github_user': 'pyFBS',
+    'github_repo': 'pyFBS',
+    'github_version': 'master/docs/',
+    'menu_links_name': 'Getting Connected',
+    'menu_links': [
+        ('<i class="fa fa-comment fa-fw"></i> Support', 'https://'),
+        ('<i class="fa fa-github fa-fw"></i> Source Code', 'https://'),
+        ('<i class="fa fa-gavel fa-fw"></i> Contributing', 'https://'),
+        ('<i class="fa fa-file-text fa-fw"></i> The Paper', 'https://'),
+    ],
 }
 
 # Grouping the document tree into LaTeX files. List of tuples

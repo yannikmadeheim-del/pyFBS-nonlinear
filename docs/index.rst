@@ -52,15 +52,4 @@ Welcome to pyFBS's documentation!
    ./code_documentation/SEMM
    ./code_documentation/IO
    ./code_documentation/utility
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Getting Connected
-   
-   connected
-	
-	
-	
-	
-	
 	
