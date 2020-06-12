@@ -67,6 +67,7 @@ class view3D():
         # Toolbars
         self.show_hide_toolbar = self.plot.app_window.addToolBar('Show/hide Actors')
         self.animate_toolbar = self.plot.app_window.addToolBar('Animate Modeshape')
+        self.animate_clear_toolbar = self.plot.app_window.addToolBar('Clear Modeshape')
 
         self.displayed_bodies = []
 
@@ -94,6 +95,7 @@ class view3D():
         """
         if self.modeshape_animation == None:
             self.add_action(self.animate_toolbar, "Animate modeshape", self.animate_modeshape)
+            self.add_action(self.animate_clear_toolbar, "Clear modeshape", self.clear_modeshape)
 
         self.modeshape_animation = dict_shape
 
