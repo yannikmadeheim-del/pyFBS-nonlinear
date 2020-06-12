@@ -179,14 +179,14 @@ man_pages = [
      [author], 1)
 ]
 
-html_favicon = 'logo-small_up.ico'
+html_favicon = 'logo-small.png'
 
 html_theme_options = {
     'logo_only': True,
     'body_max_width': '30%'
 }
 
-html_logo = "logo_big.JPG"
+html_logo = "logo-big.png"
 
 # -- Options for Texinfo output ----------------------------------------
 
