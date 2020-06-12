@@ -2,7 +2,7 @@
 3D Display
 ##########
 
-The :mod:`pyFBS` supports  can visualized in a 3D display. The 3D display enables depiction of structures, sensors, impacts, channels and virtual points in a simple and intuitive way. 
+The :mod:`pyFBS` can be used for 3D visualization. The 3D display enables depiction of structures, sensors, impacts, channels and virtual points in a simple and intuitive, Pythonic manner. 
 Furthermore, the 3D display supports motion animation, where objects or mode shapes can be animated with ease. For the 3D visualization a python package `PyVista <https://docs.pyvista.org/index.html>`_ is used.
 
 .. note:: 
