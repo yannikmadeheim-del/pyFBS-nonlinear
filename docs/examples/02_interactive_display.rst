@@ -12,7 +12,7 @@ Altogether four sphere widgets are used (one for translation and three for rotat
 ***********
 Translation
 ***********
-Translation of an object in the 3D display can be performed by moving a black sphere widget. An example of translation in the 3D display is depicted on a GIF bellow:
+Translation of an object in the 3D display can be performed by moving a black sphere widget. An example of translation in the 3D display is depicted on a GIF bellow.
 
 .. figure:: ./data/translation.gif
    :width: 800px
@@ -23,7 +23,7 @@ Translation of an object in the 3D display can be performed by moving a black sp
 Rotation
 ********
 To rotate an object in the 3D display, three sphere widgets are available, for rotation around each axis. 
-Red sphere widget is used for rotation around `X`-axis, green for rotation around `Y`-axis and blue for rotation around `Z`-axis. An example of rotation in the 3D display is depcted on a GIF bellow:
+Red sphere widget is used for rotation around `X`-axis, green for rotation around `Y`-axis and blue for rotation around `Z`-axis. An example of rotation in the 3D display is depcted on a GIF bellow.
 
 .. figure:: ./data/rotation.gif
    :width: 800px
@@ -43,9 +43,9 @@ when moving the object in the 3D display.
 
    Snapping of accelerometers to the mesh of a structure.
 
-******************
-Degrees of Freedom
-******************
+***********
+I/O Objects
+***********
 If a predefined dataset :mod:`pandas.DataFrame` is available for accelerometers, impacts and virtual points it can be used to place interactive objects already on the predefined positions.
 
 Accelerometers
@@ -74,7 +74,7 @@ The new updated positions and orientations can be obtained directly from the :cl
 Channels
 ========   
 
-Channels can be defined based on the positions and orientations of accelerometers:
+Channels can be defined based on the positions and orientations of accelerometers.
 
 .. code-block:: python
 
@@ -85,31 +85,29 @@ Currently, all the accelerometers are considered to be tri-axial. However, possi
 Impacts
 =======
 
-Interactive impacts can be added also from the predefined positions:
+Interactive impacts can be added also from the predefined positions.
 
 .. code-block:: python
 
 	view3D.add_imp_dynamic(mesh,predefined = df_impacts)
 	
-And the updated positions and orientations can be obtained directly:	
+The updated positions and orientations can be obtained directly.	
 
 .. code-block:: python
 
 	df_imp_updated = view3D.get_imp_data()
 
 
-
-
 Virtual points
 ==============
 
-In a simmilar manner also interactive virtual points can be added to the 3D display:
+In a simmilar manner also interactive virtual points can be added to the 3D display.
 
 .. code-block:: python
 
 	view3D.add_vp_dynamic(mesh,predefined = df_vp)
 
-And the updated positions and orientations can be obtained directly:	
+The updated positions and orientations can be obtained directly.
 
 .. code-block:: python
 

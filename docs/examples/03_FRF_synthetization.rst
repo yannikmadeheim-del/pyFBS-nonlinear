@@ -5,6 +5,9 @@ FRF synthetization
 The mass and stiffness matrices contain information about the mass and stiffness distribution in the system. 
 By solving the eigenvalue problem, the eigenfrequencies and eigenvectors of the system are determined.
 
+.. note:: 
+   Example showing the basic use of the FRF synthetization: :download:`03_FRF_synthetization.ipynb <../../examples/03_FRF_synthetization.ipynb>`.
+
 In the ``pyFBS`` library, modal analysis and FRFs synthetization :cite:`03-maia1997theoretical`, can be performed relying on mass and stiffness matrices imported from Ansys.
 
 MK model initialization

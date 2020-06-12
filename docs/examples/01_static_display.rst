@@ -37,9 +37,9 @@ After the code execution the geometric object will apear in the rendering window
 
 Multiple geometric objects can be added to the display with different colors and even opacity (checkout :func:`pyvista.BackgroundPlotter.add_mesh` for all options). When adding multiple geometric objects, care should be taken that different ``name`` variable is provided, otherwise the object with the same name will be overwritten (discarded from the 3D display). 
    
-******************
-Degrees of Freedom
-******************
+***********
+I/O Objects
+***********
 In the 3D display accelerometers, channels, impacts and virtual points can be shown. The positional and orientation information for each separate degree of freedom is defined in a :mod:`pandas.DataFrame`. 
 
 Accelerometers
