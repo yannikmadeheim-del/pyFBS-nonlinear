@@ -1,28 +1,33 @@
 =====
 pyFBS
 =====
+pyFBS is a Python package for Frequency Based Substructuring. It enables the user to use state-of-the-art dynamic substructuring methodologies in an intuitive manner. 
 
-
-.. image:: https://img.shields.io/pypi/v/pyfbs.svg
-        :target: https://pypi.python.org/pypi/pyfbs
-
-.. image:: https://img.shields.io/travis/tb93/pyfbs.svg
-        :target: https://travis-ci.org/tb93/pyfbs
-
-.. image:: https://readthedocs.org/projects/pyfbs/badge/?version=latest
-        :target: https://pyfbs.readthedocs.io/en/latest/?badge=latest
-        :alt: Documentation Status
-
-Python package for Frequency Based Substructuring
-
-
-* Free software: MIT license
-* Documentation: https://pyfbs.readthedocs.io.
-
+With the package also basic and application examples are provided, together with real datasets so you can simply try out capabilities of the pyFBS.
 
 Features
 --------
 
-* TODO
+* 3D display
+
+* FRF synthetization
+
+* Virtual Point Transformation
+
+* System Equivalent Model Mixing
+
+For more information on features or examples check out the documentation. 
+
+
+Acknowledgements
+----------------
+The pyFBS was developed as a part of collaboration between `Ladisk <http://ladisk.si/>`_ and `AM TUM <https://www.mw.tum.de/am/home/>`_.
+
+License
+-------
+Licensed under the MIT license.
+
+
+
 
 
