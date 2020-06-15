@@ -9,7 +9,7 @@ Furthermore, the 3D display supports motion animation, where objects or mode sha
    Example showing the basic use of the 3D display: :download:`01_static_display.ipynb <../../examples/01_static_display.ipynb>`.
 
 
-To open a blank 3D display simply make an instance of the :class:`pyFBS.view3D`:
+To open a blank 3D display simply make an instance of the :class:`pyFBS.view3D`.
 
 .. code-block:: python
 
@@ -21,21 +21,22 @@ A rendering window will open in the background, which will not pause the code ex
 Geometric objects
 *****************
 Geometric objects can be added to the 3D display in a simple manner. For simple objects (cylinders, spheres, boxes, ...) `PyVista methods <https://docs.pyvista.org/examples/00-load/create-geometric-objects.html#sphx-glr-examples-00-load-create-geometric-objects-py>`_ 
-can be used for the geometry generation. For displaying a more complex geometric objects a STL file can be loaded in the 3D display: 
+can be used for the geometry generation. For displaying a more complex geometric objects a STL file can be loaded in the 3D display.
 
 .. code-block:: python
  
 	path_to_stl = pyFBS.example_lab_testbench["STL"]["AB"]
 	view3D.add_stl(path_to_stl,name = "AB")
 
-After the code execution the geometric object will apear in the rendering window: 
+After the code execution the geometric object will apear in the rendering window.
 
 .. figure:: ./data/3D_view.png
    :width: 800px
 
    An example of a laboratory substructuring testbench depicted in the pyFBS 3D display.
 
-Multiple geometric objects can be added to the display with different colors and even opacity (checkout :func:`pyvista.BackgroundPlotter.add_mesh` for all options). When adding multiple geometric objects, care should be taken that different ``name`` variable is provided, otherwise the object with the same name will be overwritten (discarded from the 3D display). 
+Multiple geometric objects can be added to the display with different colors and even opacity (checkout :func:`pyvista.BackgroundPlotter.add_mesh` for all options). 
+When adding multiple geometric objects, care should be taken that different ``name`` variable is provided, otherwise the object with the same name will be overwritten (discarded from the 3D display). 
    
 ***********
 I/O Objects
@@ -44,7 +45,7 @@ In the 3D display accelerometers, channels, impacts and virtual points can be sh
 
 Accelerometers
 ==============
-Accelerometers can be added to 3D display directly from the :mod:`pd.DataFrame`:
+Accelerometers can be added to 3D display directly from the :mod:`pd.DataFrame`.
 
 .. code-block:: python
 
@@ -62,7 +63,7 @@ After the code execution accelerometers will be shown in the 3D display.
 
 Channels
 ========
-Channels associated with accelerometers can be added to the 3D display directly from the :mod:`pd.DataFrame`:
+Channels associated with accelerometers can be added to the 3D display directly from the :mod:`pd.DataFrame`.
 
 .. code-block:: python
 
@@ -79,7 +80,7 @@ After the code execution channels will be shown in the 3D display.
 
 Impacts
 =======
-Impacts can be added to the 3D display directly from the :mod:`pd.DataFrame`:
+Impacts can be added to the 3D display directly from the :mod:`pd.DataFrame`.
 
 .. code-block:: python
 
@@ -97,7 +98,7 @@ After the code execution impacts will be shown in the 3D display.
 
 Virtual points
 ==============
-Virtual points can also be added to the 3D display directly from the :mod:`pd.DataFrame`:
+Virtual points can also be added to the 3D display directly from the :mod:`pd.DataFrame`.
 
 .. code-block:: python
 
@@ -113,7 +114,7 @@ After the code execution virtual points will be shown in the 3D display.
 
 Labels
 ======
-Accelerometer, channels, impacts and virtual points can also be labeled or enumerated based on the information from the corresponding :mod:`pd.DataFrame`:
+Accelerometer, channels, impacts and virtual points can also be labeled or enumerated based on the information from the corresponding :mod:`pd.DataFrame`.
 
 .. code-block:: python
 
@@ -132,7 +133,8 @@ Corresponding labels will appear in the 3D display after the code execution.
 *******************************
 Interaction with the 3D display
 *******************************
-Basic interaction with the 3D display is relatively simple. Mouse ``left-click`` can be used to rotate the rendering scene and ``middle-click`` to pan the rendering scene. For more information refer to the `PyVista plotting shortcuts <https://docs.pyvista.org/plotting/plotting.html>`_.
+Basic interaction with the 3D display is relatively simple. Mouse ``left-click`` can be used to rotate the rendering scene and ``middle-click`` to pan the rendering scene. 
+For more information refer to the `PyVista plotting shortcuts <https://docs.pyvista.org/plotting/plotting.html>`_.
 
 .. figure:: ./data/interaction.gif
    :width: 800px
