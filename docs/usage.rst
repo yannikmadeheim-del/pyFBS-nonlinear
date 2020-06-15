@@ -1,6 +1,9 @@
 =====
 Usage
 =====
-To use pyFBS in a project::
 
-    import pyFBS
+To use :mod:`pyFBS` within a project simply import the package:
+
+.. code-block:: python
+
+	import pyFBS
