@@ -28,5 +28,6 @@ Dependencies
 ************
 
 * PyVista
+* pyansys
 * numpy
-* pyEMA
+* pandas

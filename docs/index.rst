@@ -9,8 +9,7 @@ Welcome to pyFBS's documentation!
    :caption: About
 
    intro
-
-   authors
+   credits
    license
 
 

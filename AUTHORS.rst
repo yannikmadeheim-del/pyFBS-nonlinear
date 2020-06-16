@@ -1,7 +1,3 @@
-=======
-Credits
-=======
-
 Development Lead
 ----------------
 
@@ -14,10 +10,6 @@ Development Lead
 Contributors
 ------------
 
-Add link to GitLab of open source.
+Add a link to GitLab.
 
 
-Citation
---------
-
-Add a link to JOSS after publication.

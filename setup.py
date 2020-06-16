@@ -17,8 +17,8 @@ setup_requirements = [ ]
 test_requirements = [ ]
 
 setup(
-    author="Tomaž Bregar",
-    author_email='bregar.toma@gmail.com',
+    author="The pyFBS developers",
+    author_email='tomaz.bregar@gorenje.com',
     python_requires='>=3.5',
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
