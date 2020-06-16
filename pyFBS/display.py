@@ -67,6 +67,7 @@ class view3D():
         # Toolbars
         self.show_hide_toolbar = self.plot.app_window.addToolBar('Show/hide Actors')
         self.animate_toolbar = self.plot.app_window.addToolBar('Animate Modeshape')
+        self.animate_clear_toolbar = self.plot.app_window.addToolBar('Clear Modeshape')
 
         self.displayed_bodies = []
 
@@ -94,6 +95,7 @@ class view3D():
         """
         if self.modeshape_animation == None:
             self.add_action(self.animate_toolbar, "Animate modeshape", self.animate_modeshape)
+            self.add_action(self.animate_clear_toolbar, "Clear modeshape", self.clear_modeshape)
 
         self.modeshape_animation = dict_shape
 
@@ -680,7 +682,7 @@ class view3D():
         self.vps_visible = True
 
 
-    def label_acc(self,df,name = "Accelerometers",**kwargs):
+    def label_acc(self,df,name = "Accelerometers",font_size = 12,**kwargs):
         """
         Adds labels to accelerometers from the DataFrame to 3D view.
 
@@ -698,11 +700,11 @@ class view3D():
             positions.append([row["Position_1"] * 1000, row["Position_2"] * 1000, row["Position_3"] * 1000])
             labels.append(row["Name"])
 
-        self.plot.add_point_labels(positions, labels, font_size=12,name = name,shape_opacity=.5,show_points=False,**kwargs)
+        self.plot.add_point_labels(positions, labels, font_size=font_size,name = name,shape_opacity=.5,show_points=False,**kwargs)
         self.global_labels.append([[positions, labels], name])
         self.labels_visible = True
 
-    def label_imp(self,df,name = "Impacts",**kwargs):
+    def label_imp(self,df,name = "Impacts",font_size= 12,**kwargs):
         """
         Adds labels to impacts from the DataFrame to 3D view.
 
@@ -721,11 +723,11 @@ class view3D():
             positions.append([row["Position_1"] * 1000, row["Position_2"] * 1000, row["Position_3"] * 1000])
             labels.append(row["Name"])
 
-        self.plot.add_point_labels(positions, labels, font_size=12,name = name,shape_color = RED,font_family = "times",shape_opacity=0.5,show_points=False,**kwargs)
+        self.plot.add_point_labels(positions, labels, font_size=font_size,name = name,shape_color = RED,font_family = "times",shape_opacity=0.5,show_points=False,**kwargs)
         self.global_labels.append([[positions, labels], name])
         self.labels_visible = True
 
-    def label_chn(self,df,name = "Channels",size = 10,**kwargs):
+    def label_chn(self,df,name = "Channels",size = 10,font_size = 12,**kwargs):
         """
         Adds labels to channels from the DataFrame to 3D view.
 
@@ -747,11 +749,11 @@ class view3D():
             positions.append([row["Position_1"]*1000+x, row["Position_2"]*1000+y, row["Position_3"]*1000+z])
             labels.append(row["Name"])
 
-        self.plot.add_point_labels(positions, labels, font_size=12, name=name, shape_color=BLUE, font_family = "times",shape_opacity=0.5,show_points=False,**kwargs)
+        self.plot.add_point_labels(positions, labels, font_size=font_size, name=name, shape_color=BLUE, font_family = "times",shape_opacity=0.5,show_points=False,**kwargs)
         self.global_labels.append([[positions,labels],name])
         self.labels_visible = True
 
-    def label_vp(self,df,name = "VPs",**kwargs):
+    def label_vp(self,df,name = "VPs",font_size = 12,**kwargs):
         """
         Adds labels to virtual point from the DataFrame to 3D view.
 
@@ -771,7 +773,7 @@ class view3D():
 
         L = df["Grouping"].unique()
 
-        self.plot.add_point_labels(position, L, font_size=12,name = name,font_family = "times",shape_opacity=0.5,shape_color = GREEN,show_points=False,**kwargs)
+        self.plot.add_point_labels(position, L, font_size=font_size,name = name,font_family = "times",shape_opacity=0.5,shape_color = GREEN,show_points=False,**kwargs)
         self.global_labels.append([[position, L], name])
         self.labels_visible = True
 

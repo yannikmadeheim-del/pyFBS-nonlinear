@@ -1,0 +1,404 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Operational Deflection Shapes &mdash; pyFBS  documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../_static/logo-small.png"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Coupling" href="07_coupling.html" />
+    <link rel="prev" title="SEMM - System equivalent model mixing" href="05_SEMM.html" />
+ 
+
+<meta name="description" content="A Python package for Frequency Based Substructuring">
+<meta name="author" content="The pyFBS Developers">
+<meta name="keywords" content="python, structural dynamics, frequency based substructuring, virtual point transformation, system equivalent model mixing, modal analysis, frequency response function">
+
+</script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html">
+          
+
+          
+            
+            <img src="../_static/logo-big.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+    
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">About</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro.html">Why pyFBS?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Basic examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="01_static_display.html">3D Display</a></li>
+<li class="toctree-l1"><a class="reference internal" href="02_interactive_display.html">Interactive positioning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="03_FRF_synthetization.html">FRF synthetization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="04_VPT.html">Virtual Point Transformation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="05_SEMM.html">SEMM - System equivalent model mixing</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Application examples</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Operational Deflection Shapes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#example-datasets">Example Datasets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#d-view">3D view</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#accelerometers">Accelerometers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#channels">Channels</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#impacts">Impacts</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#experimental-example">Experimental example</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#accelerometer-animation">Accelerometer animation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#gif-export">GIF export</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="07_coupling.html">Coupling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="08_decoupling.html">Decoupling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="09_EMA.html">Experimental modal analysis (EMA)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="10_TS.html">Transmission simulator in FBS</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Code Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../code_documentation/display.html">pyFBS.view3D</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../code_documentation/MCK.html">pyFBS.MK_model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../code_documentation/VPT.html">pyFBS.VPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../code_documentation/SEMM.html">pyFBS.SEMM</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../code_documentation/IO.html">pyFBS.IO</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../code_documentation/utility.html">pyFBS.utility</a></li>
+</ul>
+
+            
+          
+
+    
+        <p class="caption">
+            <span class="caption-text">
+            
+                Getting Connected
+            
+            </span>
+        </p>
+        <ul>
+            
+                <li class="toctree-l1"><a href="https://"><i class="fa fa-comment fa-fw"></i> Support</a></li>
+            
+                <li class="toctree-l1"><a href="https://"><i class="fa fa-gitlab fa-fw"></i> Source Code</a></li>
+            
+                <li class="toctree-l1"><a href="https://"><i class="fa fa-gavel fa-fw"></i> Contributing</a></li>
+            
+                <li class="toctree-l1"><a href="https://"><i class="fa fa-file-text fa-fw"></i> The Paper</a></li>
+            
+        </ul>
+    
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pyFBS</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Operational Deflection Shapes</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/examples/06_ODS.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="operational-deflection-shapes">
+<h1>Operational Deflection Shapes<a class="headerlink" href="#operational-deflection-shapes" title="Permalink to this headline">¶</a></h1>
+<p>The 3D display of the pyFBS can be used to animate objects. Animation can be performed on meshes directly on predefined objects (such as accelerometers). In this example an operational deflection shape of the a structure is animated.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pyFBS</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+</pre></div>
+</div>
+<div class="section" id="example-datasets">
+<h2>Example Datasets<a class="headerlink" href="#example-datasets" title="Permalink to this headline">¶</a></h2>
+<p>Load a predefined datasets from an example and add a structure from STL file to the 3D view.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">pos_xlsx</span> <span class="o">=</span> <span class="n">pyFBS</span><span class="o">.</span><span class="n">example_auto_testbench</span><span class="p">[</span><span class="s2">&quot;meas&quot;</span><span class="p">][</span><span class="s2">&quot;xlsx_ODS&quot;</span><span class="p">]</span>
+<span class="n">stl_rec</span> <span class="o">=</span> <span class="n">pyFBS</span><span class="o">.</span><span class="n">example_auto_testbench</span><span class="p">[</span><span class="s2">&quot;STL&quot;</span><span class="p">][</span><span class="s2">&quot;receiver&quot;</span><span class="p">]</span>
+<span class="n">stl_tm</span> <span class="o">=</span> <span class="n">pyFBS</span><span class="o">.</span><span class="n">example_auto_testbench</span><span class="p">[</span><span class="s2">&quot;STL&quot;</span><span class="p">][</span><span class="s2">&quot;transmission_mount&quot;</span><span class="p">]</span>
+<span class="n">stl_rm</span> <span class="o">=</span> <span class="n">pyFBS</span><span class="o">.</span><span class="n">example_auto_testbench</span><span class="p">[</span><span class="s2">&quot;STL&quot;</span><span class="p">][</span><span class="s2">&quot;roll_mount&quot;</span><span class="p">]</span>
+<span class="n">stl_em</span> <span class="o">=</span> <span class="n">pyFBS</span><span class="o">.</span><span class="n">example_auto_testbench</span><span class="p">[</span><span class="s2">&quot;STL&quot;</span><span class="p">][</span><span class="s2">&quot;engine_mount&quot;</span><span class="p">]</span>
+<span class="n">stl_ts</span> <span class="o">=</span> <span class="n">pyFBS</span><span class="o">.</span><span class="n">example_auto_testbench</span><span class="p">[</span><span class="s2">&quot;STL&quot;</span><span class="p">][</span><span class="s2">&quot;ts&quot;</span><span class="p">]</span>
+<span class="n">stl_shaker</span> <span class="o">=</span> <span class="n">pyFBS</span><span class="o">.</span><span class="n">example_auto_testbench</span><span class="p">[</span><span class="s2">&quot;STL&quot;</span><span class="p">][</span><span class="s2">&quot;shaker_only&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="d-view">
+<h2>3D view<a class="headerlink" href="#d-view" title="Permalink to this headline">¶</a></h2>
+<p>Open 3D viewer in the background.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">view3D</span> <span class="o">=</span> <span class="n">pyFBS</span><span class="o">.</span><span class="n">view3D</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Add a structure from STL file to the 3D view:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">view3D</span><span class="o">.</span><span class="n">add_stl</span><span class="p">(</span><span class="n">stl_rec</span><span class="p">,</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;receiver_3&quot;</span><span class="p">,</span><span class="n">color</span> <span class="o">=</span> <span class="s2">&quot;#e0e0e0&quot;</span><span class="p">,</span><span class="n">opacity</span> <span class="o">=</span> <span class="o">.</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">view3D</span><span class="o">.</span><span class="n">add_stl</span><span class="p">(</span><span class="n">stl_tm</span><span class="p">,</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;transmission_mount_3&quot;</span><span class="p">,</span><span class="n">color</span> <span class="o">=</span> <span class="s2">&quot;#83afd2&quot;</span><span class="p">,</span><span class="n">opacity</span> <span class="o">=</span> <span class="o">.</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">view3D</span><span class="o">.</span><span class="n">add_stl</span><span class="p">(</span><span class="n">stl_rm</span><span class="p">,</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;roll_mount_3&quot;</span><span class="p">,</span><span class="n">color</span> <span class="o">=</span> <span class="s2">&quot;#83afd2&quot;</span><span class="p">,</span><span class="n">opacity</span> <span class="o">=</span> <span class="o">.</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">view3D</span><span class="o">.</span><span class="n">add_stl</span><span class="p">(</span><span class="n">stl_em</span><span class="p">,</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;engine_mount_3&quot;</span><span class="p">,</span><span class="n">color</span> <span class="o">=</span> <span class="s2">&quot;#83afd2&quot;</span><span class="p">,</span><span class="n">opacity</span> <span class="o">=</span> <span class="o">.</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">view3D</span><span class="o">.</span><span class="n">add_stl</span><span class="p">(</span><span class="n">stl_ts</span><span class="p">,</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;ts_3&quot;</span><span class="p">,</span><span class="n">color</span> <span class="o">=</span> <span class="s2">&quot;#FB6D4C&quot;</span><span class="p">,</span><span class="n">opacity</span> <span class="o">=</span> <span class="o">.</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">view3D</span><span class="o">.</span><span class="n">add_stl</span><span class="p">(</span><span class="n">stl_shaker</span><span class="p">,</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;shaker_only_3&quot;</span><span class="p">,</span><span class="n">color</span> <span class="o">=</span> <span class="s2">&quot;#FB6D4C&quot;</span><span class="p">,</span><span class="n">opacity</span> <span class="o">=</span> <span class="o">.</span><span class="mi">1</span><span class="p">);</span>
+</pre></div>
+</div>
+<div class="figure align-default">
+<a class="reference internal image-reference" href="../_images/six_one.png"><img alt="../_images/six_one.png" src="../_images/six_one.png" style="width: 800px;" /></a>
+</div>
+</div>
+<div class="section" id="accelerometers">
+<h2>Accelerometers<a class="headerlink" href="#accelerometers" title="Permalink to this headline">¶</a></h2>
+<p>Add accelerometers to the 3D display:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">df_acc</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="n">pos_xlsx</span><span class="p">,</span> <span class="n">sheet_name</span><span class="o">=</span><span class="s1">&#39;Sensors&#39;</span><span class="p">)</span>
+<span class="n">view3D</span><span class="o">.</span><span class="n">show_acc</span><span class="p">(</span><span class="n">df_acc</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="figure align-default">
+<a class="reference internal image-reference" href="../_images/six_two.png"><img alt="../_images/six_two.png" src="../_images/six_two.png" style="width: 800px;" /></a>
+</div>
+</div>
+<div class="section" id="channels">
+<h2>Channels<a class="headerlink" href="#channels" title="Permalink to this headline">¶</a></h2>
+<p>Add channels to the 3D display:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">df_chn</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="n">pos_xlsx</span><span class="p">,</span> <span class="n">sheet_name</span><span class="o">=</span><span class="s1">&#39;Channels&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="figure align-default">
+<a class="reference internal image-reference" href="../_images/six_three.png"><img alt="../_images/six_three.png" src="../_images/six_three.png" style="width: 800px;" /></a>
+</div>
+</div>
+<div class="section" id="impacts">
+<h2>Impacts<a class="headerlink" href="#impacts" title="Permalink to this headline">¶</a></h2>
+<p>Add impacts to the 3D display:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">df_imp</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="n">pos_xlsx</span><span class="p">,</span> <span class="n">sheet_name</span><span class="o">=</span><span class="s1">&#39;Impacts&#39;</span><span class="p">)</span>
+<span class="n">view3D</span><span class="o">.</span><span class="n">show_imp</span><span class="p">(</span><span class="n">df_imp</span><span class="p">)</span>
+<span class="n">view3D</span><span class="o">.</span><span class="n">label_imp</span><span class="p">(</span><span class="n">df_imp</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="figure align-default">
+<a class="reference internal image-reference" href="../_images/six_four.png"><img alt="../_images/six_four.png" src="../_images/six_four.png" style="width: 800px;" /></a>
+</div>
+<div class="section" id="experimental-example">
+<h3>Experimental example<a class="headerlink" href="#experimental-example" title="Permalink to this headline">¶</a></h3>
+<p>Load experimental data for the operational deflection shape animation</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">_file</span> <span class="o">=</span> <span class="n">pyFBS</span><span class="o">.</span><span class="n">example_auto_testbench</span><span class="p">[</span><span class="s2">&quot;meas&quot;</span><span class="p">][</span><span class="s2">&quot;Y_ODS&quot;</span><span class="p">]</span>
+<span class="n">freq</span><span class="p">,</span> <span class="n">Y_ODS</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">_file</span><span class="p">,</span><span class="n">allow_pickle</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Checkout a single FRF:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">select_out</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">select_in</span> <span class="o">=</span> <span class="mi">1</span>
+
+<span class="n">display</span><span class="p">(</span><span class="n">df_chn</span><span class="o">.</span><span class="n">iloc</span><span class="p">[[</span><span class="n">select_out</span><span class="p">]])</span>
+<span class="n">display</span><span class="p">(</span><span class="n">df_imp</span><span class="o">.</span><span class="n">iloc</span><span class="p">[[</span><span class="n">select_in</span><span class="p">]])</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">6</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">211</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">semilogy</span><span class="p">(</span><span class="n">freq</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">Y_ODS</span><span class="p">[:,</span><span class="n">select_out</span><span class="p">,</span><span class="n">select_in</span><span class="p">]))</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">413</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">freq</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">angle</span><span class="p">(</span><span class="n">Y_ODS</span><span class="p">[:,</span><span class="n">select_out</span><span class="p">,</span><span class="n">select_in</span><span class="p">]))</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="accelerometer-animation">
+<h2>Accelerometer animation<a class="headerlink" href="#accelerometer-animation" title="Permalink to this headline">¶</a></h2>
+<p>The objects placed in the 3D view can be simply animated. In this example an operational deflection shape at a certain impact position can be animated:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">freq_sel</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+<span class="n">select_in</span> <span class="o">=</span> <span class="mi">6</span>
+
+<span class="n">emp_2</span> <span class="o">=</span> <span class="n">pyFBS</span><span class="o">.</span><span class="n">orient_in_global</span><span class="p">(</span><span class="n">Y_ODS</span><span class="p">[</span><span class="n">freq_sel</span><span class="p">,:,</span><span class="n">select_in</span><span class="p">],</span><span class="n">df_chn</span><span class="p">,</span><span class="n">df_acc</span><span class="p">)</span>
+
+<span class="n">mode_dict</span> <span class="o">=</span> <span class="n">pyFBS</span><span class="o">.</span><span class="n">dict_animation</span><span class="p">(</span><span class="n">emp_2</span><span class="p">,</span><span class="s2">&quot;object&quot;</span><span class="p">,</span><span class="n">object_list</span> <span class="o">=</span> <span class="n">view3D</span><span class="o">.</span><span class="n">global_acc</span><span class="p">,</span><span class="n">r_scale</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+<span class="n">mode_dict</span><span class="p">[</span><span class="s2">&quot;freq&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">freq</span><span class="p">[</span><span class="n">freq_sel</span><span class="p">]</span>
+<span class="n">view3D</span><span class="o">.</span><span class="n">add_objects_animation</span><span class="p">(</span><span class="n">mode_dict</span><span class="p">,</span><span class="n">run_animation</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span><span class="n">add_note</span><span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="gif-export">
+<h2>GIF export<a class="headerlink" href="#gif-export" title="Permalink to this headline">¶</a></h2>
+<p>The pyFBS supports also an export to a GIF file. Before running the animation just set the output directory view3D.gif_dir and set the variable view3D.take_gif = True. When the GIF is exporting the animation lags the animation can lag in the 3D display.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">view3D</span><span class="o">.</span><span class="n">take_gif</span> <span class="o">=</span> <span class="bp">True</span>
+<span class="n">view3D</span><span class="o">.</span><span class="n">gif_dir</span> <span class="o">=</span> <span class="s2">&quot;output.gif&quot;</span>
+<span class="n">view3D</span><span class="o">.</span><span class="n">add_objects_animation</span><span class="p">(</span><span class="n">mode_dict</span><span class="p">,</span><span class="n">run_animation</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span><span class="n">add_note</span><span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="07_coupling.html" class="btn btn-neutral float-right" title="Coupling" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="05_SEMM.html" class="btn btn-neutral float-left" title="SEMM - System equivalent model mixing" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, The pyFBS Developers
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

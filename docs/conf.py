@@ -87,7 +87,7 @@ language = None
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = 'sphinx'
+pygments_style = 'default'
 
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = False
@@ -153,7 +153,7 @@ html_context = {
     'menu_links_name': 'Getting Connected',
     'menu_links': [
         ('<i class="fa fa-comment fa-fw"></i> Support', 'https://'),
-        ('<i class="fa fa-github fa-fw"></i> Source Code', 'https://'),
+        ('<i class="fa fa-gitlab fa-fw"></i> Source Code', 'https://'),
         ('<i class="fa fa-gavel fa-fw"></i> Contributing', 'https://'),
         ('<i class="fa fa-file-text fa-fw"></i> The Paper', 'https://'),
     ],
@@ -179,14 +179,14 @@ man_pages = [
      [author], 1)
 ]
 
-html_favicon = 'logo-small_up.ico'
+html_favicon = 'logo-small.png'
 
 html_theme_options = {
     'logo_only': True,
     'body_max_width': '30%'
 }
 
-html_logo = "logo_big.JPG"
+html_logo = "logo-big.png"
 
 # -- Options for Texinfo output ----------------------------------------
 
@@ -202,5 +202,7 @@ texinfo_documents = [
      'Miscellaneous'),
 ]
 
+def setup(app):
+    app.add_stylesheet("custom.css")
 
 
