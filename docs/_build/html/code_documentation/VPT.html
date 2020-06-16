@@ -1,5 +1,6 @@
 
 
+
 <!DOCTYPE html>
 <!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
@@ -13,6 +14,8 @@
 
   
   
+    <link rel="shortcut icon" href="../_static/logo-small.png"/>
+  
   
   
 
@@ -21,10 +24,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -33,9 +36,19 @@
   
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="prev" title="pyFBS.SEMM" href="SEMM.html" /> 
+    <link rel="next" title="pyFBS.SEMM" href="SEMM.html" />
+    <link rel="prev" title="pyFBS.MK_model" href="MCK.html" />
+ 
+
+<meta name="description" content="A Python package for Frequency Based Substructuring">
+<meta name="author" content="The pyFBS Developers">
+<meta name="keywords" content="python, structural dynamics, frequency based substructuring, virtual point transformation, system equivalent model mixing, modal analysis, frequency response function">
+
+</script>
+
 </head>
 
 <body class="wy-body-for-nav">
@@ -49,9 +62,12 @@
           
 
           
-            <a href="../index.html" class="icon icon-home"> pyFBS
+            <a href="../index.html">
           
 
+          
+            
+            <img src="../_static/logo-big.png" class="logo" alt="Logo"/>
           
           </a>
 
@@ -74,6 +90,7 @@
 
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
+    
             
             
               
@@ -87,20 +104,59 @@
 </ul>
 <p class="caption"><span class="caption-text">Getting Started</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../examples/basic_examples.html">Basic Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../examples/application_examples.html">Application Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Basic examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../examples/01_static_display.html">3D Display</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/02_interactive_display.html">Interactive positioning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/03_FRF_synthetization.html">FRF synthetization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/04_VPT.html">Virtual Point Transformation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/05_SEMM.html">SEMM - System equivalent model mixing</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Application examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../examples/06_ODS.html">Operational Deflection Shapes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/07_coupling.html">Coupling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/08_decoupling.html">Decoupling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/09_EMA.html">Experimental modal analysis (EMA)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/10_TS.html">Transmission simulator in FBS</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Code Documentation</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="display.html">pyFBS.display</a></li>
-<li class="toctree-l1"><a class="reference internal" href="SEMM.html">pyFBS.SEMM</a></li>
+<li class="toctree-l1"><a class="reference internal" href="display.html">pyFBS.view3D</a></li>
+<li class="toctree-l1"><a class="reference internal" href="MCK.html">pyFBS.MK_model</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">pyFBS.VPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SEMM.html">pyFBS.SEMM</a></li>
+<li class="toctree-l1"><a class="reference internal" href="IO.html">pyFBS.IO</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utility.html">pyFBS.utility</a></li>
 </ul>
 
             
           
+
+    
+        <p class="caption">
+            <span class="caption-text">
+            
+                Getting Connected
+            
+            </span>
+        </p>
+        <ul>
+            
+                <li class="toctree-l1"><a href="https://"><i class="fa fa-comment fa-fw"></i> Support</a></li>
+            
+                <li class="toctree-l1"><a href="https://"><i class="fa fa-gitlab fa-fw"></i> Source Code</a></li>
+            
+                <li class="toctree-l1"><a href="https://"><i class="fa fa-gavel fa-fw"></i> Contributing</a></li>
+            
+                <li class="toctree-l1"><a href="https://"><i class="fa fa-file-text fa-fw"></i> The Paper</a></li>
+            
+        </ul>
+    
+
         </div>
       </div>
     </nav>
@@ -164,10 +220,10 @@
   <div class="section" id="pyfbs-vpt">
 <h1>pyFBS.VPT<a class="headerlink" href="#pyfbs-vpt" title="Permalink to this headline">¶</a></h1>
 <p>Short description</p>
-<dl class="class">
+<dl class="py class">
 <dt id="pyFBS.VPT">
-<em class="property">class </em><code class="sig-prename descclassname">pyFBS.</code><code class="sig-name descname">VPT</code><span class="sig-paren">(</span><em class="sig-param">ch</em>, <em class="sig-param">refch</em>, <em class="sig-param">vp_ch</em>, <em class="sig-param">vp_refch</em>, <em class="sig-param">Wu=None</em>, <em class="sig-param">Wf=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/VPT.html#VPT"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.VPT" title="Permalink to this definition">¶</a></dt>
-<dd><p>Virtual point transformation - Description</p>
+<em class="property">class </em><code class="sig-prename descclassname">pyFBS.</code><code class="sig-name descname">VPT</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ch</span></em>, <em class="sig-param"><span class="n">refch</span></em>, <em class="sig-param"><span class="n">vp_ch</span></em>, <em class="sig-param"><span class="n">vp_refch</span></em>, <em class="sig-param"><span class="n">Wu</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">Wf</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">sort_matrix</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/VPT.html#VPT"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.VPT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Virtual point transformation</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -176,13 +232,24 @@
 <li><p><strong>vp_ch</strong> (<em>pandas.DataFrame</em>) – Virtual point channels used in the transformation (output - VP).</p></li>
 <li><p><strong>vp_refch</strong> (<em>pandas.DataFrame</em>) – Virtual point reference channels used in the transformation (input - VP).</p></li>
 <li><p><strong>Wu</strong> (<em>numpy.array</em>) – Displacement weighting matrix.</p></li>
-<li><p><strong>Wf</strong> (<em>numpy.array</em>) – Displacement weighting matrix.</p></li>
+<li><p><strong>Wf</strong> (<em>numpy.array</em>) – Force weighting matrix.</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="method">
+<p class="rubric">References</p>
+<dl class="footnote brackets">
+<dt class="label" id="id1"><span class="brackets">1</span></dt>
+<dd><ol class="upperalpha simple" start="13">
+<li><ol class="upperalpha simple" start="22">
+<li><p>van der Seijs, Experimental Dynamic Substructuring: Analysis and design strategies for vehicle development, Ph.D. thesis, TU Delft (2016).</p></li>
+</ol>
+</li>
+</ol>
+</dd>
+</dl>
+<dl class="py method">
 <dt id="pyFBS.VPT.R_matrix_F">
-<code class="sig-name descname">R_matrix_F</code><span class="sig-paren">(</span><em class="sig-param">pos</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/VPT.html#VPT.R_matrix_F"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.VPT.R_matrix_F" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">R_matrix_F</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pos</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/VPT.html#VPT.R_matrix_F"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.VPT.R_matrix_F" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate Rf matrix based on the reference channel position/orientation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -194,9 +261,9 @@
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pyFBS.VPT.R_matrix_U">
-<code class="sig-name descname">R_matrix_U</code><span class="sig-paren">(</span><em class="sig-param">pos</em>, <em class="sig-param">type='Acceleration'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/VPT.html#VPT.R_matrix_U"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.VPT.R_matrix_U" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">R_matrix_U</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pos</span></em>, <em class="sig-param"><span class="n">type</span><span class="o">=</span><span class="default_value">'Acceleration'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/VPT.html#VPT.R_matrix_U"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.VPT.R_matrix_U" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate Ru matrix based on the channel position/orientation and sensor type.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -211,9 +278,9 @@
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pyFBS.VPT.W_rotational">
-<code class="sig-name descname">W_rotational</code><span class="sig-paren">(</span><em class="sig-param">pos</em>, <em class="sig-param">dir</em>, <em class="sig-param">type='Angular Acceleration'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/VPT.html#VPT.W_rotational"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.VPT.W_rotational" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">W_rotational</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pos</span></em>, <em class="sig-param"><span class="n">dir</span></em>, <em class="sig-param"><span class="n">type</span><span class="o">=</span><span class="default_value">'Angular Acceleration'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/VPT.html#VPT.W_rotational"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.VPT.W_rotational" title="Permalink to this definition">¶</a></dt>
 <dd><p>Defines the weighting matrix based on the</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -225,9 +292,9 @@
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pyFBS.VPT.apply_VPT">
-<code class="sig-name descname">apply_VPT</code><span class="sig-paren">(</span><em class="sig-param">freq</em>, <em class="sig-param">FRF</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/VPT.html#VPT.apply_VPT"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.VPT.apply_VPT" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">apply_VPT</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">freq</span></em>, <em class="sig-param"><span class="n">FRF</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/VPT.html#VPT.apply_VPT"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.VPT.apply_VPT" title="Permalink to this definition">¶</a></dt>
 <dd><p>Applies the Virtual Point Transformation on the supplied FRF matrix.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -242,9 +309,9 @@
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pyFBS.VPT.consistency">
-<code class="sig-name descname">consistency</code><span class="sig-paren">(</span><em class="sig-param">grouping</em>, <em class="sig-param">ref_grouping</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/VPT.html#VPT.consistency"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.VPT.consistency" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">consistency</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">grouping</span></em>, <em class="sig-param"><span class="n">ref_grouping</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/VPT.html#VPT.consistency"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.VPT.consistency" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates the VP consistency indicators based on the supplied grouping numbers.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -256,21 +323,21 @@
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pyFBS.VPT.define_IDM_F">
 <code class="sig-name descname">define_IDM_F</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/VPT.html#VPT.define_IDM_F"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.VPT.define_IDM_F" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates the Rf, Tf, Ff matrices based on the supplied position and orientation of Channels and Virtual Channels. In the current implementation only Rigid IDMs are supported.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pyFBS.VPT.define_IDM_U">
 <code class="sig-name descname">define_IDM_U</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/VPT.html#VPT.define_IDM_U"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.VPT.define_IDM_U" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates the Ru, Tu, Fu matrices based on the supplied position and orientation of Channels and Virtual Channels. In the current implementation only Rigid IDMs are supported.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pyFBS.VPT.find_group">
-<code class="sig-name descname">find_group</code><span class="sig-paren">(</span><em class="sig-param">gr</em>, <em class="sig-param">gr_list</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/VPT.html#VPT.find_group"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.VPT.find_group" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">find_group</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">gr</span></em>, <em class="sig-param"><span class="n">gr_list</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/VPT.html#VPT.find_group"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.VPT.find_group" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a grouping overlap between two sets.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -285,9 +352,9 @@
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pyFBS.VPT.find_overlap_ch">
-<code class="sig-name descname">find_overlap_ch</code><span class="sig-paren">(</span><em class="sig-param">channelsA</em>, <em class="sig-param">channelsB</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/VPT.html#VPT.find_overlap_ch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.VPT.find_overlap_ch" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">find_overlap_ch</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">channelsA</span></em>, <em class="sig-param"><span class="n">channelsB</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/VPT.html#VPT.find_overlap_ch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.VPT.find_overlap_ch" title="Permalink to this definition">¶</a></dt>
 <dd><p>Finds an overlap of grouping number between two channel datasets.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -314,8 +381,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
+        <a href="SEMM.html" class="btn btn-neutral float-right" title="pyFBS.SEMM" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
-        <a href="SEMM.html" class="btn btn-neutral float-left" title="pyFBS.SEMM" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+        <a href="MCK.html" class="btn btn-neutral float-left" title="pyFBS.MK_model" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -324,7 +393,7 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2019, Tomaž Bregar
+        &copy; Copyright 2020, The pyFBS Developers
 
     </p>
   </div>
