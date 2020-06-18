@@ -5,6 +5,7 @@ Experimental modal analysis (EMA)
 The pyFBS can be also used with other python packages for structural dynamics. One of those packages is pyEMA which performes a Experimental Modal Analysis (EMA). In this example an integration of the two packages is shown on a frame the automotive testbench example. Real experimental data is used in this example. 
 
 .. code-block:: python
+
     import pyFBS
     from pyEMA import pyEMA
 

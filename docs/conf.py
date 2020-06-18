@@ -45,7 +45,7 @@ extensions = ['sphinx.ext.autodoc', 'sphinx.ext.intersphinx', 'sphinx.ext.todo',
               'sphinx.ext.doctest', 'sphinx.ext.ifconfig', 'sphinx.ext.mathjax',
               'sphinx.ext.napoleon','sphinxcontrib.bibtex','sphinx.ext.autodoc',
               'sphinx.ext.doctest','sphinx.ext.autosummary','sphinx.ext.extlinks',
-              'sphinx.ext.coverage',
+              'sphinx.ext.coverage','sphinx_gallery.gen_gallery',
               ]
 			  
 # Add any paths that contain templates here, relative to this directory.
@@ -139,6 +139,7 @@ latex_elements = {
     'figure_align': 'htbp',
 }
 
+
 import sphinx_rtd_theme
 html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 
@@ -203,6 +204,6 @@ texinfo_documents = [
 ]
 
 def setup(app):
-    app.add_stylesheet("custom.css")
+    app.add_css_file("style.css")
 
 

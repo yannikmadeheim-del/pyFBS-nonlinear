@@ -5,7 +5,7 @@ Short description
 
 
 .. toctree::
-	:maxdepth: 2
+	:maxdepth: 1
 
 	06_ODS
 	07_coupling
