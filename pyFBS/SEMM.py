@@ -1,9 +1,4 @@
-import numpy as np
-import copy
-import matplotlib.pyplot as plt
 from pyFBS.utility import *
-
-
 
 def find_locations_in_data_frames(df_1, df_2):
     """Find matching locations of data frames ``df_1`` and ``df_2``.
@@ -22,7 +17,8 @@ def find_locations_in_data_frames(df_1, df_2):
 
 def SEMM(Y_num, Y_exp, df_chn_num, df_imp_num, df_chn_exp, df_imp_exp, SEMM_type='fully-extend', red_comp=0, red_eq=0):
     """
-    This function performs SEMM. It couples numerical (``Y_num``) and experimental (``Y_exp``) model to hybrid model. 
+    This function performs System Equivalent Model Mixing (SEMM).It couples numerical (``Y_num``) and
+    experimental (``Y_exp``) model to hybrid model.
 
     :param Y_num: Numerical response matrix
     :type Y_num: array(float)

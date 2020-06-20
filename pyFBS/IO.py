@@ -1,16 +1,19 @@
 import pyuff
-import numpy as np
 import math
-import pandas as pd
 from pyFBS.utility import *
 
 
-# TODO: are we missing anything?
-
 def load_uff_file_PAK(uff_file_data,uff_file_output,uff_file_input):
     """
-    Description
+    Loads an Universal File Format .uff file from PAK system and parses the data in arrays and DataFrames
 
+    :param uff_file_data: A filename of .uff file containing information on FRFs
+    :type uff_file_data: str
+    :param uff_file_output: A filename of .uff file containing information on channels
+    :type uff_file_output: str
+    :param uff_file_input: A filename of .uff file containing information on reference channels
+    :type uff_file_input: str
+    :returns: frequency vector, FRF matrix, channel DataFrame, impact DataFrame, sensor DataFrame
     """
 
     uff_file_out = pyuff.UFF(uff_file_output)
@@ -102,14 +105,6 @@ def load_uff_file_PAK(uff_file_data,uff_file_output,uff_file_input):
 
     return freq,FRF,df_chn,df_imp,df_acc
 
-def load_lvm_files(directory):
-    """
-    Description
 
-    :param directory:
-    :return:
-    """
-    #TODO: port the function
-    return None
 
 

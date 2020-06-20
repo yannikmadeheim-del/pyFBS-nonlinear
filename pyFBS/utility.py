@@ -6,23 +6,13 @@ import pandas as pd
 from scipy.spatial.transform import Rotation as R
 
 
-def response_sync_lstsq(response_vec):
-    """
-    Description
-
-    :param response_vec:
-    :return:
-    """
-    _mode = response_vec.flatten()
-    z = np.arctan(np.average(np.imag(_mode) / np.real(_mode), weights=np.abs(_mode) ** 2))
-
-    response_vec_norm = response_vec * (np.cos(-1 * z) + 1j * np.sin(-1 * z))
-    return response_vec_norm
-
-
 def modeshape_sync_lstsq(mode_shape_vec):
     """
-    Creates a straight line fit in the complex plane and substracts the phase from mode shapes.
+    Creates a straight line fit in the complex plane and alligns the mode shape with the real-axis.
+
+    :param mode_shape_vec: Mode shape vector
+    :type mode_shape_vec: array(float)
+    :return _n: Alligned mode shape vector
     """
     _n = np.zeros_like(mode_shape_vec)
     for i in range(np.shape(mode_shape_vec)[1]):
@@ -34,7 +24,15 @@ def modeshape_sync_lstsq(mode_shape_vec):
 
 def modeshape_scaling_DP(mode_shape_vec, driving_point,sync = True):
     """
-    Scales modeshape from driving point measurement.
+    Scales mode shapes according to the driving point measurement.
+
+    :param mode_shape_vec: Mode shape vector
+    :type mode_shape_vec: array(float)
+    :param driving_point: Driving point location
+    :type driving_point: int
+    :param sync: Allign mode shape with the real-axis
+    :type sync: bool, optional
+    :return: Scalled mode shape
     """
     
     _mode = mode_shape_vec
@@ -43,11 +41,16 @@ def modeshape_scaling_DP(mode_shape_vec, driving_point,sync = True):
     
     if sync:
         _mode = modeshape_sync_lstsq(_mode)
+
     return _mode        
 
 def MCF(mod):
     """
     Calculate Mode Complexity Factor (MCF)
+
+    :param mod: Mode shape
+    :type mod: array(float)
+    :return: Mode complexity factor
     """
     sxx = np.real(mod).T@np.real(mod)
     syy = np.imag(mod).T@np.imag(mod)
@@ -55,14 +58,13 @@ def MCF(mod):
     mcf = (1 - ((sxx-syy)**2+4*sxy**2)/((sxx+syy)**2))
     return mcf
 
-
-
-
 def flatten_FRFs(Y):
     """
-    :param Y:
-    :return:
-    Flattens FRF matrix Y from shape (out,in,freq) in (out x in,freq)
+    Flattens input FRF matrix Y from shape (out,in,freq) in (out x in,freq)
+
+    :param Y: Matrix of FRFs [out,in,f]
+    :type Y: array(float)
+    :return:  Matrix of FRFs [out x in,f]
     """
     new = np.zeros((Y.shape[0] * Y.shape[1], Y.shape[2]), dtype=complex)
 
@@ -72,12 +74,14 @@ def flatten_FRFs(Y):
 
     return new
 
-def unflattenFRFs(_modes_acc,Y):
+def unflatten_modes(_modes_acc,Y):
     """
-    :param _modes_acc:
+    Unflattens mode shapes based on the shape of the input FRF matrix [out x in] in [out, in]
+
+    :param _modes_acc: Mode shape [out x in]
+    :type _modes_acc: array(float)
     :param Y:
-    :return:
-    Reconstructs modeshapes from pyEMA.get_constants in 3D space based on the structure of Y
+    :return: Unflattened mode shape [out, in]
     """
     new_mode = np.zeros((Y.shape[0],Y.shape[1],_modes_acc.shape[1]),dtype = complex)
 
@@ -86,11 +90,30 @@ def unflattenFRFs(_modes_acc,Y):
         new_mode[i,:,:] = _modes_acc[i*_len:(i+1)*_len,:]
     return new_mode
 
+def complex_plot(mode_shape,color = "k"):
+    """
+    Plots a mode shape on a radial plot.
+
+    :param mode_shape: mode shape
+    :type mode_shape: array(float)
+    :param color: Color of the plot
+    :type color: str
+    """
+    plt.figure(figsize = (3,3))
+    ax1 = plt.subplot(111,projection = "polar")
+
+    for x in mode_shape:
+        ax1.plot([0,np.angle(x)],[0,np.abs(x)],marker='.',color = color,alpha = 0.5)
+
+    plt.yticks([])
+
+
 def complex_plot_3D(mode_shape):
     """
-    Plots modeshape on a radial plot.
-    :param mode_shape:
-    :return:
+    Plots a 3D mode shape on a radial plot.
+
+    :param mode_shape: 3D mode shape
+    :type mode_shape: array(float)
     """
     plt.figure(figsize = (3,3))
     ax1 = plt.subplot(111,projection = "polar")
@@ -101,61 +124,77 @@ def complex_plot_3D(mode_shape):
 
     plt.yticks([])
 
-def mode_animation(mode_shape,scale, no_points=60):
+def mode_animation(mode_shape, scale, no_points=60):
     """
-    Create animation sequence
+    Creates an animation sequence from the mode shape and scales the displacemetns.
+
+    :param mode_shape: mode shape
+    :type mode_shape: array(float)
+    :param scale: mode shape
+    :type scale: float
+    :param no_points: Number of points in the animation sequence
+    :type no_points: int, optional
+    :return: Animation sequence
     """
     ann = np.zeros((mode_shape.shape[0], mode_shape.shape[1], no_points))
 
     for g, _t in enumerate(np.linspace(0, 2, no_points)):
         ann[:, :, g] = (np.real(mode_shape) * np.cos(2 * np.pi * _t) - np.imag(mode_shape) * np.sin(
             2 * np.pi * _t))
-    ann = ann / np.max(ann) *scale
+    ann = ann / np.max(ann) * scale
     return ann
 
 
-def coh_frf(h_num, h_exp, check=False):
+def coh_frf(y_1, y_2):
     """
-    :param h_num: numerični kompleksni vektor FRF
-    :param h_exp: eksperimentalni kompleksni vektor FRF
+    Calculates values of coherence between two FRFs.
 
-    :return: vrednost coherence kriterija
+    :param y_1: FRF 1
+    :type y_1: array(float)
+    :param y_2: FRF 2
+    :type y_2: array(float)
+    :return: coherence criterion
     """
 
-    h_numk = np.conjugate(h_num)
-    h_expk = np.conjugate(h_exp)
+    y_1_k = np.conjugate(y_1)
+    y_2_k = np.conjugate(y_2)
 
     def vector(h_, h_K):
         """
-        :param h_: kompleksni vektor FRF
-        :param h_K: konjugirani kompleksni vektor FRF
+        :param h_: complex vector
+        :param h_K: conjugated complex vector
 
-        :return: vektorski produkt
+        :return: vector product
         """
 
         vec = np.dot(h_, h_K)
         return vec
 
-    coh = np.abs(vector((h_num + h_exp), (h_numk + h_expk))) / 2 / (vector(h_numk, h_num) + vector(h_expk, h_exp))
+    coh = np.abs(vector((y_1 + y_2), (y_1_k + y_2_k))) / 2 / (vector(y_1_k, y_1) + vector(y_2_k, y_2))
     coh_abs = np.abs(coh)
 
-    if check:
-        return coh, coh_abs
-    else:
-        return coh_abs
+    return coh_abs
 
 def dict_animation(_modeshape,a_type,mesh= None,pts = None,fps = 30,r_scale = 10,no_points = 60, object_list = None):
     """
-    Description
+    Creates a predefined dictionary for animation sequency in the 3D display.
 
-    :param _modeshape:
-    :param pts:
-    :param mesh:
-    :param a_type:
-    :param fps:
-    :param r_scale:
-    :param no_points:
-    :param object_list:
+    :param _modeshape: A mode shape or response to be animated
+    :type _modeshape: array(float)
+    :param a_type: Animation type ("modeshape" or "object")
+    :type a_type: str
+    :param mesh: Mesh to be animated
+    :type mesh: array(float), optional
+    :param pts: Points to be animated
+    :type pts: array(float), optional
+    :param fps: Frames per second of the animation
+    :type fps: int, optional
+    :param r_scale: Relative scale of the displacement
+    :type r_scale: float, optional
+    :param no_points: Number of points in the animation sequence
+    :type no_points: int, optional
+    :param object_list: A list containing objects to be animated
+    :type object_list: list, optional
     :return:
     """
     mode_dict = dict()
@@ -174,25 +213,27 @@ def dict_animation(_modeshape,a_type,mesh= None,pts = None,fps = 30,r_scale = 10
     return mode_dict
 
 
-def CMIF(FRF, singular_vectors=False):
+def CMIF(FRF, return_svector=False):
     """
-    Calculates a CMIF parameter on an FRF matrix
+    Calculates a CMIF parameter of input FRF matrix
 
-    :param FRF:
-    :param singular_vector:
-    :return:
+    :param FRF: Input FRF matrix
+    :type FRF: array(float)
+    :param singular_vector: Return corresponding singular vectors
+    :type singular_vector: bool, optional
+    :return: CMIF parameters (singular values with or without left and right singular vectors)
     """
     _f = FRF.shape[0]
     val = np.min([FRF.shape[1], FRF.shape[2]])
 
     _S = np.zeros((_f, val))
 
-    if singular_vectors:
+    if return_svector:
         _U = np.zeros((_f, FRF.shape[1], FRF.shape[1]), dtype="complex")
         _V = np.zeros((_f, FRF.shape[2], FRF.shape[2]), dtype="complex")
 
     for i in range(_f):
-        if singular_vectors:
+        if return_svector:
             U, S, VH = np.linalg.svd(FRF[i, :, :], full_matrices=True, compute_uv=True)
             V = np.conj(VH).T
             _S[i, :] = S
@@ -203,7 +244,7 @@ def CMIF(FRF, singular_vectors=False):
             S = np.linalg.svd(FRF[i, :, :], full_matrices=True, compute_uv=False)
             _S[i, :] = S
 
-    if singular_vectors:
+    if return_svector:
         return _U, _S, _V
     else:
         return _S
@@ -215,8 +256,8 @@ def TSVD(matrix,reduction = 0):
 
     :param matrix: Matrix to be filtered by singular value decomposition
     :type matrix: array(float)
-    :param reduction: Number of singular values not taken into account by reconstruction of the matrix A
-    :type reduction: int
+    :param reduction: Number of singular values not taken into account by reconstruction of the matrix
+    :type reduction: int, optional
     :return: Filtered matrix
     :rtype: array(float)
     """
@@ -233,7 +274,13 @@ def TSVD(matrix,reduction = 0):
 
 def M(axis, theta):
     """
-    Euler-Rodrigues formula
+    Calculates rotational matrix based on the Euler-Rodrigues formula.
+
+    :param axis: Axis of rotation
+    :type axis: array(float)
+    :param theta: Angle of rotation
+    :type theta: float
+    :return: Rotational matrix
     """
     t = expm(cross(eye(3), axis / norm(axis) * (theta)))
     return t
@@ -241,13 +288,18 @@ def M(axis, theta):
 
 def angle(vector1, vector2):
     """
-    Returns the angle in radians between given vectors
+    Calculates angle of rotation between two 3D vectors.
+
+    :param vector1: 3D vector
+    :type vector1: array(float)
+    :param vector2: 3D vector
+    :type vector2: array(float)
+    :return: angle
     """
+
     v1_u = unit_vector(vector1)
     v2_u = unit_vector(vector2)
-    minor = np.linalg.det(
-        np.stack((v1_u[-2:], v2_u[-2:]))
-    )
+    minor = np.linalg.det(np.stack((v1_u[-2:], v2_u[-2:])))
     if minor == 0:
         sign = 1
     else:
@@ -261,12 +313,15 @@ def rotation_matrix_from_vectors(vec1, vec2):
     """
     Find the rotation matrix that aligns vec1 to vec2
 
-    :param vec1: A 3d "source" vector
-    :param vec2: A 3d "destination" vector
-    :return mat: A transform matrix (3x3) which when applied to vec1, aligns it with vec2.
+    :param vec1: A 3D "source" vector
+    :type vec1: array(float)
+    :param vec2: A 3D "destination" vector
+    :type vec2: array(float)
+    :return: Rotational matrix which when applied to vec1, aligns it with vec2.
     """
-    vec1 += np.random.random(3) / 1e10  # just to avoid possible math errors
-    vec2 += np.random.random(3) / 1e10  # just to avoid possible math errors
+
+    vec1 += np.random.random(3) / 1e10
+    vec2 += np.random.random(3) / 1e10
 
     a, b = (vec1 / np.linalg.norm(vec1)).reshape(3), (vec2 / np.linalg.norm(vec2)).reshape(3)
 
@@ -284,14 +339,25 @@ def rotation_matrix_from_vectors(vec1, vec2):
 
 def unit_vector(vector):
     """
-    Returns the unit vector of the vector.
+    Returns the unit vector of input vector.
+
+    :param vector: A 3D "source" vector
+    :type vector: array(float)
+    :return unit vector:
     """
+
     return vector / np.linalg.norm(vector)
 
 
 def angle_between(v1, v2):
     """
-    Returns the angle in radians between vectors 'v1' and 'v2'
+    Calculates angle of rotation between two 3D vectors.
+
+    :param vector1: 3D vector
+    :type vector1: array(float)
+    :param vector2: 3D vector
+    :type vector2: array(float)
+    :return: angle
     """
     v1_u = unit_vector(v1)
     v2_u = unit_vector(v2)
@@ -299,11 +365,14 @@ def angle_between(v1, v2):
 
 def generate_channels_from_sensors(df):
     """
-    Description
+    Generates a set of channels based on the orientation of sensors. CUrrent implementation assumes that each sensor has
+    three channels (i.e. tri-axial sensors).
 
-    :param df:
-    :return:
+    :param df: A DataFrame containing information on sensors
+    :type df: pd.DataFrame
+    :return: A DataFrame containing information on channels
     """
+
     columns_chann = ["Name", "Description", "Type", "DirectionLabel", "Quantity", "Unit", "Component", "NodeNumber",
                      "Grouping", "Position_1", "Position_2", "Position_3", "Direction_1", "Direction_2", "Direction_3"]
     df_ch = pd.DataFrame(columns=columns_chann)
@@ -323,11 +392,14 @@ def generate_channels_from_sensors(df):
 
 def generate_sensors_from_channels(df):
     """
-    Description
+    Generates a set of sensors based on the supplied channel data. CUrrent implementation assumes that each sensor has
+    three channels (i.e. tri-axial sensors).
 
-    :param df:
-    :return:
+    :param df: A DataFrame containing information on channels
+    :type df: pd.DataFrame
+    :return: A DataFrame containing information on sensors
     """
+
     columns_sen = ["Name", "Description", "Type", "DirectionLabel", "Quantity", "Unit", "Component", "NodeNumber",
                      "Grouping", "Position_1", "Position_2", "Position_3", "Orientation_1", "Orientation_2", "Orientation_3"]
     df_sen = pd.DataFrame(columns=columns_sen)
@@ -335,7 +407,6 @@ def generate_sensors_from_channels(df):
     for i in range(int(len(df)/3)):
         sen_or = df[["Direction_1", "Direction_2", "Direction_3"]].to_numpy()[3 * (i):3 * (i + 1)]
         sen_pos = df[["Position_1", "Position_2", "Position_3"]].to_numpy()[3 * (i)]
-        #sen_name = df[["Name"]].to_numpy()[3 * (i):3 * (i + 1)]
 
         r = R.from_matrix(sen_or)
         r = r.inv()
@@ -352,11 +423,13 @@ def generate_sensors_from_channels(df):
 
 def coh_on_FRF(FRF_matrix):
     """
-    Description
+    Evaluates a reciprocity on the whole FRF matrix.
 
-    :param FRF_matrix:
-    :return:
+    :param FRF_matrix: Matrix of FRFs [f,out,in]
+    :type FRF_matrix: array(float)
+    :return: A matrix of coherence criterion values on the reciprocal FRFs
     """
+
     _out = FRF_matrix.shape[1]
     _in = FRF_matrix.shape[2]
 
@@ -371,19 +444,22 @@ def coh_on_FRF(FRF_matrix):
 
 def orient_in_global(mode, df_chn, df_acc):
     """
-    Description
+    Positions a response in 3D space based on the information of channel and sensor DataFrames
 
-    :param mode:
-    :param df_chn:
-    :param df_acc:
-    :return:
+    :param mode: A mode shape or response to be animated
+    :type mode: array(float)
+    :param df_chn: A DataFrame containing information on channels
+    :type df_chn: pd.DataFrame
+    :param df_acc: A DataFrame containing information on sensors
+    :type df_acc: pd.DataFrame
+    :return: Oriented response in 3D
     """
+
     n_sen = len(df_acc)
     n_ax = 3
 
     empty = np.zeros((n_sen, n_ax), dtype=complex)
 
-    # channel data for animation!
     _dir = df_chn[["Direction_1", "Direction_2", "Direction_3"]].to_numpy()
     for i in range(n_sen):
         for j in range(n_ax):
@@ -392,3 +468,24 @@ def orient_in_global(mode, df_chn, df_acc):
 
     return empty
 
+def orient_in_global_2(mode, df_imp):
+    """
+    Positions a response in 3D space based on the information of impact DataFrames (impact testing)
+
+    :param mode: A mode shape or response to be animated
+    :type mode: array(float)
+    :param df_imp: A DataFrame containing information on impacts
+    :type df_imp: pd.DataFrame
+    :return: Oriented response in 3D
+    """
+
+    n_sen = len(df_imp)
+
+    empty = np.zeros((n_sen, 3), dtype=complex)
+
+    _dir = df_imp[["Direction_1", "Direction_2", "Direction_3"]].to_numpy()
+    for i in range(n_sen):
+        sel = (i)
+        empty[i, :] += _dir[sel:sel + 1, :].T @ np.asarray([mode[sel]])
+
+    return empty
