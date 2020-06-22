@@ -7,42 +7,11 @@ To use :mod:`pyFBS` within a project simply import the package:
 .. code-block:: python
 
 	import pyFBS
-	
-	
-********
-Features
-********
 
-3D display
-==========
-Short description 
-
-:mod:`pyFBS.view3D`
-
-FRF synthetization
-==================
-Short description 
-
-:mod:`pyFBS.MK_model`
-
-Virtual Point Transformation
-============================
-Short description 
-
-:mod:`pyFBS.VPT`
-
-System Equivalent Model Mixing
-==============================
-Short description 
-
-:mod:`pyFBS.SEMM`
-
-
-
-	
 ************
 Example data
 ************
+	
 To test out the capabilities of :mod:`pyFBS` also two example datasets are available directly with the package. 
 For each testbench structure a dictionary is available containing relative path to the predefined datasets.
 
@@ -73,11 +42,14 @@ Automotive testbench
 ====================
 
 The second testbench is an automotive example ``pyFBS.example_auto_testbench``. 
-This testbench s designed to represent an engine-transmission unit’s suspension from a real car.
+The automotive testbench was designed to represent an engine-transmission unit’s suspension from a real car.
 
 
-Add a picture of example.
-
+.. figure:: ./examples/data/nine_one.png
+   :width: 800px
+   
+   An example of a automotive testbench depicted in the pyFBS 3D display.
+   
 Example datasets for automotive testbench contain:
 
 * STL files of the testbench (e.g. ``pyFBS.example_auto_testbench['STL']['receiver']``),
@@ -85,4 +57,49 @@ Example datasets for automotive testbench contain:
 * Excel files of positional data for sensors and impacts (e.g. ``pyFBS.example_auto_testbench['meas']['xlsx_modal']``),
 
 * Experimental FRF measurements (e.g. ``pyFBS.example_auto_testbench['meas']['Y_m_1']``).
+
+********
+Features
+********
+
+3D display
+==========
+With the pyFBS substructures and positions of impacts, sensors and channels can be visualized in 3D display :mod:`pyFBS.view3D`. 
+The 3D display uses PyVista [citations] for the visualization and enables an intuitive way to display relevant data. 
+Sensors and impacts can be interactively positioned on the substructures and the updated positions can be directly used within pyFBS. 
+Furthermore, various animations can be performed directly in the 3D display, such as the animation of mode shapes or operational deflection shapes.
+
+One of the main features of the pyFBS is also the ability to synthetize FRFs directly from the predefined positions of channels and impacts. 
+Currently, mode superposition FRF synthetization is supported, where mass and stiffness matrices are imported from FEM software. 
+Damping can be introduced as modal damping for each mode shape. Additionally, noise can be introduced to the response so a realistic set of FRFs, representing experimental measurements, can be obtained.
+
+
+FRF synthetization
+==================
+One of the main features of the pyFBS is also the ability to synthetize FRFs directly from the predefined positions of channels and impacts :mod:`pyFBS.MK_model`. 
+Currently, mode superposition FRF synthetization is supported, where mass and stiffness matrices are imported from FEM software. 
+Damping can be introduced as modal damping for each mode shape. 
+Additionally, noise can be introduced to the response so a realistic set of FRFs, representing experimental measurements, can be obtained.
+
+
+Virtual Point Transformation
+============================
+Within the pyFBS also Virtual Point Transformation (VPT) :mod:`pyFBS.VPT` is implemented [citations]. 
+VPT projects measured dynamics on the predefined interface displacement modes (IDMs). 
+The interface is usually considered to be rigid; therefore, only 6 rigid IDMs are used in the transformation. 
+After applying the transformation, a collocated set of FRFs is obtained, which can afterwards directly be used in DS .
+
+
+System Equivalent Model Mixing
+==============================
+The pyFBS also supports System Equivalent Model Mixing (SEMM) :mod:`pyFBS.SEMM` [citations]. 
+SEMM enables mixing of two equivalent frequency-based models into a hybrid model. 
+The models used can either be of numerical or experimental nature. 
+One of the models provides the dynamic properties (overlay model) and the second model provides a set of degrees of freedom. 
+A numerical model is commonly used as a parent model and an experimental model is used as an overlay model. 
+
+
+
+
+
 

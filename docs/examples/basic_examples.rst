@@ -2,8 +2,7 @@
 Basic examples
 ==============
 
-Short description 
-
+This examples show how to use basic features of pyFBS. Explore this basic examples to get familiar with the pyFBS workflow.
 
 .. raw:: html
 

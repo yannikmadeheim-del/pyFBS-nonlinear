@@ -1,8 +1,7 @@
 ====================
 Application Examples
 ====================
-Short description 
-
+This examples show applications of the pyFBS on more complex problems. Explore this application examples to see how pyFBS can be used on more complex dynamic problems.
 
 .. toctree::
 	:maxdepth: 1

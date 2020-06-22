@@ -1,7 +1,6 @@
 =============
 pyFBS.utility
 =============
-Short description
 
 .. autofunction:: pyFBS.modeshape_sync_lstsq
 .. autofunction:: pyFBS.modeshape_scaling_DP

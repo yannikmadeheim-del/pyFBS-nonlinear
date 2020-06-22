@@ -1,7 +1,6 @@
 =============
 pyFBS.view3D
 =============
-Short description
 
 .. autoclass:: pyFBS.view3D
     :members:

@@ -23,6 +23,10 @@ Acknowledgements
 ----------------
 The pyFBS was developed as a part of collaboration between `Ladisk <http://ladisk.si/>`_ and `AM TUM <https://www.mw.tum.de/am/home/>`_.
 
+* **LADISK**: short description + link to publications?
+
+* **TUM AM**: short description + link to publications?
+
 License
 -------
 Licensed under the MIT license.
