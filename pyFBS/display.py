@@ -1,4 +1,5 @@
 import pyvista as pv
+from pyvistaqt import BackgroundPlotter
 import pandas as pd
 from time import time,sleep
 from PyQt5.QtWidgets import QAction
@@ -30,7 +31,7 @@ class view3D():
     """
 
     def __init__(self,show_origin = True,show_axes = True,title = None,**kwargs):
-        self.plot = pv.BackgroundPlotter(show = True,**kwargs)
+        self.plot = BackgroundPlotter(show = True,**kwargs)
 
         if title != None:
             self.plot.app_window.setWindowTitle("pyFBS - " + str(title))

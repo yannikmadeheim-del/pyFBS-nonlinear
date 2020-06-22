@@ -36,7 +36,10 @@
   
   <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/style.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery-dataframe.css" type="text/css" />
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
  
@@ -97,7 +100,7 @@
               <p class="caption"><span class="caption-text">About</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../intro.html">Why pyFBS?</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../credits.html">Credits</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Getting Started</span></p>
@@ -105,30 +108,15 @@
 <li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Basic examples</span></p>
+<p class="caption"><span class="caption-text">Examples</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../examples/01_static_display.html">3D Display</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../examples/02_interactive_display.html">Interactive positioning</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../examples/03_FRF_synthetization.html">FRF synthetization</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../examples/04_VPT.html">Virtual Point Transformation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../examples/05_SEMM.html">SEMM - System equivalent model mixing</a></li>
-</ul>
-<p class="caption"><span class="caption-text">Application examples</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../examples/06_ODS.html">Operational Deflection Shapes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../examples/07_coupling.html">Coupling</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../examples/08_decoupling.html">Decoupling</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../examples/09_EMA.html">Experimental modal analysis (EMA)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../examples/10_TS.html">Transmission simulator in FBS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/basic_examples.html">Basic examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/application_examples.html">Application Examples</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Code Documentation</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../code_documentation/display.html">pyFBS.view3D</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../code_documentation/MCK.html">pyFBS.MK_model</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../code_documentation/VPT.html">pyFBS.VPT</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../code_documentation/SEMM.html">pyFBS.SEMM</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../code_documentation/IO.html">pyFBS.IO</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../code_documentation/utility.html">pyFBS.utility</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../code_documentation/core.html">Core API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../code_documentation/util.html">Utilities</a></li>
 </ul>
 
             
@@ -215,37 +203,32 @@
             
   <h1>Source code for pyFBS.VPT</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">scipy.linalg</span> <span class="k">import</span> <span class="n">block_diag</span><span class="p">,</span> <span class="n">svd</span><span class="p">,</span> <span class="n">norm</span>
-<span class="kn">from</span> <span class="nn">pyFBS.utility</span> <span class="k">import</span> <span class="n">coh_frf</span>
+<span class="kn">from</span> <span class="nn">scipy.linalg</span> <span class="kn">import</span> <span class="n">block_diag</span><span class="p">,</span> <span class="n">norm</span>
+<span class="kn">from</span> <span class="nn">pyFBS.utility</span> <span class="kn">import</span> <span class="n">coh_frf</span>
 
 <div class="viewcode-block" id="VPT"><a class="viewcode-back" href="../../code_documentation/VPT.html#pyFBS.VPT">[docs]</a><span class="k">class</span> <span class="nc">VPT</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Virtual point transformation</span>
+<span class="sd">    Virtual Point Transformation (VPT) - enables transformation of measured responses to a virtual DoFs.  Current</span>
+<span class="sd">    implementation enables rigid interface deformation modes and all 6 DoFs (3 translations + 3 rotations), have to</span>
+<span class="sd">    be included in the transformation.</span>
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-
-<span class="sd">    ch : pandas.DataFrame</span>
-<span class="sd">        Channels used in the transformation (outputs - sensors).</span>
-<span class="sd">    refch : pandas.DataFrame</span>
-<span class="sd">        Reference channels used in the transformation (input - impacts).</span>
-<span class="sd">    vp_ch : pandas.DataFrame</span>
-<span class="sd">        Virtual point channels used in the transformation (output - VP).</span>
-<span class="sd">    vp_refch : pandas.DataFrame</span>
-<span class="sd">        Virtual point reference channels used in the transformation (input - VP).</span>
-<span class="sd">    Wu : numpy.array</span>
-<span class="sd">        Displacement weighting matrix.</span>
-<span class="sd">    Wf : numpy.array</span>
-<span class="sd">        Force weighting matrix.</span>
-
-<span class="sd">    References</span>
-<span class="sd">    ----------</span>
-
-<span class="sd">    .. [1]  M. V. van der Seijs, Experimental Dynamic Substructuring: Analysis and design strategies for vehicle development, Ph.D. thesis, TU Delft (2016).</span>
-
-
+<span class="sd">    :param ch: A DataFrame containing information on channels (i.e. outputs)</span>
+<span class="sd">    :type ch: pd.DataFrame</span>
+<span class="sd">    :param refch: A DataFrame containing information on reference channels (i.e. inputs)</span>
+<span class="sd">    :type refch: pd.DataFrame</span>
+<span class="sd">    :param vp_ch: A DataFrame containing information on virtual point channels</span>
+<span class="sd">    :type vp_ch: pd.DataFrame</span>
+<span class="sd">    :param vp_refch: A DataFrame containing information on reference virtual point channels</span>
+<span class="sd">    :type vp_refch: pd.DataFrame</span>
+<span class="sd">    :param Wu: Displacement weigting matrix</span>
+<span class="sd">    :type Wu: array(float), optional</span>
+<span class="sd">    :param Wf: Force weighting matrix</span>
+<span class="sd">    :type Wf: array(float), optional</span>
+<span class="sd">    :param sort_matrix:</span>
+<span class="sd">    :type sort_matrix: bool, optional</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ch</span><span class="p">,</span> <span class="n">refch</span><span class="p">,</span> <span class="n">vp_ch</span><span class="p">,</span> <span class="n">vp_refch</span> <span class="p">,</span><span class="n">Wu</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">Wf</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span><span class="n">sort_matrix</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ch</span><span class="p">,</span> <span class="n">refch</span><span class="p">,</span> <span class="n">vp_ch</span><span class="p">,</span> <span class="n">vp_refch</span><span class="p">,</span> <span class="n">Wu</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">Wf</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">sort_matrix</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sort_matrix</span> <span class="o">=</span> <span class="n">sort_matrix</span>
 
         <span class="c1"># Load the physical input-output DoFs</span>
@@ -267,7 +250,8 @@
 
 <div class="viewcode-block" id="VPT.define_IDM_U"><a class="viewcode-back" href="../../code_documentation/VPT.html#pyFBS.VPT.define_IDM_U">[docs]</a>    <span class="k">def</span> <span class="nf">define_IDM_U</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Calculates the Ru, Tu, Fu matrices based on the supplied position and orientation of Channels and Virtual Channels. In the current implementation only Rigid IDMs are supported.</span>
+<span class="sd">        Calculates Ru, Tu and Fu matrices based on the supplied position and orientation of Channels and Virtual</span>
+<span class="sd">        Channels.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">ov_u</span><span class="p">,</span> <span class="n">_vps</span><span class="p">,</span> <span class="n">mask_u</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_overlap_ch</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Channels</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Virtual_Channels</span><span class="p">)</span>
 
@@ -330,8 +314,10 @@
 
 <div class="viewcode-block" id="VPT.define_IDM_F"><a class="viewcode-back" href="../../code_documentation/VPT.html#pyFBS.VPT.define_IDM_F">[docs]</a>    <span class="k">def</span> <span class="nf">define_IDM_F</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Calculates the Rf, Tf, Ff matrices based on the supplied position and orientation of Channels and Virtual Channels. In the current implementation only Rigid IDMs are supported.</span>
+<span class="sd">        Calculates the Rf, Tf, Ff matrices based on the supplied position and orientation of Reference Channels and</span>
+<span class="sd">        Reference Virtual Channels.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="n">ov_f</span><span class="p">,</span> <span class="n">_vps</span><span class="p">,</span> <span class="n">mask_f</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_overlap_ch</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">RefChannels</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Virtual_RefChannels</span><span class="p">)</span>
         <span class="c1"># print(mask_f)</span>
         <span class="n">R_all</span> <span class="o">=</span> <span class="p">[]</span>
@@ -391,10 +377,12 @@
 <span class="sd">        Calculate Ru matrix based on the channel position/orientation and sensor type.</span>
 
 <span class="sd">        :param pos: Position of the channel.</span>
-<span class="sd">        :type pos: numpy.array</span>
+<span class="sd">        :type pos: array(float)</span>
 <span class="sd">        :param type: Type of the channel (i.e. Acceleration or Angular Acceleration).</span>
-<span class="sd">        :returns: numpy.array, Ru</span>
+<span class="sd">        :type pos: string, optional</span>
+<span class="sd">        :returns: Ru matrix</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="n">rx</span><span class="p">,</span> <span class="n">ry</span><span class="p">,</span> <span class="n">rz</span> <span class="o">=</span> <span class="n">pos</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">pos</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">pos</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
 
 
@@ -412,13 +400,16 @@
 <div class="viewcode-block" id="VPT.W_rotational"><a class="viewcode-back" href="../../code_documentation/VPT.html#pyFBS.VPT.W_rotational">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">W_rotational</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="nb">dir</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;Angular Acceleration&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Defines the weighting matrix based on the</span>
+<span class="sd">        Defines the weighting matrix based on the location of rotational accelerometer</span>
 
 <span class="sd">        :param pos: Position of the channel.</span>
-<span class="sd">        :type pos: numpy.array</span>
+<span class="sd">        :type pos: array(float)</span>
+<span class="sd">        :param dir: Direction of the channel</span>
+<span class="sd">        :type dir: array(float)</span>
 <span class="sd">        :param type: Type of the channel (i.e. Acceleration or Angular Acceleration)</span>
-<span class="sd">        :type type: str</span>
+<span class="sd">        :type type: str, optional</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="n">rx</span><span class="p">,</span> <span class="n">ry</span><span class="p">,</span> <span class="n">rz</span> <span class="o">=</span> <span class="n">pos</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">pos</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">pos</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
 
         <span class="n">_W</span> <span class="o">=</span> <span class="mi">1</span>
@@ -437,12 +428,13 @@
 <div class="viewcode-block" id="VPT.R_matrix_F"><a class="viewcode-back" href="../../code_documentation/VPT.html#pyFBS.VPT.R_matrix_F">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">R_matrix_F</span><span class="p">(</span><span class="n">pos</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Calculate Rf matrix based on the reference channel position/orientation.</span>
+<span class="sd">        Calculates Rf matrix based on the reference channel position/orientation.</span>
 
-<span class="sd">        :param pos: Position of the reference channel relative to virtual point.</span>
-<span class="sd">        :type pos: numpy.array</span>
-<span class="sd">        :returns: numpy.array, Rf</span>
+<span class="sd">        :param pos: Position of the reference channel relative to the virtual point.</span>
+<span class="sd">        :type pos: array(float)</span>
+<span class="sd">        :returns: Rf matrix</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="n">rx</span><span class="p">,</span> <span class="n">ry</span><span class="p">,</span> <span class="n">rz</span> <span class="o">=</span> <span class="n">pos</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">pos</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">pos</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
 
         <span class="n">_R</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
@@ -457,13 +449,13 @@
 <div class="viewcode-block" id="VPT.find_overlap_ch"><a class="viewcode-back" href="../../code_documentation/VPT.html#pyFBS.VPT.find_overlap_ch">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">find_overlap_ch</span><span class="p">(</span><span class="n">channelsA</span><span class="p">,</span> <span class="n">channelsB</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Finds an overlap of grouping number between two channel datasets.</span>
+<span class="sd">        Finds an overlap of grouping number between two channel DataFrames.</span>
 
-<span class="sd">        :param channelsA:</span>
-<span class="sd">        :type channelsA: pandas.DataFrame</span>
-<span class="sd">        :param channelsB:</span>
-<span class="sd">        :type channelsB: pandas.DataFrame</span>
-<span class="sd">        :return GG: numpy.array, Overlap mask</span>
+<span class="sd">        :param channelsA: First set of channels</span>
+<span class="sd">        :type channelsA: pd.DataFrame</span>
+<span class="sd">        :param channelsB: Second set of channels</span>
+<span class="sd">        :type channelsB: pd.DataFrame</span>
+<span class="sd">        :return: overlap,unique_index, overlap_mask</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># Get the grouping numbers from DataFrames</span>
@@ -482,14 +474,15 @@
 <div class="viewcode-block" id="VPT.find_group"><a class="viewcode-back" href="../../code_documentation/VPT.html#pyFBS.VPT.find_group">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">find_group</span><span class="p">(</span><span class="n">gr</span><span class="p">,</span> <span class="n">gr_list</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get a grouping overlap between two sets.</span>
+<span class="sd">        Get a grouping overlap between two DataFrames.</span>
 
-<span class="sd">        :param gr: blah</span>
-<span class="sd">        :type gr: list</span>
-<span class="sd">        :param gr_list: blah</span>
+<span class="sd">        :param gr: Grouping number</span>
+<span class="sd">        :type gr: int</span>
+<span class="sd">        :param gr_list: A list of grouping numbers</span>
 <span class="sd">        :type gr_list: list</span>
-<span class="sd">        :return: numpy.array</span>
+<span class="sd">        :return: overlap_mask</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="n">_overlap</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">gr</span><span class="p">):</span>
             <span class="n">_overlap</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">gr_list</span> <span class="o">==</span> <span class="n">a</span><span class="p">))</span>
@@ -498,17 +491,13 @@
 
 <div class="viewcode-block" id="VPT.apply_VPT"><a class="viewcode-back" href="../../code_documentation/VPT.html#pyFBS.VPT.apply_VPT">[docs]</a>    <span class="k">def</span> <span class="nf">apply_VPT</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">freq</span><span class="p">,</span><span class="n">FRF</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Applies the Virtual Point Transformation on the supplied FRF matrix.</span>
+<span class="sd">        Applies the Virtual Point Transformation on the FRF matrix.</span>
 
-<span class="sd">        :param freq: Frequency vector.</span>
-<span class="sd">        :type freq: numpy.array</span>
-<span class="sd">        :param FRF: A matrix of Frequency Response Functions FRFs.</span>
-<span class="sd">        :type: numpy.array</span>
+<span class="sd">        :param freq: Frequency vector</span>
+<span class="sd">        :type freq: array(float)</span>
+<span class="sd">        :param FRF: A matrix of Frequency Response Functions FRFs [f,out,in].</span>
+<span class="sd">        :type FRF: array(float)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1">#_freq_lim = FRF.shape[2]</span>
-        <span class="c1">#_Y_vpt = np.zeros((self.Tu.shape[0], self.Tf.shape[1], _freq_lim), dtype=complex)</span>
-        <span class="c1">#for i in range(_freq_lim):</span>
-        <span class="c1">#    _Y_vpt[:, :, i] = self.Tu @ FRF[:, :, i] @ self.Tf</span>
 
         <span class="n">_Y_vpt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Tu</span> <span class="o">@</span> <span class="n">FRF</span> <span class="o">@</span> <span class="bp">self</span><span class="o">.</span><span class="n">Tf</span>
 
@@ -518,7 +507,7 @@
 
 <div class="viewcode-block" id="VPT.consistency"><a class="viewcode-back" href="../../code_documentation/VPT.html#pyFBS.VPT.consistency">[docs]</a>    <span class="k">def</span> <span class="nf">consistency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grouping</span><span class="p">,</span> <span class="n">ref_grouping</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Calculates the VP consistency indicators based on the supplied grouping numbers.</span>
+<span class="sd">        Evaluates VP consistency indicators based on the supplied grouping numbers.</span>
 
 <span class="sd">        :param grouping: Grouping number of the VP.</span>
 <span class="sd">        :type grouping: float</span>
@@ -592,7 +581,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">specific_impact</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">specific_impact</span><span class="p">)</span></div>
 
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Frequency-dependend weighting matrix</span>
+<span class="sd">    Frequency-dependend weighting matrix - to be implemented in the pyFBS with next release</span>
 
 <span class="sd">    Wu = block_diag(*_Warray)</span>
 <span class="sd">    Wu = block_diag(Wu, np.eye(len(np.where(mask_u != 0)[0])))</span>
@@ -633,7 +622,6 @@
 <span class="sd">    self.Tu_f = Tu_f</span>
 <span class="sd">    self.Fu_f = Fu_f</span>
 <span class="sd">    &quot;&quot;&quot;</span></div>
-
 </pre></div>
 
            </div>

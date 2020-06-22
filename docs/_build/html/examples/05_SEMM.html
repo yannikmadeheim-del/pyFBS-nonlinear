@@ -36,10 +36,13 @@
   
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/style.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery-dataframe.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Operational Deflection Shapes" href="06_ODS.html" />
+    <link rel="next" title="Application Examples" href="application_examples.html" />
     <link rel="prev" title="Virtual Point Transformation" href="04_VPT.html" />
  
 
@@ -99,7 +102,7 @@
               <p class="caption"><span class="caption-text">About</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../intro.html">Why pyFBS?</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../credits.html">Credits</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Getting Started</span></p>
@@ -107,38 +110,30 @@
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Basic examples</span></p>
+<p class="caption"><span class="caption-text">Examples</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="01_static_display.html">3D Display</a></li>
-<li class="toctree-l1"><a class="reference internal" href="02_interactive_display.html">Interactive positioning</a></li>
-<li class="toctree-l1"><a class="reference internal" href="03_FRF_synthetization.html">FRF synthetization</a></li>
-<li class="toctree-l1"><a class="reference internal" href="04_VPT.html">Virtual Point Transformation</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">SEMM - System equivalent model mixing</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#example-data-import">Example data import</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#experimental-model">Experimental model</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#numerical-model">Numerical model</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="basic_examples.html">Basic examples</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="01_static_display.html">3D Display</a></li>
+<li class="toctree-l2"><a class="reference internal" href="02_interactive_display.html">Interactive positioning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="03_FRF_synthetization.html">FRF synthetization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="04_VPT.html">Virtual Point Transformation</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">SEMM - System equivalent model mixing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#example-data-import">Example data import</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#experimental-model">Experimental model</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#numerical-model">Numerical model</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#using-the-semm-function">Using the SEMM function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#using-the-semm-function">Using the SEMM function</a></li>
 </ul>
 </li>
 </ul>
-<p class="caption"><span class="caption-text">Application examples</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="06_ODS.html">Operational Deflection Shapes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="07_coupling.html">Coupling</a></li>
-<li class="toctree-l1"><a class="reference internal" href="08_decoupling.html">Decoupling</a></li>
-<li class="toctree-l1"><a class="reference internal" href="09_EMA.html">Experimental modal analysis (EMA)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="10_TS.html">Transmission simulator in FBS</a></li>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="application_examples.html">Application Examples</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Code Documentation</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../code_documentation/display.html">pyFBS.view3D</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../code_documentation/MCK.html">pyFBS.MK_model</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../code_documentation/VPT.html">pyFBS.VPT</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../code_documentation/SEMM.html">pyFBS.SEMM</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../code_documentation/IO.html">pyFBS.IO</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../code_documentation/utility.html">pyFBS.utility</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../code_documentation/core.html">Core API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../code_documentation/util.html">Utilities</a></li>
 </ul>
 
             
@@ -206,6 +201,8 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
+          <li><a href="basic_examples.html">Basic examples</a> &raquo;</li>
+        
       <li>SEMM - System equivalent model mixing</li>
     
     
@@ -228,6 +225,10 @@
   <div class="section" id="semm-system-equivalent-model-mixing">
 <h1>SEMM - System equivalent model mixing<a class="headerlink" href="#semm-system-equivalent-model-mixing" title="Permalink to this headline">¶</a></h1>
 <p>With System Equivalent Model Mixing (SEMM) <a class="bibtex reference internal" href="#klaassen2018" id="id1">[1]</a> method frequency-based models, either of numerical or experimental nature, can be mixed to form a hybrid model.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Example showing the basic use of SEMM: <a class="reference download internal" download="" href="../_downloads/8d3cfd73bb80fd27ede343f79d30c1fa/05_SEMM.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">05_SEMM.ipynb</span></code></a>.</p>
+</div>
 <div class="section" id="example-data-import">
 <h2>Example data import<a class="headerlink" href="#example-data-import" title="Permalink to this headline">¶</a></h2>
 <p>First import numerical and experimental data (response models). Data used in this example are obtained on a laboratory test bench.</p>
@@ -235,13 +236,13 @@
 <h3>Experimental model<a class="headerlink" href="#experimental-model" title="Permalink to this headline">¶</a></h3>
 <p>The experimental model must be properly prepared so that it contains FRFs in an ordered form.
 The first dimension represents the frequency depth, second the response points, and the third excitation points.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">import</span> <span class="nn">pyFBS</span>
 
 <span class="n">exp_file</span> <span class="o">=</span> <span class="n">pyFBS</span><span class="o">.</span><span class="n">example_lab_testbench</span><span class="p">[</span><span class="s2">&quot;meas&quot;</span><span class="p">][</span><span class="s2">&quot;Y_AB&quot;</span><span class="p">]</span>
 
-<span class="n">freq</span><span class="p">,</span> <span class="n">Y_exp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">exp_file</span><span class="p">,</span> <span class="n">allow_pickle</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+<span class="n">freq</span><span class="p">,</span> <span class="n">Y_exp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">exp_file</span><span class="p">,</span> <span class="n">allow_pickle</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
 <span class="n">Y_exp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">Y_exp</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
 </pre></div>
 </div>
@@ -256,7 +257,7 @@ Locations and directions for which FRFs are generated are defined in an .xlsx fi
 <span class="n">full_file</span> <span class="o">=</span> <span class="n">pyFBS</span><span class="o">.</span><span class="n">example_lab_testbench</span><span class="p">[</span><span class="s2">&quot;FEM&quot;</span><span class="p">][</span><span class="s2">&quot;AB_full&quot;</span><span class="p">]</span>
 <span class="n">ress_file</span> <span class="o">=</span> <span class="n">pyFBS</span><span class="o">.</span><span class="n">example_lab_testbench</span><span class="p">[</span><span class="s2">&quot;FEM&quot;</span><span class="p">][</span><span class="s2">&quot;AB_rst&quot;</span><span class="p">]</span>
 
-<span class="n">MK</span> <span class="o">=</span> <span class="n">pyFBS</span><span class="o">.</span><span class="n">MK_model</span><span class="p">(</span><span class="n">ress_file</span><span class="p">,</span> <span class="n">full_file</span><span class="p">,</span> <span class="n">no_modes</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span> <span class="n">recalculate</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span>
+<span class="n">MK</span> <span class="o">=</span> <span class="n">pyFBS</span><span class="o">.</span><span class="n">MK_model</span><span class="p">(</span><span class="n">ress_file</span><span class="p">,</span> <span class="n">full_file</span><span class="p">,</span> <span class="n">no_modes</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span> <span class="n">recalculate</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
 
 <span class="n">df_chn</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="n">xlsx</span><span class="p">,</span> <span class="n">sheet_name</span><span class="o">=</span><span class="s1">&#39;Channels_AB&#39;</span><span class="p">)</span>
 <span class="n">df_imp</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="n">xlsx</span><span class="p">,</span> <span class="n">sheet_name</span><span class="o">=</span><span class="s1">&#39;Impacts_AB&#39;</span><span class="p">)</span>
@@ -336,7 +337,7 @@ It is essential that the order of measurements in the experimental model <code c
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="06_ODS.html" class="btn btn-neutral float-right" title="Operational Deflection Shapes" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="application_examples.html" class="btn btn-neutral float-right" title="Application Examples" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="04_VPT.html" class="btn btn-neutral float-left" title="Virtual Point Transformation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
