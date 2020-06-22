@@ -16,8 +16,8 @@ class MK_model(object):
     For faster processing by default pickle file is generated where mass and stiffness matrices are stored and also computed eigenvalues, eigenvectors and used number of modes.
     If changes are detected in the mass or stiffness matrix with respect to the stored pickle file, the calculation of eigenvalues and eigenvectors is repeated.
     
-    :param ress_file: path of the .rst file exported from Ansys
-    :type ress_file: str
+    :param rst_file: path of the .rst file exported from Ansys
+    :type rst_file: str
     :param full_file: path of the .full file exported from Ansys
     :type full_file: str
     :param no_modes: number of modes to be included in output of the eigenvalue computation
@@ -27,8 +27,8 @@ class MK_model(object):
     :param recalculate: if ``False`` just mass and stiffness matrices with corresponding nodes and their DoFs will be imported. If ``True`` also the eigenvalue problem will be solved.
     :type recalculate: bool
     """
-    def __init__(self, ress_file, full_file, no_modes = 100, allow_pickle = True, recalculate = False):
-        rst = pyansys.read_binary(ress_file)
+    def __init__(self, rst_file, full_file, no_modes = 100, allow_pickle = True, recalculate = False):
+        rst = pyansys.read_binary(rst_file)
         self.nodes = rst.geometry["nodes"][:, :3]  # only translational dofs
         self.mesh = rst.grid
         self.mesh.points *= 1000
@@ -60,8 +60,12 @@ class MK_model(object):
             # load the pickle file
             _M,_K,_eig_freq,_eig_val,_eig_vec,_no_modes = pickle.load( open(p_file, "rb" ))
             # check if the solution is the same
-            check_mas  = (_K != self.K).nnz == 0
-            check_stif = (_M != self.M).nnz == 0
+            if _K.shape == self.K.shape and _M.shape == self.M.shape:
+                check_mas  = (_K != self.K).nnz == 0
+                check_stif = (_M != self.M).nnz == 0
+            else:
+                check_mas = False
+                check_stif = False
             check_no_modes = _no_modes == no_modes
             same = np.all([check_mas,check_stif,check_no_modes])
             if same:
