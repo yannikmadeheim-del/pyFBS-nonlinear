@@ -13,7 +13,7 @@ In the ``pyFBS`` library, modal analysis and FRFs synthetization :cite:`03-maia1
 MK model initialization
 ***********************
 
-First, we initialize the so-called MK model (with class ``pyFBS.MK_model``) by importing ``.ress`` and ``.full`` files, 
+First, we initialize the so-called MK model (with class ``pyFBS.MK_model``) by importing ``.rst`` and ``.full`` files, 
 which contains information on the locations of finite element nodes, their DoFs, the connection between nodes, 
 the mass and stiffness matrix of the system...
 
@@ -26,9 +26,9 @@ the mass and stiffness matrix of the system...
     import matplotlib.pyplot as plt
 
     full_file = pyFBS.example_lab_testbench["FEM"]["B_full"]
-    ress_file = pyFBS.example_lab_testbench["FEM"]["B_rst"]
+    rst_file = pyFBS.example_lab_testbench["FEM"]["B_rst"]
 
-    MK = pyFBS.MK_model(ress_file, full_file, no_modes = 100, allow_pickle = False, recalculate = False)
+    MK = pyFBS.MK_model(rst_file, full_file, no_modes = 100, allow_pickle = False, recalculate = False)
 
 In this step, the eigenfrequencies and eigenvectors of the system are calculated. Their number is limited by the ``no_modes`` parameter.
 

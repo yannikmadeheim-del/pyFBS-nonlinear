@@ -39,9 +39,9 @@ Locations and directions for which FRFs are generated are defined in an .xlsx fi
    xlsx = pyFBS.example_lab_testbench["meas"]["xlsx"]
 
    full_file = pyFBS.example_lab_testbench["FEM"]["AB_full"]
-   ress_file = pyFBS.example_lab_testbench["FEM"]["AB_rst"]
+   rst_file = pyFBS.example_lab_testbench["FEM"]["AB_rst"]
 
-   MK = pyFBS.MK_model(ress_file, full_file, no_modes = 100, recalculate = False)
+   MK = pyFBS.MK_model(rst_file, full_file, no_modes = 100, recalculate = False)
 
    df_chn = pd.read_excel(xlsx, sheet_name='Channels_AB')
    df_imp = pd.read_excel(xlsx, sheet_name='Impacts_AB')

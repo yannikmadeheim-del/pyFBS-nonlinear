@@ -102,6 +102,31 @@ class TestPyfbs(unittest.TestCase):
         view3D.add_vp_dynamic(mesh, predefined=df_vp)
         df_vp_updated = view3D.get_vp_data()
 
+    def test_MCK(self):
+        """
+        Test of MK_model. Evaluate only if the code runs without error.
+        """
+
+        full_file = pyFBS.example_lab_testbench["FEM"]["B_full"]
+        rst_file = pyFBS.example_lab_testbench["FEM"]["B_rst"]
+        xlsx = pyFBS.example_lab_testbench["meas"]["xlsx"]
+
+        df_acc = pd.read_excel(xlsx, sheet_name='Sensors_B')
+        df_chn = pd.read_excel(xlsx, sheet_name='Channels_B')
+        df_imp = pd.read_excel(xlsx, sheet_name='Impacts_B')
+
+        MK = pyFBS.MK_model(rst_file, full_file, no_modes = 10, allow_pickle = False, recalculate = False)
+
+        df_chn_up = MK.update_locations_df(df_chn)
+        df_imp_up = MK.update_locations_df(df_imp)
+
+        MK.FRF_synth(df_channel = df_chn, df_impact = df_imp,
+             f_start = 0, f_end = 50, f_resolution = 1,
+             limit_modes = 5, modal_damping = 0.003,
+             frf_type = "accelerance")
+
+        MK.add_noise(n1 = 2e-1, n2 = 2e-1, n3 = 5e-2 ,n4 = 5e-2)
+
     def test_VPT(self):
         """
         Test Virtual Point Transformation. Evaluate only if the code runs without error.
@@ -125,16 +150,40 @@ class TestPyfbs(unittest.TestCase):
         Test System Equivalent Model Mixing. Evaluate only if the code runs without error.
         """
 
-        path_val = "./test_data/SEMM_val_data.npz"
+        exp_file = pyFBS.example_lab_testbench["meas"]["Y_AB"]
+        xlsx = pyFBS.example_lab_testbench["meas"]["xlsx"]
+        full_file = pyFBS.example_lab_testbench["FEM"]["AB_full"]
+        rst_file = pyFBS.example_lab_testbench["FEM"]["AB_rst"]
 
-        val = np.load(path_val)
+        df_chn = pd.read_excel(xlsx, sheet_name='Channels_AB')
+        df_imp = pd.read_excel(xlsx, sheet_name='Impacts_AB')
 
-        Y_Num, Y_Exp, Y_SEMM_node5, Y_SEMM_full, Y_SEMM_full_red = val["Y_Num"], val["Y_Exp"], val["Y_SEMM_node5"], val["Y_SEMM_full"], val["Y_SEMM_full_red"]
+        MK = pyFBS.MK_model(rst_file, full_file, no_modes = 100, recalculate = False)
 
-        Y_Num_node5 = np.asarray(Y_Num[:, (np.asarray([8, 9])), :])
-        self.assertIsNone(np.testing.assert_array_equal(pyFBS.SEMM(Y_Num_node5, Y_Exp, overlay, DoF, loc_Y_num,  SEMM_type="fully-extend")[:, 0, 0], Y_SEMM_node5))
-        self.assertIsNone(np.testing.assert_array_equal(pyFBS.SEMM(Y_Num, Y_Exp, overlay, DoF,  SEMM_type="fully-extend")[:, 0, 0], Y_SEMM_full))
-        self.assertIsNone(np.testing.assert_array_equal(pyFBS.SEMM(Y_Num, Y_Exp, overlay, DoF, SEMM_type="fully-extended-svd", red_comp=0, red_eq=20)[:, 0, 0], Y_SEMM_full_red))
+        freq, Y_exp = np.load(exp_file, allow_pickle = True)
+        Y_exp = np.transpose(Y_exp, (2, 0, 1))
+
+        MK.FRF_synth(df_chn,df_imp,
+             f_start=0,
+             f_end=2002.5,
+             f_resolution=25,
+             modal_damping = 0.003,
+             frf_type = "accelerance")
+
+        Y_AB_SEMM = pyFBS.SEMM(MK.FRF, Y_exp[::10, 0:15, 5:20],
+                       df_chn_num = df_chn,
+                       df_imp_num = df_imp,
+                       df_chn_exp = df_chn[0:15],
+                       df_imp_exp = df_imp[5:20],
+                       SEMM_type='fully-extend-svd', red_comp=10, red_eq=10)
+
+        Y_AB_SEMM = pyFBS.SEMM(MK.FRF, Y_exp[::10, 0:15, 5:20],
+                       df_chn_num = df_chn,
+                       df_imp_num = df_imp,
+                       df_chn_exp = df_chn[0:15],
+                       df_imp_exp = df_imp[5:20],
+                       SEMM_type='fully-extend')
+
 
 
 if __name__ == '__main__':
