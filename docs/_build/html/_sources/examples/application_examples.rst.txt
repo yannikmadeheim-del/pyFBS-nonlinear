@@ -3,16 +3,6 @@ Application Examples
 ====================
 This examples show applications of the pyFBS on more complex problems. Explore this application examples to see how pyFBS can be used on more complex dynamic problems.
 
-.. toctree::
-	:maxdepth: 1
-
-	06_ODS
-	07_coupling
-	08_decoupling
-	09_EMA
-	10_TS
-	
-
 .. raw:: html
 
     <div class="sphx-glr-thumbcontainer" tooltip="Operational Deflection Shapes">
@@ -55,5 +45,76 @@ This examples show applications of the pyFBS on more complex problems. Explore t
    :hidden:
 
    07_coupling
+
+
+  
+ 
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Decoupling">
+
+.. only:: html
+
+    .. figure:: ./data/eight_last.png   
+       :target: 08_decoupling.html
+
+       Decoupling
+
+.. raw:: html
+
+    </div>
+
+.. toctree::
+   :hidden:
+
+   08_decoupling
+   
+
+  
+ 
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Experimental Modal Analysis">
+
+.. only:: html
+
+    .. figure:: ./data/nine_six.png   
+       :target: 09_EMA.html
+
+       Experimental Modal Analysis
+
+.. raw:: html
+
+    </div>
+
+.. toctree::
+   :hidden:
+
+   09_EMA
+   
+
+  
+ 
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Transmission Simulator">
+
+.. only:: html
+
+    .. figure:: ./data/ten_display_four.png   
+       :target: 10_TS.html
+
+       Transmission Simulator
+
+.. raw:: html
+
+    </div>
+
+.. toctree::
+   :hidden:
+
+   10_TS
+   
+   
 
 

@@ -119,24 +119,13 @@
 <li class="toctree-l4"><a class="reference internal" href="#experimental-example">Experimental example</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#accelerometer-animation">Accelerometer animation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#gif-export">GIF export</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#accelerometer-animation-and-gif-export">Accelerometer animation and GIF export</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="07_coupling.html">Coupling</a></li>
 <li class="toctree-l2"><a class="reference internal" href="08_decoupling.html">Decoupling</a></li>
 <li class="toctree-l2"><a class="reference internal" href="09_EMA.html">Experimental modal analysis (EMA)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="10_TS.html">Transmission simulator in FBS</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Operational Deflection Shapes</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#example-datasets-and-3d-view">Example Datasets and 3D view</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#experimental-example">Experimental example</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#accelerometer-animation">Accelerometer animation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#gif-export">GIF export</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="07_coupling.html">Coupling</a></li>
 </ul>
 </li>
 </ul>
@@ -241,9 +230,9 @@
 </div>
 <div class="section" id="example-datasets-and-3d-view">
 <h2>Example Datasets and 3D view<a class="headerlink" href="#example-datasets-and-3d-view" title="Permalink to this headline">¶</a></h2>
-<p>As already shown in the <a class="reference external" href="../../html/examples/01_static_display.html">3D Display</a> one can load a predefined datasets from an example and add a structure from STL file to the 3D view. This allows both the acceleration sensors and excitation points to be visualized.</p>
+<p>As already shown in the <a class="reference external" href="../../html/examples/01_static_display.html">3D Display</a> one can load predefined datasets from an example and add a structure from STL file to the 3D view. This allows both the acceleration sensors and excitation points to be visualized.</p>
 <div class="figure align-default">
-<a class="reference internal image-reference" href="../_images/six_four.png"><img alt="../_images/six_four.png" src="../_images/six_four.png" style="width: 800px;" /></a>
+<a class="reference internal image-reference" href="../_images/six_one.png"><img alt="../_images/six_one.png" src="../_images/six_one.png" style="width: 800px;" /></a>
 </div>
 <div class="section" id="experimental-example">
 <h3>Experimental example<a class="headerlink" href="#experimental-example" title="Permalink to this headline">¶</a></h3>
@@ -267,11 +256,14 @@
 <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">freq</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">angle</span><span class="p">(</span><span class="n">Y_ODS</span><span class="p">[:,</span><span class="n">select_out</span><span class="p">,</span><span class="n">select_in</span><span class="p">]))</span>
 </pre></div>
 </div>
+<div class="figure align-default">
+<a class="reference internal image-reference" href="../_images/six_two.png"><img alt="../_images/six_two.png" src="../_images/six_two.png" style="width: 600px;" /></a>
 </div>
 </div>
-<div class="section" id="accelerometer-animation">
-<h2>Accelerometer animation<a class="headerlink" href="#accelerometer-animation" title="Permalink to this headline">¶</a></h2>
-<p>The objects placed in the 3D view can be simply animated. In this example an operational deflection shape at a certain impact position can be animated:</p>
+</div>
+<div class="section" id="accelerometer-animation-and-gif-export">
+<h2>Accelerometer animation and GIF export<a class="headerlink" href="#accelerometer-animation-and-gif-export" title="Permalink to this headline">¶</a></h2>
+<p>The objects placed in the 3D view can be simply animated. In this example an operational deflection shape at a certain impact position can be animated. The pyFBS supports also an export to a GIF file. Before running the animation just set the output directory view3D.gif_dir and set the variable view3D.take_gif = True. When the GIF is exporting the animation lags the animation can lag in the 3D display.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">freq_sel</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
 <span class="n">select_in</span> <span class="o">=</span> <span class="mi">6</span>
 
@@ -279,13 +271,13 @@
 
 <span class="n">mode_dict</span> <span class="o">=</span> <span class="n">pyFBS</span><span class="o">.</span><span class="n">dict_animation</span><span class="p">(</span><span class="n">emp_2</span><span class="p">,</span><span class="s2">&quot;object&quot;</span><span class="p">,</span><span class="n">object_list</span> <span class="o">=</span> <span class="n">view3D</span><span class="o">.</span><span class="n">global_acc</span><span class="p">,</span><span class="n">r_scale</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
 <span class="n">mode_dict</span><span class="p">[</span><span class="s2">&quot;freq&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">freq</span><span class="p">[</span><span class="n">freq_sel</span><span class="p">]</span>
+
+<span class="n">view3D</span><span class="o">.</span><span class="n">take_gif</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">view3D</span><span class="o">.</span><span class="n">gif_dir</span> <span class="o">=</span> <span class="s2">&quot;..</span><span class="se">\\</span><span class="s2">pyFBS</span><span class="se">\\</span><span class="s2">output.gif&quot;</span>
+
 <span class="n">view3D</span><span class="o">.</span><span class="n">add_objects_animation</span><span class="p">(</span><span class="n">mode_dict</span><span class="p">,</span><span class="n">run_animation</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span><span class="n">add_note</span><span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="gif-export">
-<h2>GIF export<a class="headerlink" href="#gif-export" title="Permalink to this headline">¶</a></h2>
-<p>The pyFBS supports also an export to a GIF file. Before running the animation just set the output directory view3D.gif_dir and set the variable view3D.take_gif = True. When the GIF is exporting the animation lags the animation can lag in the 3D display.</p>
 <div class="figure align-default" id="id1">
 <a class="reference internal image-reference" href="../_images/ods.gif"><img alt="../_images/ods.gif" src="../_images/ods.gif" style="width: 400px;" /></a>
 <p class="caption"><span class="caption-text">GIF export of the Operational Deflection Shapes (ODS).</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
