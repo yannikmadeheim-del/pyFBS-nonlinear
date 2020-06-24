@@ -71,7 +71,7 @@ The identified mode shape can be animated directly in the 3D view:
 
     view3D_1.add_modeshape(mode_dict,run_animation = True,add_note = True)
 
-.. figure:: ./data/nine_seven.png
+.. figure:: ./data/modal_1_min.gif
    :width: 800px
    
 EMA - Assembly without the source
@@ -147,5 +147,5 @@ The second set of identified mode shapes can be animated directly in the 3D view
 
     view3D_2.add_modeshape(mode_dict,run_animation = True,add_note = True)
     
-.. figure:: ./data/nine_six.png
+.. figure:: ./data/modal_2_min.gif
    :width: 800px

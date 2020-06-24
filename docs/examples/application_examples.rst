@@ -78,7 +78,7 @@ This examples show applications of the pyFBS on more complex problems. Explore t
 
 .. only:: html
 
-    .. figure:: ./data/nine_six.png   
+    .. figure:: ./data/modal_2_min.gif
        :target: 09_EMA.html
 
        Experimental Modal Analysis

@@ -154,7 +154,7 @@ class view3D():
             nextframe += frameperiod
 
         if self.take_gif:
-            gif = imageio.mimread(self.gif_dir)
+            gif = imageio.mimread(self.gif_dir, memtest=False)
             imageio.mimsave(self.gif_dir, gif, fps=30)
 
     def clear_modeshape(self):
