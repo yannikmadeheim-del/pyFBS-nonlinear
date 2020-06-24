@@ -836,7 +836,7 @@ class view3D():
         :param name: Name of the label which can be used to update existing notations
         :type name: str, optional
         :param font_size: Size of the label font
-        type font_size: float, optional
+        :type font_size: float, optional
         """
 
         if self.global_labels == []:

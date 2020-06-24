@@ -8,7 +8,7 @@ With the pyFBS also decoupling of different substructers can be performed in rel
    Example showing an substructure coupling application: :download:`08_decoupling.ipynb <../../examples/08_FBS_decoupling.ipynb>`.
     
 Example Datasets and 3D view
-*****************
+****************************
 
 Load the required predefined datasets and open the 3D viewer in the background as already shown in `3D Display <../../html/examples/01_static_display.html>`_. Also for decoupling, a subplot representation, as already presented in `Coupling <../../html/examples/07_coupling.html>`_, can be used.
     

@@ -27,6 +27,11 @@ The pyFBS was developed as a part of collaboration between `Ladisk <http://ladis
 
 * **TUM AM**: short description + link to publications?
 
+Citation
+--------
+A paper about the pyFBS will be submitted to the Journal of Open Source Software journal. If you will be using pyFBS in your scientific research, please consider citing the paper.
+
+
 License
 -------
 Licensed under the MIT license.

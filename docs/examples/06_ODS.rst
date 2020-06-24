@@ -1,6 +1,6 @@
-##########
+#############################
 Operational Deflection Shapes
-##########
+#############################
 
 The 3D display of the pyFBS can be used to animate objects. Animation can be performed on meshes directly on predefined objects (such as accelerometers). In this example an operational deflection shape of the a structure is animated.
 
@@ -9,7 +9,7 @@ The 3D display of the pyFBS can be used to animate objects. Animation can be per
 
 
 Example Datasets and 3D view
-----------------
+----------------------------
 
 As already shown in the `3D Display <../../html/examples/01_static_display.html>`_ one can load predefined datasets from an example and add a structure from STL file to the 3D view. This allows both the acceleration sensors and excitation points to be visualized.
 
@@ -48,7 +48,7 @@ Checkout a single FRF:
    :width: 600px
 	
 Accelerometer animation and GIF export
------------------------
+--------------------------------------
 The objects placed in the 3D view can be simply animated. In this example an operational deflection shape at a certain impact position can be animated. The pyFBS supports also an export to a GIF file. Before running the animation just set the output directory view3D.gif_dir and set the variable view3D.take_gif = True. When the GIF is exporting the animation lags the animation can lag in the 3D display. 
 
 .. code-block:: python

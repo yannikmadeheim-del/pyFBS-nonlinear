@@ -1,6 +1,6 @@
-##########
+########
 Coupling
-##########
+########
 
 With the pyFBS coupling and decoupling of different substructers can be performed in relatively simple manner. In this example a numerical example is used to demonstrate a basic coupling example with a virtual point transformation at the interface. This can also be performed analogously with experimentally determined data.
 
@@ -9,7 +9,7 @@ With the pyFBS coupling and decoupling of different substructers can be performe
 
     
 Example Datasets and 3D view
-****************
+****************************
 Load the required predefined datasets and open the 3D viewer in the background as already shown in `3D Display <../../html/examples/01_static_display.html>`_. Especially for the illustration of different substructures and the assembly, the 3D viewer subplot capabilities of `PyVista <https://docs.pyvista.org/index.html>`_ can be used.
 
 .. code-block:: python

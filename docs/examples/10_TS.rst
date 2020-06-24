@@ -1,6 +1,6 @@
-##########
+#############################
 Transmission simulator in FBS
-##########
+#############################
 
 The method of transmission simulator is primarly used direclty in the modal domain. Nevertheless, the concept of attaching a transmission simulator at the interface can be used also in the frequency domain. In this example a frequency based subtructuring is performed on a complex structure. First a transmission simulator is decoupled from the receiver structure and aftewards a source structure is coupled to the receiver structure. At the interface the VPT is used to obtain collocated interface DoFs.
 
@@ -8,7 +8,7 @@ The method of transmission simulator is primarly used direclty in the modal doma
    Example showing a Transmission Simulator (TS) application: :download:`10_TS.ipynb <../../examples/10_FBS_transmission_simulator.ipynb>`.
 
 Example Datasests and 3D view
-*****************
+*****************************
 As already shown in the `3D Display <../../html/examples/01_static_display.html>`_ one can load predefined datasets from an example and add a structure from STL file to the 3D view. This allows both the acceleration sensors and excitation points to be visualized. Also for the transmission simulator application, a subplot representation, as already presented in `Coupling <../../html/examples/07_coupling.html>`_, can be used.
 	
 .. figure:: ./data/ten_display_four.png
