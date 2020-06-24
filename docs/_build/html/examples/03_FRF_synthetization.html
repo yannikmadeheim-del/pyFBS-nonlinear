@@ -36,7 +36,10 @@
   
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/style.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery-dataframe.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Virtual Point Transformation" href="04_VPT.html" />
@@ -99,7 +102,7 @@
               <p class="caption"><span class="caption-text">About</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../intro.html">Why pyFBS?</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../credits.html">Credits</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Getting Started</span></p>
@@ -107,43 +110,35 @@
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Basic examples</span></p>
+<p class="caption"><span class="caption-text">Examples</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="01_static_display.html">3D Display</a></li>
-<li class="toctree-l1"><a class="reference internal" href="02_interactive_display.html">Interactive positioning</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">FRF synthetization</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#mk-model-initialization">MK model initialization</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#mode-shape-visualization">Mode shape visualization</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#visualization-of-impacts-and-responses">Visualization of impacts and responses</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="basic_examples.html">Basic examples</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="01_static_display.html">3D Display</a></li>
+<li class="toctree-l2"><a class="reference internal" href="02_interactive_display.html">Interactive positioning</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">FRF synthetization</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#mk-model-initialization">MK model initialization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mode-shape-visualization">Mode shape visualization</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#visualization-of-impacts-and-responses">Visualization of impacts and responses</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#defining-dofs-of-synthetized-frfs">Defining DoFs of synthetized FRFs</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id2">FRF synthetization</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#adding-noise">Adding noise</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#frf-visualization">FRF visualization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#defining-dofs-of-synthetized-frfs">Defining DoFs of synthetized FRFs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id2">FRF synthetization</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#adding-noise">Adding noise</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#frf-visualization">FRF visualization</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="04_VPT.html">Virtual Point Transformation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="05_SEMM.html">SEMM - System equivalent model mixing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="04_VPT.html">Virtual Point Transformation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="05_SEMM.html">SEMM - System equivalent model mixing</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Application examples</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="06_ODS.html">Operational Deflection Shapes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="07_coupling.html">Coupling</a></li>
-<li class="toctree-l1"><a class="reference internal" href="08_decoupling.html">Decoupling</a></li>
-<li class="toctree-l1"><a class="reference internal" href="09_EMA.html">Experimental modal analysis (EMA)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="10_TS.html">Transmission simulator in FBS</a></li>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="application_examples.html">Application Examples</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Code Documentation</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../code_documentation/display.html">pyFBS.view3D</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../code_documentation/MCK.html">pyFBS.MK_model</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../code_documentation/VPT.html">pyFBS.VPT</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../code_documentation/SEMM.html">pyFBS.SEMM</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../code_documentation/IO.html">pyFBS.IO</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../code_documentation/utility.html">pyFBS.utility</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../code_documentation/core.html">Core API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../code_documentation/util.html">Utilities</a></li>
 </ul>
 
             
@@ -211,6 +206,8 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
+          <li><a href="basic_examples.html">Basic examples</a> &raquo;</li>
+        
       <li>FRF synthetization</li>
     
     
@@ -234,6 +231,10 @@
 <h1>FRF synthetization<a class="headerlink" href="#frf-synthetization" title="Permalink to this headline">¶</a></h1>
 <p>The mass and stiffness matrices contain information about the mass and stiffness distribution in the system.
 By solving the eigenvalue problem, the eigenfrequencies and eigenvectors of the system are determined.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Example showing the basic use of the FRF synthetization: <a class="reference download internal" download="" href="../_downloads/11c1acd3da74444a5c3e5b98d646bd1b/03_FRF_synthetization.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">03_FRF_synthetization.ipynb</span></code></a>.</p>
+</div>
 <p>In the <code class="docutils literal notranslate"><span class="pre">pyFBS</span></code> library, modal analysis and FRFs synthetization <a class="bibtex reference internal" href="#maia1997theoretical" id="id1">[1]</a>, can be performed relying on mass and stiffness matrices imported from Ansys.</p>
 <div class="section" id="mk-model-initialization">
 <h2>MK model initialization<a class="headerlink" href="#mk-model-initialization" title="Permalink to this headline">¶</a></h2>
@@ -243,13 +244,13 @@ the mass and stiffness matrix of the system…</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pyFBS</span>
 <span class="kn">from</span> <span class="nn">pyFBS.utility</span> <span class="kn">import</span> <span class="o">*</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 
 <span class="n">full_file</span> <span class="o">=</span> <span class="n">pyFBS</span><span class="o">.</span><span class="n">example_lab_testbench</span><span class="p">[</span><span class="s2">&quot;FEM&quot;</span><span class="p">][</span><span class="s2">&quot;B_full&quot;</span><span class="p">]</span>
 <span class="n">ress_file</span> <span class="o">=</span> <span class="n">pyFBS</span><span class="o">.</span><span class="n">example_lab_testbench</span><span class="p">[</span><span class="s2">&quot;FEM&quot;</span><span class="p">][</span><span class="s2">&quot;B_rst&quot;</span><span class="p">]</span>
 
-<span class="n">MK</span> <span class="o">=</span> <span class="n">pyFBS</span><span class="o">.</span><span class="n">MK_model</span><span class="p">(</span><span class="n">ress_file</span><span class="p">,</span> <span class="n">full_file</span><span class="p">,</span> <span class="n">no_modes</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span> <span class="n">allow_pickle</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span> <span class="n">recalculate</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span>
+<span class="n">MK</span> <span class="o">=</span> <span class="n">pyFBS</span><span class="o">.</span><span class="n">MK_model</span><span class="p">(</span><span class="n">ress_file</span><span class="p">,</span> <span class="n">full_file</span><span class="p">,</span> <span class="n">no_modes</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span> <span class="n">allow_pickle</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">recalculate</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>In this step, the eigenfrequencies and eigenvectors of the system are calculated. Their number is limited by the <code class="docutils literal notranslate"><span class="pre">no_modes</span></code> parameter.</p>
@@ -259,12 +260,12 @@ the mass and stiffness matrix of the system…</p>
 <p>After the MK model is defined, its modal shapes can also be visualized.
 In the beginning is to display added the stl model, which won’t be deformed during the animation.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">stl</span> <span class="o">=</span> <span class="n">pyFBS</span><span class="o">.</span><span class="n">example_lab_testbench</span><span class="p">[</span><span class="s2">&quot;STL&quot;</span><span class="p">][</span><span class="s2">&quot;B&quot;</span><span class="p">]</span>
-<span class="n">view3D</span> <span class="o">=</span> <span class="n">pyFBS</span><span class="o">.</span><span class="n">view3D</span><span class="p">(</span><span class="n">show_origin</span><span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+<span class="n">view3D</span> <span class="o">=</span> <span class="n">pyFBS</span><span class="o">.</span><span class="n">view3D</span><span class="p">(</span><span class="n">show_origin</span><span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
 <span class="n">view3D</span><span class="o">.</span><span class="n">add_stl</span><span class="p">(</span><span class="n">stl</span><span class="p">,</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;engine_mount&quot;</span><span class="p">,</span><span class="n">color</span> <span class="o">=</span> <span class="s2">&quot;#8FB1CC&quot;</span><span class="p">,</span><span class="n">opacity</span> <span class="o">=</span> <span class="o">.</span><span class="mi">1</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Then the finite element mesh is added, on which the modal shapes will be animated.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">view3D</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">add_mesh</span><span class="p">(</span><span class="n">MK</span><span class="o">.</span><span class="n">mesh</span><span class="p">,</span> <span class="n">scalars</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">MK</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">points</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">cmap</span> <span class="o">=</span> <span class="s2">&quot;coolwarm&quot;</span><span class="p">,</span> <span class="n">show_edges</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">view3D</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">add_mesh</span><span class="p">(</span><span class="n">MK</span><span class="o">.</span><span class="n">mesh</span><span class="p">,</span> <span class="n">scalars</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">MK</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">points</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">cmap</span> <span class="o">=</span> <span class="s2">&quot;coolwarm&quot;</span><span class="p">,</span> <span class="n">show_edges</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Mode shape is selected with method <code class="docutils literal notranslate"><span class="pre">get_modeshape</span></code>.
@@ -274,7 +275,7 @@ Here are set frames per second (<code class="docutils literal notranslate"><span
 <span class="n">_modeshape</span> <span class="o">=</span> <span class="n">MK</span><span class="o">.</span><span class="n">get_modeshape</span><span class="p">(</span><span class="n">select_mode</span><span class="p">)</span>
 
 <span class="n">mode_dict</span> <span class="o">=</span> <span class="n">dict_animation</span><span class="p">(</span><span class="n">_modeshape</span><span class="p">,</span><span class="s2">&quot;modeshape&quot;</span><span class="p">,</span><span class="n">pts</span> <span class="o">=</span> <span class="n">MK</span><span class="o">.</span><span class="n">pts</span><span class="p">,</span> <span class="n">mesh</span> <span class="o">=</span> <span class="n">MK</span><span class="o">.</span><span class="n">mesh</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">r_scale</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">no_points</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span>
-<span class="n">view3D</span><span class="o">.</span><span class="n">add_modeshape</span><span class="p">(</span><span class="n">mode_dict</span><span class="p">,</span><span class="n">run_animation</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+<span class="n">view3D</span><span class="o">.</span><span class="n">add_modeshape</span><span class="p">(</span><span class="n">mode_dict</span><span class="p">,</span><span class="n">run_animation</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="figure align-default" id="id3">
@@ -293,7 +294,7 @@ Here are set frames per second (<code class="docutils literal notranslate"><span
 
 <span class="c1"># Import and show locations of accelereometers</span>
 <span class="n">df_acc</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="n">xlsx</span><span class="p">,</span> <span class="n">sheet_name</span><span class="o">=</span><span class="s1">&#39;Sensors_B&#39;</span><span class="p">)</span>
-<span class="n">view3D</span><span class="o">.</span><span class="n">show_acc</span><span class="p">(</span><span class="n">df_acc</span><span class="p">,</span><span class="n">overwrite</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+<span class="n">view3D</span><span class="o">.</span><span class="n">show_acc</span><span class="p">(</span><span class="n">df_acc</span><span class="p">,</span><span class="n">overwrite</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
 
 <span class="c1"># Import and show directions of accelereometers channels</span>
 <span class="n">df_chn</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="n">xlsx</span><span class="p">,</span> <span class="n">sheet_name</span><span class="o">=</span><span class="s1">&#39;Channels_B&#39;</span><span class="p">)</span>
@@ -301,7 +302,7 @@ Here are set frames per second (<code class="docutils literal notranslate"><span
 
 <span class="c1"># Import and show locations and directions of impacts</span>
 <span class="n">df_imp</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="n">xlsx</span><span class="p">,</span> <span class="n">sheet_name</span><span class="o">=</span><span class="s1">&#39;Impacts_B&#39;</span><span class="p">)</span>
-<span class="n">view3D</span><span class="o">.</span><span class="n">show_imp</span><span class="p">(</span><span class="n">df_imp</span><span class="p">,</span><span class="n">overwrite</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+<span class="n">view3D</span><span class="o">.</span><span class="n">show_imp</span><span class="p">(</span><span class="n">df_imp</span><span class="p">,</span><span class="n">overwrite</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="figure align-default" id="id4">
@@ -321,8 +322,8 @@ The orientation of the generated FRFs is independent of the direction in the num
 </pre></div>
 </div>
 <p>Updated locations can also be shown on the finite element model.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">view3D</span><span class="o">.</span><span class="n">show_chn</span><span class="p">(</span><span class="n">df_chn_up</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="n">overwrite</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span>
-<span class="n">view3D</span><span class="o">.</span><span class="n">show_imp</span><span class="p">(</span><span class="n">df_imp_up</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="n">overwrite</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">view3D</span><span class="o">.</span><span class="n">show_chn</span><span class="p">(</span><span class="n">df_chn_up</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="n">overwrite</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+<span class="n">view3D</span><span class="o">.</span><span class="n">show_imp</span><span class="p">(</span><span class="n">df_imp_up</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="n">overwrite</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="figure align-default" id="id5">
@@ -361,7 +362,7 @@ which can be done by the <code class="docutils literal notranslate"><span class=
 <p>An experimental measurement is also imported to compare different FRFs.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">exp_file</span> <span class="o">=</span> <span class="n">pyFBS</span><span class="o">.</span><span class="n">example_lab_testbench</span><span class="p">[</span><span class="s2">&quot;meas&quot;</span><span class="p">][</span><span class="s2">&quot;Y_B&quot;</span><span class="p">]</span>
 
-<span class="n">freq</span><span class="p">,</span> <span class="n">Y_B_exp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">exp_file</span><span class="p">,</span><span class="n">allow_pickle</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+<span class="n">freq</span><span class="p">,</span> <span class="n">Y_B_exp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">exp_file</span><span class="p">,</span><span class="n">allow_pickle</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>When visualizing FRFs, responses and excitation locations can also be displayed in the form of an organized table.</p>

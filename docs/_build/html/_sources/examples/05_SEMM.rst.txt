@@ -3,6 +3,9 @@ SEMM - System equivalent model mixing
 
 With System Equivalent Model Mixing (SEMM) :cite:`05-Klaassen2018` method frequency-based models, either of numerical or experimental nature, can be mixed to form a hybrid model.
 
+.. note:: 
+   Example showing the basic use of SEMM: :download:`05_SEMM.ipynb <../../examples/05_SEMM.ipynb>`.
+
 Example data import
 *******************
 

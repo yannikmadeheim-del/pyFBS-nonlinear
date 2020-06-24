@@ -36,11 +36,14 @@
   
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/style.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery-dataframe.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Interactive positioning" href="02_interactive_display.html" />
-    <link rel="prev" title="Usage" href="../usage.html" />
+    <link rel="prev" title="Basic examples" href="basic_examples.html" />
  
 
 <meta name="description" content="A Python package for Frequency Based Substructuring">
@@ -99,7 +102,7 @@
               <p class="caption"><span class="caption-text">About</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../intro.html">Why pyFBS?</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../credits.html">Credits</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Getting Started</span></p>
@@ -107,42 +110,34 @@
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Basic examples</span></p>
+<p class="caption"><span class="caption-text">Examples</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">3D Display</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#geometric-objects">Geometric objects</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#degrees-of-freedom">Degrees of Freedom</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#accelerometers">Accelerometers</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#channels">Channels</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#impacts">Impacts</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#virtual-points">Virtual points</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#labels">Labels</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="basic_examples.html">Basic examples</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">3D Display</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#geometric-objects">Geometric objects</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#i-o-objects">I/O Objects</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#accelerometers">Accelerometers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#channels">Channels</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#impacts">Impacts</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#virtual-points">Virtual points</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#labels">Labels</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#interaction-with-the-3d-display">Interaction with the 3D display</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#interaction-with-the-3d-display">Interaction with the 3D display</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="02_interactive_display.html">Interactive positioning</a></li>
-<li class="toctree-l1"><a class="reference internal" href="03_FRF_synthetization.html">FRF synthetization</a></li>
-<li class="toctree-l1"><a class="reference internal" href="04_VPT.html">Virtual Point Transformation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="05_SEMM.html">SEMM - System equivalent model mixing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="02_interactive_display.html">Interactive positioning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="03_FRF_synthetization.html">FRF synthetization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="04_VPT.html">Virtual Point Transformation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="05_SEMM.html">SEMM - System equivalent model mixing</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Application examples</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="06_ODS.html">Operational Deflection Shapes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="07_coupling.html">Coupling</a></li>
-<li class="toctree-l1"><a class="reference internal" href="08_decoupling.html">Decoupling</a></li>
-<li class="toctree-l1"><a class="reference internal" href="09_EMA.html">Experimental modal analysis (EMA)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="10_TS.html">Transmission simulator in FBS</a></li>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="application_examples.html">Application Examples</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Code Documentation</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../code_documentation/display.html">pyFBS.view3D</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../code_documentation/MCK.html">pyFBS.MK_model</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../code_documentation/VPT.html">pyFBS.VPT</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../code_documentation/SEMM.html">pyFBS.SEMM</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../code_documentation/IO.html">pyFBS.IO</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../code_documentation/utility.html">pyFBS.utility</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../code_documentation/core.html">Core API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../code_documentation/util.html">Utilities</a></li>
 </ul>
 
             
@@ -210,6 +205,8 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
+          <li><a href="basic_examples.html">Basic examples</a> &raquo;</li>
+        
       <li>3D Display</li>
     
     
@@ -231,13 +228,13 @@
             
   <div class="section" id="d-display">
 <h1>3D Display<a class="headerlink" href="#d-display" title="Permalink to this headline">¶</a></h1>
-<p>The <code class="xref py py-mod docutils literal notranslate"><span class="pre">pyFBS</span></code> supports  can visualized in a 3D display. The 3D display enables depiction of structures, sensors, impacts, channels and virtual points in a simple and intuitive way.
+<p>The <code class="xref py py-mod docutils literal notranslate"><span class="pre">pyFBS</span></code> can be used for 3D visualization. The 3D display enables depiction of structures, sensors, impacts, channels and virtual points in a simple and intuitive, Pythonic manner.
 Furthermore, the 3D display supports motion animation, where objects or mode shapes can be animated with ease. For the 3D visualization a python package <a class="reference external" href="https://docs.pyvista.org/index.html">PyVista</a> is used.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Example showing the basic use of the 3D display: <a class="reference download internal" download="" href="../_downloads/33bb4ee70d4e0927d0af361cde5a99d1/01_static_display.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">01_static_display.ipynb</span></code></a>.</p>
 </div>
-<p>To open a blank 3D display simply make an instance of the <a class="reference internal" href="../code_documentation/display.html#pyFBS.view3D" title="pyFBS.view3D"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyFBS.view3D</span></code></a>:</p>
+<p>To open a blank 3D display simply make an instance of the <a class="reference internal" href="../code_documentation/display.html#pyFBS.view3D" title="pyFBS.view3D"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyFBS.view3D</span></code></a>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">view3D</span> <span class="o">=</span> <span class="n">pyFBS</span><span class="o">.</span><span class="n">view3D</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -245,24 +242,25 @@ Furthermore, the 3D display supports motion animation, where objects or mode sha
 <div class="section" id="geometric-objects">
 <h2>Geometric objects<a class="headerlink" href="#geometric-objects" title="Permalink to this headline">¶</a></h2>
 <p>Geometric objects can be added to the 3D display in a simple manner. For simple objects (cylinders, spheres, boxes, …) <a class="reference external" href="https://docs.pyvista.org/examples/00-load/create-geometric-objects.html#sphx-glr-examples-00-load-create-geometric-objects-py">PyVista methods</a>
-can be used for the geometry generation. For displaying a more complex geometric objects a STL file can be loaded in the 3D display:</p>
+can be used for the geometry generation. For displaying a more complex geometric objects a STL file can be loaded in the 3D display.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">path_to_stl</span> <span class="o">=</span> <span class="n">pyFBS</span><span class="o">.</span><span class="n">example_lab_testbench</span><span class="p">[</span><span class="s2">&quot;STL&quot;</span><span class="p">][</span><span class="s2">&quot;AB&quot;</span><span class="p">]</span>
 <span class="n">view3D</span><span class="o">.</span><span class="n">add_stl</span><span class="p">(</span><span class="n">path_to_stl</span><span class="p">,</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;AB&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>After the code execution the geometric object will apear in the rendering window:</p>
+<p>After the code execution the geometric object will apear in the rendering window.</p>
 <div class="figure align-default" id="id1">
 <a class="reference internal image-reference" href="../_images/3D_view.png"><img alt="../_images/3D_view.png" src="../_images/3D_view.png" style="width: 800px;" /></a>
 <p class="caption"><span class="caption-text">An example of a laboratory substructuring testbench depicted in the pyFBS 3D display.</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
 </div>
-<p>Multiple geometric objects can be added to the display with different colors and even opacity (checkout <code class="xref py py-func docutils literal notranslate"><span class="pre">pyvista.BackgroundPlotter.add_mesh()</span></code> for all options). When adding multiple geometric objects, care should be taken that different <code class="docutils literal notranslate"><span class="pre">name</span></code> variable is provided, otherwise the object with the same name will be overwritten (discarded from the 3D display).</p>
+<p>Multiple geometric objects can be added to the display with different colors and even opacity (checkout <code class="xref py py-func docutils literal notranslate"><span class="pre">pyvista.BackgroundPlotter.add_mesh()</span></code> for all options).
+When adding multiple geometric objects, care should be taken that different <code class="docutils literal notranslate"><span class="pre">name</span></code> variable is provided, otherwise the object with the same name will be overwritten (discarded from the 3D display).</p>
 </div>
-<div class="section" id="degrees-of-freedom">
-<h2>Degrees of Freedom<a class="headerlink" href="#degrees-of-freedom" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="i-o-objects">
+<h2>I/O Objects<a class="headerlink" href="#i-o-objects" title="Permalink to this headline">¶</a></h2>
 <p>In the 3D display accelerometers, channels, impacts and virtual points can be shown. The positional and orientation information for each separate degree of freedom is defined in a <code class="xref py py-mod docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code>.</p>
 <div class="section" id="accelerometers">
 <h3>Accelerometers<a class="headerlink" href="#accelerometers" title="Permalink to this headline">¶</a></h3>
-<p>Accelerometers can be added to 3D display directly from the <code class="xref py py-mod docutils literal notranslate"><span class="pre">pd.DataFrame</span></code>:</p>
+<p>Accelerometers can be added to 3D display directly from the <code class="xref py py-mod docutils literal notranslate"><span class="pre">pd.DataFrame</span></code>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">path_to_xlsx</span> <span class="o">=</span> <span class="n">pyFBS</span><span class="o">.</span><span class="n">example_lab_testbench</span><span class="p">[</span><span class="s2">&quot;meas&quot;</span><span class="p">][</span><span class="s2">&quot;xlsx&quot;</span><span class="p">]</span>
 
 <span class="n">df_acc</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="n">path_to_xlsx</span><span class="p">,</span> <span class="n">sheetname</span><span class="o">=</span><span class="s1">&#39;Sensors_AB&#39;</span><span class="p">)</span>
@@ -277,7 +275,7 @@ can be used for the geometry generation. For displaying a more complex geometric
 </div>
 <div class="section" id="channels">
 <h3>Channels<a class="headerlink" href="#channels" title="Permalink to this headline">¶</a></h3>
-<p>Channels associated with accelerometers can be added to the 3D display directly from the <code class="xref py py-mod docutils literal notranslate"><span class="pre">pd.DataFrame</span></code>:</p>
+<p>Channels associated with accelerometers can be added to the 3D display directly from the <code class="xref py py-mod docutils literal notranslate"><span class="pre">pd.DataFrame</span></code>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">df_chn</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="n">path_to_xlsx</span><span class="p">,</span> <span class="n">sheetname</span><span class="o">=</span><span class="s1">&#39;Channels_AB&#39;</span><span class="p">)</span>
 <span class="n">view3D</span><span class="o">.</span><span class="n">show_chn</span><span class="p">(</span><span class="n">df_chn</span><span class="p">)</span>
 </pre></div>
@@ -290,7 +288,7 @@ can be used for the geometry generation. For displaying a more complex geometric
 </div>
 <div class="section" id="impacts">
 <h3>Impacts<a class="headerlink" href="#impacts" title="Permalink to this headline">¶</a></h3>
-<p>Impacts can be added to the 3D display directly from the <code class="xref py py-mod docutils literal notranslate"><span class="pre">pd.DataFrame</span></code>:</p>
+<p>Impacts can be added to the 3D display directly from the <code class="xref py py-mod docutils literal notranslate"><span class="pre">pd.DataFrame</span></code>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">df_imp</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="n">path_xlsx</span><span class="p">,</span> <span class="n">sheetname</span><span class="o">=</span><span class="s1">&#39;Impacts_AB&#39;</span><span class="p">)</span>
 <span class="n">view3D</span><span class="o">.</span><span class="n">show_imp</span><span class="p">(</span><span class="n">df_imp</span><span class="p">)</span>
 </pre></div>
@@ -303,7 +301,7 @@ can be used for the geometry generation. For displaying a more complex geometric
 </div>
 <div class="section" id="virtual-points">
 <h3>Virtual points<a class="headerlink" href="#virtual-points" title="Permalink to this headline">¶</a></h3>
-<p>Virtual points can also be added to the 3D display directly from the <code class="xref py py-mod docutils literal notranslate"><span class="pre">pd.DataFrame</span></code>:</p>
+<p>Virtual points can also be added to the 3D display directly from the <code class="xref py py-mod docutils literal notranslate"><span class="pre">pd.DataFrame</span></code>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">df_vps</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="n">path_xlsx</span><span class="p">,</span> <span class="n">sheetname</span><span class="o">=</span><span class="s1">&#39;VP_Channels&#39;</span><span class="p">)</span>
 <span class="n">view3D</span><span class="o">.</span><span class="n">show_vp</span><span class="p">(</span><span class="n">df_vps</span><span class="p">)</span>
 </pre></div>
@@ -316,7 +314,7 @@ can be used for the geometry generation. For displaying a more complex geometric
 </div>
 <div class="section" id="labels">
 <h3>Labels<a class="headerlink" href="#labels" title="Permalink to this headline">¶</a></h3>
-<p>Accelerometer, channels, impacts and virtual points can also be labeled or enumerated based on the information from the corresponding <code class="xref py py-mod docutils literal notranslate"><span class="pre">pd.DataFrame</span></code>:</p>
+<p>Accelerometer, channels, impacts and virtual points can also be labeled or enumerated based on the information from the corresponding <code class="xref py py-mod docutils literal notranslate"><span class="pre">pd.DataFrame</span></code>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">view3D</span><span class="o">.</span><span class="n">label_acc</span><span class="p">(</span><span class="n">df_vps</span><span class="p">)</span>
 <span class="n">view3D</span><span class="o">.</span><span class="n">label_chn</span><span class="p">(</span><span class="n">df_chn</span><span class="p">)</span>
 <span class="n">view3D</span><span class="o">.</span><span class="n">label_imp</span><span class="p">(</span><span class="n">df_imp</span><span class="p">)</span>
@@ -332,7 +330,8 @@ can be used for the geometry generation. For displaying a more complex geometric
 </div>
 <div class="section" id="interaction-with-the-3d-display">
 <h2>Interaction with the 3D display<a class="headerlink" href="#interaction-with-the-3d-display" title="Permalink to this headline">¶</a></h2>
-<p>Basic interaction with the 3D display is relatively simple. Mouse <code class="docutils literal notranslate"><span class="pre">left-click</span></code> can be used to rotate the rendering scene and <code class="docutils literal notranslate"><span class="pre">middle-click</span></code> to pan the rendering scene. For more information refer to the <a class="reference external" href="https://docs.pyvista.org/plotting/plotting.html">PyVista plotting shortcuts</a>.</p>
+<p>Basic interaction with the 3D display is relatively simple. Mouse <code class="docutils literal notranslate"><span class="pre">left-click</span></code> can be used to rotate the rendering scene and <code class="docutils literal notranslate"><span class="pre">middle-click</span></code> to pan the rendering scene.
+For more information refer to the <a class="reference external" href="https://docs.pyvista.org/plotting/plotting.html">PyVista plotting shortcuts</a>.</p>
 <div class="figure align-default" id="id7">
 <a class="reference internal image-reference" href="../_images/interaction.gif"><img alt="../_images/interaction.gif" src="../_images/interaction.gif" style="width: 800px;" /></a>
 <p class="caption"><span class="caption-text">Interaction with the 3D display.</span><a class="headerlink" href="#id7" title="Permalink to this image">¶</a></p>
@@ -351,7 +350,7 @@ can be used for the geometry generation. For displaying a more complex geometric
         <a href="02_interactive_display.html" class="btn btn-neutral float-right" title="Interactive positioning" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="../usage.html" class="btn btn-neutral float-left" title="Usage" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="basic_examples.html" class="btn btn-neutral float-left" title="Basic examples" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

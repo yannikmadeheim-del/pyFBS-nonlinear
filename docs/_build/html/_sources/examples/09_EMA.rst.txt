@@ -2,62 +2,16 @@
 Experimental modal analysis (EMA)
 ##########
 
-The pyFBS can be also used with other python packages for structural dynamics. One of those packages is pyEMA which performes a Experimental Modal Analysis (EMA). In this example an integration of the two packages is shown on a frame the automotive testbench example. Real experimental data is used in this example. 
+The pyFBS can be also used with other python packages for structural dynamics. One of those packages is pyEMA which performes a Experimental Modal Analysis (EMA). In this example an integration of the two packages is shown on a frame the automotive testbench example. Real experimental data is used in this example.
 
-.. code-block:: python
-    import pyFBS
-    from pyEMA import pyEMA
+.. note:: 
+   Example showing an Experimental Modal Analysis (EMA) application: :download:`09_EMA.ipynb <../../examples/09_experimental_modal_analysis_EMA.ipynb>`.
 
-    import numpy as np
-    import matplotlib.pyplot as plt
-    import pyvista as pv
-    import pandas as pd
     
-Example Datasests
+Example Datasests and 3D View
 *****************
 
-Load the required predefined datasets:
-
-.. code-block:: python
-
-    # STL files
-    stl_rec = pyFBS.example_auto_testbench["STL"]["receiver"]
-    stl_tm = pyFBS.example_auto_testbench["STL"]["transmission_mount"]
-    stl_rm = pyFBS.example_auto_testbench["STL"]["roll_mount"]
-    stl_em = pyFBS.example_auto_testbench["STL"]["engine_mount"]
-    stl_ts = pyFBS.example_auto_testbench["STL"]["ts"]
-    stl_shaker = pyFBS.example_auto_testbench["STL"]["shaker_only"]
-
-    # Sensors, Channels and impacts data
-    pos_xlsx = pyFBS.example_auto_testbench["meas"]["xlsx_modal"]
-    df_acc = pd.read_excel(pos_xlsx, sheet_name='Sensors')
-    df_chn = pd.read_excel(pos_xlsx, sheet_name='Channels')
-    df_imp = pd.read_excel(pos_xlsx, sheet_name='Impacts')
-
-    # Experimental datasets
-    _file = pyFBS.example_auto_testbench["meas"]["Y_m_1"]
-    freq, Y_m1 = np.load(_file,allow_pickle = True)
-
-    _file = pyFBS.example_auto_testbench["meas"]["Y_m_2"]
-    freq, Y_m2 = np.load(_file,allow_pickle = True)
-    
-3D View
-*******
-Open a 3Dviewer in the background.
-
-.. code-block:: python
-
-    view3D_1 = pyFBS.view3D()
-    
-Add the STL file of the assembly to the 3D view:
-
-.. code-block:: python
-
-    view3D_1.add_stl(stl_rec,name = "receiver_0",color = "#e0e0e0",opacity = .1)
-    view3D_1.add_stl(stl_tm,name = "transmission_mount_0",color = "#83afd2",opacity = .1)
-    view3D_1.add_stl(stl_rm,name = "roll_mount_0",color = "#83afd2",opacity = .1)
-    view3D_1.add_stl(stl_em,name = "engine_mount_0",color = "#83afd2",opacity = .1)
-    view3D_1.add_stl(stl_ts,name = "ts_0",color = "#FB6D4C",opacity = .1);
+Load the required predefined datasets. Open a 3Dviewer in the background. Add the STL file of the assembly to the 3D view:
 
 .. figure:: ./data/nine_one.png
    :width: 800px

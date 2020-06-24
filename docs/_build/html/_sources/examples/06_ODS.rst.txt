@@ -2,91 +2,19 @@
 Operational Deflection Shapes
 ##########
 
-The 3D display of the pyFBS can be used to animate objects. Animation can be performed on meshes directly on predefined objects (such as accelerometers). In this example an operational deflection shape of the a structure is animated. 
+The 3D display of the pyFBS can be used to animate objects. Animation can be performed on meshes directly on predefined objects (such as accelerometers). In this example an operational deflection shape of the a structure is animated.
 
-.. code-block:: python
-
-	import pyFBS
-	import pandas as pd
-	import pickle
-	import numpy as np
-	import matplotlib.pyplot as plt
+.. note:: 
+   Example showing an application of the Operational Deflection Shapes: :download:`06_ODS.ipynb <../../examples/06_operational_deflection_shapes_ODS.ipynb>`.
 
 
-Example Datasets
+Example Datasets and 3D view
 ----------------
 
-Load a predefined datasets from an example and add a structure from STL file to the 3D view.
+As already shown in the `3D Display <../../html/examples/01_static_display.html>`_ one can load predefined datasets from an example and add a structure from STL file to the 3D view. This allows both the acceleration sensors and excitation points to be visualized.
 
-.. code-block:: python
-	
-	pos_xlsx = pyFBS.example_auto_testbench["meas"]["xlsx_ODS"]
-	stl_rec = pyFBS.example_auto_testbench["STL"]["receiver"]
-	stl_tm = pyFBS.example_auto_testbench["STL"]["transmission_mount"]
-	stl_rm = pyFBS.example_auto_testbench["STL"]["roll_mount"]
-	stl_em = pyFBS.example_auto_testbench["STL"]["engine_mount"]
-	stl_ts = pyFBS.example_auto_testbench["STL"]["ts"]
-	stl_shaker = pyFBS.example_auto_testbench["STL"]["shaker_only"]
-
-	
-3D view
--------
-Open 3D viewer in the background.
-
-.. code-block:: python
-
-	view3D = pyFBS.view3D()
-	
-Add a structure from STL file to the 3D view:
-
-.. code-block:: python
-
-	view3D.add_stl(stl_rec,name = "receiver_3",color = "#e0e0e0",opacity = .1)
-	view3D.add_stl(stl_tm,name = "transmission_mount_3",color = "#83afd2",opacity = .1)
-	view3D.add_stl(stl_rm,name = "roll_mount_3",color = "#83afd2",opacity = .1)
-	view3D.add_stl(stl_em,name = "engine_mount_3",color = "#83afd2",opacity = .1)
-	view3D.add_stl(stl_ts,name = "ts_3",color = "#FB6D4C",opacity = .1)
-	view3D.add_stl(stl_shaker,name = "shaker_only_3",color = "#FB6D4C",opacity = .1);
-	
     
 .. figure:: ./data/six_one.png
-   :width: 800px
-
-Accelerometers
---------------
-Add accelerometers to the 3D display:
-
-.. code-block:: python
-
-	df_acc = pd.read_excel(pos_xlsx, sheet_name='Sensors')
-	view3D.show_acc(df_acc)
-	
-    
-.. figure:: ./data/six_two.png
-   :width: 800px
-
-Channels
---------
-Add channels to the 3D display:
-
-.. code-block:: python
-
-	df_chn = pd.read_excel(pos_xlsx, sheet_name='Channels')
-	
-.. figure:: ./data/six_three.png
-   :width: 800px
-    
-Impacts
--------
-Add impacts to the 3D display:
-
-.. code-block:: python
-
-	df_imp = pd.read_excel(pos_xlsx, sheet_name='Impacts')
-	view3D.show_imp(df_imp)
-	view3D.label_imp(df_imp)
-    
-.. figure:: ./data/six_four.png
    :width: 800px
 
 Experimental example
@@ -114,10 +42,14 @@ Checkout a single FRF:
 
 	plt.subplot(413)
 	plt.plot(freq,np.angle(Y_ODS[:,select_out,select_in]))
+
 	
-Accelerometer animation
+.. figure:: ./data/six_two.png
+   :width: 600px
+	
+Accelerometer animation and GIF export
 -----------------------
-The objects placed in the 3D view can be simply animated. In this example an operational deflection shape at a certain impact position can be animated: 
+The objects placed in the 3D view can be simply animated. In this example an operational deflection shape at a certain impact position can be animated. The pyFBS supports also an export to a GIF file. Before running the animation just set the output directory view3D.gif_dir and set the variable view3D.take_gif = True. When the GIF is exporting the animation lags the animation can lag in the 3D display. 
 
 .. code-block:: python
 
@@ -128,15 +60,14 @@ The objects placed in the 3D view can be simply animated. In this example an ope
 
 	mode_dict = pyFBS.dict_animation(emp_2,"object",object_list = view3D.global_acc,r_scale=30)
 	mode_dict["freq"] = freq[freq_sel]
+	
+	view3D.take_gif = True
+	view3D.gif_dir = "..\\pyFBS\\output.gif"
+
 	view3D.add_objects_animation(mode_dict,run_animation = True,add_note= True)
 	
-    
-GIF export
-----------
-The pyFBS supports also an export to a GIF file. Before running the animation just set the output directory view3D.gif_dir and set the variable view3D.take_gif = True. When the GIF is exporting the animation lags the animation can lag in the 3D display.
 
-.. code-block:: python
+.. figure:: ./data/ods.gif
+   :width: 400px
 
-	view3D.take_gif = True
-	view3D.gif_dir = "output.gif"
-	view3D.add_objects_animation(mode_dict,run_animation = True,add_note= True)
+   GIF export of the Operational Deflection Shapes (ODS). 

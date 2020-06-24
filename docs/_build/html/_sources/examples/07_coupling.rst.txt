@@ -2,41 +2,15 @@
 Coupling
 ##########
 
-With the pyFBS coupling of different substructers can be performed in relatively simple manner. In this example a numerical example is used to demonstrate a basic coupling example with a virtual point transformation at the interface.
+With the pyFBS coupling and decoupling of different substructers can be performed in relatively simple manner. In this example a numerical example is used to demonstrate a basic coupling example with a virtual point transformation at the interface. This can also be performed analogously with experimentally determined data.
 
-.. code-block:: python
+.. note:: 
+   Example showing an substructure coupling application: :download:`07_coupling.ipynb <../../examples/07_FBS_coupling.ipynb>`.
+
     
-    import pyFBS
-    import numpy as np
-    import matplotlib.pyplot as plt
-    import pandas as pd
-    
-Example Datasets
+Example Datasets and 3D view
 ****************
-Load the required predefined datasets:
-
-.. code-block:: python
-    
-    pos_xlsx = pyFBS.example_lab_testbench["meas"]["xlsx_coupling"]
-    stl_dir_A = pyFBS.example_lab_testbench["STL"]["A"]
-    stl_dir_B = pyFBS.example_lab_testbench["STL"]["B"]
-    stl_dir_AB = pyFBS.example_lab_testbench["STL"]["AB"]
-
-    df_acc_A = pd.read_excel(pos_xlsx, sheet_name='Sensors_A')
-    df_chn_A = pd.read_excel(pos_xlsx, sheet_name='Channels_A')
-    df_imp_A = pd.read_excel(pos_xlsx, sheet_name='Impacts_A')
-
-    df_acc_B = pd.read_excel(pos_xlsx, sheet_name='Sensors_B')
-    df_chn_B = pd.read_excel(pos_xlsx, sheet_name='Channels_B')
-    df_imp_B = pd.read_excel(pos_xlsx, sheet_name='Impacts_B')
-
-    df_acc_AB = pd.read_excel(pos_xlsx, sheet_name='Sensors_AB')
-    df_chn_AB = pd.read_excel(pos_xlsx, sheet_name='Channels_AB')
-    df_imp_AB = pd.read_excel(pos_xlsx, sheet_name='Impacts_AB')
-    
-3D view
-*******
-Open 3D viewer in the background. With the 3D viewer the subplot capabilities of PyVista can be used.
+Load the required predefined datasets and open the 3D viewer in the background as already shown in `3D Display <../../html/examples/01_static_display.html>`_. Especially for the illustration of different substructures and the assembly, the 3D viewer subplot capabilities of `PyVista <https://docs.pyvista.org/index.html>`_ can be used.
 
 .. code-block:: python
 
@@ -102,7 +76,7 @@ Each separate subplot view can also be linked or unlinked:
 
 Numerical model
 ***************
-Load the corresponding .full and .ress file from the example datasets. For more information on .full and .ress files refer to the 03_FRF_synthetization.ipynb example
+Load the corresponding .full and .ress file from the example datasets. For more information on .full and .ress files refer to the :download:`03_FRF_synthetization.ipynb <../../examples/03_FRF_synthetization.ipynb>` example.
 
 .. code-block:: python
 
@@ -147,7 +121,7 @@ Perform the FRF sythetization for each component based on the updated locations.
     
 Virtual point transformation
 ****************************
-The VPT can be performed directly on the generated data. See the 04_VPT.ipynb example for more options and details.
+The VPT can be performed directly on the generated data. See the :download:`04_VPT.ipynb <../../examples/04_VPT.ipynb>` example for more options and details.
 
 .. code-block:: python
 
@@ -223,104 +197,7 @@ First extract the FRFs at the reference DoFs:
     Y_AB_ref = MK_AB.FRF
     
 The coupled and the reference results can then be compared:
-
-.. code-block:: python
-
-    s1 = 0
-    s2 = 6
-
-    display(df_chn_AB_up.loc[[s1]])
-    display(df_imp_AB_up.loc[[s2]])
-
-    plt.figure(figsize = (10,6))
-    plt.subplot(211)
-    plt.semilogy(freq,np.abs(Y_AB_ref[:,s1,s2]))
-    plt.semilogy(freq,np.abs(Y_AB_coupled[:,s1,s2]))
-
-    plt.xlim(0,2000)
-
-    plt.subplot(413)
-    plt.plot(freq,np.angle(Y_AB_ref[:,s1,s2]))
-    plt.plot(freq,np.angle(Y_AB_coupled[:,s1,s2]))
-
-    plt.xlim(0,2000)
     
 .. figure:: ./data/seven_five.png
    :width: 500px
     
-    
-Result animation ODS
-********************
-The coupling results can be animated directly on accelerometers. First open a 3D display:
-
-.. code-block:: python
-   
-    view3D_an = pyFBS.view3D(show_origin = False, show_axes = False,title = "Animation")
-  
-  
-Load the example datasets and display accelerometer, channels and impacts:
-
-.. code-block:: python 
-
-    stl_dir = pyFBS.example_lab_testbench["STL"]["AB"]
-    view3D_an.add_stl(stl_dir,color = "#83afd2",name = "AB")
-
-    view3D_an.show_acc(df_acc_AB,overwrite = False)
-    view3D_an.show_imp(df_imp_AB_up,overwrite = False)
-    view3D_an.show_chn(df_chn_AB_up,overwrite = False)
-
-    view3D_an.label_acc(df_acc_AB,name = "acc_AB")
-    view3D_an.label_chn(df_chn_AB_up,name = "chn_AB")
-    view3D_an.label_imp(df_imp_AB_up,name = "imp_AB")
-
-.. figure:: ./data/seven_six.png
-   :width: 800px
-   
-
-Select the input location and the frequency line for the ODS animation:
-
-.. code-block:: python
-
-    freq_sel = 20
-    s1 = 15
-    select_in = 6
-
-    plt.figure(figsize = (10,6))
-    plt.subplot(211)
-
-    plt.semilogy(freq,np.abs(Y_AB_ref[:,s1,select_in]))
-    plt.semilogy(freq,np.abs(Y_AB_coupled[:,s1,select_in]))
-
-    plt.semilogy(freq[freq_sel],np.abs(Y_AB_ref[freq_sel,s1,select_in]),'o',color = "k")
-
-    plt.xlim(0,2000)
-
-.. figure:: ./data/seven_seven.png
-   :width: 500px
-   
-
-Coupled results
-***************
-Accelerometer animation based on the coupled results:
-
-.. code-block:: python
-
-    ann = pyFBS.orient_in_global(Y_AB_coupled[freq_sel,:,select_in],df_chn_AB_up,df_acc_AB)
-
-    mode_dict = pyFBS.dict_animation(ann,"object",object_list = view3D_an.global_acc,r_scale=30)
-    mode_dict["freq"] = freq[freq_sel]
-    view3D_an.add_objects_animation(mode_dict,run_animation = True,add_note= True)
-
-    
-    
-Reference
-*********
-Also the reference FRFs can be animated and compared with the final coupled results:
-
-.. code-block:: python
-
-    ann = pyFBS.orient_in_global(Y_AB_ref[freq_sel,:,select_in],df_chn_AB_up,df_acc_AB)
-
-    mode_dict = pyFBS.dict_animation(ann,"object",object_list = view3D_an.global_acc,r_scale=30)
-    mode_dict["freq"] = freq[freq_sel]
-    view3D_an.add_objects_animation(mode_dict,run_animation = True,add_note= True)

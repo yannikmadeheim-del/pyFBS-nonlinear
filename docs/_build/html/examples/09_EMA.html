@@ -36,7 +36,10 @@
   
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/style.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery-dataframe.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Transmission simulator in FBS" href="10_TS.html" />
@@ -99,7 +102,7 @@
               <p class="caption"><span class="caption-text">About</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../intro.html">Why pyFBS?</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../credits.html">Credits</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Getting Started</span></p>
@@ -107,46 +110,37 @@
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Basic examples</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="01_static_display.html">3D Display</a></li>
-<li class="toctree-l1"><a class="reference internal" href="02_interactive_display.html">Interactive positioning</a></li>
-<li class="toctree-l1"><a class="reference internal" href="03_FRF_synthetization.html">FRF synthetization</a></li>
-<li class="toctree-l1"><a class="reference internal" href="04_VPT.html">Virtual Point Transformation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="05_SEMM.html">SEMM - System equivalent model mixing</a></li>
-</ul>
-<p class="caption"><span class="caption-text">Application examples</span></p>
+<p class="caption"><span class="caption-text">Examples</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="06_ODS.html">Operational Deflection Shapes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="07_coupling.html">Coupling</a></li>
-<li class="toctree-l1"><a class="reference internal" href="08_decoupling.html">Decoupling</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Experimental modal analysis (EMA)</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#example-datasests">Example Datasests</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#d-view">3D View</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#experimental-modal-analysis-assembly">Experimental Modal analysis - Assembly</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basic_examples.html">Basic examples</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="application_examples.html">Application Examples</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="06_ODS.html">Operational Deflection Shapes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="07_coupling.html">Coupling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="08_decoupling.html">Decoupling</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Experimental modal analysis (EMA)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#example-datasests-and-3d-view">Example Datasests and 3D View</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#experimental-modal-analysis-assembly">Experimental Modal analysis - Assembly</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#pyema">pyEMA</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#mode-shape-animation">Mode shape animation</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#ema-assembly-without-the-source">EMA - Assembly without the source</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pyema">pyEMA</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mode-shape-animation">Mode shape animation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#ema-assembly-without-the-source">EMA - Assembly without the source</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#id1">3D View</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id2">pyEMA</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#create-a-mesh-and-add-it-to-the-3d-view">Create a mesh and add it to the 3D view:</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id3">Mode shape animation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#d-view">3D View</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id1">pyEMA</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#create-a-mesh-and-add-it-to-the-3d-view">Create a mesh and add it to the 3D view:</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id2">Mode shape animation</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="10_TS.html">Transmission simulator in FBS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="10_TS.html">Transmission simulator in FBS</a></li>
+</ul>
+</li>
 </ul>
 <p class="caption"><span class="caption-text">Code Documentation</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../code_documentation/display.html">pyFBS.view3D</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../code_documentation/MCK.html">pyFBS.MK_model</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../code_documentation/VPT.html">pyFBS.VPT</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../code_documentation/SEMM.html">pyFBS.SEMM</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../code_documentation/IO.html">pyFBS.IO</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../code_documentation/utility.html">pyFBS.utility</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../code_documentation/core.html">Core API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../code_documentation/util.html">Utilities</a></li>
 </ul>
 
             
@@ -214,6 +208,8 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
+          <li><a href="application_examples.html">Application Examples</a> &raquo;</li>
+        
       <li>Experimental modal analysis (EMA)</li>
     
     
@@ -236,46 +232,13 @@
   <div class="section" id="experimental-modal-analysis-ema">
 <h1>Experimental modal analysis (EMA)<a class="headerlink" href="#experimental-modal-analysis-ema" title="Permalink to this headline">¶</a></h1>
 <p>The pyFBS can be also used with other python packages for structural dynamics. One of those packages is pyEMA which performes a Experimental Modal Analysis (EMA). In this example an integration of the two packages is shown on a frame the automotive testbench example. Real experimental data is used in this example.</p>
-<div class="section" id="example-datasests">
-<h2>Example Datasests<a class="headerlink" href="#example-datasests" title="Permalink to this headline">¶</a></h2>
-<p>Load the required predefined datasets:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># STL files</span>
-<span class="n">stl_rec</span> <span class="o">=</span> <span class="n">pyFBS</span><span class="o">.</span><span class="n">example_auto_testbench</span><span class="p">[</span><span class="s2">&quot;STL&quot;</span><span class="p">][</span><span class="s2">&quot;receiver&quot;</span><span class="p">]</span>
-<span class="n">stl_tm</span> <span class="o">=</span> <span class="n">pyFBS</span><span class="o">.</span><span class="n">example_auto_testbench</span><span class="p">[</span><span class="s2">&quot;STL&quot;</span><span class="p">][</span><span class="s2">&quot;transmission_mount&quot;</span><span class="p">]</span>
-<span class="n">stl_rm</span> <span class="o">=</span> <span class="n">pyFBS</span><span class="o">.</span><span class="n">example_auto_testbench</span><span class="p">[</span><span class="s2">&quot;STL&quot;</span><span class="p">][</span><span class="s2">&quot;roll_mount&quot;</span><span class="p">]</span>
-<span class="n">stl_em</span> <span class="o">=</span> <span class="n">pyFBS</span><span class="o">.</span><span class="n">example_auto_testbench</span><span class="p">[</span><span class="s2">&quot;STL&quot;</span><span class="p">][</span><span class="s2">&quot;engine_mount&quot;</span><span class="p">]</span>
-<span class="n">stl_ts</span> <span class="o">=</span> <span class="n">pyFBS</span><span class="o">.</span><span class="n">example_auto_testbench</span><span class="p">[</span><span class="s2">&quot;STL&quot;</span><span class="p">][</span><span class="s2">&quot;ts&quot;</span><span class="p">]</span>
-<span class="n">stl_shaker</span> <span class="o">=</span> <span class="n">pyFBS</span><span class="o">.</span><span class="n">example_auto_testbench</span><span class="p">[</span><span class="s2">&quot;STL&quot;</span><span class="p">][</span><span class="s2">&quot;shaker_only&quot;</span><span class="p">]</span>
-
-<span class="c1"># Sensors, Channels and impacts data</span>
-<span class="n">pos_xlsx</span> <span class="o">=</span> <span class="n">pyFBS</span><span class="o">.</span><span class="n">example_auto_testbench</span><span class="p">[</span><span class="s2">&quot;meas&quot;</span><span class="p">][</span><span class="s2">&quot;xlsx_modal&quot;</span><span class="p">]</span>
-<span class="n">df_acc</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="n">pos_xlsx</span><span class="p">,</span> <span class="n">sheet_name</span><span class="o">=</span><span class="s1">&#39;Sensors&#39;</span><span class="p">)</span>
-<span class="n">df_chn</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="n">pos_xlsx</span><span class="p">,</span> <span class="n">sheet_name</span><span class="o">=</span><span class="s1">&#39;Channels&#39;</span><span class="p">)</span>
-<span class="n">df_imp</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="n">pos_xlsx</span><span class="p">,</span> <span class="n">sheet_name</span><span class="o">=</span><span class="s1">&#39;Impacts&#39;</span><span class="p">)</span>
-
-<span class="c1"># Experimental datasets</span>
-<span class="n">_file</span> <span class="o">=</span> <span class="n">pyFBS</span><span class="o">.</span><span class="n">example_auto_testbench</span><span class="p">[</span><span class="s2">&quot;meas&quot;</span><span class="p">][</span><span class="s2">&quot;Y_m_1&quot;</span><span class="p">]</span>
-<span class="n">freq</span><span class="p">,</span> <span class="n">Y_m1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">_file</span><span class="p">,</span><span class="n">allow_pickle</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
-
-<span class="n">_file</span> <span class="o">=</span> <span class="n">pyFBS</span><span class="o">.</span><span class="n">example_auto_testbench</span><span class="p">[</span><span class="s2">&quot;meas&quot;</span><span class="p">][</span><span class="s2">&quot;Y_m_2&quot;</span><span class="p">]</span>
-<span class="n">freq</span><span class="p">,</span> <span class="n">Y_m2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">_file</span><span class="p">,</span><span class="n">allow_pickle</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
-</pre></div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Example showing an Experimental Modal Analysis (EMA) application: <a class="reference download internal" download="" href="../_downloads/9363659a142f6e17d33039e83aba71da/09_experimental_modal_analysis_EMA.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">09_EMA.ipynb</span></code></a>.</p>
 </div>
-</div>
-<div class="section" id="d-view">
-<h2>3D View<a class="headerlink" href="#d-view" title="Permalink to this headline">¶</a></h2>
-<p>Open a 3Dviewer in the background.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">view3D_1</span> <span class="o">=</span> <span class="n">pyFBS</span><span class="o">.</span><span class="n">view3D</span><span class="p">()</span>
-</pre></div>
-</div>
-<p>Add the STL file of the assembly to the 3D view:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">view3D_1</span><span class="o">.</span><span class="n">add_stl</span><span class="p">(</span><span class="n">stl_rec</span><span class="p">,</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;receiver_0&quot;</span><span class="p">,</span><span class="n">color</span> <span class="o">=</span> <span class="s2">&quot;#e0e0e0&quot;</span><span class="p">,</span><span class="n">opacity</span> <span class="o">=</span> <span class="o">.</span><span class="mi">1</span><span class="p">)</span>
-<span class="n">view3D_1</span><span class="o">.</span><span class="n">add_stl</span><span class="p">(</span><span class="n">stl_tm</span><span class="p">,</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;transmission_mount_0&quot;</span><span class="p">,</span><span class="n">color</span> <span class="o">=</span> <span class="s2">&quot;#83afd2&quot;</span><span class="p">,</span><span class="n">opacity</span> <span class="o">=</span> <span class="o">.</span><span class="mi">1</span><span class="p">)</span>
-<span class="n">view3D_1</span><span class="o">.</span><span class="n">add_stl</span><span class="p">(</span><span class="n">stl_rm</span><span class="p">,</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;roll_mount_0&quot;</span><span class="p">,</span><span class="n">color</span> <span class="o">=</span> <span class="s2">&quot;#83afd2&quot;</span><span class="p">,</span><span class="n">opacity</span> <span class="o">=</span> <span class="o">.</span><span class="mi">1</span><span class="p">)</span>
-<span class="n">view3D_1</span><span class="o">.</span><span class="n">add_stl</span><span class="p">(</span><span class="n">stl_em</span><span class="p">,</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;engine_mount_0&quot;</span><span class="p">,</span><span class="n">color</span> <span class="o">=</span> <span class="s2">&quot;#83afd2&quot;</span><span class="p">,</span><span class="n">opacity</span> <span class="o">=</span> <span class="o">.</span><span class="mi">1</span><span class="p">)</span>
-<span class="n">view3D_1</span><span class="o">.</span><span class="n">add_stl</span><span class="p">(</span><span class="n">stl_ts</span><span class="p">,</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;ts_0&quot;</span><span class="p">,</span><span class="n">color</span> <span class="o">=</span> <span class="s2">&quot;#FB6D4C&quot;</span><span class="p">,</span><span class="n">opacity</span> <span class="o">=</span> <span class="o">.</span><span class="mi">1</span><span class="p">);</span>
-</pre></div>
-</div>
+<div class="section" id="example-datasests-and-3d-view">
+<h2>Example Datasests and 3D View<a class="headerlink" href="#example-datasests-and-3d-view" title="Permalink to this headline">¶</a></h2>
+<p>Load the required predefined datasets. Open a 3Dviewer in the background. Add the STL file of the assembly to the 3D view:</p>
 <div class="figure align-default">
 <a class="reference internal image-reference" href="../_images/nine_one.png"><img alt="../_images/nine_one.png" src="../_images/nine_one.png" style="width: 800px;" /></a>
 </div>
@@ -309,7 +272,7 @@
 <span class="n">point_cloud_1</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">PolyData</span><span class="p">(</span><span class="n">pos_array</span><span class="p">,</span><span class="n">faces</span><span class="p">)</span>
 <span class="n">pts_1</span> <span class="o">=</span> <span class="n">point_cloud_1</span><span class="o">.</span><span class="n">points</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
-<span class="n">view3D_1</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">add_mesh</span><span class="p">(</span><span class="n">point_cloud_1</span><span class="p">,</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;mesh&quot;</span><span class="p">,</span><span class="n">render_lines_as_tubes</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span> <span class="n">line_width</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="s2">&quot;k&quot;</span><span class="p">,</span><span class="n">clim</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;coolwarm&quot;</span><span class="p">,</span><span class="n">scalars</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">pts_1</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span><span class="n">style</span> <span class="o">=</span> <span class="s2">&quot;wireframe&quot;</span><span class="p">);</span>
+<span class="n">view3D_1</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">add_mesh</span><span class="p">(</span><span class="n">point_cloud_1</span><span class="p">,</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;mesh&quot;</span><span class="p">,</span><span class="n">render_lines_as_tubes</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">line_width</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="s2">&quot;k&quot;</span><span class="p">,</span><span class="n">clim</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;coolwarm&quot;</span><span class="p">,</span><span class="n">scalars</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">pts_1</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span><span class="n">style</span> <span class="o">=</span> <span class="s2">&quot;wireframe&quot;</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -325,7 +288,7 @@
 <span class="n">mode_dict</span><span class="p">[</span><span class="s2">&quot;damp&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">modal_1</span><span class="o">.</span><span class="n">nat_xi</span><span class="p">[</span><span class="n">mode_select_1</span><span class="p">]</span>
 <span class="n">mode_dict</span><span class="p">[</span><span class="s2">&quot;mcf&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pyFBS</span><span class="o">.</span><span class="n">MCF</span><span class="p">(</span><span class="n">modes_1</span><span class="p">[:,</span><span class="n">mode_select_1</span><span class="p">])</span>
 
-<span class="n">view3D_1</span><span class="o">.</span><span class="n">add_modeshape</span><span class="p">(</span><span class="n">mode_dict</span><span class="p">,</span><span class="n">run_animation</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span><span class="n">add_note</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+<span class="n">view3D_1</span><span class="o">.</span><span class="n">add_modeshape</span><span class="p">(</span><span class="n">mode_dict</span><span class="p">,</span><span class="n">run_animation</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span><span class="n">add_note</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="figure align-default">
@@ -335,8 +298,8 @@
 <h3>EMA - Assembly without the source<a class="headerlink" href="#ema-assembly-without-the-source" title="Permalink to this headline">¶</a></h3>
 </div>
 </div>
-<div class="section" id="id1">
-<h2>3D View<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="d-view">
+<h2>3D View<a class="headerlink" href="#d-view" title="Permalink to this headline">¶</a></h2>
 <p>You can open multiple displays at once and performs simoultenous analyses. Open a second 3D display:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">view3D_2</span> <span class="o">=</span> <span class="n">pyFBS</span><span class="o">.</span><span class="n">view3D</span><span class="p">()</span>
 </pre></div>
@@ -352,8 +315,8 @@
 <a class="reference internal image-reference" href="../_images/nine_EMA.png"><img alt="../_images/nine_EMA.png" src="../_images/nine_EMA.png" style="width: 800px;" /></a>
 </div>
 </div>
-<div class="section" id="id2">
-<h2>pyEMA<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id1">
+<h2>pyEMA<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
 <p>Perform the LSCF/LSFD experimental identification of modal parameters:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># select the reference DoF</span>
 <span class="n">Y</span> <span class="o">=</span>  <span class="n">Y_m2</span><span class="p">[:,:,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">T</span>
@@ -378,12 +341,12 @@
 
 <span class="n">point_cloud_2</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">PolyData</span><span class="p">(</span><span class="n">pos_array</span><span class="p">,</span><span class="n">faces</span><span class="p">)</span>
 <span class="n">pts_2</span> <span class="o">=</span> <span class="n">point_cloud_2</span><span class="o">.</span><span class="n">points</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-<span class="n">view3D_2</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">add_mesh</span><span class="p">(</span><span class="n">point_cloud_2</span><span class="p">,</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;mesh&quot;</span><span class="p">,</span><span class="n">render_lines_as_tubes</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span> <span class="n">line_width</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="s2">&quot;k&quot;</span><span class="p">,</span><span class="n">clim</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;coolwarm&quot;</span><span class="p">,</span><span class="n">scalars</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">pts_2</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span><span class="n">style</span> <span class="o">=</span> <span class="s2">&quot;wireframe&quot;</span><span class="p">)</span>
+<span class="n">view3D_2</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">add_mesh</span><span class="p">(</span><span class="n">point_cloud_2</span><span class="p">,</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;mesh&quot;</span><span class="p">,</span><span class="n">render_lines_as_tubes</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">line_width</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="s2">&quot;k&quot;</span><span class="p">,</span><span class="n">clim</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;coolwarm&quot;</span><span class="p">,</span><span class="n">scalars</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">pts_2</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span><span class="n">style</span> <span class="o">=</span> <span class="s2">&quot;wireframe&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
-<div class="section" id="id3">
-<h2>Mode shape animation<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id2">
+<h2>Mode shape animation<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
 <p>The second set of identified mode shapes can be animated directly in the 3D view. As two instances of the pyFBS.view3D can be created in the same analysis a side-by-side comparison is possible:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">mode_select_2</span> <span class="o">=</span> <span class="mi">0</span>
 
@@ -394,7 +357,7 @@
 <span class="n">mode_dict</span><span class="p">[</span><span class="s2">&quot;damp&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">modal_2</span><span class="o">.</span><span class="n">nat_xi</span><span class="p">[</span><span class="n">mode_select_2</span><span class="p">]</span>
 <span class="n">mode_dict</span><span class="p">[</span><span class="s2">&quot;mcf&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pyFBS</span><span class="o">.</span><span class="n">MCF</span><span class="p">(</span><span class="n">modes_2</span><span class="p">[:,</span><span class="n">mode_select_2</span><span class="p">])</span>
 
-<span class="n">view3D_2</span><span class="o">.</span><span class="n">add_modeshape</span><span class="p">(</span><span class="n">mode_dict</span><span class="p">,</span><span class="n">run_animation</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span><span class="n">add_note</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+<span class="n">view3D_2</span><span class="o">.</span><span class="n">add_modeshape</span><span class="p">(</span><span class="n">mode_dict</span><span class="p">,</span><span class="n">run_animation</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span><span class="n">add_note</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="figure align-default">

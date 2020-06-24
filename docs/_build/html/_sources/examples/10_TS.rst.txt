@@ -4,160 +4,19 @@ Transmission simulator in FBS
 
 The method of transmission simulator is primarly used direclty in the modal domain. Nevertheless, the concept of attaching a transmission simulator at the interface can be used also in the frequency domain. In this example a frequency based subtructuring is performed on a complex structure. First a transmission simulator is decoupled from the receiver structure and aftewards a source structure is coupled to the receiver structure. At the interface the VPT is used to obtain collocated interface DoFs.
 
-.. code-block:: python
+.. note:: 
+   Example showing a Transmission Simulator (TS) application: :download:`10_TS.ipynb <../../examples/10_FBS_transmission_simulator.ipynb>`.
 
-	import pyFBS
-	import numpy as np
-	import matplotlib.pyplot as plt
-	import pandas as pd
-	
-Example Datasests
+Example Datasests and 3D view
 *****************
-Load the required predefined datasets:
-
-.. code-block:: python
-
-	stl_rec = pyFBS.example_auto_testbench["STL"]["receiver"]
-	stl_tm = pyFBS.example_auto_testbench["STL"]["transmission_mount"]
-	stl_rm = pyFBS.example_auto_testbench["STL"]["roll_mount"]
-	stl_em = pyFBS.example_auto_testbench["STL"]["engine_mount"]
-	stl_ts = pyFBS.example_auto_testbench["STL"]["ts"]
-	stl_shaker = pyFBS.example_auto_testbench["STL"]["shaker_only"]
-
-	xlsx_BTS = pyFBS.example_auto_testbench["meas"]["xlsx_BTS"]
-	xlsx_TS = pyFBS.example_auto_testbench["meas"]["xlsx_TS"]
-	xlsx_A = pyFBS.example_auto_testbench["meas"]["xlsx_A"]
-
-	xlsx_AB_ref = pyFBS.example_auto_testbench["meas"]["xlsx_AB_ref"]
-
-	file_Y_BTS = pyFBS.example_auto_testbench["meas"]["Y_BTS"]
-	file_Y_TS = pyFBS.example_auto_testbench["meas"]["Y_TS"]
-	file_Y_A = pyFBS.example_auto_testbench["meas"]["Y_A"]
-	file_Y_AB_ref = pyFBS.example_auto_testbench["meas"]["Y_AB_ref"]
-	
-
-Load the sensor, channel and impact data:
-
-.. code-block:: python
-
-	df_acc_TS = pd.read_excel(xlsx_TS, sheet_name='Sensors')
-	df_imp_TS = pd.read_excel(xlsx_TS, sheet_name='Impacts')
-	df_chn_TS = pyFBS.generate_channels_from_sensors(df_acc_TS)
-
-	df_acc_BTS = pd.read_excel(xlsx_BTS, sheet_name='Sensors')
-	df_imp_BTS = pd.read_excel(xlsx_BTS, sheet_name='Impacts')
-	df_chn_BTS = pyFBS.generate_channels_from_sensors(df_acc_BTS)
-
-	df_acc_A = pd.read_excel(xlsx_A, sheet_name='Sensors')
-	df_imp_A = pd.read_excel(xlsx_A, sheet_name='Impacts')
-	df_chn_A = pyFBS.generate_channels_from_sensors(df_acc_A)
-
-	df_acc_AB_ref = pd.read_excel(xlsx_AB_ref, sheet_name='Sensors')
-	df_imp_AB_ref = pd.read_excel(xlsx_AB_ref, sheet_name='Impacts')
-	df_chn_AB_ref = pyFBS.generate_channels_from_sensors(df_acc_AB_ref)
-	
-Load experimental measurements:
-
-.. code-block:: python
-
-	freq, Y_BTS = np.load(file_Y_BTS,allow_pickle = True)
-	freq, Y_TS = np.load(file_Y_TS,allow_pickle = True)
-	freq, Y_A = np.load(file_Y_A,allow_pickle = True)
-	freq, Y_AB_ref = np.load(file_Y_AB_ref,allow_pickle = True)
-
-Display
-*******
-Open 3D viewer in the background.
-
-.. code-block:: python
-
-	view3D = pyFBS.view3D(show_origin = False, show_axes = False,shape =  (2,2),title = "Overview")
-	
-Add the STL file of structure B+TS to the 1-1 subplot and show the corresponding accelerometer, channels and impacts.
-
-.. code-block:: python
-
-	view3D.plot.subplot(0,0)
-	view3D.plot.isometric_view()
-
-	view3D.add_stl(stl_rec,name = "receiver_0",color = "#e0e0e0",opacity = 1)
-	view3D.add_stl(stl_tm,name = "transmission_mount_0",color = "#83afd2",opacity = 1)
-	view3D.add_stl(stl_rm,name = "roll_mount_0",color = "#83afd2",opacity = 1)
-	view3D.add_stl(stl_em,name = "engine_mount_0",color = "#83afd2",opacity = 1)
-	view3D.add_stl(stl_ts,name = "ts_0",color = "#FB6D4C",opacity = 1)
-
-	view3D.plot.add_text("B+TS", position='upper_left', font_size=10, color="k", font="times", name="B_structure")
-
-	view3D.show_acc(df_acc_BTS,overwrite = False)
-	view3D.show_imp(df_imp_BTS,overwrite = False)
-	view3D.show_chn(df_chn_BTS,overwrite = False)
-	
-.. figure:: ./data/ten_display_one.png
-   :width: 500px
-   
-Add the STL file of structure TS to the 1-2 subplot and show the corresponding accelerometer, channels and impacts.
-
-.. code-block:: python	
-
-	view3D.plot.subplot(0,1)
-	view3D.plot.isometric_view()
-
-	view3D.add_stl(stl_ts,name = "ts_1",color = "#FB6D4C",opacity = 1)
-
-	view3D.plot.add_text("TS", position='upper_left', font_size=10, color="k", font="times", name="B_structure")
-
-	view3D.show_acc(df_acc_TS,overwrite = False)
-	view3D.show_imp(df_imp_TS,overwrite = False)
-	view3D.show_chn(df_chn_TS,overwrite = False)
-	
-.. figure:: ./data/ten_display_two.png
-   :width: 500px
-   
-Add the STL file of structure A to the 2-1 subplot and show the corresponding accelerometer, channels and impacts.
-
-.. code-block:: python
-
-	view3D.plot.subplot(1,0)
-	view3D.plot.isometric_view()
-
-	view3D.add_stl(stl_ts,name = "ts_2",color = "#FB6D4C",opacity = 1)
-	view3D.add_stl(stl_shaker,name = "shaker_only_2",color = "#FB6D4C",opacity = 1);
-
-	view3D.plot.add_text("A", position='upper_left', font_size=10, color="k", font="times", name="B_structure")
-
-	view3D.show_acc(df_acc_A,overwrite = False)
-	view3D.show_imp(df_imp_A,overwrite = False)
-	view3D.show_chn(df_chn_A,overwrite = False)
-	
-.. figure:: ./data/ten_display_three.png
-   :width: 500px
-   
-Add the STL file of structure A+B to the 2-2 subplot and show the corresponding accelerometer, channels and impacts.
-
-.. code-block:: python
-
-	view3D.plot.subplot(1,1)
-	view3D.plot.isometric_view()
-
-	view3D.add_stl(stl_rec,name = "receiver_3",color = "#e0e0e0",opacity = 1)
-	view3D.add_stl(stl_tm,name = "transmission_mount_3",color = "#83afd2",opacity = 1)
-	view3D.add_stl(stl_rm,name = "roll_mount_3",color = "#83afd2",opacity = 1)
-	view3D.add_stl(stl_em,name = "engine_mount_3",color = "#83afd2",opacity = 1)
-	view3D.add_stl(stl_ts,name = "ts_3",color = "#FB6D4C",opacity = 1)
-	view3D.add_stl(stl_shaker,name = "shaker_only_3",color = "#FB6D4C",opacity = 1);
-
-	view3D.plot.add_text("A+B", position='upper_left', font_size=10, color="k", font="times", name="B_structure")
-
-	view3D.show_acc(df_acc_AB_ref,overwrite = False)
-	view3D.show_imp(df_imp_AB_ref,overwrite = False)
-	view3D.show_chn(df_chn_AB_ref,overwrite = False)
+As already shown in the `3D Display <../../html/examples/01_static_display.html>`_ one can load predefined datasets from an example and add a structure from STL file to the 3D view. This allows both the acceleration sensors and excitation points to be visualized. Also for the transmission simulator application, a subplot representation, as already presented in `Coupling <../../html/examples/07_coupling.html>`_, can be used.
 	
 .. figure:: ./data/ten_display_four.png
    :width: 500px
    
 Virtual point transformation
 ****************************
-The VPT can be performed also on the experimental data. See the 04_VPT.ipynb example for more options and details.
+The VPT can be performed also on the experimental data. See the :download:`04_VPT.ipynb <../../examples/04_VPT.ipynb>` example for more options and details.
 
 .. code-block:: python
 
@@ -231,24 +90,6 @@ First extract the FRFs at the reference DoFs:
 	Y_AB_ref = Y_AB_ref[:,:,:]
 	
 Finnaly, the coupled and the reference results can be compared:
-
-.. code-block:: python
-
-	s1 = 3
-	s2 = 3
-
-	plt.figure(figsize = (10,6))
-	plt.subplot(211)
-	plt.semilogy(freq,np.abs(Y_AB_ref[:,s1,s2]))
-	plt.semilogy(freq,np.abs(Y_AB_coupled[:,s1,s2]))
-	plt.xlim(0,2000)
-
-
-	plt.subplot(413)
-	plt.plot(freq,np.angle(Y_AB_ref[:,s1,s2]))
-	plt.plot(freq,np.angle(Y_AB_coupled[:,s1,s2]))
-
-	plt.xlim(0,2000)
 
 .. figure:: ./data/ten_result.png
    :width: 500px

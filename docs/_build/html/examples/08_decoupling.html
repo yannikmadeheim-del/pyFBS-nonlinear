@@ -36,7 +36,10 @@
   
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/style.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery-dataframe.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Experimental modal analysis (EMA)" href="09_EMA.html" />
@@ -99,7 +102,7 @@
               <p class="caption"><span class="caption-text">About</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../intro.html">Why pyFBS?</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../credits.html">Credits</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Getting Started</span></p>
@@ -107,38 +110,29 @@
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Basic examples</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="01_static_display.html">3D Display</a></li>
-<li class="toctree-l1"><a class="reference internal" href="02_interactive_display.html">Interactive positioning</a></li>
-<li class="toctree-l1"><a class="reference internal" href="03_FRF_synthetization.html">FRF synthetization</a></li>
-<li class="toctree-l1"><a class="reference internal" href="04_VPT.html">Virtual Point Transformation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="05_SEMM.html">SEMM - System equivalent model mixing</a></li>
-</ul>
-<p class="caption"><span class="caption-text">Application examples</span></p>
+<p class="caption"><span class="caption-text">Examples</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="06_ODS.html">Operational Deflection Shapes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="07_coupling.html">Coupling</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Decoupling</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#example-datasests">Example Datasests</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#d-view">3D view</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#numerical-model">Numerical model</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#virtual-point-transformation">Virtual point transformation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#lm-fbs-decoupling">LM-FBS Decoupling</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#final-results">Final results</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basic_examples.html">Basic examples</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="application_examples.html">Application Examples</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="06_ODS.html">Operational Deflection Shapes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="07_coupling.html">Coupling</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Decoupling</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#example-datasets-and-3d-view">Example Datasets and 3D view</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#numerical-model">Numerical model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#virtual-point-transformation">Virtual point transformation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lm-fbs-decoupling">LM-FBS Decoupling</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#final-results">Final results</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="09_EMA.html">Experimental modal analysis (EMA)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="10_TS.html">Transmission simulator in FBS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="09_EMA.html">Experimental modal analysis (EMA)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="10_TS.html">Transmission simulator in FBS</a></li>
+</ul>
+</li>
 </ul>
 <p class="caption"><span class="caption-text">Code Documentation</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../code_documentation/display.html">pyFBS.view3D</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../code_documentation/MCK.html">pyFBS.MK_model</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../code_documentation/VPT.html">pyFBS.VPT</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../code_documentation/SEMM.html">pyFBS.SEMM</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../code_documentation/IO.html">pyFBS.IO</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../code_documentation/utility.html">pyFBS.utility</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../code_documentation/core.html">Core API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../code_documentation/util.html">Utilities</a></li>
 </ul>
 
             
@@ -206,6 +200,8 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
+          <li><a href="application_examples.html">Application Examples</a> &raquo;</li>
+        
       <li>Decoupling</li>
     
     
@@ -228,93 +224,20 @@
   <div class="section" id="decoupling">
 <h1>Decoupling<a class="headerlink" href="#decoupling" title="Permalink to this headline">¶</a></h1>
 <p>With the pyFBS also decoupling of different substructers can be performed in relatively simple manner. In this example a numerical example is used to demonstrate a basic coupling example with a virtual point transformation at the interface.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pyFBS</span>
-
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
-</pre></div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Example showing an substructure coupling application: <a class="reference download internal" download="" href="../_downloads/1c3abbc30bb89ac0c6f6162804b7e96a/08_FBS_decoupling.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">08_decoupling.ipynb</span></code></a>.</p>
 </div>
-<div class="section" id="example-datasests">
-<h2>Example Datasests<a class="headerlink" href="#example-datasests" title="Permalink to this headline">¶</a></h2>
-<p>Load the required predefined datasets:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">pos_xlsx</span> <span class="o">=</span> <span class="n">pyFBS</span><span class="o">.</span><span class="n">example_lab_testbench</span><span class="p">[</span><span class="s2">&quot;meas&quot;</span><span class="p">][</span><span class="s2">&quot;xlsx_decoupling&quot;</span><span class="p">]</span>
-
-<span class="n">stl_dir_A</span> <span class="o">=</span> <span class="n">pyFBS</span><span class="o">.</span><span class="n">example_lab_testbench</span><span class="p">[</span><span class="s2">&quot;STL&quot;</span><span class="p">][</span><span class="s2">&quot;A&quot;</span><span class="p">]</span>
-<span class="n">stl_dir_B</span> <span class="o">=</span> <span class="n">pyFBS</span><span class="o">.</span><span class="n">example_lab_testbench</span><span class="p">[</span><span class="s2">&quot;STL&quot;</span><span class="p">][</span><span class="s2">&quot;B&quot;</span><span class="p">]</span>
-<span class="n">stl_dir_AB</span> <span class="o">=</span> <span class="n">pyFBS</span><span class="o">.</span><span class="n">example_lab_testbench</span><span class="p">[</span><span class="s2">&quot;STL&quot;</span><span class="p">][</span><span class="s2">&quot;AB&quot;</span><span class="p">]</span>
-
-<span class="n">df_acc_A</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="n">pos_xlsx</span><span class="p">,</span> <span class="n">sheet_name</span><span class="o">=</span><span class="s1">&#39;Sensors_A&#39;</span><span class="p">)</span>
-<span class="n">df_chn_A</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="n">pos_xlsx</span><span class="p">,</span> <span class="n">sheet_name</span><span class="o">=</span><span class="s1">&#39;Channels_A&#39;</span><span class="p">)</span>
-<span class="n">df_imp_A</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="n">pos_xlsx</span><span class="p">,</span> <span class="n">sheet_name</span><span class="o">=</span><span class="s1">&#39;Impacts_A&#39;</span><span class="p">)</span>
-
-<span class="n">df_acc_B</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="n">pos_xlsx</span><span class="p">,</span> <span class="n">sheet_name</span><span class="o">=</span><span class="s1">&#39;Sensors_B&#39;</span><span class="p">)</span>
-<span class="n">df_chn_B</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="n">pos_xlsx</span><span class="p">,</span> <span class="n">sheet_name</span><span class="o">=</span><span class="s1">&#39;Channels_B&#39;</span><span class="p">)</span>
-<span class="n">df_imp_B</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="n">pos_xlsx</span><span class="p">,</span> <span class="n">sheet_name</span><span class="o">=</span><span class="s1">&#39;Impacts_B&#39;</span><span class="p">)</span>
-
-<span class="n">df_acc_AB</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="n">pos_xlsx</span><span class="p">,</span> <span class="n">sheet_name</span><span class="o">=</span><span class="s1">&#39;Sensors_AB&#39;</span><span class="p">)</span>
-<span class="n">df_chn_AB</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="n">pos_xlsx</span><span class="p">,</span> <span class="n">sheet_name</span><span class="o">=</span><span class="s1">&#39;Channels_AB&#39;</span><span class="p">)</span>
-<span class="n">df_imp_AB</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="n">pos_xlsx</span><span class="p">,</span> <span class="n">sheet_name</span><span class="o">=</span><span class="s1">&#39;Impacts_AB&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="section" id="d-view">
-<h2>3D view<a class="headerlink" href="#d-view" title="Permalink to this headline">¶</a></h2>
-<p>Open 3D viewer in the background. With the 3D viewer the subplot capabilities of PyVista can be used.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">view3D</span> <span class="o">=</span> <span class="n">pyFBS</span><span class="o">.</span><span class="n">view3D</span><span class="p">(</span><span class="n">show_origin</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span> <span class="n">show_axes</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span><span class="n">shape</span> <span class="o">=</span>  <span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span><span class="n">title</span> <span class="o">=</span> <span class="s2">&quot;Overview&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>Add the STL file of substructure A to the 1-1 subplot and show the corresponding accelerometer, channels and impacts.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">view3D</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
-<span class="n">view3D</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">isometric_view</span><span class="p">()</span>
-<span class="n">view3D</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">add_text</span><span class="p">(</span><span class="s2">&quot;A structure&quot;</span><span class="p">,</span> <span class="n">position</span><span class="o">=</span><span class="s1">&#39;upper_left&#39;</span><span class="p">,</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;k&quot;</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="s2">&quot;times&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;A_structure&quot;</span><span class="p">)</span>
-
-<span class="n">view3D</span><span class="o">.</span><span class="n">add_stl</span><span class="p">(</span><span class="n">stl_dir_A</span><span class="p">,</span><span class="n">color</span> <span class="o">=</span> <span class="s2">&quot;#83afd2&quot;</span><span class="p">,</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;A&quot;</span><span class="p">);</span>
-<span class="n">view3D</span><span class="o">.</span><span class="n">show_acc</span><span class="p">(</span><span class="n">df_acc_A</span><span class="p">)</span>
-<span class="n">view3D</span><span class="o">.</span><span class="n">show_imp</span><span class="p">(</span><span class="n">df_imp_A</span><span class="p">)</span>
-<span class="n">view3D</span><span class="o">.</span><span class="n">show_chn</span><span class="p">(</span><span class="n">df_chn_A</span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="figure align-default">
-<a class="reference internal image-reference" href="../_images/eight_one.png"><img alt="../_images/eight_one.png" src="../_images/eight_one.png" style="width: 500px;" /></a>
-</div>
-<p>Add the STL file of substructure B to the 1-2 subplot and show the corresponding accelerometer, channels and impacts.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">view3D</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
-<span class="n">view3D</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">isometric_view</span><span class="p">()</span>
-<span class="n">view3D</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">add_text</span><span class="p">(</span><span class="s2">&quot;B structure&quot;</span><span class="p">,</span> <span class="n">position</span><span class="o">=</span><span class="s1">&#39;upper_left&#39;</span><span class="p">,</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;k&quot;</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="s2">&quot;times&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;B_structure&quot;</span><span class="p">)</span>
-
-<span class="n">view3D</span><span class="o">.</span><span class="n">add_stl</span><span class="p">(</span><span class="n">stl_dir_B</span><span class="p">,</span><span class="n">color</span> <span class="o">=</span> <span class="s2">&quot;#83afd2&quot;</span><span class="p">,</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;B&quot;</span><span class="p">);</span>
-<span class="n">view3D</span><span class="o">.</span><span class="n">show_acc</span><span class="p">(</span><span class="n">df_acc_B</span><span class="p">,</span><span class="n">overwrite</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span>
-<span class="n">view3D</span><span class="o">.</span><span class="n">show_imp</span><span class="p">(</span><span class="n">df_imp_B</span><span class="p">,</span><span class="n">overwrite</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span>
-<span class="n">view3D</span><span class="o">.</span><span class="n">show_chn</span><span class="p">(</span><span class="n">df_chn_B</span><span class="p">,</span><span class="n">overwrite</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="figure align-default">
-<a class="reference internal image-reference" href="../_images/eight_two.png"><img alt="../_images/eight_two.png" src="../_images/eight_two.png" style="width: 500px;" /></a>
-</div>
-<p>Add STL file of the assembly AB to the 1-2 subplot and show the corresponding reference accelerometer, channels and impacts.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">view3D</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
-<span class="n">view3D</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">isometric_view</span><span class="p">()</span>
-<span class="n">view3D</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">add_text</span><span class="p">(</span><span class="s2">&quot;AB structure&quot;</span><span class="p">,</span> <span class="n">position</span><span class="o">=</span><span class="s1">&#39;upper_left&#39;</span><span class="p">,</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;k&quot;</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="s2">&quot;times&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;AB_structure&quot;</span><span class="p">);</span>
-
-<span class="n">view3D</span><span class="o">.</span><span class="n">add_stl</span><span class="p">(</span><span class="n">stl_dir_AB</span><span class="p">,</span><span class="n">color</span> <span class="o">=</span> <span class="s2">&quot;#83afd2&quot;</span><span class="p">,</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;AB&quot;</span><span class="p">);</span>
-<span class="n">view3D</span><span class="o">.</span><span class="n">show_acc</span><span class="p">(</span><span class="n">df_acc_AB</span><span class="p">,</span><span class="n">overwrite</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span>
-<span class="n">view3D</span><span class="o">.</span><span class="n">show_imp</span><span class="p">(</span><span class="n">df_imp_AB</span><span class="p">,</span><span class="n">overwrite</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span>
-<span class="n">view3D</span><span class="o">.</span><span class="n">show_chn</span><span class="p">(</span><span class="n">df_chn_AB</span><span class="p">,</span><span class="n">overwrite</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span>
-</pre></div>
-</div>
+<div class="section" id="example-datasets-and-3d-view">
+<h2>Example Datasets and 3D view<a class="headerlink" href="#example-datasets-and-3d-view" title="Permalink to this headline">¶</a></h2>
+<p>Load the required predefined datasets and open the 3D viewer in the background as already shown in <a class="reference external" href="../../html/examples/01_static_display.html">3D Display</a>. Also for decoupling, a subplot representation, as already presented in <a class="reference external" href="../../html/examples/07_coupling.html">Coupling</a>, can be used.</p>
 <div class="figure align-default">
 <a class="reference internal image-reference" href="../_images/eight_three.png"><img alt="../_images/eight_three.png" src="../_images/eight_three.png" style="width: 500px;" /></a>
-</div>
-<p>Each separate subplot view can also be linked or unlinked:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">view3D</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">link_views</span><span class="p">()</span>
-<span class="c1">#view3D.plot.unlink_views()</span>
-</pre></div>
 </div>
 </div>
 <div class="section" id="numerical-model">
 <h2>Numerical model<a class="headerlink" href="#numerical-model" title="Permalink to this headline">¶</a></h2>
-<p>Load the corresponding .full and .ress file from the example datasets. For more information on .full and .ress files refer to the 03_FRF_synthetization.ipynb example</p>
+<p>Load the corresponding .full and .ress file from the example datasets. For more information on .full and .ress files refer to the <a class="reference download internal" download="" href="../_downloads/11c1acd3da74444a5c3e5b98d646bd1b/03_FRF_synthetization.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">03_FRF_synthetization.ipynb</span></code></a> example</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">full_file_AB</span> <span class="o">=</span> <span class="n">pyFBS</span><span class="o">.</span><span class="n">example_lab_testbench</span><span class="p">[</span><span class="s2">&quot;FEM&quot;</span><span class="p">][</span><span class="s2">&quot;AB_full&quot;</span><span class="p">]</span>
 <span class="n">ress_file_AB</span> <span class="o">=</span> <span class="n">pyFBS</span><span class="o">.</span><span class="n">example_lab_testbench</span><span class="p">[</span><span class="s2">&quot;FEM&quot;</span><span class="p">][</span><span class="s2">&quot;AB_rst&quot;</span><span class="p">]</span>
 
@@ -326,9 +249,9 @@
 </pre></div>
 </div>
 <p>Create an MK model for each component:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">MK_A</span> <span class="o">=</span> <span class="n">pyFBS</span><span class="o">.</span><span class="n">MK_model</span><span class="p">(</span><span class="n">ress_file_A</span><span class="p">,</span><span class="n">full_file_A</span><span class="p">,</span><span class="n">no_modes</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span><span class="n">allow_pickle</span><span class="o">=</span> <span class="bp">True</span><span class="p">,</span><span class="n">recalculate</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span>
-<span class="n">MK_B</span> <span class="o">=</span> <span class="n">pyFBS</span><span class="o">.</span><span class="n">MK_model</span><span class="p">(</span><span class="n">ress_file_B</span><span class="p">,</span><span class="n">full_file_B</span><span class="p">,</span><span class="n">no_modes</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span><span class="n">allow_pickle</span><span class="o">=</span> <span class="bp">True</span><span class="p">,</span><span class="n">recalculate</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span>
-<span class="n">MK_AB</span> <span class="o">=</span> <span class="n">pyFBS</span><span class="o">.</span><span class="n">MK_model</span><span class="p">(</span><span class="n">ress_file_AB</span><span class="p">,</span><span class="n">full_file_AB</span><span class="p">,</span><span class="n">no_modes</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span><span class="n">allow_pickle</span><span class="o">=</span> <span class="bp">True</span><span class="p">,</span><span class="n">recalculate</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">MK_A</span> <span class="o">=</span> <span class="n">pyFBS</span><span class="o">.</span><span class="n">MK_model</span><span class="p">(</span><span class="n">ress_file_A</span><span class="p">,</span><span class="n">full_file_A</span><span class="p">,</span><span class="n">no_modes</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span><span class="n">allow_pickle</span><span class="o">=</span> <span class="kc">True</span><span class="p">,</span><span class="n">recalculate</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+<span class="n">MK_B</span> <span class="o">=</span> <span class="n">pyFBS</span><span class="o">.</span><span class="n">MK_model</span><span class="p">(</span><span class="n">ress_file_B</span><span class="p">,</span><span class="n">full_file_B</span><span class="p">,</span><span class="n">no_modes</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span><span class="n">allow_pickle</span><span class="o">=</span> <span class="kc">True</span><span class="p">,</span><span class="n">recalculate</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+<span class="n">MK_AB</span> <span class="o">=</span> <span class="n">pyFBS</span><span class="o">.</span><span class="n">MK_model</span><span class="p">(</span><span class="n">ress_file_AB</span><span class="p">,</span><span class="n">full_file_AB</span><span class="p">,</span><span class="n">no_modes</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span><span class="n">allow_pickle</span><span class="o">=</span> <span class="kc">True</span><span class="p">,</span><span class="n">recalculate</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Update locations of channels and impacts to snap to the nearest FE node.</p>
@@ -401,8 +324,8 @@
 <p>Apply the LM-FBS based on the defined coompatibility and equilibrium conditions.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Y_An</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">Y_ABnB</span><span class="p">,</span><span class="n">dtype</span> <span class="o">=</span> <span class="nb">complex</span><span class="p">)</span>
 
-<span class="n">Y_int</span> <span class="o">=</span> <span class="n">Bu</span><span class="nd">@Y_ABnB@Bf.T</span>
-<span class="n">Y_An</span> <span class="o">=</span><span class="n">Y_ABnB</span> <span class="o">-</span> <span class="n">Y_ABnB</span><span class="nd">@Bf.T@np.linalg.pinv</span><span class="p">(</span><span class="n">Y_int</span><span class="p">)</span><span class="nd">@Bu@Y_ABnB</span>
+<span class="n">Y_int</span> <span class="o">=</span> <span class="n">Bu</span><span class="nd">@Y_ABnB@Bf</span><span class="o">.</span><span class="n">T</span>
+<span class="n">Y_An</span> <span class="o">=</span><span class="n">Y_ABnB</span> <span class="o">-</span> <span class="n">Y_ABnB</span><span class="nd">@Bf</span><span class="o">.</span><span class="n">T</span><span class="nd">@np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">pinv</span><span class="p">(</span><span class="n">Y_int</span><span class="p">)</span><span class="nd">@Bu@Y_ABnB</span>
 </pre></div>
 </div>
 </div>
@@ -415,28 +338,8 @@
 </pre></div>
 </div>
 <p>The decoupled and the reference results can then be compared:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>   <span class="n">s1</span> <span class="o">=</span> <span class="mi">0</span>
-   <span class="n">s2</span> <span class="o">=</span> <span class="mi">2</span>
-
-   <span class="n">display</span><span class="p">(</span><span class="n">df_chn_AB_up</span><span class="o">.</span><span class="n">loc</span><span class="p">[[</span><span class="n">s1</span><span class="p">]])</span>
-   <span class="n">display</span><span class="p">(</span><span class="n">df_imp_AB_up</span><span class="o">.</span><span class="n">loc</span><span class="p">[[</span><span class="n">s2</span><span class="p">]])</span>
-
-   <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">6</span><span class="p">))</span>
-   <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">211</span><span class="p">)</span>
-   <span class="n">plt</span><span class="o">.</span><span class="n">semilogy</span><span class="p">(</span><span class="n">freq</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">Y_A_ref</span><span class="p">[:,</span><span class="n">s1</span><span class="p">,</span><span class="n">s2</span><span class="p">]))</span>
-   <span class="n">plt</span><span class="o">.</span><span class="n">semilogy</span><span class="p">(</span><span class="n">freq</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">Y_A_coupled</span><span class="p">[:,</span><span class="n">s1</span><span class="p">,</span><span class="n">s2</span><span class="p">]))</span>
-
-   <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">2000</span><span class="p">)</span>
-
-   <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">413</span><span class="p">)</span>
-   <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">freq</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">angle</span><span class="p">(</span><span class="n">Y_A_ref</span><span class="p">[:,</span><span class="n">s1</span><span class="p">,</span><span class="n">s2</span><span class="p">]))</span>
-   <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">freq</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">angle</span><span class="p">(</span><span class="n">Y_A_coupled</span><span class="p">[:,</span><span class="n">s1</span><span class="p">,</span><span class="n">s2</span><span class="p">]))</span>
-
-   <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">2000</span><span class="p">)</span>
-
-<span class="o">..</span> <span class="n">figure</span><span class="p">::</span> <span class="o">./</span><span class="n">data</span><span class="o">/</span><span class="n">eight_last</span><span class="o">.</span><span class="n">png</span>
-  <span class="p">:</span><span class="n">width</span><span class="p">:</span> <span class="mi">500</span><span class="n">px</span>
-</pre></div>
+<div class="figure align-default">
+<a class="reference internal image-reference" href="../_images/eight_last.png"><img alt="../_images/eight_last.png" src="../_images/eight_last.png" style="width: 500px;" /></a>
 </div>
 </div>
 </div>

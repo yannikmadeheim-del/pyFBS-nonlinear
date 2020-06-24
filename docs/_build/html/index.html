@@ -36,7 +36,10 @@
   
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  <link rel="stylesheet" href="_static/style.css" type="text/css" />
+  <link rel="stylesheet" href="_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="_static/gallery-dataframe.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Why pyFBS?" href="intro.html" />
@@ -98,7 +101,7 @@
               <p class="caption"><span class="caption-text">About</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="intro.html">Why pyFBS?</a></li>
-<li class="toctree-l1"><a class="reference internal" href="authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="credits.html">Credits</a></li>
 <li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Getting Started</span></p>
@@ -106,30 +109,15 @@
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Basic examples</span></p>
+<p class="caption"><span class="caption-text">Examples</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="examples/01_static_display.html">3D Display</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples/02_interactive_display.html">Interactive positioning</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples/03_FRF_synthetization.html">FRF synthetization</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples/04_VPT.html">Virtual Point Transformation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples/05_SEMM.html">SEMM - System equivalent model mixing</a></li>
-</ul>
-<p class="caption"><span class="caption-text">Application examples</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="examples/06_ODS.html">Operational Deflection Shapes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples/07_coupling.html">Coupling</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples/08_decoupling.html">Decoupling</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples/09_EMA.html">Experimental modal analysis (EMA)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples/10_TS.html">Transmission simulator in FBS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/basic_examples.html">Basic examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/application_examples.html">Application Examples</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Code Documentation</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="code_documentation/display.html">pyFBS.view3D</a></li>
-<li class="toctree-l1"><a class="reference internal" href="code_documentation/MCK.html">pyFBS.MK_model</a></li>
-<li class="toctree-l1"><a class="reference internal" href="code_documentation/VPT.html">pyFBS.VPT</a></li>
-<li class="toctree-l1"><a class="reference internal" href="code_documentation/SEMM.html">pyFBS.SEMM</a></li>
-<li class="toctree-l1"><a class="reference internal" href="code_documentation/IO.html">pyFBS.IO</a></li>
-<li class="toctree-l1"><a class="reference internal" href="code_documentation/utility.html">pyFBS.utility</a></li>
+<li class="toctree-l1"><a class="reference internal" href="code_documentation/core.html">Core API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="code_documentation/util.html">Utilities</a></li>
 </ul>
 
             
@@ -220,26 +208,40 @@
 <h1>Welcome to pyFBS’s documentation!<a class="headerlink" href="#welcome-to-pyfbs-s-documentation" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="pyfbs">
 <h2>pyFBS<a class="headerlink" href="#pyfbs" title="Permalink to this headline">¶</a></h2>
-<a class="reference external image-reference" href="https://pypi.python.org/pypi/pyfbs"><img alt="https://img.shields.io/pypi/v/pyfbs.svg" src="https://img.shields.io/pypi/v/pyfbs.svg" /></a>
-<a class="reference external image-reference" href="https://travis-ci.org/tb93/pyfbs"><img alt="https://img.shields.io/travis/tb93/pyfbs.svg" src="https://img.shields.io/travis/tb93/pyfbs.svg" /></a>
-<a class="reference external image-reference" href="https://pyfbs.readthedocs.io/en/latest/?badge=latest"><img alt="Documentation Status" src="https://readthedocs.org/projects/pyfbs/badge/?version=latest" /></a>
-<p>Python package for Frequency Based Substructuring</p>
-<ul class="simple">
-<li><p>Free software: MIT license</p></li>
-<li><p>Documentation: <a class="reference external" href="https://pyfbs.readthedocs.io">https://pyfbs.readthedocs.io</a>.</p></li>
-</ul>
+<p>pyFBS is a Python package for Frequency Based Substructuring. It enables the user to use state-of-the-art dynamic substructuring methodologies in an intuitive manner.</p>
+<p>With the package also basic and application examples are provided, together with real datasets so you can simply try out capabilities of the pyFBS.</p>
 <div class="section" id="features">
 <h3>Features<a class="headerlink" href="#features" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
-<li><p>TODO</p></li>
+<li><p>3D display</p></li>
+<li><p>FRF synthetization</p></li>
+<li><p>Virtual Point Transformation</p></li>
+<li><p>System Equivalent Model Mixing</p></li>
 </ul>
+<p>For more information on features or examples check out the documentation.</p>
+</div>
+<div class="section" id="acknowledgements">
+<h3>Acknowledgements<a class="headerlink" href="#acknowledgements" title="Permalink to this headline">¶</a></h3>
+<p>The pyFBS was developed as a part of collaboration between <a class="reference external" href="http://ladisk.si/">Ladisk</a> and <a class="reference external" href="https://www.mw.tum.de/am/home/">AM TUM</a>.</p>
+<ul class="simple">
+<li><p><strong>LADISK</strong>: short description + link to publications?</p></li>
+<li><p><strong>TUM AM</strong>: short description + link to publications?</p></li>
+</ul>
+</div>
+<div class="section" id="license">
+<h3>License<a class="headerlink" href="#license" title="Permalink to this headline">¶</a></h3>
+<p>Licensed under the MIT license.</p>
 <div class="toctree-wrapper compound">
 <p class="caption"><span class="caption-text">About</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="intro.html">Why pyFBS?</a></li>
-<li class="toctree-l1"><a class="reference internal" href="authors.html">Credits</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="authors.html#development-lead">Development Lead</a></li>
-<li class="toctree-l2"><a class="reference internal" href="authors.html#contributors">Contributors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Why pyFBS?</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="intro.html#dynamic-substructuring">Dynamic Substructuring</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="credits.html">Credits</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="credits.html#development-lead">Development Lead</a></li>
+<li class="toctree-l2"><a class="reference internal" href="credits.html#contributors">Contributors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="credits.html#citation">Citation</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
@@ -248,84 +250,26 @@
 <div class="toctree-wrapper compound">
 <p class="caption"><span class="caption-text">Getting Started</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
-</ul>
-</div>
-<div class="toctree-wrapper compound">
-<p class="caption"><span class="caption-text">Basic examples</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="examples/01_static_display.html">3D Display</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="examples/01_static_display.html#geometric-objects">Geometric objects</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples/01_static_display.html#degrees-of-freedom">Degrees of Freedom</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples/01_static_display.html#interaction-with-the-3d-display">Interaction with the 3D display</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#pypi">PyPI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#anaconda">Anaconda</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#dependencies">Dependencies</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="examples/02_interactive_display.html">Interactive positioning</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples/03_FRF_synthetization.html">FRF synthetization</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="examples/03_FRF_synthetization.html#mk-model-initialization">MK model initialization</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples/03_FRF_synthetization.html#mode-shape-visualization">Mode shape visualization</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples/03_FRF_synthetization.html#defining-dofs-of-synthetized-frfs">Defining DoFs of synthetized FRFs</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples/03_FRF_synthetization.html#id2">FRF synthetization</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="examples/04_VPT.html">Virtual Point Transformation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples/05_SEMM.html">SEMM - System equivalent model mixing</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="examples/05_SEMM.html#example-data-import">Example data import</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples/05_SEMM.html#using-the-semm-function">Using the SEMM function</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="usage.html#example-data">Example data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage.html#features">Features</a></li>
 </ul>
 </li>
 </ul>
 </div>
 <div class="toctree-wrapper compound">
-<p class="caption"><span class="caption-text">Application examples</span></p>
+<p class="caption"><span class="caption-text">Examples</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="examples/06_ODS.html">Operational Deflection Shapes</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="examples/06_ODS.html#example-datasets">Example Datasets</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples/06_ODS.html#d-view">3D view</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples/06_ODS.html#accelerometers">Accelerometers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples/06_ODS.html#channels">Channels</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples/06_ODS.html#impacts">Impacts</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples/06_ODS.html#accelerometer-animation">Accelerometer animation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples/06_ODS.html#gif-export">GIF export</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/basic_examples.html">Basic examples</a><ul>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="examples/07_coupling.html">Coupling</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="examples/07_coupling.html#example-datasets">Example Datasets</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples/07_coupling.html#d-view">3D view</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples/07_coupling.html#numerical-model">Numerical model</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples/07_coupling.html#virtual-point-transformation">Virtual point transformation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples/07_coupling.html#lm-fbs-coupling">LM-FBS Coupling</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples/07_coupling.html#final-results">Final results</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples/07_coupling.html#result-animation-ods">Result animation ODS</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples/07_coupling.html#coupled-results">Coupled results</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples/07_coupling.html#reference">Reference</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="examples/08_decoupling.html">Decoupling</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="examples/08_decoupling.html#example-datasests">Example Datasests</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples/08_decoupling.html#d-view">3D view</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples/08_decoupling.html#numerical-model">Numerical model</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples/08_decoupling.html#virtual-point-transformation">Virtual point transformation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples/08_decoupling.html#lm-fbs-decoupling">LM-FBS Decoupling</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples/08_decoupling.html#final-results">Final results</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="examples/09_EMA.html">Experimental modal analysis (EMA)</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="examples/09_EMA.html#example-datasests">Example Datasests</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples/09_EMA.html#d-view">3D View</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples/09_EMA.html#pyema">pyEMA</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples/09_EMA.html#mode-shape-animation">Mode shape animation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples/09_EMA.html#id1">3D View</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples/09_EMA.html#id2">pyEMA</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples/09_EMA.html#create-a-mesh-and-add-it-to-the-3d-view">Create a mesh and add it to the 3D view:</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples/09_EMA.html#id3">Mode shape animation</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="examples/10_TS.html">Transmission simulator in FBS</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="examples/10_TS.html#example-datasests">Example Datasests</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples/10_TS.html#display">Display</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples/10_TS.html#virtual-point-transformation">Virtual point transformation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/application_examples.html">Application Examples</a><ul>
 </ul>
 </li>
 </ul>
@@ -333,12 +277,18 @@
 <div class="toctree-wrapper compound">
 <p class="caption"><span class="caption-text">Code Documentation</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="code_documentation/display.html">pyFBS.view3D</a></li>
-<li class="toctree-l1"><a class="reference internal" href="code_documentation/MCK.html">pyFBS.MK_model</a></li>
-<li class="toctree-l1"><a class="reference internal" href="code_documentation/VPT.html">pyFBS.VPT</a></li>
-<li class="toctree-l1"><a class="reference internal" href="code_documentation/SEMM.html">pyFBS.SEMM</a></li>
-<li class="toctree-l1"><a class="reference internal" href="code_documentation/IO.html">pyFBS.IO</a></li>
-<li class="toctree-l1"><a class="reference internal" href="code_documentation/utility.html">pyFBS.utility</a></li>
+<li class="toctree-l1"><a class="reference internal" href="code_documentation/core.html">Core API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="code_documentation/display.html">pyFBS.view3D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="code_documentation/MCK.html">pyFBS.MK_model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="code_documentation/VPT.html">pyFBS.VPT</a></li>
+<li class="toctree-l2"><a class="reference internal" href="code_documentation/SEMM.html">pyFBS.SEMM</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="code_documentation/util.html">Utilities</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="code_documentation/IO.html">pyFBS.IO</a></li>
+<li class="toctree-l2"><a class="reference internal" href="code_documentation/utility.html">pyFBS.utility</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </div>
