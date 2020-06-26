@@ -3,19 +3,36 @@
 """The setup script."""
 
 from setuptools import setup, find_packages
+try:  # for pip >= 10
+    from pip._internal.req import parse_requirements
+    from pip._internal.download import PipSession
+except ImportError:  # for pip <= 9.0.3
+    from pip.req import parse_requirements
+    from pip.download import PipSession
 
 with open('README.rst') as readme_file:
     readme = readme_file.read()
 
-with open('HISTORY.rst') as history_file:
-    history = history_file.read()
+#with open('HISTORY.rst') as history_file:
+#    history = history_file.read()
 
-requirements = ['Click>=7.0', ]
-
+requirements = parse_requirements('requirements.txt', session=PipSession())
+# print([str(requirement.req) for requirement in requirements])
 setup_requirements = [ ]
-
 test_requirements = [ ]
 
+import os
+
+def package_files(directory):
+    paths = []
+    for (path, directories, filenames) in os.walk(directory):
+        for filename in filenames:
+            paths.append(os.path.join('..', path, filename))
+    return paths
+
+extra_files = package_files('./data')
+
+# print(extra_files)
 setup(
     author="The pyFBS developers",
     author_email='tomaz.bregar@gorenje.com',
@@ -31,23 +48,25 @@ setup(
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
     ],
-    description="Python package for Frequency Based Substructuring",
+    description="pyFBS: A Python package for Frequency Based Substructuring",
     entry_points={
         'console_scripts': [
             'pyfbs=pyfbs.cli:main',
         ],
     },
-    install_requires=requirements,
+    install_requires=[str(requirement.req) for requirement in requirements],
     license="MIT license",
-    long_description=readme + '\n\n' + history,
+    long_description=readme,
     include_package_data=True,
-    keywords='pyfbs',
-    name='pyfbs',
-    packages=find_packages(include=['pyfbs', 'pyfbs.*']),
-    setup_requires=setup_requirements,
+    package_data={'': extra_files},
+    keywords='pyFBS',
+    name='pyFBS',
+    packages=["pyFBS"],
     test_suite='tests',
-    tests_require=test_requirements,
-    url='https://github.com/tb93/pyfbs',
+    url='https://gitlab.com/pyFBS',
     version='0.1.0',
-    zip_safe=False,
+    # zip_safe=False,
+    # long_description=readme + '\n\n' + history,
+    # setup_requires=setup_requirements,
+    # tests_require=test_requirements,
 )
