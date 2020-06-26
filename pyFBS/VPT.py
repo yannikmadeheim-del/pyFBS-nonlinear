@@ -20,7 +20,7 @@ class VPT(object):
     :type Wu: array(float), optional
     :param Wf: Force weighting matrix
     :type Wf: array(float), optional
-    :param sort_matrix:
+    :param sort_matrix: Sort transformation matrixes
     :type sort_matrix: bool, optional
     """
 

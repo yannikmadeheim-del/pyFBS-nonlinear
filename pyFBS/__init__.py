@@ -5,6 +5,7 @@ from .VPT import *
 from .display import *
 from .SEMM import *
 from .MCK import *
+from .SVT import *
 
 
 # relative directories for example datasets
