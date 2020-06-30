@@ -1,5 +1,7 @@
--LOGO-
-
+.. image:: ../data/logo-big.png
+	:align: right
+	:height: 50px
+	
 pyFBS is a Python package for Frequency Based Substructuring. It enables the user to use state-of-the-art dynamic substructuring methodologies in an intuitive manner. 
 
 With the package also basic and application examples are provided, together with real datasets so you can simply try out capabilities of the pyFBS.
@@ -27,17 +29,29 @@ Acknowledgements
 
 The pyFBS package was developed as a part of collaboration between the Laboratory for Dynamics of Machines and Structures (`LADISK <http://ladisk.si/>`_), Faculty of Mechanical Engineering, University of Ljubljana (FME, UL) and the Chair of Applied Mechanics (`AM <https://www.mw.tum.de/am/home/>`_), Technical University of Munich (TUM).
 
-Laboratory for Dynamics of Machines and Structures (LADISK) 
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-<a href="http://ladisk.si/">
-    <img src="http://lab.fs.uni-lj.si/ladisk/data/pic/ladisk_logo_navbar_line.png" alt="LADISK logo" title="LADISK" align="right" height="60" />
-</a>
+.. image:: http://lab.fs.uni-lj.si/ladisk/data/pic/ladisk_logo_navbar_line.png
+	:align: right
+	:height: 80px
+	
+Laboratory for Dynamics of Machines and Structures (LADISK), FME UL
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-TEXT
+Text
 
-Chair of Applied Mechanics (AM)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+text
+
+text
+
+	
+
+	
+.. image:: https://www.mw.tum.de/typo3/ext/tumtheme/Resources/Public/Icons/Org/tum-logo.png
+	:align: right
+	:height: 50px
+
+Chair of Applied Mechanics (AM), TUM
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The Chair of Applied Mechanics (Technical University of Munich) covers a wide range of research fields, that directly impact the future of industry and society, but are always related to Structural Dynamics and Mechatronics.
 These research fields are divided into three areas: Experimental Dynamics, Numerical Methods, and Robotics. They range from fundamental research, such as development of new numerical methods, to applied research in cooperation with industry. This research can help on the path to a sustainable future by providing tools and technologies for a more advanced product design, that reduces the amount of prototypes and, thus, saves development costs and minimizes material consumption.
