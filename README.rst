@@ -23,11 +23,23 @@ For more information on features or basic and application examples check out the
 
 Acknowledgements
 ----------------
-The pyFBS was developed as a part of collaboration between `Ladisk <http://ladisk.si/>`_ and `AM TUM <https://www.mw.tum.de/am/home/>`_.
 
-* **LADISK**: short description + link to publications?
 
-* **TUM AM**: short description + link to publications?
+The pyFBS package was developed as a part of collaboration between the Laboratory for Dynamics of Machines and Structures (`LADISK <http://ladisk.si/>`_), Faculty of Mechanical Engineering, University of Ljubljana (FME, UL) and the Chair of Applied Mechanics (`AM <https://www.mw.tum.de/am/home/>`_), Technical University of Munich (TUM).
+
+Laboratory for Dynamics of Machines and Structures, Faculty of Mechanical Engineering, University of Ljubljana (FME, UL)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+TEXT
+
+Chair of Applied Mechanics (AM), Technical University of Munich (TUM)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The Chair of Applied Mechanics (Technical University of Munich) covers a wide range of research fields, that directly impact the future of industry and society, but are always related to Structural Dynamics and Mechatronics.
+These research fields are divided into three areas: Experimental Dynamics, Numerical Methods, and Robotics. They range from fundamental research, such as development of new numerical methods, to applied research in cooperation with industry. This research can help on the path to a sustainable future by providing tools and technologies for a more advanced product design, that reduces the amount of prototypes and, thus, saves development costs and minimizes material consumption.
+
+
+
 
 Citation
 --------
