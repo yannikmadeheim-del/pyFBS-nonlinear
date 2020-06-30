@@ -47,7 +47,7 @@ class SVT(object):
         sub_FRF = self.FRF[:, ind_chn, :][:, :, ind_imp]
 
         # Calculate left and right singular vectors with
-        U, self.S, V = CMIF(sub_FRF, return_svector=True)
+        self.U, self.S, self.V = CMIF(sub_FRF, return_svector=True)
 
         # Without weighting matrixes
         #self.Tu = np.transpose(np.conj(U[:, :, :self.no_svs]), (0, 2, 1))
@@ -55,15 +55,13 @@ class SVT(object):
 
 
         # Define reduction matrixes
-        Ru = U[:, :, :self.no_svs]
-        if self.Wu != None:
-            self.Wu = np.identity(len(ind_chn))
-        Wu = self.Wu
+        Ru = self.U[:, :, :self.no_svs]
+        if Wu == None:
+            Wu = np.identity(len(ind_chn))
 
-        Rf = V[:, :, :self.no_svs]
-        if self.Wf != None:
-            self.Wf = np.identity(len(ind_imp))
-        Wf = self.Wf
+        Rf = self.V[:, :, :self.no_svs]
+        if Wf == None:
+            Wf = np.identity(len(ind_imp))
 
         self.Ru = Ru
         self.Rf = Rf

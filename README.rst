@@ -1,6 +1,5 @@
-=====
-pyFBS
-=====
+-LOGO-
+
 pyFBS is a Python package for Frequency Based Substructuring. It enables the user to use state-of-the-art dynamic substructuring methodologies in an intuitive manner. 
 
 With the package also basic and application examples are provided, together with real datasets so you can simply try out capabilities of the pyFBS.
@@ -16,7 +15,10 @@ Features
 
 * System Equivalent Model Mixing
 
-For more information on features or examples check out the documentation. 
+* Singular Vector Transformation
+
+
+For more information on features or basic and application examples check out the documentation. 
 
 
 Acknowledgements

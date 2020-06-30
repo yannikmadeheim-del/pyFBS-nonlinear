@@ -36,6 +36,7 @@ class MK_model(object):
 
         self.no_modes = no_modes
 
+        self._all = False
 
         full = pyansys.read_binary(full_file)
 
@@ -136,8 +137,8 @@ class MK_model(object):
         :return: unique nodal coordinates and directions for each node
         :rtype: (array(float), array(int))
         """
-        nodes = df[["Position_1", "Position_2", "Position_3"]].values
-        directions = df[["Direction_1", "Direction_2", "Direction_3"]].values
+        nodes = df[["Position_1", "Position_2", "Position_3"]].values.astype(float)
+        directions = df[["Direction_1", "Direction_2", "Direction_3"]].values.astype(float)
 
         unique_nodes = nodes[np.sort(np.unique(nodes, axis=0, return_index=True)[1])]
         direction_nodes = []
@@ -229,7 +230,7 @@ class MK_model(object):
         return _modeshape
 
 
-    def FRF_synth(self,df_channel,df_impact,f_start = 1, f_end = 2000, f_resolution= 1, limit_modes = None, modal_damping = None, frf_type = "receptance"):
+    def FRF_synth(self,df_channel,df_impact,f_start = 1, f_end = 2000, f_resolution= 1, limit_modes = None, modal_damping = None, frf_type = "receptance",_all = False):
         """
         Synthetisation of frequency response functions using the mode superposition method.
 
@@ -249,6 +250,8 @@ class MK_model(object):
         :type modal_damping: float or None
         :param frf_type: define calculated FRF type (``receptance``, ``mobility`` or ``accelerance``)
         :type frf_type: str
+        :param _all: synthetize response at all nodes - can be usefull ot animate FRFs
+        :type _all, optional: boolean
         """
         unique_nodes_chn, direction_nodes_chn = self.data_preparation(df_channel)
         unique_nodes_imp, direction_nodes_imp = self.data_preparation(df_impact)
@@ -286,13 +289,19 @@ class MK_model(object):
         ome2 = ome ** 2
         _eig_val2 = self.eig_freq ** 2
 
-        m_p_chan = block_diag(*direction_nodes_chn) @ self.eig_vec[loc1, :no_modes]
+        if _all:
+            m_p_chan_all = self.eig_vec[:, :no_modes]
+            m_p_chan_sensors = block_diag(*direction_nodes_chn) @ self.eig_vec[loc1, :no_modes]
+            m_p_chan = np.vstack([m_p_chan_sensors,m_p_chan_all])
+
+        else:
+            m_p_chan = block_diag(*direction_nodes_chn) @ self.eig_vec[loc1, :no_modes]
+
         m_p_imp = block_diag(*direction_nodes_imp) @ self.eig_vec[loc2, :no_modes]
         m_p = np.einsum('ij,kj->jik', m_p_chan, m_p_imp)
         
-        denominator = (_eig_val2[:no_modes, np.newaxis] - ome2) + np.einsum('ij,i->ij',
-                                                                            (ome * self.eig_freq[:no_modes, np.newaxis]),
-                                                                            (2 * 1j * damping[:no_modes]))
+        denominator = (_eig_val2[:no_modes, np.newaxis] - ome2) + np.einsum('ij,i->ij',(ome * self.eig_freq[:no_modes, np.newaxis]),(2 * 1j * damping[:no_modes]))
+
         FRF_matrix = np.einsum('ijk,il->ljk', m_p, 1 / denominator)
 
         if frf_type == "receptance":

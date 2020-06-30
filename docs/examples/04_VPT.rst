@@ -1,9 +1,9 @@
 ============================
 Virtual Point Transformation
 ============================
-Virtual point transformation (VPT) projects measured dynamics on the predefined interface displacement modes (IDMs). 
+Virtual point transformation (VPT) projects measured dynamics on the predefined interface displacement modes (IDMs) :cite:`vpt-solvingRDOF`. 
 The interface is usualy considered to be rigid; therefore, only 6 rigid interface displacement modes are used in the transformation. Rigid IDMs can also be extended with flexible interface modes.
-Current implementation of the :class:`pyFBS.VPT` enables only rigid IDMs in the transformation.
+Current implementation of the :class:`pyFBS.VPT` enables only rigid IDMs in the transformation. But it supports the expansion where directly measured rotational response is included in the transformation :cite:`vpt-Bregar2020`. 
 
 .. note:: 
    Example showing the basic use of the VPT: :download:`04_VPT.ipynb <../../examples/04_VPT.ipynb>`
@@ -58,3 +58,11 @@ If the interface would be perfectly rigid, the filtered response would be equal 
 However, if the interface is not completely rigid or if predetermined positions and orientations are not perfect, the filtered response will vary from the measured response.
 
 Both channel/sensor (``vpt.specific_sensor`` and ``vpt.overall_sensor``) and impact (``vpt.specific_impact`` and ``vpt.overall_impact``) consistency can be evaluated after the transformation. 
+
+
+.. rubric:: References
+
+.. bibliography:: ..\..\joss\paper.bib
+   :style: unsrt
+   :filter: docname in docnames
+   :keyprefix: vpt-

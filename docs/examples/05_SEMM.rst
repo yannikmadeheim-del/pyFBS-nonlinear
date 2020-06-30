@@ -113,7 +113,7 @@ The results can also be displayed using the matplotlib library:
 
 .. rubric:: References
 
-.. bibliography:: ..\MyCollection.bib
+.. bibliography:: ..\..\joss\paper.bib
    :style: unsrt
    :filter: docname in docnames
    :keyprefix: 05-

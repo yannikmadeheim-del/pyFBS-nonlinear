@@ -9,4 +9,4 @@ Core API
 	MCK
 	VPT
 	SEMM
-
+	SVT

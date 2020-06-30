@@ -8,7 +8,7 @@ By solving the eigenvalue problem, the eigenfrequencies and eigenvectors of the 
 .. note:: 
    Example showing the basic use of the FRF synthetization: :download:`03_FRF_synthetization.ipynb <../../examples/03_FRF_synthetization.ipynb>`.
 
-In the ``pyFBS`` library, modal analysis and FRFs synthetization :cite:`03-maia1997theoretical`, can be performed relying on mass and stiffness matrices imported from Ansys.
+In the ``pyFBS`` library, modal analysis and FRFs synthetization, can be performed relying on mass and stiffness matrices imported from Ansys.
 
 MK model initialization
 ***********************
@@ -199,11 +199,3 @@ When visualizing FRFs, responses and excitation locations can also be displayed 
    :width: 800px
    
    Comparison of different FRFs.
-
-
-.. rubric:: References
-
-.. bibliography:: ..\MyCollection.bib
-   :style: unsrt
-   :filter: docname in docnames
-   :keyprefix: 03-
