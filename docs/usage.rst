@@ -102,7 +102,7 @@ A numerical model is commonly used as a parent model and an experimental model i
 
 Singular Vector Transformation
 ==============================
-With the pyFBS the Singular Vector Transformation is supported  (SVT) :mod:`pyFBS.SVT` :cite:`usage-svt`. 
+With the pyFBS the Singular Vector Transformation is supported  (SVT) :mod:`pyFBS.SVT`. 
 SVT projects measured dynamics into subspaces composed by dominant singular vectors. 
 The singular vectors are extracted directly from the measured interface dynamics by using Singular Value Decomposition (SVD). 
 Since the reduction space is defined directly from the measured dynamics, no analytical or geometrical model is required.

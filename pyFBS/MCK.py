@@ -163,7 +163,7 @@ class MK_model(object):
         :type excitation_direction: int or array(int)
         :param rotation_included: definition of roations inclusion in DoFs in system
         :type rotation_included: bool
-        :param all_at_once: compute all location as once, when response_point and excitation_point are arrays
+        :param all_at_once: Compute response at all locations - ODS animation of the whole mesh,
         :type all_at_once: bool
         :return: sel1, sel2
         :rtype: (int, int)
@@ -269,10 +269,13 @@ class MK_model(object):
         else:
             no_modes = limit_modes
 
+
         if modal_damping == None:
             damping = np.asarray([0] * no_modes)
         elif type(modal_damping) == float:
             damping = np.asarray([modal_damping] * no_modes)
+        else:
+            damping = modal_damping
 
         loc1, loc2 = self.loc_definition(response_points, response_directions, excitation_points, excitation_directions, 
                                          self.rotation_included, all_at_once=True)
