@@ -63,7 +63,7 @@ instance/
 .scrapy
 
 # Sphinx documentation
-#docs/_build/
+docs/_build/
 
 # PyBuilder
 target/
@@ -103,6 +103,4 @@ ENV/
 
 # IDE settings
 .vscode/
-pyFBS/__pycache__
-*.pkl
 pyFBS/__pycache__

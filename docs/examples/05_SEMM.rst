@@ -1,7 +1,10 @@
 SEMM - System equivalent model mixing
 =====================================
 
-With System Equivalent Model Mixing (SEMM) :cite:`KLAASSEN201890` method frequency-based models, either of numerical or experimental nature, can be mixed to form a hybrid model.
+With System Equivalent Model Mixing (SEMM) :cite:`05-Klaassen2018` method frequency-based models, either of numerical or experimental nature, can be mixed to form a hybrid model.
+
+.. note:: 
+   Example showing the basic use of SEMM: :download:`05_SEMM.ipynb <../../examples/05_SEMM.ipynb>`.
 
 Example data import
 *******************
@@ -19,7 +22,7 @@ The first dimension represents the frequency depth, second the response points, 
    import matplotlib.pyplot as plt
    import pyFBS
 
-   exp_file = r"../data/lab_testbench/Measurements/Y_AB.p"
+   exp_file = pyFBS.example_lab_testbench["meas"]["Y_AB"]
 
    freq, Y_exp = np.load(exp_file, allow_pickle = True)
    Y_exp = np.transpose(Y_exp, (2, 0, 1))
@@ -32,13 +35,13 @@ Locations and directions for which FRFs are generated are defined in an .xlsx fi
 
 .. code-block:: python
 
-   stl = r"../data/lab_testbench/STL/AB.stl"
-   xlsx = r"../data/lab_testbench/Measurements/AM_Measurements.xlsx"
+   stl = pyFBS.example_lab_testbench["STL"]["AB"]
+   xlsx = pyFBS.example_lab_testbench["meas"]["xlsx"]
 
-   full_file = r'../data/lab_testbench/FEM/AB/file.full'
-   ress_file = r'../data/lab_testbench/FEM/AB/file.rst'
+   full_file = pyFBS.example_lab_testbench["FEM"]["AB_full"]
+   rst_file = pyFBS.example_lab_testbench["FEM"]["AB_rst"]
 
-   MK = pyFBS.MK_model(ress_file, full_file, no_modes = 100, recalculate = False)
+   MK = pyFBS.MK_model(rst_file, full_file, no_modes = 100, recalculate = False)
 
    df_chn = pd.read_excel(xlsx, sheet_name='Channels_AB')
    df_imp = pd.read_excel(xlsx, sheet_name='Impacts_AB')
@@ -107,3 +110,10 @@ The results can also be displayed using the matplotlib library:
    
    Comparison of FRFs.
 
+
+.. rubric:: References
+
+.. bibliography:: ..\..\joss\paper.bib
+   :style: unsrt
+   :filter: docname in docnames
+   :keyprefix: 05-

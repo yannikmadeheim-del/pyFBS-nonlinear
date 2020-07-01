@@ -16,8 +16,8 @@ class MK_model(object):
     For faster processing by default pickle file is generated where mass and stiffness matrices are stored and also computed eigenvalues, eigenvectors and used number of modes.
     If changes are detected in the mass or stiffness matrix with respect to the stored pickle file, the calculation of eigenvalues and eigenvectors is repeated.
     
-    :param ress_file: path of the .rst file exported from Ansys
-    :type ress_file: str
+    :param rst_file: path of the .rst file exported from Ansys
+    :type rst_file: str
     :param full_file: path of the .full file exported from Ansys
     :type full_file: str
     :param no_modes: number of modes to be included in output of the eigenvalue computation
@@ -27,8 +27,8 @@ class MK_model(object):
     :param recalculate: if ``False`` just mass and stiffness matrices with corresponding nodes and their DoFs will be imported. If ``True`` also the eigenvalue problem will be solved.
     :type recalculate: bool
     """
-    def __init__(self, ress_file, full_file, no_modes = 100, allow_pickle = True, recalculate = False):
-        rst = pyansys.read_binary(ress_file)
+    def __init__(self, rst_file, full_file, no_modes = 100, allow_pickle = True, recalculate = False):
+        rst = pyansys.read_binary(rst_file)
         self.nodes = rst.geometry["nodes"][:, :3]  # only translational dofs
         self.mesh = rst.grid
         self.mesh.points *= 1000
@@ -36,6 +36,7 @@ class MK_model(object):
 
         self.no_modes = no_modes
 
+        self._all = False
 
         full = pyansys.read_binary(full_file)
 
@@ -60,8 +61,12 @@ class MK_model(object):
             # load the pickle file
             _M,_K,_eig_freq,_eig_val,_eig_vec,_no_modes = pickle.load( open(p_file, "rb" ))
             # check if the solution is the same
-            check_mas  = (_K != self.K).nnz == 0
-            check_stif = (_M != self.M).nnz == 0
+            if _K.shape == self.K.shape and _M.shape == self.M.shape:
+                check_mas  = (_K != self.K).nnz == 0
+                check_stif = (_M != self.M).nnz == 0
+            else:
+                check_mas = False
+                check_stif = False
             check_no_modes = _no_modes == no_modes
             same = np.all([check_mas,check_stif,check_no_modes])
             if same:
@@ -132,8 +137,8 @@ class MK_model(object):
         :return: unique nodal coordinates and directions for each node
         :rtype: (array(float), array(int))
         """
-        nodes = df[["Position_1", "Position_2", "Position_3"]].values
-        directions = df[["Direction_1", "Direction_2", "Direction_3"]].values
+        nodes = df[["Position_1", "Position_2", "Position_3"]].values.astype(float)
+        directions = df[["Direction_1", "Direction_2", "Direction_3"]].values.astype(float)
 
         unique_nodes = nodes[np.sort(np.unique(nodes, axis=0, return_index=True)[1])]
         direction_nodes = []
@@ -158,7 +163,7 @@ class MK_model(object):
         :type excitation_direction: int or array(int)
         :param rotation_included: definition of roations inclusion in DoFs in system
         :type rotation_included: bool
-        :param all_at_once: compute all location as once, when response_point and excitation_point are arrays
+        :param all_at_once: Compute response at all locations - ODS animation of the whole mesh,
         :type all_at_once: bool
         :return: sel1, sel2
         :rtype: (int, int)
@@ -225,7 +230,7 @@ class MK_model(object):
         return _modeshape
 
 
-    def FRF_synth(self,df_channel,df_impact,f_start = 1, f_end = 2000, f_resolution= 1, limit_modes = None, modal_damping = None, frf_type = "receptance"):
+    def FRF_synth(self,df_channel,df_impact,f_start = 1, f_end = 2000, f_resolution= 1, limit_modes = None, modal_damping = None, frf_type = "receptance",_all = False):
         """
         Synthetisation of frequency response functions using the mode superposition method.
 
@@ -245,6 +250,8 @@ class MK_model(object):
         :type modal_damping: float or None
         :param frf_type: define calculated FRF type (``receptance``, ``mobility`` or ``accelerance``)
         :type frf_type: str
+        :param _all: synthetize response at all nodes - can be usefull ot animate FRFs
+        :type _all, optional: boolean
         """
         unique_nodes_chn, direction_nodes_chn = self.data_preparation(df_channel)
         unique_nodes_imp, direction_nodes_imp = self.data_preparation(df_impact)
@@ -262,10 +269,13 @@ class MK_model(object):
         else:
             no_modes = limit_modes
 
+
         if modal_damping == None:
             damping = np.asarray([0] * no_modes)
         elif type(modal_damping) == float:
             damping = np.asarray([modal_damping] * no_modes)
+        else:
+            damping = modal_damping
 
         loc1, loc2 = self.loc_definition(response_points, response_directions, excitation_points, excitation_directions, 
                                          self.rotation_included, all_at_once=True)
@@ -282,13 +292,19 @@ class MK_model(object):
         ome2 = ome ** 2
         _eig_val2 = self.eig_freq ** 2
 
-        m_p_chan = block_diag(*direction_nodes_chn) @ self.eig_vec[loc1, :no_modes]
+        if _all:
+            m_p_chan_all = self.eig_vec[:, :no_modes]
+            m_p_chan_sensors = block_diag(*direction_nodes_chn) @ self.eig_vec[loc1, :no_modes]
+            m_p_chan = np.vstack([m_p_chan_sensors,m_p_chan_all])
+
+        else:
+            m_p_chan = block_diag(*direction_nodes_chn) @ self.eig_vec[loc1, :no_modes]
+
         m_p_imp = block_diag(*direction_nodes_imp) @ self.eig_vec[loc2, :no_modes]
         m_p = np.einsum('ij,kj->jik', m_p_chan, m_p_imp)
         
-        denominator = (_eig_val2[:no_modes, np.newaxis] - ome2) + np.einsum('ij,i->ij',
-                                                                            (ome * self.eig_freq[:no_modes, np.newaxis]),
-                                                                            (2 * 1j * damping[:no_modes]))
+        denominator = (_eig_val2[:no_modes, np.newaxis] - ome2) + np.einsum('ij,i->ij',(ome * self.eig_freq[:no_modes, np.newaxis]),(2 * 1j * damping[:no_modes]))
+
         FRF_matrix = np.einsum('ijk,il->ljk', m_p, 1 / denominator)
 
         if frf_type == "receptance":

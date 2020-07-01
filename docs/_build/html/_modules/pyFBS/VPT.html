@@ -1,5 +1,6 @@
 
 
+
 <!DOCTYPE html>
 <!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
@@ -13,6 +14,8 @@
 
   
   
+    <link rel="shortcut icon" href="../../_static/logo-small.png"/>
+  
   
   
 
@@ -21,10 +24,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../../_static/jquery.js"></script>
-        <script type="text/javascript" src="../../_static/underscore.js"></script>
-        <script type="text/javascript" src="../../_static/doctools.js"></script>
-        <script type="text/javascript" src="../../_static/language_data.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../../_static/js/theme.js"></script>
 
@@ -33,8 +36,20 @@
   
   <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/style.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery-dataframe.css" type="text/css" />
     <link rel="index" title="Index" href="../../genindex.html" />
-    <link rel="search" title="Search" href="../../search.html" /> 
+    <link rel="search" title="Search" href="../../search.html" />
+ 
+
+<meta name="description" content="A Python package for Frequency Based Substructuring">
+<meta name="author" content="The pyFBS Developers">
+<meta name="keywords" content="python, structural dynamics, frequency based substructuring, virtual point transformation, system equivalent model mixing, modal analysis, frequency response function">
+
+</script>
+
 </head>
 
 <body class="wy-body-for-nav">
@@ -48,9 +63,12 @@
           
 
           
-            <a href="../../index.html" class="icon icon-home"> pyFBS
+            <a href="../../index.html">
           
 
+          
+            
+            <img src="../../_static/logo-big.png" class="logo" alt="Logo"/>
           
           </a>
 
@@ -73,6 +91,7 @@
 
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
+    
             
             
               
@@ -81,25 +100,49 @@
               <p class="caption"><span class="caption-text">About</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../intro.html">Why pyFBS?</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../credits.html">Credits</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Getting Started</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../examples/basic_examples.html">Basic Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/basic_examples.html">Basic examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../examples/application_examples.html">Application Examples</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Code Documentation</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../code_documentation/display.html">pyFBS.display</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../code_documentation/SEMM.html">pyFBS.SEMM</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../code_documentation/VPT.html">pyFBS.VPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../code_documentation/core.html">Core API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../code_documentation/util.html">Utilities</a></li>
 </ul>
 
             
           
+
+    
+        <p class="caption">
+            <span class="caption-text">
+            
+                Getting Connected
+            
+            </span>
+        </p>
+        <ul>
+            
+                <li class="toctree-l1"><a href="https://"><i class="fa fa-comment fa-fw"></i> Support</a></li>
+            
+                <li class="toctree-l1"><a href="https://"><i class="fa fa-gitlab fa-fw"></i> Source Code</a></li>
+            
+                <li class="toctree-l1"><a href="https://"><i class="fa fa-gavel fa-fw"></i> Contributing</a></li>
+            
+                <li class="toctree-l1"><a href="https://"><i class="fa fa-file-text fa-fw"></i> The Paper</a></li>
+            
+        </ul>
+    
+
         </div>
       </div>
     </nav>
@@ -159,29 +202,35 @@
            <div itemprop="articleBody">
             
   <h1>Source code for pyFBS.VPT</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">scipy.linalg</span> <span class="k">import</span> <span class="n">block_diag</span><span class="p">,</span> <span class="n">svd</span><span class="p">,</span> <span class="n">norm</span>
-<span class="kn">from</span> <span class="nn">pyFBS.utility</span> <span class="k">import</span> <span class="n">coh_frf</span>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy.linalg</span> <span class="kn">import</span> <span class="n">block_diag</span><span class="p">,</span> <span class="n">norm</span>
+<span class="kn">from</span> <span class="nn">pyFBS.utility</span> <span class="kn">import</span> <span class="n">coh_frf</span>
 
 <div class="viewcode-block" id="VPT"><a class="viewcode-back" href="../../code_documentation/VPT.html#pyFBS.VPT">[docs]</a><span class="k">class</span> <span class="nc">VPT</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Virtual point transformation - Description</span>
+<span class="sd">    Virtual Point Transformation (VPT) - enables transformation of measured responses to a virtual DoFs.  Current</span>
+<span class="sd">    implementation enables rigid interface deformation modes and all 6 DoFs (3 translations + 3 rotations), have to</span>
+<span class="sd">    be included in the transformation.</span>
 
-<span class="sd">    :param ch: Channels used in the transformation (outputs - sensors).</span>
-<span class="sd">    :type ch: pandas.DataFrame</span>
-<span class="sd">    :param refch: Reference channels used in the transformation (input - impacts).</span>
-<span class="sd">    :type refch: pandas.DataFrame</span>
-<span class="sd">    :param vp_ch: Virtual point channels used in the transformation (output - VP).</span>
-<span class="sd">    :type vp_ch: pandas.DataFrame</span>
-<span class="sd">    :param vp_refch: Virtual point reference channels used in the transformation (input - VP).</span>
-<span class="sd">    :type vp_refch: pandas.DataFrame</span>
-<span class="sd">    :param Wu: Displacement weighting matrix.</span>
-<span class="sd">    :type Wu: numpy.array</span>
-<span class="sd">    :param Wf: Displacement weighting matrix.</span>
-<span class="sd">    :type Wf: numpy.array</span>
+<span class="sd">    :param ch: A DataFrame containing information on channels (i.e. outputs)</span>
+<span class="sd">    :type ch: pd.DataFrame</span>
+<span class="sd">    :param refch: A DataFrame containing information on reference channels (i.e. inputs)</span>
+<span class="sd">    :type refch: pd.DataFrame</span>
+<span class="sd">    :param vp_ch: A DataFrame containing information on virtual point channels</span>
+<span class="sd">    :type vp_ch: pd.DataFrame</span>
+<span class="sd">    :param vp_refch: A DataFrame containing information on reference virtual point channels</span>
+<span class="sd">    :type vp_refch: pd.DataFrame</span>
+<span class="sd">    :param Wu: Displacement weigting matrix</span>
+<span class="sd">    :type Wu: array(float), optional</span>
+<span class="sd">    :param Wf: Force weighting matrix</span>
+<span class="sd">    :type Wf: array(float), optional</span>
+<span class="sd">    :param sort_matrix:</span>
+<span class="sd">    :type sort_matrix: bool, optional</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ch</span><span class="p">,</span> <span class="n">refch</span><span class="p">,</span> <span class="n">vp_ch</span><span class="p">,</span> <span class="n">vp_refch</span> <span class="p">,</span><span class="n">Wu</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">Wf</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ch</span><span class="p">,</span> <span class="n">refch</span><span class="p">,</span> <span class="n">vp_ch</span><span class="p">,</span> <span class="n">vp_refch</span><span class="p">,</span> <span class="n">Wu</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">Wf</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">sort_matrix</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sort_matrix</span> <span class="o">=</span> <span class="n">sort_matrix</span>
+
         <span class="c1"># Load the physical input-output DoFs</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">Channels</span> <span class="o">=</span> <span class="n">ch</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">RefChannels</span> <span class="o">=</span> <span class="n">refch</span>
@@ -201,7 +250,8 @@
 
 <div class="viewcode-block" id="VPT.define_IDM_U"><a class="viewcode-back" href="../../code_documentation/VPT.html#pyFBS.VPT.define_IDM_U">[docs]</a>    <span class="k">def</span> <span class="nf">define_IDM_U</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Calculates the Ru, Tu, Fu matrices based on the supplied position and orientation of Channels and Virtual Channels. In the current implementation only Rigid IDMs are supported.</span>
+<span class="sd">        Calculates Ru, Tu and Fu matrices based on the supplied position and orientation of Channels and Virtual</span>
+<span class="sd">        Channels.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">ov_u</span><span class="p">,</span> <span class="n">_vps</span><span class="p">,</span> <span class="n">mask_u</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_overlap_ch</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Channels</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Virtual_Channels</span><span class="p">)</span>
 
@@ -211,45 +261,40 @@
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ov_u</span><span class="p">)):</span>
             <span class="c1"># gets the unique VP position</span>
             <span class="n">_posVP</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Virtual_Channels</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">][[</span><span class="s2">&quot;Position_1&quot;</span><span class="p">,</span><span class="s2">&quot;Position_2&quot;</span><span class="p">,</span><span class="s2">&quot;Position_3&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">())</span>
-
             <span class="c1"># gets the current positions</span>
             <span class="n">ov_c</span> <span class="o">=</span> <span class="n">ov_u</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-            <span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">ov_c</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="mi">6</span><span class="p">))</span>
 
+            <span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">ov_c</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="mi">6</span><span class="p">))</span>
             <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">ch</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">ov_c</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
                 <span class="n">_pos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Channels</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">ch</span><span class="p">][[</span><span class="s2">&quot;Position_1&quot;</span><span class="p">,</span><span class="s2">&quot;Position_2&quot;</span><span class="p">,</span><span class="s2">&quot;Position_3&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">())</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
                 <span class="n">_dir</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Channels</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">ch</span><span class="p">][[</span><span class="s2">&quot;Direction_1&quot;</span><span class="p">,</span><span class="s2">&quot;Direction_2&quot;</span><span class="p">,</span><span class="s2">&quot;Direction_3&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">())</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
-                <span class="c1">#print(ch)</span>
                 <span class="n">_group</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Channels</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">ch</span><span class="p">][</span><span class="s2">&quot;Grouping&quot;</span><span class="p">]</span>
                 <span class="n">_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Channels</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">ch</span><span class="p">][</span><span class="s2">&quot;Quantity&quot;</span><span class="p">]</span>
-
-
                 <span class="n">r</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">_dir</span> <span class="o">@</span> <span class="bp">self</span><span class="o">.</span><span class="n">R_matrix_U</span><span class="p">(</span><span class="n">_posVP</span> <span class="o">-</span> <span class="n">_pos</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">_type</span><span class="p">)</span>
-
                 <span class="n">_Warray</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">W_rotational</span><span class="p">(</span><span class="n">_pos</span><span class="p">,</span> <span class="n">_dir</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">_type</span><span class="p">))</span>
-
             <span class="n">R_all</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
 
         <span class="n">Ru</span> <span class="o">=</span> <span class="n">block_diag</span><span class="p">(</span><span class="o">*</span><span class="n">R_all</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask_u</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)[</span><span class="mi">0</span><span class="p">])))</span>
 
-        <span class="n">R_n</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">Ru</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sort_matrix</span><span class="p">:</span>
+            <span class="n">R_n</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">Ru</span><span class="p">)</span>
+            <span class="c1"># position the transformation matrix based on location it the .xlsx file</span>
+            <span class="n">R_all</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">R_all</span><span class="p">)[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
+            <span class="n">gg</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">trig</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">mask_u</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">R_n</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">gg</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+                    <span class="n">gg</span> <span class="o">+=</span> <span class="n">k</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">trig</span><span class="p">:</span>
+                        <span class="n">R_n</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span> <span class="o">+</span> <span class="n">R_all</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">gg</span><span class="p">:</span><span class="n">gg</span> <span class="o">+</span> <span class="n">R_all</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="n">R_all</span>
+                        <span class="n">gg</span> <span class="o">+=</span> <span class="n">R_all</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                        <span class="n">trig</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">Ru</span> <span class="o">=</span> <span class="n">R_n</span>
 
-        <span class="n">R_all</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">R_all</span><span class="p">)[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
-        <span class="n">gg</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="n">trig</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">mask_u</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="n">R_n</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">gg</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
-                <span class="n">gg</span> <span class="o">+=</span> <span class="n">k</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">trig</span><span class="p">:</span>
-                    <span class="n">R_n</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span> <span class="o">+</span> <span class="n">R_all</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">gg</span><span class="p">:</span><span class="n">gg</span> <span class="o">+</span> <span class="n">R_all</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="n">R_all</span>
 
-                    <span class="n">gg</span> <span class="o">+=</span> <span class="n">R_all</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-                    <span class="n">trig</span> <span class="o">=</span> <span class="kc">False</span>
-
-        <span class="n">Ru</span> <span class="o">=</span> <span class="n">R_n</span>
-
+        <span class="c1"># definition of weighting matrix</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">Wu_p</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">Wu</span> <span class="o">=</span> <span class="n">block_diag</span><span class="p">(</span><span class="o">*</span><span class="n">_Warray</span><span class="p">)</span>
             <span class="n">Wu</span> <span class="o">=</span> <span class="n">block_diag</span><span class="p">(</span><span class="n">Wu</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask_u</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)[</span><span class="mi">0</span><span class="p">])))</span>
@@ -258,6 +303,7 @@
             <span class="n">Wu</span> <span class="o">=</span> <span class="n">block_diag</span><span class="p">(</span><span class="n">Wu</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask_u</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)[</span><span class="mi">0</span><span class="p">])))</span>
 
 
+        <span class="c1"># calculate the Tu, Fu matrices</span>
         <span class="n">Tu</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">pinv</span><span class="p">(</span><span class="n">Ru</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">Wu</span> <span class="o">@</span> <span class="n">Ru</span><span class="p">)</span> <span class="o">@</span> <span class="n">Ru</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">Wu</span>
         <span class="n">Fu</span> <span class="o">=</span> <span class="n">Ru</span> <span class="o">@</span> <span class="n">Tu</span>
 
@@ -268,8 +314,10 @@
 
 <div class="viewcode-block" id="VPT.define_IDM_F"><a class="viewcode-back" href="../../code_documentation/VPT.html#pyFBS.VPT.define_IDM_F">[docs]</a>    <span class="k">def</span> <span class="nf">define_IDM_F</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Calculates the Rf, Tf, Ff matrices based on the supplied position and orientation of Channels and Virtual Channels. In the current implementation only Rigid IDMs are supported.</span>
+<span class="sd">        Calculates the Rf, Tf, Ff matrices based on the supplied position and orientation of Reference Channels and</span>
+<span class="sd">        Reference Virtual Channels.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="n">ov_f</span><span class="p">,</span> <span class="n">_vps</span><span class="p">,</span> <span class="n">mask_f</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_overlap_ch</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">RefChannels</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Virtual_RefChannels</span><span class="p">)</span>
         <span class="c1"># print(mask_f)</span>
         <span class="n">R_all</span> <span class="o">=</span> <span class="p">[]</span>
@@ -277,51 +325,44 @@
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ov_f</span><span class="p">)):</span>
             <span class="c1"># gets the unique VP position</span>
             <span class="n">_posVP</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Virtual_RefChannels</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">][[</span><span class="s2">&quot;Position_1&quot;</span><span class="p">,</span><span class="s2">&quot;Position_2&quot;</span><span class="p">,</span><span class="s2">&quot;Position_3&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">())</span>
-
             <span class="c1"># gets the current positions</span>
             <span class="n">ov_c</span> <span class="o">=</span> <span class="n">ov_f</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
             <span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">ov_c</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="mi">6</span><span class="p">))</span>
-
             <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">ch</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">ov_c</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
                 <span class="n">_pos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">RefChannels</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">ch</span><span class="p">][[</span><span class="s2">&quot;Position_1&quot;</span><span class="p">,</span> <span class="s2">&quot;Position_2&quot;</span><span class="p">,</span> <span class="s2">&quot;Position_3&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">())</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
                 <span class="n">_dir</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">RefChannels</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">ch</span><span class="p">][[</span><span class="s2">&quot;Direction_1&quot;</span><span class="p">,</span> <span class="s2">&quot;Direction_2&quot;</span><span class="p">,</span> <span class="s2">&quot;Direction_3&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">())</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
-
                 <span class="n">_group</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">RefChannels</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">ch</span><span class="p">][</span><span class="s2">&quot;Grouping&quot;</span><span class="p">]</span>
                 <span class="n">_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">RefChannels</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">ch</span><span class="p">][</span><span class="s2">&quot;Quantity&quot;</span><span class="p">]</span>
-
-
                 <span class="n">r</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">R_matrix_F</span><span class="p">(</span><span class="n">_posVP</span> <span class="o">-</span> <span class="n">_pos</span><span class="p">)</span> <span class="o">@</span> <span class="p">(</span><span class="n">_dir</span><span class="o">.</span><span class="n">T</span><span class="p">))</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
-
             <span class="n">R_all</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
 
-        <span class="c1"># print(np.where(mask_f != 0))</span>
-        <span class="c1"># R_n = np.eye(len(np.where(mask_f != 0)[0]))</span>
-        <span class="c1"># print(R_n)</span>
-
+        <span class="c1"># position the transformation matrix based on location it the .xlsx file</span>
         <span class="n">Rf</span> <span class="o">=</span> <span class="n">block_diag</span><span class="p">(</span><span class="o">*</span><span class="n">R_all</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask_f</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)[</span><span class="mi">0</span><span class="p">])))</span>
 
-        <span class="n">R_n</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">Rf</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sort_matrix</span><span class="p">:</span>
+            <span class="n">R_n</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">Rf</span><span class="p">)</span>
+            <span class="n">R_all</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">R_all</span><span class="p">)[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
+            <span class="n">gg</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">trig</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">mask_f</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">R_n</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">gg</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+                    <span class="n">gg</span> <span class="o">+=</span> <span class="n">k</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">trig</span><span class="p">:</span>
+                        <span class="n">R_n</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span> <span class="o">+</span> <span class="n">R_all</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">gg</span><span class="p">:</span><span class="n">gg</span> <span class="o">+</span> <span class="n">R_all</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="n">R_all</span>
 
-        <span class="n">R_all</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">R_all</span><span class="p">)[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
-        <span class="n">gg</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="n">trig</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">mask_f</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="n">R_n</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">gg</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
-                <span class="n">gg</span> <span class="o">+=</span> <span class="n">k</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">trig</span><span class="p">:</span>
-                    <span class="n">R_n</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span> <span class="o">+</span> <span class="n">R_all</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">gg</span><span class="p">:</span><span class="n">gg</span> <span class="o">+</span> <span class="n">R_all</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="n">R_all</span>
+                        <span class="n">gg</span> <span class="o">+=</span> <span class="n">R_all</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                        <span class="n">trig</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">Rf</span> <span class="o">=</span> <span class="n">R_n</span>
 
-                    <span class="n">gg</span> <span class="o">+=</span> <span class="n">R_all</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-                    <span class="n">trig</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="n">Rf</span> <span class="o">=</span> <span class="n">R_n</span>
-
+        <span class="c1"># definition of weighting matrix</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">Wf_p</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">Wf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">Rf</span><span class="o">.</span><span class="n">shape</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">Wf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Wf_p</span>
 
+        <span class="c1"># calculate the Tf, Ff matrices</span>
         <span class="n">Tf</span> <span class="o">=</span> <span class="n">Wf</span> <span class="o">@</span> <span class="n">Rf</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">pinv</span><span class="p">(</span><span class="n">Rf</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">Wf</span> <span class="o">@</span> <span class="n">Rf</span><span class="p">)</span>
         <span class="n">Ff</span> <span class="o">=</span> <span class="n">Rf</span> <span class="o">@</span> <span class="n">Tf</span><span class="o">.</span><span class="n">T</span>
 
@@ -330,38 +371,45 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">Tf</span> <span class="o">=</span> <span class="n">Tf</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">Ff</span> <span class="o">=</span> <span class="n">Ff</span></div>
 
-<div class="viewcode-block" id="VPT.R_matrix_U"><a class="viewcode-back" href="../../code_documentation/VPT.html#pyFBS.VPT.R_matrix_U">[docs]</a>    <span class="k">def</span> <span class="nf">R_matrix_U</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;Acceleration&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="VPT.R_matrix_U"><a class="viewcode-back" href="../../code_documentation/VPT.html#pyFBS.VPT.R_matrix_U">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">R_matrix_U</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;Acceleration&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculate Ru matrix based on the channel position/orientation and sensor type.</span>
 
 <span class="sd">        :param pos: Position of the channel.</span>
-<span class="sd">        :type pos: numpy.array</span>
+<span class="sd">        :type pos: array(float)</span>
 <span class="sd">        :param type: Type of the channel (i.e. Acceleration or Angular Acceleration).</span>
-<span class="sd">        :returns: numpy.array, Ru</span>
+<span class="sd">        :type pos: string, optional</span>
+<span class="sd">        :returns: Ru matrix</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="n">rx</span><span class="p">,</span> <span class="n">ry</span><span class="p">,</span> <span class="n">rz</span> <span class="o">=</span> <span class="n">pos</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">pos</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">pos</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
 
-        <span class="k">if</span> <span class="nb">type</span> <span class="o">==</span> <span class="s2">&quot;Acceleration&quot;</span><span class="p">:</span>
-            <span class="n">_R</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">rz</span><span class="p">,</span> <span class="o">-</span><span class="n">ry</span><span class="p">],</span>
-                             <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">rz</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">rx</span><span class="p">],</span>
-                             <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">ry</span><span class="p">,</span> <span class="o">-</span><span class="n">rx</span><span class="p">,</span> <span class="mi">0</span><span class="p">]])</span>
 
-        <span class="k">elif</span> <span class="nb">type</span> <span class="o">==</span> <span class="s2">&quot;Angular Acceleration&quot;</span><span class="p">:</span>
+        <span class="n">_R</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">rz</span><span class="p">,</span> <span class="o">-</span><span class="n">ry</span><span class="p">],</span>
+                         <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">rz</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">rx</span><span class="p">],</span>
+                         <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">ry</span><span class="p">,</span> <span class="o">-</span><span class="n">rx</span><span class="p">,</span> <span class="mi">0</span><span class="p">]])</span>
+
+        <span class="k">if</span> <span class="nb">type</span> <span class="o">==</span> <span class="s2">&quot;Angular Acceleration&quot;</span><span class="p">:</span>
             <span class="n">_R</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
                              <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
                              <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]])</span>
 
         <span class="k">return</span> <span class="n">_R</span></div>
 
-<div class="viewcode-block" id="VPT.W_rotational"><a class="viewcode-back" href="../../code_documentation/VPT.html#pyFBS.VPT.W_rotational">[docs]</a>    <span class="k">def</span> <span class="nf">W_rotational</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="nb">dir</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;Angular Acceleration&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="VPT.W_rotational"><a class="viewcode-back" href="../../code_documentation/VPT.html#pyFBS.VPT.W_rotational">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">W_rotational</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="nb">dir</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;Angular Acceleration&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Defines the weighting matrix based on the</span>
+<span class="sd">        Defines the weighting matrix based on the location of rotational accelerometer</span>
 
 <span class="sd">        :param pos: Position of the channel.</span>
-<span class="sd">        :type pos: numpy.array</span>
+<span class="sd">        :type pos: array(float)</span>
+<span class="sd">        :param dir: Direction of the channel</span>
+<span class="sd">        :type dir: array(float)</span>
 <span class="sd">        :param type: Type of the channel (i.e. Acceleration or Angular Acceleration)</span>
-<span class="sd">        :type type: str</span>
+<span class="sd">        :type type: str, optional</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="n">rx</span><span class="p">,</span> <span class="n">ry</span><span class="p">,</span> <span class="n">rz</span> <span class="o">=</span> <span class="n">pos</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">pos</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">pos</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
 
         <span class="n">_W</span> <span class="o">=</span> <span class="mi">1</span>
@@ -377,14 +425,16 @@
 
         <span class="k">return</span> <span class="n">_W</span></div>
 
-<div class="viewcode-block" id="VPT.R_matrix_F"><a class="viewcode-back" href="../../code_documentation/VPT.html#pyFBS.VPT.R_matrix_F">[docs]</a>    <span class="k">def</span> <span class="nf">R_matrix_F</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pos</span><span class="p">):</span>
+<div class="viewcode-block" id="VPT.R_matrix_F"><a class="viewcode-back" href="../../code_documentation/VPT.html#pyFBS.VPT.R_matrix_F">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">R_matrix_F</span><span class="p">(</span><span class="n">pos</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Calculate Rf matrix based on the reference channel position/orientation.</span>
+<span class="sd">        Calculates Rf matrix based on the reference channel position/orientation.</span>
 
-<span class="sd">        :param pos: Position of the reference channel relative to virtual point.</span>
-<span class="sd">        :type pos: numpy.array</span>
-<span class="sd">        :returns: numpy.array, Rf</span>
+<span class="sd">        :param pos: Position of the reference channel relative to the virtual point.</span>
+<span class="sd">        :type pos: array(float)</span>
+<span class="sd">        :returns: Rf matrix</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="n">rx</span><span class="p">,</span> <span class="n">ry</span><span class="p">,</span> <span class="n">rz</span> <span class="o">=</span> <span class="n">pos</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">pos</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">pos</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
 
         <span class="n">_R</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
@@ -396,15 +446,16 @@
 
         <span class="k">return</span> <span class="n">_R</span></div>
 
-<div class="viewcode-block" id="VPT.find_overlap_ch"><a class="viewcode-back" href="../../code_documentation/VPT.html#pyFBS.VPT.find_overlap_ch">[docs]</a>    <span class="k">def</span> <span class="nf">find_overlap_ch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">channelsA</span><span class="p">,</span> <span class="n">channelsB</span><span class="p">):</span>
+<div class="viewcode-block" id="VPT.find_overlap_ch"><a class="viewcode-back" href="../../code_documentation/VPT.html#pyFBS.VPT.find_overlap_ch">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">find_overlap_ch</span><span class="p">(</span><span class="n">channelsA</span><span class="p">,</span> <span class="n">channelsB</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Finds an overlap of grouping number between two channel datasets.</span>
+<span class="sd">        Finds an overlap of grouping number between two channel DataFrames.</span>
 
-<span class="sd">        :param channelsA:</span>
-<span class="sd">        :type channelsA: pandas.DataFrame</span>
-<span class="sd">        :param channelsB:</span>
-<span class="sd">        :type channelsB: pandas.DataFrame</span>
-<span class="sd">        :return GG: numpy.array, Overlap mask</span>
+<span class="sd">        :param channelsA: First set of channels</span>
+<span class="sd">        :type channelsA: pd.DataFrame</span>
+<span class="sd">        :param channelsB: Second set of channels</span>
+<span class="sd">        :type channelsB: pd.DataFrame</span>
+<span class="sd">        :return: overlap,unique_index, overlap_mask</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># Get the grouping numbers from DataFrames</span>
@@ -420,42 +471,43 @@
 
         <span class="k">return</span> <span class="n">_overlap</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">_group_chVP</span><span class="p">,</span> <span class="n">return_index</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">mask</span></div>
 
-<div class="viewcode-block" id="VPT.find_group"><a class="viewcode-back" href="../../code_documentation/VPT.html#pyFBS.VPT.find_group">[docs]</a>    <span class="k">def</span> <span class="nf">find_group</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">gr</span><span class="p">,</span> <span class="n">gr_list</span><span class="p">):</span>
+<div class="viewcode-block" id="VPT.find_group"><a class="viewcode-back" href="../../code_documentation/VPT.html#pyFBS.VPT.find_group">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">find_group</span><span class="p">(</span><span class="n">gr</span><span class="p">,</span> <span class="n">gr_list</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get a grouping overlap between two sets.</span>
+<span class="sd">        Get a grouping overlap between two DataFrames.</span>
 
-<span class="sd">        :param gr: blah</span>
-<span class="sd">        :type gr: list</span>
-<span class="sd">        :param gr_list: blah</span>
+<span class="sd">        :param gr: Grouping number</span>
+<span class="sd">        :type gr: int</span>
+<span class="sd">        :param gr_list: A list of grouping numbers</span>
 <span class="sd">        :type gr_list: list</span>
-<span class="sd">        :return: numpy.array</span>
+<span class="sd">        :return: overlap_mask</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="n">_overlap</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">gr</span><span class="p">):</span>
             <span class="n">_overlap</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">gr_list</span> <span class="o">==</span> <span class="n">a</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">_overlap</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span></div>
 
+
 <div class="viewcode-block" id="VPT.apply_VPT"><a class="viewcode-back" href="../../code_documentation/VPT.html#pyFBS.VPT.apply_VPT">[docs]</a>    <span class="k">def</span> <span class="nf">apply_VPT</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">freq</span><span class="p">,</span><span class="n">FRF</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Applies the Virtual Point Transformation on the supplied FRF matrix.</span>
+<span class="sd">        Applies the Virtual Point Transformation on the FRF matrix.</span>
 
-<span class="sd">        :param freq: Frequency vector.</span>
-<span class="sd">        :type freq: numpy.array</span>
-<span class="sd">        :param FRF: A matrix of Frequency Response Functions FRFs.</span>
-<span class="sd">        :type: numpy.array</span>
+<span class="sd">        :param freq: Frequency vector</span>
+<span class="sd">        :type freq: array(float)</span>
+<span class="sd">        :param FRF: A matrix of Frequency Response Functions FRFs [f,out,in].</span>
+<span class="sd">        :type FRF: array(float)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">_freq_lim</span> <span class="o">=</span> <span class="n">FRF</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
-        <span class="n">_Y_vpt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">Tu</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">Tf</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">_freq_lim</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">_freq_lim</span><span class="p">):</span>
-            <span class="n">_Y_vpt</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Tu</span> <span class="o">@</span> <span class="n">FRF</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">@</span> <span class="bp">self</span><span class="o">.</span><span class="n">Tf</span>
+
+        <span class="n">_Y_vpt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Tu</span> <span class="o">@</span> <span class="n">FRF</span> <span class="o">@</span> <span class="bp">self</span><span class="o">.</span><span class="n">Tf</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">vptData</span> <span class="o">=</span> <span class="n">_Y_vpt</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">vptFreqs</span> <span class="o">=</span> <span class="n">freq</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">freq</span> <span class="o">=</span> <span class="n">freq</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">FRF</span> <span class="o">=</span> <span class="n">FRF</span></div>
 
 <div class="viewcode-block" id="VPT.consistency"><a class="viewcode-back" href="../../code_documentation/VPT.html#pyFBS.VPT.consistency">[docs]</a>    <span class="k">def</span> <span class="nf">consistency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grouping</span><span class="p">,</span> <span class="n">ref_grouping</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Calculates the VP consistency indicators based on the supplied grouping numbers.</span>
+<span class="sd">        Evaluates VP consistency indicators based on the supplied grouping numbers.</span>
 
 <span class="sd">        :param grouping: Grouping number of the VP.</span>
 <span class="sd">        :type grouping: float</span>
@@ -475,7 +527,7 @@
         <span class="n">ind_Rch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_group</span><span class="p">(</span><span class="n">ref_grouping</span><span class="p">,</span> <span class="n">_Rch_all</span><span class="p">)</span>
 
         <span class="c1"># Calculate sensor consistency</span>
-        <span class="n">sub_Y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">FRF</span><span class="p">[</span><span class="n">ind_ch</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:][:,</span> <span class="n">ind_Rch</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="n">sub_Y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">FRF</span><span class="p">,(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">))[</span><span class="n">ind_ch</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:][:,</span> <span class="n">ind_Rch</span><span class="p">,</span> <span class="p">:]</span>
         <span class="n">sub_Fu</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Fu</span><span class="p">[</span><span class="n">ind_ch</span><span class="p">,</span> <span class="p">:][:,</span> <span class="n">ind_ch</span><span class="p">]</span>
 
         <span class="n">u_f</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">sub_Y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">1</span><span class="p">,</span> <span class="n">sub_Y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
@@ -503,7 +555,7 @@
 
 
         <span class="c1"># Calculate impact consistency</span>
-        <span class="n">sub_Y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">FRF</span><span class="p">[</span><span class="n">ind_ch</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:][:,</span> <span class="n">ind_Rch</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="n">sub_Y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">FRF</span><span class="p">,(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">))[:,</span> <span class="n">ind_Rch</span><span class="p">,</span> <span class="p">:]</span>
         <span class="n">sub_Ff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ff</span><span class="p">[</span><span class="n">ind_Rch</span><span class="p">,</span> <span class="p">:][:,</span> <span class="n">ind_Rch</span><span class="p">]</span>
 
         <span class="n">y_f</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">sub_Y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">1</span><span class="p">,</span> <span class="n">sub_Y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
@@ -526,13 +578,10 @@
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
             <span class="n">specific_impact</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">coh_frf</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y_f</span><span class="p">[</span><span class="n">i</span><span class="p">,:],</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">,:]))</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">specific_impact</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">specific_impact</span><span class="p">)</span></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">specific_impact</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">specific_impact</span><span class="p">)</span></div>
 
-
-
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Frequency-dependend weighting matrix</span>
+<span class="sd">    Frequency-dependend weighting matrix - to be implemented in the pyFBS with next release</span>
 
 <span class="sd">    Wu = block_diag(*_Warray)</span>
 <span class="sd">    Wu = block_diag(Wu, np.eye(len(np.where(mask_u != 0)[0])))</span>
@@ -572,9 +621,7 @@
 
 <span class="sd">    self.Tu_f = Tu_f</span>
 <span class="sd">    self.Fu_f = Fu_f</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Test: Cat!&quot;</span><span class="p">)</span>
-
+<span class="sd">    &quot;&quot;&quot;</span></div>
 </pre></div>
 
            </div>
@@ -587,7 +634,7 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2019, Tomaž Bregar
+        &copy; Copyright 2020, The pyFBS Developers
 
     </p>
   </div>

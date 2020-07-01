@@ -1,0 +1,377 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Interactive positioning &mdash; pyFBS  documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../_static/logo-small.png"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/style.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery-dataframe.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="FRF synthetization" href="03_FRF_synthetization.html" />
+    <link rel="prev" title="3D Display" href="01_static_display.html" />
+ 
+
+<meta name="description" content="A Python package for Frequency Based Substructuring">
+<meta name="author" content="The pyFBS Developers">
+<meta name="keywords" content="python, structural dynamics, frequency based substructuring, virtual point transformation, system equivalent model mixing, modal analysis, frequency response function">
+
+</script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html">
+          
+
+          
+            
+            <img src="../_static/logo-big.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+    
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">About</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro.html">Why pyFBS?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../credits.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Examples</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="basic_examples.html">Basic examples</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="01_static_display.html">3D Display</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Interactive positioning</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#translation">Translation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#rotation">Rotation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#snapping">Snapping</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#i-o-objects">I/O Objects</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#accelerometers">Accelerometers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#channels">Channels</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#impacts">Impacts</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#virtual-points">Virtual points</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#export-updated-positions">Export updated positions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="03_FRF_synthetization.html">FRF synthetization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="04_VPT.html">Virtual Point Transformation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="05_SEMM.html">SEMM - System equivalent model mixing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="application_examples.html">Application Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Code Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../code_documentation/core.html">Core API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../code_documentation/util.html">Utilities</a></li>
+</ul>
+
+            
+          
+
+    
+        <p class="caption">
+            <span class="caption-text">
+            
+                Getting Connected
+            
+            </span>
+        </p>
+        <ul>
+            
+                <li class="toctree-l1"><a href="https://"><i class="fa fa-comment fa-fw"></i> Support</a></li>
+            
+                <li class="toctree-l1"><a href="https://"><i class="fa fa-gitlab fa-fw"></i> Source Code</a></li>
+            
+                <li class="toctree-l1"><a href="https://"><i class="fa fa-gavel fa-fw"></i> Contributing</a></li>
+            
+                <li class="toctree-l1"><a href="https://"><i class="fa fa-file-text fa-fw"></i> The Paper</a></li>
+            
+        </ul>
+    
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pyFBS</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="basic_examples.html">Basic examples</a> &raquo;</li>
+        
+      <li>Interactive positioning</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/examples/02_interactive_display.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="interactive-positioning">
+<h1>Interactive positioning<a class="headerlink" href="#interactive-positioning" title="Permalink to this headline">¶</a></h1>
+<p>With the <code class="xref py py-mod docutils literal notranslate"><span class="pre">pyFBS</span></code> accelerometers, impacts and virtual points can be added and positioned interactively within the 3D display.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Example showing the interactive positioning: <a class="reference download internal" download="" href="../_downloads/1373c96f4b64dd682f72ea7454a1f1a8/02_interactive_display.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">02_interactive_display.ipynb</span></code></a>.</p>
+</div>
+<p>Dynamic interaction with objects in the <code class="xref py py-mod docutils literal notranslate"><span class="pre">pyFBS</span></code> is achieved with the sphere widgets from PyVista.
+Altogether four sphere widgets are used (one for translation and three for rotations).</p>
+<div class="section" id="translation">
+<h2>Translation<a class="headerlink" href="#translation" title="Permalink to this headline">¶</a></h2>
+<p>Translation of an object in the 3D display can be performed by moving a black sphere widget. An example of translation in the 3D display is depicted on a GIF bellow.</p>
+<div class="figure align-default" id="id1">
+<a class="reference internal image-reference" href="../_images/translation.gif"><img alt="../_images/translation.gif" src="../_images/translation.gif" style="width: 800px;" /></a>
+<p class="caption"><span class="caption-text">Translation of accelerometers within the 3D display.</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
+</div>
+</div>
+<div class="section" id="rotation">
+<h2>Rotation<a class="headerlink" href="#rotation" title="Permalink to this headline">¶</a></h2>
+<p>To rotate an object in the 3D display, three sphere widgets are available, for rotation around each axis.
+Red sphere widget is used for rotation around <cite>X</cite>-axis, green for rotation around <cite>Y</cite>-axis and blue for rotation around <cite>Z</cite>-axis. An example of rotation in the 3D display is depcted on a GIF bellow.</p>
+<div class="figure align-default" id="id2">
+<a class="reference internal image-reference" href="../_images/rotation.gif"><img alt="../_images/rotation.gif" src="../_images/rotation.gif" style="width: 800px;" /></a>
+<p class="caption"><span class="caption-text">Rotation of accelerometers within the 3D display.</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
+</div>
+</div>
+<div class="section" id="snapping">
+<h2>Snapping<a class="headerlink" href="#snapping" title="Permalink to this headline">¶</a></h2>
+<p>If a mesh from an STL file is available there is possible to snapp the position of the object to the surface of the geometric object.
+Furthermore, also the orientation of the object is alligned with the surface normal in the snapping point. The snapping option can be disabled by holding down the letter <code class="docutils literal notranslate"><span class="pre">T</span></code>
+when moving the object in the 3D display.</p>
+<div class="figure align-default" id="id3">
+<a class="reference internal image-reference" href="../_images/snapping.gif"><img alt="../_images/snapping.gif" src="../_images/snapping.gif" style="width: 800px;" /></a>
+<p class="caption"><span class="caption-text">Snapping of accelerometers to the mesh of a structure.</span><a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
+</div>
+</div>
+<div class="section" id="i-o-objects">
+<h2>I/O Objects<a class="headerlink" href="#i-o-objects" title="Permalink to this headline">¶</a></h2>
+<p>If a predefined dataset <code class="xref py py-mod docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code> is available for accelerometers, impacts and virtual points it can be used to place interactive objects already on the predefined positions.</p>
+<div class="section" id="accelerometers">
+<h3>Accelerometers<a class="headerlink" href="#accelerometers" title="Permalink to this headline">¶</a></h3>
+<p>To enable the snapping to mesh option, first load an STL file in the 3D display:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">stl</span> <span class="o">=</span> <span class="n">pyFBS</span><span class="o">.</span><span class="n">example_lab_testbench</span><span class="p">[</span><span class="s2">&quot;STL&quot;</span><span class="p">][</span><span class="s2">&quot;A&quot;</span><span class="p">]</span>
+<span class="n">mesh</span> <span class="o">=</span> <span class="n">view3D</span><span class="o">.</span><span class="n">add_stl</span><span class="p">(</span><span class="n">stl</span><span class="p">,</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;ts&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Accelerometers can then be placed on the predefined positions, which can then be moved around and rotated in the 3D display.
+If there is no predefined data, new accelerometers can be added to the 3D display by pressing the letter <code class="docutils literal notranslate"><span class="pre">P</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">view3D</span><span class="o">.</span><span class="n">add_acc_dynamic</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span><span class="n">predefined</span> <span class="o">=</span> <span class="n">df_sensors</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The new updated positions and orientations can be obtained directly from the <a class="reference internal" href="../code_documentation/display.html#pyFBS.view3D" title="pyFBS.view3D"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyFBS.view3D</span></code></a>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">df_acc_updated</span> <span class="o">=</span> <span class="n">view3D</span><span class="o">.</span><span class="n">get_acc_data</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="channels">
+<h3>Channels<a class="headerlink" href="#channels" title="Permalink to this headline">¶</a></h3>
+<p>Channels can be defined based on the positions and orientations of accelerometers.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">df_chn_updated</span> <span class="o">=</span> <span class="n">pyFBS</span><span class="o">.</span><span class="n">utility</span><span class="o">.</span><span class="n">generate_channels_from_sensors</span><span class="p">(</span><span class="n">df_acc_updated</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Currently, all the accelerometers are considered to be tri-axial. However, possible redundant channels can simply be discarded from the <code class="docutils literal notranslate"><span class="pre">df_chn_updated</span></code>.</p>
+</div>
+<div class="section" id="impacts">
+<h3>Impacts<a class="headerlink" href="#impacts" title="Permalink to this headline">¶</a></h3>
+<p>Interactive impacts can be added also from the predefined positions.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">view3D</span><span class="o">.</span><span class="n">add_imp_dynamic</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span><span class="n">predefined</span> <span class="o">=</span> <span class="n">df_impacts</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The updated positions and orientations can be obtained directly.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">df_imp_updated</span> <span class="o">=</span> <span class="n">view3D</span><span class="o">.</span><span class="n">get_imp_data</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="virtual-points">
+<h3>Virtual points<a class="headerlink" href="#virtual-points" title="Permalink to this headline">¶</a></h3>
+<p>In a simmilar manner also interactive virtual points can be added to the 3D display.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">view3D</span><span class="o">.</span><span class="n">add_vp_dynamic</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span><span class="n">predefined</span> <span class="o">=</span> <span class="n">df_vp</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The updated positions and orientations can be obtained directly.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">df_vp_updated</span> <span class="o">=</span> <span class="n">view3D</span><span class="o">.</span><span class="n">get_vp_data</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="export-updated-positions">
+<h2>Export updated positions<a class="headerlink" href="#export-updated-positions" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">pd</span><span class="o">.</span><span class="n">ExcelWriter</span><span class="p">(</span><span class="s1">&#39;./output_file.xlsx&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">writer</span><span class="p">:</span>
+        <span class="n">df_acc_updated</span><span class="o">.</span><span class="n">to_excel</span><span class="p">(</span><span class="n">writer</span><span class="p">,</span> <span class="n">sheet_name</span><span class="o">=</span><span class="s1">&#39;Sensors&#39;</span><span class="p">,</span><span class="n">index</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="n">df_imp_updated</span><span class="o">.</span><span class="n">to_excel</span><span class="p">(</span><span class="n">writer</span><span class="p">,</span> <span class="n">sheet_name</span><span class="o">=</span><span class="s1">&#39;Impacts&#39;</span><span class="p">,</span><span class="n">index</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="n">df_chn_updated</span><span class="o">.</span><span class="n">to_excel</span><span class="p">(</span><span class="n">writer</span><span class="p">,</span> <span class="n">sheet_name</span><span class="o">=</span><span class="s1">&#39;Channels&#39;</span><span class="p">,</span><span class="n">index</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="03_FRF_synthetization.html" class="btn btn-neutral float-right" title="FRF synthetization" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="01_static_display.html" class="btn btn-neutral float-left" title="3D Display" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, The pyFBS Developers
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

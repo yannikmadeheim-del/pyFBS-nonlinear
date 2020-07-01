@@ -1,28 +1,79 @@
-=====
-pyFBS
-=====
+.. image:: ../data/logo-big.png
+	:align: right
+	
 
 
-.. image:: https://img.shields.io/pypi/v/pyfbs.svg
-        :target: https://pypi.python.org/pypi/pyfbs
+pyFBS is a Python package for Frequency Based Substructuring. It enables the user to use state-of-the-art dynamic substructuring methodologies in an intuitive manner. 
 
-.. image:: https://img.shields.io/travis/tb93/pyfbs.svg
-        :target: https://travis-ci.org/tb93/pyfbs
-
-.. image:: https://readthedocs.org/projects/pyfbs/badge/?version=latest
-        :target: https://pyfbs.readthedocs.io/en/latest/?badge=latest
-        :alt: Documentation Status
-
-Python package for Frequency Based Substructuring
-
-
-* Free software: MIT license
-* Documentation: https://pyfbs.readthedocs.io.
-
+With the package also basic and application examples are provided, together with real datasets so you can simply try out capabilities of the pyFBS.
 
 Features
 --------
 
-* TODO
+* 3D display
+
+* FRF synthetization
+
+* Virtual Point Transformation
+
+* System Equivalent Model Mixing
+
+* Singular Vector Transformation
+
+
+For more information on features or basic and application examples check out the documentation. 
+
+
+Acknowledgements
+----------------
+
+
+The pyFBS package was developed as a part of collaboration between the Laboratory for Dynamics of Machines and Structures (`LADISK <http://ladisk.si/>`_), Faculty of Mechanical Engineering, University of Ljubljana (FME, UL) and the Chair of Applied Mechanics (`AM <https://www.mw.tum.de/am/home/>`_), Technical University of Munich (TUM).
+
+.. raw:: html
+
+	<a href="http://ladisk.si/">
+		<img src="http://lab.fs.uni-lj.si/ladisk/data/pic/ladisk_logo_navbar_line.png" alt="LADISK logo" title="LADISK" align="right" width=80 height=80 />
+	</a>
+
+	
+Laboratory for Dynamics of Machines and Structures (LADISK), FME UL
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Text
+
+text
+
+text
+
+	
+	
+.. raw:: html
+
+	<a href="https://www.mw.tum.de/">
+		<img src="https://www.mw.tum.de/typo3/ext/tumtheme/Resources/Public/Icons/Org/tum-logo.png" alt="LADISK logo" title="LADISK" align="right" width=80 height=80 />
+	</a>
+
+
+Chair of Applied Mechanics (AM), TUM
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The Chair of Applied Mechanics (Technical University of Munich) covers a wide range of research fields, that directly impact the future of industry and society, but are always related to Structural Dynamics and Mechatronics.
+These research fields are divided into three areas: Experimental Dynamics, Numerical Methods, and Robotics. They range from fundamental research, such as development of new numerical methods, to applied research in cooperation with industry. This research can help on the path to a sustainable future by providing tools and technologies for a more advanced product design, that reduces the amount of prototypes and, thus, saves development costs and minimizes material consumption.
+
+
+
+
+Citation
+--------
+A paper about the pyFBS will be submitted to the Journal of Open Source Software journal. If you will be using pyFBS in your scientific research, please consider citing the paper.
+
+
+License
+-------
+Licensed under the MIT license.
+
+
+
 
 

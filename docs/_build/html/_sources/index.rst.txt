@@ -1,5 +1,5 @@
 Welcome to pyFBS's documentation!
-======================================
+=================================
 
 .. include:: ../README.rst
 
@@ -7,11 +7,9 @@ Welcome to pyFBS's documentation!
 .. toctree::
    :maxdepth: 2
    :caption: About
-   
+
    intro
-   
-   authors
-   
+   credits
    license
 
 
@@ -19,21 +17,22 @@ Welcome to pyFBS's documentation!
    :maxdepth: 2
    :caption: Getting Started
 
-   usage
-   
    installation
+   usage
+
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Examples
    
    ./examples/basic_examples
-   
    ./examples/application_examples
-
    
+
+
 .. toctree::
    :maxdepth: 2
    :caption: Code Documentation
-   
-   ./code_documentation/display
-   ./code_documentation/SEMM
-   ./code_documentation/VPT
 
-
+   ./code_documentation/core
+   ./code_documentation/util

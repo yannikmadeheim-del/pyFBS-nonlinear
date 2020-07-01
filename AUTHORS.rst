@@ -1,13 +1,15 @@
-=======
-Credits
-=======
-
 Development Lead
 ----------------
 
-TODO
+* Tomaž Bregar 
+
+* Ahmed El Mahmoudi
+
+* Miha Kodrič
 
 Contributors
 ------------
 
-None yet. Why not be the first?
+Add a link to GitLab.
+
+

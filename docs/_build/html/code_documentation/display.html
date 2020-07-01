@@ -1,5 +1,6 @@
 
 
+
 <!DOCTYPE html>
 <!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
@@ -8,10 +9,12 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pyFBS.display &mdash; pyFBS  documentation</title>
+  <title>pyFBS.view3D &mdash; pyFBS  documentation</title>
   
 
   
+  
+    <link rel="shortcut icon" href="../_static/logo-small.png"/>
   
   
   
@@ -21,10 +24,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -33,10 +36,22 @@
   
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/style.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery-dataframe.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="pyFBS.SEMM" href="SEMM.html" />
-    <link rel="prev" title="Application Examples" href="../examples/application_examples.html" /> 
+    <link rel="next" title="pyFBS.MK_model" href="MCK.html" />
+    <link rel="prev" title="Core API" href="core.html" />
+ 
+
+<meta name="description" content="A Python package for Frequency Based Substructuring">
+<meta name="author" content="The pyFBS Developers">
+<meta name="keywords" content="python, structural dynamics, frequency based substructuring, virtual point transformation, system equivalent model mixing, modal analysis, frequency response function">
+
+</script>
+
 </head>
 
 <body class="wy-body-for-nav">
@@ -50,9 +65,12 @@
           
 
           
-            <a href="../index.html" class="icon icon-home"> pyFBS
+            <a href="../index.html">
           
 
+          
+            
+            <img src="../_static/logo-big.png" class="logo" alt="Logo"/>
           
           </a>
 
@@ -75,6 +93,7 @@
 
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
+    
             
             
               
@@ -83,25 +102,55 @@
               <p class="caption"><span class="caption-text">About</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../intro.html">Why pyFBS?</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../credits.html">Credits</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Getting Started</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../examples/basic_examples.html">Basic Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../examples/basic_examples.html">Basic examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../examples/application_examples.html">Application Examples</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Code Documentation</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">pyFBS.display</a></li>
-<li class="toctree-l1"><a class="reference internal" href="SEMM.html">pyFBS.SEMM</a></li>
-<li class="toctree-l1"><a class="reference internal" href="VPT.html">pyFBS.VPT</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="core.html">Core API</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">pyFBS.view3D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="MCK.html">pyFBS.MK_model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VPT.html">pyFBS.VPT</a></li>
+<li class="toctree-l2"><a class="reference internal" href="SEMM.html">pyFBS.SEMM</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="util.html">Utilities</a></li>
 </ul>
 
             
           
+
+    
+        <p class="caption">
+            <span class="caption-text">
+            
+                Getting Connected
+            
+            </span>
+        </p>
+        <ul>
+            
+                <li class="toctree-l1"><a href="https://"><i class="fa fa-comment fa-fw"></i> Support</a></li>
+            
+                <li class="toctree-l1"><a href="https://"><i class="fa fa-gitlab fa-fw"></i> Source Code</a></li>
+            
+                <li class="toctree-l1"><a href="https://"><i class="fa fa-gavel fa-fw"></i> Contributing</a></li>
+            
+                <li class="toctree-l1"><a href="https://"><i class="fa fa-file-text fa-fw"></i> The Paper</a></li>
+            
+        </ul>
+    
+
         </div>
       </div>
     </nav>
@@ -143,7 +192,9 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
-      <li>pyFBS.display</li>
+          <li><a href="core.html">Core API</a> &raquo;</li>
+        
+      <li>pyFBS.view3D</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -162,33 +213,84 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="pyfbs-display">
-<h1>pyFBS.display<a class="headerlink" href="#pyfbs-display" title="Permalink to this headline">¶</a></h1>
-<p>Short description</p>
-<dl class="class">
-<dt id="pyFBS.display.view3D">
-<em class="property">class </em><code class="sig-prename descclassname">pyFBS.display.</code><code class="sig-name descname">view3D</code><span class="sig-paren">(</span><em class="sig-param">show_origin=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/display.html#view3D"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.display.view3D" title="Permalink to this definition">¶</a></dt>
-<dd><p>A 3D visualization tool for the pyFBS.</p>
+  <div class="section" id="pyfbs-view3d">
+<h1>pyFBS.view3D<a class="headerlink" href="#pyfbs-view3d" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="pyFBS.view3D">
+<em class="property">class </em><code class="sig-prename descclassname">pyFBS.</code><code class="sig-name descname">view3D</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">show_origin</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">show_axes</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">title</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/display.html#view3D"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.view3D" title="Permalink to this definition">¶</a></dt>
+<dd><p>A 3D display where structure, impacts, accelerometer and channels can be quickly displayed. The units of the
+3D display are in milimeters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>show_origin</strong> (<em>bool</em>) – Display the CSYS in origin</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>show_origin</strong> (<em>bool</em><em>, </em><em>optional</em>) – Display the CSYS in origin</p></li>
+<li><p><strong>show_axes</strong> (<em>bool</em><em>, </em><em>optional</em>) – Display axes in the bottom left corner</p></li>
+<li><p><strong>title</strong> (<em>str</em><em>, </em><em>optional</em>) – A title of the 3D display</p></li>
+</ul>
 </dd>
 </dl>
-<dl class="method">
-<dt id="pyFBS.display.view3D.add_accelerometer">
-<code class="sig-name descname">add_accelerometer</code><span class="sig-paren">(</span><em class="sig-param">acc</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/display.html#view3D.add_accelerometer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.display.view3D.add_accelerometer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Adds an accelerometer to 3D view.</p>
+<dl class="py method">
+<dt id="pyFBS.view3D.acc_callback">
+<code class="sig-name descname">acc_callback</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">point</span></em>, <em class="sig-param"><span class="n">orientation</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/display.html#view3D.acc_callback"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.view3D.acc_callback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Interactive accelerometer callback function.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>acc</strong> – Accelerometer object</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>point</strong> (<em>array</em><em>(</em><em>float</em><em>)</em>) – Point in 3D space</p></li>
+<li><p><strong>orientation</strong> (<em>array</em><em>(</em><em>float</em><em>)</em><em>, </em><em>optional</em>) – Orientation in 3D space</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
 
-<dl class="method">
-<dt id="pyFBS.display.view3D.add_channel">
-<code class="sig-name descname">add_channel</code><span class="sig-paren">(</span><em class="sig-param">position</em>, <em class="sig-param">direction</em>, <em class="sig-param">size=10</em>, <em class="sig-param">color='#1f77b4'</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/display.html#view3D.add_channel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.display.view3D.add_channel" title="Permalink to this definition">¶</a></dt>
-<dd><p>Adds a channel to 3D view.</p>
+<dl class="py method">
+<dt id="pyFBS.view3D.add_acc_dynamic">
+<code class="sig-name descname">add_acc_dynamic</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mesh</span></em>, <em class="sig-param"><span class="n">predefined</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/display.html#view3D.add_acc_dynamic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.view3D.add_acc_dynamic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a set of predefined accelerometers to the 3D display and toggle the possibility to add
+additional accelerometers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mesh</strong> (<em>array</em><em>(</em><em>float</em><em>)</em>) – A mesh on which to snap</p></li>
+<li><p><strong>predefined</strong> (<em>pd.DataFrame</em><em>, </em><em>optional</em>) – Predefined set of accelerometers</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyFBS.view3D.add_accelerometer">
+<code class="sig-name descname">add_accelerometer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">acc</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/display.html#view3D.add_accelerometer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.view3D.add_accelerometer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add an accelerometer to the 3D display.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>acc</strong> (<em>list</em>) – Accelerometer object</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of accelerometer mesh actors</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyFBS.view3D.add_action">
+<code class="sig-name descname">add_action</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">toolbar</span></em>, <em class="sig-param"><span class="n">key</span></em>, <em class="sig-param"><span class="n">function</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/display.html#view3D.add_action"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.view3D.add_action" title="Permalink to this definition">¶</a></dt>
+<dd><p>Connects a toolbar button with a certain function</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>toolbar</strong> – Toolbar parameter</p></li>
+<li><p><strong>key</strong> – Name of the toolbar</p></li>
+<li><p><strong>function</strong> – Function to connect the action to</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyFBS.view3D.add_channel">
+<code class="sig-name descname">add_channel</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">position</span></em>, <em class="sig-param"><span class="n">direction</span></em>, <em class="sig-param"><span class="n">size</span><span class="o">=</span><span class="default_value">10</span></em>, <em class="sig-param"><span class="n">color</span><span class="o">=</span><span class="default_value">'#1f77b4'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/display.html#view3D.add_channel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.view3D.add_channel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a channel to the 3D display.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -201,24 +303,39 @@
 </dl>
 </dd></dl>
 
-<dl class="method">
-<dt id="pyFBS.display.view3D.add_csys">
-<code class="sig-name descname">add_csys</code><span class="sig-paren">(</span><em class="sig-param">position=[0, 0, 0], size=10</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/display.html#view3D.add_csys"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.display.view3D.add_csys" title="Permalink to this definition">¶</a></dt>
-<dd><p>Adds a coordinate system at a certain position.</p>
+<dl class="py method">
+<dt id="pyFBS.view3D.add_csys">
+<code class="sig-name descname">add_csys</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">position</span><span class="o">=</span><span class="default_value">[0, 0, 0]</span></em>, <em class="sig-param"><span class="n">size</span><span class="o">=</span><span class="default_value">10</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/display.html#view3D.add_csys"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.view3D.add_csys" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a coordinate system at a certain position.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>position</strong> (<em>list</em><em>, </em><em>optional</em>) – Position of the CSYS [x,y,z]</p></li>
+<li><p><strong>position</strong> (<em>list</em><em>, </em><em>optional</em>) – Position of the CSYS [x, y, z]</p></li>
 <li><p><strong>size</strong> (<em>float</em><em>, </em><em>optional</em>) – Size of the CSYS</p></li>
 </ul>
 </dd>
 </dl>
 </dd></dl>
 
-<dl class="method">
-<dt id="pyFBS.display.view3D.add_impact">
-<code class="sig-name descname">add_impact</code><span class="sig-paren">(</span><em class="sig-param">position</em>, <em class="sig-param">direction</em>, <em class="sig-param">size=10</em>, <em class="sig-param">color='#d62728'</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/display.html#view3D.add_impact"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.display.view3D.add_impact" title="Permalink to this definition">¶</a></dt>
-<dd><p>Adds an impact to 3D view.</p>
+<dl class="py method">
+<dt id="pyFBS.view3D.add_imp_dynamic">
+<code class="sig-name descname">add_imp_dynamic</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mesh</span></em>, <em class="sig-param"><span class="n">predefined</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/display.html#view3D.add_imp_dynamic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.view3D.add_imp_dynamic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a set of predefined impacts to the 3D display and toggle the possibility to add
+additional impacts.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mesh</strong> (<em>array</em><em>(</em><em>float</em><em>)</em>) – A mesh on which to snap</p></li>
+<li><p><strong>predefined</strong> (<em>pd.DataFrame</em><em>, </em><em>optional</em>) – Predefined set of impacts</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyFBS.view3D.add_impact">
+<code class="sig-name descname">add_impact</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">position</span></em>, <em class="sig-param"><span class="n">direction</span></em>, <em class="sig-param"><span class="n">size</span><span class="o">=</span><span class="default_value">10</span></em>, <em class="sig-param"><span class="n">color</span><span class="o">=</span><span class="default_value">'#d62728'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/display.html#view3D.add_impact"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.view3D.add_impact" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds an impact to the 3D display.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -231,10 +348,40 @@
 </dl>
 </dd></dl>
 
-<dl class="method">
-<dt id="pyFBS.display.view3D.add_stl">
-<code class="sig-name descname">add_stl</code><span class="sig-paren">(</span><em class="sig-param">stl_path</em>, <em class="sig-param">name='model'</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/display.html#view3D.add_stl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.display.view3D.add_stl" title="Permalink to this definition">¶</a></dt>
-<dd><p>Adds a mesh to 3D view from .stl file.</p>
+<dl class="py method">
+<dt id="pyFBS.view3D.add_modeshape">
+<code class="sig-name descname">add_modeshape</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dict_shape</span></em>, <em class="sig-param"><span class="n">run_animation</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">add_note</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/display.html#view3D.add_modeshape"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.view3D.add_modeshape" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a modeshape animation to the 3D display.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dict_animation</strong> (<em>dict</em>) – Mode shape dictionary</p></li>
+<li><p><strong>run_animation</strong> (<em>bool</em><em>, </em><em>optional</em>) – Run animation at start.</p></li>
+<li><p><strong>add_note</strong> (<em>bool</em><em>, </em><em>optional</em>) – Add a note to a corner of 3D display.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyFBS.view3D.add_objects_animation">
+<code class="sig-name descname">add_objects_animation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dict_animation</span></em>, <em class="sig-param"><span class="n">run_animation</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">add_note</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/display.html#view3D.add_objects_animation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.view3D.add_objects_animation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add an object animation to the 3D display.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dict_animation</strong> (<em>dict</em>) – Object animation information.</p></li>
+<li><p><strong>run_animation</strong> (<em>bool</em><em>, </em><em>optional</em>) – Run animation at start.</p></li>
+<li><p><strong>add_note</strong> (<em>bool</em><em>, </em><em>optional</em>) – Add a note to a corner of the 3D display.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyFBS.view3D.add_stl">
+<code class="sig-name descname">add_stl</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">stl_path</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">'model'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/display.html#view3D.add_stl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.view3D.add_stl" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a mesh to the 3D display from STL file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -245,14 +392,14 @@
 </dl>
 </dd></dl>
 
-<dl class="method">
-<dt id="pyFBS.display.view3D.add_vp">
-<code class="sig-name descname">add_vp</code><span class="sig-paren">(</span><em class="sig-param">position</em>, <em class="sig-param">size=10</em>, <em class="sig-param">color='#2ca02c'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/display.html#view3D.add_vp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.display.view3D.add_vp" title="Permalink to this definition">¶</a></dt>
-<dd><p>Adds a virtual point to 3D view.</p>
+<dl class="py method">
+<dt id="pyFBS.view3D.add_vp">
+<code class="sig-name descname">add_vp</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">position</span></em>, <em class="sig-param"><span class="n">size</span><span class="o">=</span><span class="default_value">10</span></em>, <em class="sig-param"><span class="n">color</span><span class="o">=</span><span class="default_value">'#2ca02c'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/display.html#view3D.add_vp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.view3D.add_vp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a virtual point to the 3D display.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>position</strong> (<em>list</em>) – Position of the virtual point [x,y,z]</p></li>
+<li><p><strong>position</strong> (<em>array</em><em>(</em><em>float</em><em>)</em>) – Position of the virtual point [x,y,z]</p></li>
 <li><p><strong>size</strong> (<em>float</em><em>, </em><em>optional</em>) – Size of the virtual point</p></li>
 <li><p><strong>color</strong> (<em>str</em><em>, </em><em>optional</em>) – Color of the virtual point</p></li>
 </ul>
@@ -260,10 +407,49 @@
 </dl>
 </dd></dl>
 
-<dl class="method">
-<dt id="pyFBS.display.view3D.create_accelerometer">
-<code class="sig-name descname">create_accelerometer</code><span class="sig-paren">(</span><em class="sig-param">position</em>, <em class="sig-param">orientation</em>, <em class="sig-param">size=10</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/display.html#view3D.create_accelerometer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.display.view3D.create_accelerometer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create a 3D model of accelerometer.</p>
+<dl class="py method">
+<dt id="pyFBS.view3D.add_vp_dynamic">
+<code class="sig-name descname">add_vp_dynamic</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mesh</span></em>, <em class="sig-param"><span class="n">predefined</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/display.html#view3D.add_vp_dynamic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.view3D.add_vp_dynamic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a set of predefined virtual points to the 3D display and toggle the possibility to add
+additional virtual points.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mesh</strong> (<em>array</em><em>(</em><em>float</em><em>)</em>) – A mesh on which to snap</p></li>
+<li><p><strong>predefined</strong> (<em>pd.DataFrame</em><em>, </em><em>optional</em>) – Predefined set of virtual points</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyFBS.view3D.animate_modeshape">
+<code class="sig-name descname">animate_modeshape</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/display.html#view3D.animate_modeshape"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.view3D.animate_modeshape" title="Permalink to this definition">¶</a></dt>
+<dd><p>Animate a mode shape in the 3D display.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyFBS.view3D.animate_objects">
+<code class="sig-name descname">animate_objects</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/display.html#view3D.animate_objects"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.view3D.animate_objects" title="Permalink to this definition">¶</a></dt>
+<dd><p>Animate objects in the 3D display.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyFBS.view3D.clear_labels">
+<code class="sig-name descname">clear_labels</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/display.html#view3D.clear_labels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.view3D.clear_labels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear all displayed labels in the 3D display.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyFBS.view3D.clear_modeshape">
+<code class="sig-name descname">clear_modeshape</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/display.html#view3D.clear_modeshape"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.view3D.clear_modeshape" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear mode shape from the 3D display.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyFBS.view3D.create_accelerometer">
+<code class="sig-name descname">create_accelerometer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">position</span></em>, <em class="sig-param"><span class="n">orientation</span></em>, <em class="sig-param"><span class="n">size</span><span class="o">=</span><span class="default_value">10</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/display.html#view3D.create_accelerometer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.view3D.create_accelerometer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a 3D model of an accelerometer.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -278,102 +464,208 @@
 </dl>
 </dd></dl>
 
-<dl class="method">
-<dt id="pyFBS.display.view3D.label_acc">
-<code class="sig-name descname">label_acc</code><span class="sig-paren">(</span><em class="sig-param">df</em>, <em class="sig-param">name='Accelerometers'</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/display.html#view3D.label_acc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.display.view3D.label_acc" title="Permalink to this definition">¶</a></dt>
-<dd><p>Adds labels to accelerometers from the DataFrame to 3D view.</p>
+<dl class="py method">
+<dt id="pyFBS.view3D.get_acc_data">
+<code class="sig-name descname">get_acc_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/display.html#view3D.get_acc_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.view3D.get_acc_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns positional information on interactive accelerometers in the 3D display.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>pd.DataFrame containing positional information on accelerometers</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyFBS.view3D.get_imp_data">
+<code class="sig-name descname">get_imp_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/display.html#view3D.get_imp_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.view3D.get_imp_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns positional information on current impacts in the 3D display.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>pd.DataFrame containing positional information on impacts</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyFBS.view3D.get_vp_data">
+<code class="sig-name descname">get_vp_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/display.html#view3D.get_vp_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.view3D.get_vp_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns positional information on interactive virtual points in the 3D display.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>pd.DataFrame containing positional information on virtual points</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyFBS.view3D.imp_callback">
+<code class="sig-name descname">imp_callback</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">point</span></em>, <em class="sig-param"><span class="n">direction</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/display.html#view3D.imp_callback"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.view3D.imp_callback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Interactive impact callback function.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – A DataFrame containing relevant information about the accelerometers</p></li>
-<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of the label which can be used to update existing notations</p></li>
+<li><p><strong>point</strong> (<em>array</em><em>(</em><em>float</em><em>)</em>) – Point in 3D space</p></li>
+<li><p><strong>orientation</strong> (<em>array</em><em>(</em><em>float</em><em>)</em>) – Orientation in 3D space</p></li>
 </ul>
 </dd>
 </dl>
 </dd></dl>
 
-<dl class="method">
-<dt id="pyFBS.display.view3D.label_chn">
-<code class="sig-name descname">label_chn</code><span class="sig-paren">(</span><em class="sig-param">df</em>, <em class="sig-param">name='Channels'</em>, <em class="sig-param">size=10</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/display.html#view3D.label_chn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.display.view3D.label_chn" title="Permalink to this definition">¶</a></dt>
-<dd><p>Adds labels to channels from the DataFrame to 3D view.</p>
+<dl class="py method">
+<dt id="pyFBS.view3D.label_acc">
+<code class="sig-name descname">label_acc</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">df</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">'Accelerometers'</span></em>, <em class="sig-param"><span class="n">font_size</span><span class="o">=</span><span class="default_value">12</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/display.html#view3D.label_acc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.view3D.label_acc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add labels of accelerometers to the 3D display.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – A DataFrame containing relevant information on the sensors</p></li>
+<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of the label which can be used to update existing notations</p></li>
+<li><p><strong>font_size</strong> (<em>float</em>) – Size of the label font</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyFBS.view3D.label_chn">
+<code class="sig-name descname">label_chn</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">df</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">'Channels'</span></em>, <em class="sig-param"><span class="n">size</span><span class="o">=</span><span class="default_value">10</span></em>, <em class="sig-param"><span class="n">font_size</span><span class="o">=</span><span class="default_value">12</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/display.html#view3D.label_chn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.view3D.label_chn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds labels of channels to the 3D display.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>df</strong> (<em>pd.DataFrame</em>) – A DataFrame containing relevant information about the channels</p></li>
 <li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of the label which can be used to update existing notations</p></li>
+<li><p><strong>size</strong> (<em>float</em><em>, </em><em>optional</em>) – Size of the channel arrow</p></li>
+<li><p><strong>font_size</strong> (<em>float</em><em>, </em><em>optional</em>) – Size of the label font</p></li>
 </ul>
 </dd>
 </dl>
 </dd></dl>
 
-<dl class="method">
-<dt id="pyFBS.display.view3D.label_imp">
-<code class="sig-name descname">label_imp</code><span class="sig-paren">(</span><em class="sig-param">df</em>, <em class="sig-param">name='Impacts'</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/display.html#view3D.label_imp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.display.view3D.label_imp" title="Permalink to this definition">¶</a></dt>
-<dd><p>Adds labels to impacts from the DataFrame to 3D view.</p>
+<dl class="py method">
+<dt id="pyFBS.view3D.label_imp">
+<code class="sig-name descname">label_imp</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">df</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">'Impacts'</span></em>, <em class="sig-param"><span class="n">font_size</span><span class="o">=</span><span class="default_value">12</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/display.html#view3D.label_imp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.view3D.label_imp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add labels of impacts to the 3D display.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – A DataFrame containing relevant information about the impacts</p></li>
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – A DataFrame containing information on the impacts</p></li>
 <li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of the label which can be used to update existing notations</p></li>
+<li><p><strong>font_size</strong> (<em>float</em><em>, </em><em>optional</em>) – Size of the label font</p></li>
 </ul>
 </dd>
 </dl>
 </dd></dl>
 
-<dl class="method">
-<dt id="pyFBS.display.view3D.label_vp">
-<code class="sig-name descname">label_vp</code><span class="sig-paren">(</span><em class="sig-param">df</em>, <em class="sig-param">name='VPs'</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/display.html#view3D.label_vp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.display.view3D.label_vp" title="Permalink to this definition">¶</a></dt>
-<dd><p>Adds labels to virtual point from the DataFrame to 3D view.</p>
+<dl class="py method">
+<dt id="pyFBS.view3D.label_vp">
+<code class="sig-name descname">label_vp</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">df</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">'VPs'</span></em>, <em class="sig-param"><span class="n">font_size</span><span class="o">=</span><span class="default_value">12</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/display.html#view3D.label_vp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.view3D.label_vp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds labels to virtual point from the DataFrame to 3D display.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – A DataFrame containing relevant information about the virtual points</p></li>
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – A DataFrame containing information on the virtual points</p></li>
 <li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of the label which can be used to update existing notations</p></li>
+<li><p><strong>font_size</strong> – Size of the label font</p></li>
+</ul>
+</dd>
+</dl>
+<p>type font_size: float, optional</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyFBS.view3D.show_acc">
+<code class="sig-name descname">show_acc</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">df</span></em>, <em class="sig-param"><span class="n">size</span><span class="o">=</span><span class="default_value">10</span></em>, <em class="sig-param"><span class="n">overwrite</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/display.html#view3D.show_acc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.view3D.show_acc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add accelerometers to the 3D display.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – A DataFrame containing information on the accelerometers</p></li>
+<li><p><strong>size</strong> (<em>float</em><em>, </em><em>optional</em>) – size of the accelerometer</p></li>
+<li><p><strong>overwrite</strong> (<em>bool</em><em>, </em><em>optional</em>) – Toggle the option to overwrite currently displayed accelerometers</p></li>
 </ul>
 </dd>
 </dl>
 </dd></dl>
 
-<dl class="method">
-<dt id="pyFBS.display.view3D.show_acc">
-<code class="sig-name descname">show_acc</code><span class="sig-paren">(</span><em class="sig-param">df</em>, <em class="sig-param">size=10</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/display.html#view3D.show_acc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.display.view3D.show_acc" title="Permalink to this definition">¶</a></dt>
-<dd><p>Adds accelerometers from the DataFrame to 3D view.</p>
+<dl class="py method">
+<dt id="pyFBS.view3D.show_chn">
+<code class="sig-name descname">show_chn</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">df</span></em>, <em class="sig-param"><span class="n">color</span><span class="o">=</span><span class="default_value">'#1f77b4'</span></em>, <em class="sig-param"><span class="n">overwrite</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/display.html#view3D.show_chn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.view3D.show_chn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add channels to the 3D display.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>df</strong> (<em>pd.DataFrame</em>) – A DataFrame containing relevant information about the accelerometers</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – A DataFrame containing information on the channels</p></li>
+<li><p><strong>color</strong> (<em>str</em><em>, </em><em>optional</em>) – Color of the channel</p></li>
+<li><p><strong>overwrite</strong> (<em>bool</em><em>, </em><em>optional</em>) – Toggle option to overwrite currently displayed channels</p></li>
+<li><p><strong>size</strong> (<em>float</em><em>, </em><em>optional</em>) – size of the accelerometer</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
 
-<dl class="method">
-<dt id="pyFBS.display.view3D.show_chn">
-<code class="sig-name descname">show_chn</code><span class="sig-paren">(</span><em class="sig-param">df</em>, <em class="sig-param">color='#1f77b4'</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/display.html#view3D.show_chn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.display.view3D.show_chn" title="Permalink to this definition">¶</a></dt>
-<dd><p>Adds channels from the DataFrame to 3D view.</p>
+<dl class="py method">
+<dt id="pyFBS.view3D.show_hide_accelerometers">
+<code class="sig-name descname">show_hide_accelerometers</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/display.html#view3D.show_hide_accelerometers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.view3D.show_hide_accelerometers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Toggles visibility of the accelerometers in the 3D display.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyFBS.view3D.show_hide_channels">
+<code class="sig-name descname">show_hide_channels</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/display.html#view3D.show_hide_channels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.view3D.show_hide_channels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Toggles visibility of the channels in the 3D display.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyFBS.view3D.show_hide_impacts">
+<code class="sig-name descname">show_hide_impacts</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/display.html#view3D.show_hide_impacts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.view3D.show_hide_impacts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Toggles visibility of the impacts in the 3D display.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyFBS.view3D.show_hide_vps">
+<code class="sig-name descname">show_hide_vps</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/display.html#view3D.show_hide_vps"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.view3D.show_hide_vps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Toggles visibility of the virtual points in the 3D display.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyFBS.view3D.show_imp">
+<code class="sig-name descname">show_imp</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">df</span></em>, <em class="sig-param"><span class="n">color</span><span class="o">=</span><span class="default_value">'#d62728'</span></em>, <em class="sig-param"><span class="n">overwrite</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/display.html#view3D.show_imp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.view3D.show_imp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add impacts to the 3D display.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>df</strong> (<em>pd.DataFrame</em>) – A DataFrame containing relevant information about the channels</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – A DataFrame containing information on the impacts</p></li>
+<li><p><strong>color</strong> (<em>str</em><em>, </em><em>optional</em>) – Color of the channel</p></li>
+<li><p><strong>overwrite</strong> (<em>bool</em><em>, </em><em>optional</em>) – Toggle option to overwrite currently displayed impacts</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
 
-<dl class="method">
-<dt id="pyFBS.display.view3D.show_imp">
-<code class="sig-name descname">show_imp</code><span class="sig-paren">(</span><em class="sig-param">df</em>, <em class="sig-param">color='#d62728'</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/display.html#view3D.show_imp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.display.view3D.show_imp" title="Permalink to this definition">¶</a></dt>
-<dd><p>Adds impacts from the DataFrame to 3D view.</p>
+<dl class="py method">
+<dt id="pyFBS.view3D.show_vp">
+<code class="sig-name descname">show_vp</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">df</span></em>, <em class="sig-param"><span class="n">color</span><span class="o">=</span><span class="default_value">'#2ca02c'</span></em>, <em class="sig-param"><span class="n">overwrite</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">size</span><span class="o">=</span><span class="default_value">10</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/display.html#view3D.show_vp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.view3D.show_vp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add virtual points to the 3D display.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>df</strong> (<em>pd.DataFrame</em>) – A DataFrame containing relevant information about the impacts</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – A DataFrame containing information on the virtual points</p></li>
+<li><p><strong>color</strong> (<em>str</em><em>, </em><em>optional</em>) – Color of the virtual point</p></li>
+<li><p><strong>overwrite</strong> (<em>bool</em><em>, </em><em>optional</em>) – Toggle option to overwrite currently displayed channels</p></li>
+<li><p><strong>size</strong> (<em>float</em><em>, </em><em>optional</em>) – size of the accelerometer</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
 
-<dl class="method">
-<dt id="pyFBS.display.view3D.show_vp">
-<code class="sig-name descname">show_vp</code><span class="sig-paren">(</span><em class="sig-param">df</em>, <em class="sig-param">size=10</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/display.html#view3D.show_vp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.display.view3D.show_vp" title="Permalink to this definition">¶</a></dt>
-<dd><p>Adds virtual points from the DataFrame to 3D view.</p>
+<dl class="py method">
+<dt id="pyFBS.view3D.vp_callback">
+<code class="sig-name descname">vp_callback</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">point</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/display.html#view3D.vp_callback"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.view3D.vp_callback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Interactive virtual point callback function.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>df</strong> (<em>pd.DataFrame</em>) – A DataFrame containing relevant information about the virtual points</p>
+<dd class="field-odd"><p><strong>point</strong> (<em>array</em><em>(</em><em>float</em><em>)</em>) – Point in 3D space</p>
 </dd>
 </dl>
 </dd></dl>
@@ -390,10 +682,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="SEMM.html" class="btn btn-neutral float-right" title="pyFBS.SEMM" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="MCK.html" class="btn btn-neutral float-right" title="pyFBS.MK_model" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="../examples/application_examples.html" class="btn btn-neutral float-left" title="Application Examples" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="core.html" class="btn btn-neutral float-left" title="Core API" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -402,7 +694,7 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2019, Tomaž Bregar
+        &copy; Copyright 2020, The pyFBS Developers
 
     </p>
   </div>

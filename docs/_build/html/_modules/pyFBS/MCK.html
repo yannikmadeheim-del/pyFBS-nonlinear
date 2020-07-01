@@ -1,0 +1,573 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pyFBS.MCK &mdash; pyFBS  documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../../_static/logo-small.png"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/style.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery-dataframe.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+ 
+
+<meta name="description" content="A Python package for Frequency Based Substructuring">
+<meta name="author" content="The pyFBS Developers">
+<meta name="keywords" content="python, structural dynamics, frequency based substructuring, virtual point transformation, system equivalent model mixing, modal analysis, frequency response function">
+
+</script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html">
+          
+
+          
+            
+            <img src="../../_static/logo-big.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+    
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">About</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../intro.html">Why pyFBS?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../credits.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/basic_examples.html">Basic examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/application_examples.html">Application Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Code Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../code_documentation/core.html">Core API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../code_documentation/util.html">Utilities</a></li>
+</ul>
+
+            
+          
+
+    
+        <p class="caption">
+            <span class="caption-text">
+            
+                Getting Connected
+            
+            </span>
+        </p>
+        <ul>
+            
+                <li class="toctree-l1"><a href="https://"><i class="fa fa-comment fa-fw"></i> Support</a></li>
+            
+                <li class="toctree-l1"><a href="https://"><i class="fa fa-gitlab fa-fw"></i> Source Code</a></li>
+            
+                <li class="toctree-l1"><a href="https://"><i class="fa fa-gavel fa-fw"></i> Contributing</a></li>
+            
+                <li class="toctree-l1"><a href="https://"><i class="fa fa-file-text fa-fw"></i> The Paper</a></li>
+            
+        </ul>
+    
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pyFBS</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>pyFBS.MCK</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pyFBS.MCK</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">scipy.sparse</span> <span class="kn">import</span> <span class="n">linalg</span><span class="p">,</span><span class="n">diags</span>
+<span class="kn">import</span> <span class="nn">pyansys</span>
+<span class="kn">from</span> <span class="nn">numpy.random</span> <span class="kn">import</span> <span class="n">randn</span>
+
+<span class="kn">import</span> <span class="nn">scipy</span> <span class="k">as</span> <span class="nn">sp</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">spatial</span>
+<span class="kn">from</span> <span class="nn">scipy.linalg</span> <span class="kn">import</span> <span class="n">block_diag</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">from</span> <span class="nn">os</span> <span class="kn">import</span> <span class="n">path</span>
+
+<div class="viewcode-block" id="MK_model"><a class="viewcode-back" href="../../code_documentation/MCK.html#pyFBS.MK_model">[docs]</a><span class="k">class</span> <span class="nc">MK_model</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Initialization of the finite element model. Mass and stiffness matrices are imported and also nodes, DoFs and complete mesh of finite elements are defined.</span>
+<span class="sd">    If parameter ``recalculate`` is ``Ture`` eigenvalues and eigenvectors are calculated. </span>
+<span class="sd">    For faster processing by default pickle file is generated where mass and stiffness matrices are stored and also computed eigenvalues, eigenvectors and used number of modes.</span>
+<span class="sd">    If changes are detected in the mass or stiffness matrix with respect to the stored pickle file, the calculation of eigenvalues and eigenvectors is repeated.</span>
+<span class="sd">    </span>
+<span class="sd">    :param ress_file: path of the .rst file exported from Ansys</span>
+<span class="sd">    :type ress_file: str</span>
+<span class="sd">    :param full_file: path of the .full file exported from Ansys</span>
+<span class="sd">    :type full_file: str</span>
+<span class="sd">    :param no_modes: number of modes to be included in output of the eigenvalue computation</span>
+<span class="sd">    :type no_modes: int</span>
+<span class="sd">    :param allow_pickle: if ``True``, pickle file will be generated to store data or will pickle file be used to load data</span>
+<span class="sd">    :type allow_pickle: bool</span>
+<span class="sd">    :param recalculate: if ``False`` just mass and stiffness matrices with corresponding nodes and their DoFs will be imported. If ``True`` also the eigenvalue problem will be solved.</span>
+<span class="sd">    :type recalculate: bool</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ress_file</span><span class="p">,</span> <span class="n">full_file</span><span class="p">,</span> <span class="n">no_modes</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span> <span class="n">allow_pickle</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">recalculate</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="n">rst</span> <span class="o">=</span> <span class="n">pyansys</span><span class="o">.</span><span class="n">read_binary</span><span class="p">(</span><span class="n">ress_file</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span> <span class="o">=</span> <span class="n">rst</span><span class="o">.</span><span class="n">geometry</span><span class="p">[</span><span class="s2">&quot;nodes&quot;</span><span class="p">][:,</span> <span class="p">:</span><span class="mi">3</span><span class="p">]</span>  <span class="c1"># only translational dofs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span> <span class="o">=</span> <span class="n">rst</span><span class="o">.</span><span class="n">grid</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">points</span> <span class="o">*=</span> <span class="mi">1000</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">points</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">no_modes</span> <span class="o">=</span> <span class="n">no_modes</span>
+
+
+        <span class="n">full</span> <span class="o">=</span> <span class="n">pyansys</span><span class="o">.</span><span class="n">read_binary</span><span class="p">(</span><span class="n">full_file</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">dof_ref</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">M</span> <span class="o">=</span> <span class="n">full</span><span class="o">.</span><span class="n">load_km</span><span class="p">(</span><span class="n">sort</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># dof_ref: 0-x 1-y 2-z</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dof_ref</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">!=</span><span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dof_ref</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dof_ref</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dof_ref</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_K</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">K</span> <span class="o">+</span> <span class="n">diags</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="mf">1e20</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="c1"># avoid error</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">M</span> <span class="o">+=</span> <span class="n">sp</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">triu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_K</span> <span class="o">+=</span> <span class="n">sp</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">triu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_K</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dof_ref</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">])</span><span class="o">==</span><span class="mi">5</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">rotation_included</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dof_ref</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">])</span><span class="o">==</span><span class="mi">2</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">rotation_included</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="n">p_file</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">.pkl&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">full_file</span><span class="p">)</span>
+        <span class="c1"># check if there is a .pkl file</span>
+        <span class="n">same</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">allow_pickle</span> <span class="ow">and</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">p_file</span><span class="p">):</span>
+            <span class="c1"># load the pickle file</span>
+            <span class="n">_M</span><span class="p">,</span><span class="n">_K</span><span class="p">,</span><span class="n">_eig_freq</span><span class="p">,</span><span class="n">_eig_val</span><span class="p">,</span><span class="n">_eig_vec</span><span class="p">,</span><span class="n">_no_modes</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span> <span class="nb">open</span><span class="p">(</span><span class="n">p_file</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span> <span class="p">))</span>
+            <span class="c1"># check if the solution is the same</span>
+            <span class="n">check_mas</span>  <span class="o">=</span> <span class="p">(</span><span class="n">_K</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">)</span><span class="o">.</span><span class="n">nnz</span> <span class="o">==</span> <span class="mi">0</span>
+            <span class="n">check_stif</span> <span class="o">=</span> <span class="p">(</span><span class="n">_M</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">)</span><span class="o">.</span><span class="n">nnz</span> <span class="o">==</span> <span class="mi">0</span>
+            <span class="n">check_no_modes</span> <span class="o">=</span> <span class="n">_no_modes</span> <span class="o">==</span> <span class="n">no_modes</span>
+            <span class="n">same</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">([</span><span class="n">check_mas</span><span class="p">,</span><span class="n">check_stif</span><span class="p">,</span><span class="n">check_no_modes</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">same</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">eig_freq</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">eig_val</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">eig_vec</span><span class="p">,</span> <span class="n">no_modes</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">p_file</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">))</span>
+
+        <span class="c1"># solve the problem</span>
+        <span class="k">if</span> <span class="n">same</span> <span class="o">==</span> <span class="kc">False</span> <span class="ow">or</span> <span class="n">recalculate</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">eig_freq</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">eig_val</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">eig_vec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eig_solve</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">_K</span><span class="p">,</span><span class="n">no_modes</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">allow_pickle</span><span class="p">:</span>
+                <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">eig_freq</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">eig_val</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">eig_vec</span><span class="p">,</span> <span class="n">no_modes</span><span class="p">],</span> <span class="nb">open</span><span class="p">(</span><span class="n">p_file</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">))</span>
+
+
+<div class="viewcode-block" id="MK_model.eig_solve"><a class="viewcode-back" href="../../code_documentation/MCK.html#pyFBS.MK_model.eig_solve">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">eig_solve</span><span class="p">(</span><span class="n">mass_mat</span><span class="p">,</span> <span class="n">stiff_mat</span><span class="p">,</span> <span class="n">no_modes</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Find eigenvalues and eigenvectors for given mass matrix ``mass_mat`` and stiffness matrix ``stiff_mat``.</span>
+
+<span class="sd">        :param mass_mat: mass matrix</span>
+<span class="sd">        :type mass_mat: scipy.sparse</span>
+<span class="sd">        :param stiff_mat: stiffness matrix</span>
+<span class="sd">        :type stiff_mat: scipy.sparse</span>
+<span class="sd">        :param no_modes: number of considered modes</span>
+<span class="sd">        :type no_modes: int</span>
+<span class="sd">        :return:</span>
+<span class="sd">        :rtype: (array(float), array(float), array(float))</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># tolerances and sigma may significantly affect the output!</span>
+        <span class="n">eigen_val</span><span class="p">,</span> <span class="n">eigen_vec</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigsh</span><span class="p">(</span><span class="n">stiff_mat</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="n">no_modes</span><span class="p">,</span> <span class="n">M</span><span class="o">=</span><span class="n">mass_mat</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">)</span>
+
+        <span class="n">eigen_val</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">eigen_val</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">eigen_val</span><span class="p">))</span>  <span class="c1"># avoiding negative values</span>
+        <span class="n">eigen_freq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">eigen_val</span><span class="p">)</span>  <span class="c1">#/(2*np.pi)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">eigen_freq</span><span class="p">,</span> <span class="n">eigen_val</span><span class="p">,</span> <span class="n">eigen_vec</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MK_model.find_nearest_locations"><a class="viewcode-back" href="../../code_documentation/MCK.html#pyFBS.MK_model.find_nearest_locations">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">find_nearest_locations</span><span class="p">(</span><span class="n">dense_mesh_points</span><span class="p">,</span> <span class="n">sparse_mesh_points</span><span class="p">,</span> <span class="n">dense_mesh_node_id</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function finds the nearest coordinate locations of sparse mesh in the corresponding dense mesh.</span>
+
+<span class="sd">        :param dense_mesh_points: nodal coordinates of dense mesh in 3D space</span>
+<span class="sd">        :type dense_mesh_points: array(float)</span>
+<span class="sd">        :param sparse_mesh_points: nodal coordinates of sparse mesh in 3D space</span>
+<span class="sd">        :type sparse_mesh_points: array(float)</span>
+<span class="sd">        :param dense_mesh_node_id: nodal coordinates id of sparse mesh</span>
+<span class="sd">        :type dense_mesh_node_id: array(int)</span>
+<span class="sd">        :return: Selected nodes by index and by id regarding the dense mesh</span>
+<span class="sd">        :rtype: (array(int), array(int))</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">tree</span> <span class="o">=</span> <span class="n">spatial</span><span class="o">.</span><span class="n">KDTree</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">dense_mesh_points</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span> <span class="n">dense_mesh_points</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span> <span class="n">dense_mesh_points</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">ravel</span><span class="p">())))</span>
+        <span class="n">selected_dense_mesh_node_index</span> <span class="o">=</span> <span class="p">(</span><span class="n">tree</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">sparse_mesh_points</span><span class="p">))[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">dense_mesh_node_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="n">selected_dense_mesh_node_id</span> <span class="o">=</span> <span class="n">dense_mesh_node_id</span><span class="p">[</span><span class="n">selected_dense_mesh_node_index</span><span class="p">]</span>
+            <span class="n">selected_dense_mesh_node_id</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">selected_dense_mesh_node_id</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">selected_dense_mesh_node_index</span><span class="p">,</span> <span class="n">selected_dense_mesh_node_id</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">selected_dense_mesh_node_index</span></div>
+
+<div class="viewcode-block" id="MK_model.data_preparation"><a class="viewcode-back" href="../../code_documentation/MCK.html#pyFBS.MK_model.data_preparation">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">data_preparation</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns unique locations of all nodal coordinates in ``df`` and all directions for each node.</span>
+
+<span class="sd">        :param df: data frame of locations and corresponding directions </span>
+<span class="sd">        :type df: pandas.DataFrame</span>
+<span class="sd">        :return: unique nodal coordinates and directions for each node</span>
+<span class="sd">        :rtype: (array(float), array(int))</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">nodes</span> <span class="o">=</span> <span class="n">df</span><span class="p">[[</span><span class="s2">&quot;Position_1&quot;</span><span class="p">,</span> <span class="s2">&quot;Position_2&quot;</span><span class="p">,</span> <span class="s2">&quot;Position_3&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">directions</span> <span class="o">=</span> <span class="n">df</span><span class="p">[[</span><span class="s2">&quot;Direction_1&quot;</span><span class="p">,</span> <span class="s2">&quot;Direction_2&quot;</span><span class="p">,</span> <span class="s2">&quot;Direction_3&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span>
+
+        <span class="n">unique_nodes</span> <span class="o">=</span> <span class="n">nodes</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">nodes</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">return_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">1</span><span class="p">])]</span>
+        <span class="n">direction_nodes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">unique_nodes</span><span class="p">:</span>
+            <span class="n">loc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">nodes</span> <span class="o">==</span> <span class="n">node</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+            <span class="n">direction_nodes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">directions</span><span class="p">[</span><span class="n">loc</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">unique_nodes</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">direction_nodes</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MK_model.loc_definition"><a class="viewcode-back" href="../../code_documentation/MCK.html#pyFBS.MK_model.loc_definition">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">loc_definition</span><span class="p">(</span><span class="n">response_point</span><span class="p">,</span> <span class="n">response_direction</span><span class="p">,</span> <span class="n">excitation_point</span><span class="p">,</span> <span class="n">excitation_direction</span><span class="p">,</span> <span class="n">rotation_included</span><span class="p">,</span>
+                       <span class="n">all_at_once</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computation of DoF od specific node in specific direction to find location in modal matrix or global receptance matrix.</span>
+
+<span class="sd">        :param response_point: number of node where responce is observed</span>
+<span class="sd">        :type response_point: int or array(int)</span>
+<span class="sd">        :param response_direction: direction of observed responnce (0-x, 1-y, 2-z)</span>
+<span class="sd">        :type response_point: int or array(int)</span>
+<span class="sd">        :param excitation_point: number of node where excitation is performed</span>
+<span class="sd">        :type excitation_point: int or array(int)</span>
+<span class="sd">        :param excitation_direction: direction of performed excitation (0-x, 1-y, 2-z)</span>
+<span class="sd">        :type excitation_direction: int or array(int)</span>
+<span class="sd">        :param rotation_included: definition of roations inclusion in DoFs in system</span>
+<span class="sd">        :type rotation_included: bool</span>
+<span class="sd">        :param all_at_once: compute all location as once, when response_point and excitation_point are arrays</span>
+<span class="sd">        :type all_at_once: bool</span>
+<span class="sd">        :return: sel1, sel2</span>
+<span class="sd">        :rtype: (int, int)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">rotation_included</span><span class="p">:</span>
+            <span class="n">N_DOFs</span> <span class="o">=</span> <span class="mi">6</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">N_DOFs</span> <span class="o">=</span> <span class="mi">3</span>
+
+        <span class="k">if</span> <span class="n">all_at_once</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="n">sel1</span> <span class="o">=</span> <span class="p">(</span><span class="n">response_point</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">N_DOFs</span> <span class="o">+</span> <span class="n">response_direction</span>
+            <span class="n">sel2</span> <span class="o">=</span> <span class="p">(</span><span class="n">excitation_point</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">N_DOFs</span> <span class="o">+</span> <span class="n">excitation_direction</span>
+            <span class="c1"># print(sel1,sel2)</span>
+        <span class="k">elif</span> <span class="n">all_at_once</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">_sel1</span> <span class="o">=</span> <span class="p">(</span><span class="n">response_point</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">N_DOFs</span>
+            <span class="n">_sel2</span> <span class="o">=</span> <span class="p">(</span><span class="n">excitation_point</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">N_DOFs</span>
+            <span class="n">sel1</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">sel2</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">response_direction</span><span class="p">:</span>
+                <span class="n">sel1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_sel1</span> <span class="o">+</span> <span class="n">i</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">excitation_direction</span><span class="p">:</span>
+                <span class="n">sel2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_sel2</span> <span class="o">+</span> <span class="n">i</span><span class="p">)</span>
+            <span class="n">sel1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ravel</span><span class="p">(</span><span class="n">sel1</span><span class="p">,</span> <span class="s1">&#39;F&#39;</span><span class="p">)</span>  <span class="c1"># combine all together in alternating way</span>
+            <span class="n">sel2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ravel</span><span class="p">(</span><span class="n">sel2</span><span class="p">,</span> <span class="s1">&#39;F&#39;</span><span class="p">)</span>  <span class="c1"># combine all together in alternating way</span>
+
+        <span class="k">return</span> <span class="n">sel1</span><span class="p">,</span> <span class="n">sel2</span></div>
+
+<div class="viewcode-block" id="MK_model.update_locations_df"><a class="viewcode-back" href="../../code_documentation/MCK.html#pyFBS.MK_model.update_locations_df">[docs]</a>    <span class="k">def</span> <span class="nf">update_locations_df</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">df</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update locations in data frame ``df`` to nearest nodal locations of the finite element model.</span>
+<span class="sd">        Directions remain the same.</span>
+
+<span class="sd">        :param df: data frame of locations, for which the nearest locations in the numerical model will be found.</span>
+<span class="sd">        :type df: pandas.DataFrame</span>
+<span class="sd">        :return: updated data frame</span>
+<span class="sd">        :rtype: pandas.DataFrame</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">_df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deep</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="n">_loc</span> <span class="o">=</span> <span class="n">_df</span><span class="p">[[</span><span class="s2">&quot;Position_1&quot;</span><span class="p">,</span> <span class="s2">&quot;Position_2&quot;</span><span class="p">,</span> <span class="s2">&quot;Position_3&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+        <span class="n">_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_nearest_locations</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">,</span><span class="n">_loc</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">_ind</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">_index</span><span class="p">):</span>
+            <span class="n">_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;Position_1&quot;</span><span class="p">,</span> <span class="s2">&quot;Position_2&quot;</span><span class="p">,</span> <span class="s2">&quot;Position_3&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">_ind</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">_df</span></div>
+
+<div class="viewcode-block" id="MK_model.get_modeshape"><a class="viewcode-back" href="../../code_documentation/MCK.html#pyFBS.MK_model.get_modeshape">[docs]</a>    <span class="k">def</span> <span class="nf">get_modeshape</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">select_mode</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return desired mode shape. </span>
+
+<span class="sd">        :param select_mode: order of mode shape, starting from 0</span>
+<span class="sd">        :type select_mode: int</span>
+<span class="sd">        :return: selected modes shape</span>
+<span class="sd">        :rtype: array(float)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">_modeshape</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">)</span>
+        <span class="n">_mode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eig_vec</span><span class="p">[:,</span> <span class="n">select_mode</span><span class="p">]</span>
+        <span class="n">_dof_ref</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dof_ref</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">rotation_included</span><span class="p">:</span> <span class="c1"># to skip rotational modeshape</span>
+            <span class="n">_mode</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">val</span> <span class="k">for</span> <span class="n">m</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">_mode</span><span class="p">)</span> <span class="k">if</span> <span class="n">m</span> <span class="o">%</span> <span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">])</span>
+            <span class="n">_dof_ref</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">val</span> <span class="k">for</span> <span class="n">m</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">_dof_ref</span><span class="p">)</span> <span class="k">if</span> <span class="n">m</span> <span class="o">%</span> <span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">ref</span><span class="p">,</span> <span class="n">mode</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">_dof_ref</span><span class="p">,</span> <span class="n">_mode</span><span class="p">):</span>
+            <span class="n">_modeshape</span><span class="p">[</span><span class="n">ref</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">ref</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="n">mode</span>
+
+        <span class="k">return</span> <span class="n">_modeshape</span></div>
+
+
+<div class="viewcode-block" id="MK_model.FRF_synth"><a class="viewcode-back" href="../../code_documentation/MCK.html#pyFBS.MK_model.FRF_synth">[docs]</a>    <span class="k">def</span> <span class="nf">FRF_synth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">df_channel</span><span class="p">,</span><span class="n">df_impact</span><span class="p">,</span><span class="n">f_start</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">f_end</span> <span class="o">=</span> <span class="mi">2000</span><span class="p">,</span> <span class="n">f_resolution</span><span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">limit_modes</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">modal_damping</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">frf_type</span> <span class="o">=</span> <span class="s2">&quot;receptance&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Synthetisation of frequency response functions using the mode superposition method.</span>
+
+<span class="sd">        :param df_channel: locations and directions of responses where FRFs will be generated</span>
+<span class="sd">        :type df_channel: pandas.DataFrame</span>
+<span class="sd">        :param df_impact: locations and directions of impacts where FRFs will be generated</span>
+<span class="sd">        :type df_impact: pandas.DataFrame</span>
+<span class="sd">        :param f_start: starting point of the frequency range</span>
+<span class="sd">        :type f_start: int or float</span>
+<span class="sd">        :param f_end: endpoint of the frequency range</span>
+<span class="sd">        :type f_end: int or float</span>
+<span class="sd">        :param f_resolution: resolution of frequency range</span>
+<span class="sd">        :type f_resolution: int or float</span>
+<span class="sd">        :param limit_modes: number of modes used for FRF synthesis</span>
+<span class="sd">        :type limit_modes: int</span>
+<span class="sd">        :param modal_damping: viscose modal damping ratio (constant for whole frequency range or ``None``)</span>
+<span class="sd">        :type modal_damping: float or None</span>
+<span class="sd">        :param frf_type: define calculated FRF type (``receptance``, ``mobility`` or ``accelerance``)</span>
+<span class="sd">        :type frf_type: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">unique_nodes_chn</span><span class="p">,</span> <span class="n">direction_nodes_chn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_preparation</span><span class="p">(</span><span class="n">df_channel</span><span class="p">)</span>
+        <span class="n">unique_nodes_imp</span><span class="p">,</span> <span class="n">direction_nodes_imp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_preparation</span><span class="p">(</span><span class="n">df_impact</span><span class="p">)</span>
+
+        <span class="n">index_chn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_nearest_locations</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">,</span> <span class="n">unique_nodes_chn</span><span class="p">)</span>
+        <span class="n">index_imp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_nearest_locations</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">,</span> <span class="n">unique_nodes_imp</span><span class="p">)</span>
+            
+        <span class="n">response_points</span> <span class="o">=</span> <span class="n">index_chn</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="n">response_directions</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+        <span class="n">excitation_points</span> <span class="o">=</span> <span class="n">index_imp</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="n">excitation_directions</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">limit_modes</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">no_modes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">no_modes</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">no_modes</span> <span class="o">=</span> <span class="n">limit_modes</span>
+
+        <span class="k">if</span> <span class="n">modal_damping</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">damping</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">no_modes</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">modal_damping</span><span class="p">)</span> <span class="o">==</span> <span class="nb">float</span><span class="p">:</span>
+            <span class="n">damping</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">modal_damping</span><span class="p">]</span> <span class="o">*</span> <span class="n">no_modes</span><span class="p">)</span>
+
+        <span class="n">loc1</span><span class="p">,</span> <span class="n">loc2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">loc_definition</span><span class="p">(</span><span class="n">response_points</span><span class="p">,</span> <span class="n">response_directions</span><span class="p">,</span> <span class="n">excitation_points</span><span class="p">,</span> <span class="n">excitation_directions</span><span class="p">,</span> 
+                                         <span class="bp">self</span><span class="o">.</span><span class="n">rotation_included</span><span class="p">,</span> <span class="n">all_at_once</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">f_start</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># approximation at 0Hz</span>
+            <span class="n">_freq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">f_start</span><span class="o">+</span><span class="mf">1e-3</span><span class="p">,</span> <span class="n">f_end</span><span class="p">,</span> <span class="n">f_resolution</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">_freq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">f_start</span><span class="p">,</span> <span class="n">f_end</span><span class="p">,</span> <span class="n">f_resolution</span><span class="p">)</span>
+        
+        <span class="n">freq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">f_start</span><span class="p">,</span> <span class="n">f_end</span><span class="p">,</span> <span class="n">f_resolution</span><span class="p">)</span>
+
+        <span class="n">ome</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">_freq</span>
+        <span class="n">ome2</span> <span class="o">=</span> <span class="n">ome</span> <span class="o">**</span> <span class="mi">2</span>
+        <span class="n">_eig_val2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eig_freq</span> <span class="o">**</span> <span class="mi">2</span>
+
+        <span class="n">m_p_chan</span> <span class="o">=</span> <span class="n">block_diag</span><span class="p">(</span><span class="o">*</span><span class="n">direction_nodes_chn</span><span class="p">)</span> <span class="o">@</span> <span class="bp">self</span><span class="o">.</span><span class="n">eig_vec</span><span class="p">[</span><span class="n">loc1</span><span class="p">,</span> <span class="p">:</span><span class="n">no_modes</span><span class="p">]</span>
+        <span class="n">m_p_imp</span> <span class="o">=</span> <span class="n">block_diag</span><span class="p">(</span><span class="o">*</span><span class="n">direction_nodes_imp</span><span class="p">)</span> <span class="o">@</span> <span class="bp">self</span><span class="o">.</span><span class="n">eig_vec</span><span class="p">[</span><span class="n">loc2</span><span class="p">,</span> <span class="p">:</span><span class="n">no_modes</span><span class="p">]</span>
+        <span class="n">m_p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;ij,kj-&gt;jik&#39;</span><span class="p">,</span> <span class="n">m_p_chan</span><span class="p">,</span> <span class="n">m_p_imp</span><span class="p">)</span>
+        
+        <span class="n">denominator</span> <span class="o">=</span> <span class="p">(</span><span class="n">_eig_val2</span><span class="p">[:</span><span class="n">no_modes</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="o">-</span> <span class="n">ome2</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;ij,i-&gt;ij&#39;</span><span class="p">,</span>
+                                                                            <span class="p">(</span><span class="n">ome</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">eig_freq</span><span class="p">[:</span><span class="n">no_modes</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]),</span>
+                                                                            <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">damping</span><span class="p">[:</span><span class="n">no_modes</span><span class="p">]))</span>
+        <span class="n">FRF_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;ijk,il-&gt;ljk&#39;</span><span class="p">,</span> <span class="n">m_p</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">denominator</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">frf_type</span> <span class="o">==</span> <span class="s2">&quot;receptance&quot;</span><span class="p">:</span>
+            <span class="n">_temp</span> <span class="o">=</span> <span class="n">FRF_matrix</span>
+
+        <span class="k">elif</span> <span class="n">frf_type</span> <span class="o">==</span> <span class="s2">&quot;mobility&quot;</span><span class="p">:</span>
+            <span class="n">_temp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;ijk,i-&gt;ijk&#39;</span><span class="p">,</span> <span class="n">FRF_matrix</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">_freq</span><span class="p">))</span>
+
+        <span class="k">elif</span> <span class="n">frf_type</span> <span class="o">==</span> <span class="s2">&quot;accelerance&quot;</span><span class="p">:</span>
+            <span class="n">_temp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;ijk,i-&gt;ijk&#39;</span><span class="p">,</span> <span class="n">FRF_matrix</span><span class="p">,</span> <span class="o">-</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">_freq</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">FRF</span> <span class="o">=</span> <span class="n">_temp</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">freq</span> <span class="o">=</span> <span class="n">freq</span></div>
+
+
+<div class="viewcode-block" id="MK_model.add_noise"><a class="viewcode-back" href="../../code_documentation/MCK.html#pyFBS.MK_model.add_noise">[docs]</a>    <span class="k">def</span> <span class="nf">add_noise</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">n1</span> <span class="o">=</span> <span class="mf">1e-3</span><span class="p">,</span> <span class="n">n2</span> <span class="o">=</span> <span class="mf">1e-3</span><span class="p">,</span> <span class="n">n3</span> <span class="o">=</span> <span class="mf">8e-4</span> <span class="p">,</span><span class="n">n4</span> <span class="o">=</span> <span class="mf">7e-4</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Additive noise to synthesized FRFs by random values as per standard normal distribution with defined scaling factors.</span>
+
+<span class="sd">        :param n1: amplitude of real part shift scalied with FRF absolute amplitude</span>
+<span class="sd">        :type n1: float</span>
+<span class="sd">        :param n2: amplitude of imag part shift scalied with FRF absolute amplitude</span>
+<span class="sd">        :type n2: float</span>
+<span class="sd">        :param n3: amplitude of real part shift</span>
+<span class="sd">        :type n3: float</span>
+<span class="sd">        :param n4: amplitude of real part shift</span>
+<span class="sd">        :type n4: float</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">rand1</span> <span class="o">=</span> <span class="n">n1</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">FRF</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        <span class="n">rand2</span> <span class="o">=</span> <span class="n">n2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">FRF</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">*</span> <span class="mi">1</span><span class="n">j</span>
+        <span class="n">rand3</span> <span class="o">=</span> <span class="n">n3</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">FRF</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        <span class="n">rand4</span> <span class="o">=</span> <span class="n">n4</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">FRF</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">*</span> <span class="mi">1</span><span class="n">j</span>
+
+        <span class="n">noise</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s2">&quot;ijk,ijk-&gt;ijk&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">FRF</span><span class="p">),</span> <span class="n">rand1</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s2">&quot;ijk,ijk-&gt;ijk&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">FRF</span><span class="p">),</span> <span class="n">rand2</span><span class="p">)</span> <span class="o">+</span> <span class="n">rand3</span> <span class="o">+</span> <span class="n">rand4</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">FRF_noise</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">FRF</span> <span class="o">+</span> <span class="n">noise</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, The pyFBS Developers
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,5 +1,6 @@
 
 
+
 <!DOCTYPE html>
 <!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
@@ -13,6 +14,8 @@
 
   
   
+    <link rel="shortcut icon" href="_static/logo-small.png"/>
+  
   
   
 
@@ -21,11 +24,11 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
-        <script type="text/javascript" src="_static/searchtools.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script src="_static/searchtools.js"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -34,8 +37,20 @@
   
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/style.css" type="text/css" />
+  <link rel="stylesheet" href="_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="_static/gallery-dataframe.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="#" /> 
+    <link rel="search" title="Search" href="#" />
+ 
+
+<meta name="description" content="A Python package for Frequency Based Substructuring">
+<meta name="author" content="The pyFBS Developers">
+<meta name="keywords" content="python, structural dynamics, frequency based substructuring, virtual point transformation, system equivalent model mixing, modal analysis, frequency response function">
+
+</script>
+
 </head>
 
 <body class="wy-body-for-nav">
@@ -49,9 +64,12 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> pyFBS
+            <a href="index.html">
           
 
+          
+            
+            <img src="_static/logo-big.png" class="logo" alt="Logo"/>
           
           </a>
 
@@ -74,6 +92,7 @@
 
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
+    
             
             
               
@@ -82,25 +101,49 @@
               <p class="caption"><span class="caption-text">About</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="intro.html">Why pyFBS?</a></li>
-<li class="toctree-l1"><a class="reference internal" href="authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="credits.html">Credits</a></li>
 <li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Getting Started</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples/basic_examples.html">Basic Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="examples/basic_examples.html">Basic examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples/application_examples.html">Application Examples</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Code Documentation</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="code_documentation/display.html">pyFBS.display</a></li>
-<li class="toctree-l1"><a class="reference internal" href="code_documentation/SEMM.html">pyFBS.SEMM</a></li>
-<li class="toctree-l1"><a class="reference internal" href="code_documentation/VPT.html">pyFBS.VPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="code_documentation/core.html">Core API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="code_documentation/util.html">Utilities</a></li>
 </ul>
 
             
           
+
+    
+        <p class="caption">
+            <span class="caption-text">
+            
+                Getting Connected
+            
+            </span>
+        </p>
+        <ul>
+            
+                <li class="toctree-l1"><a href="https://"><i class="fa fa-comment fa-fw"></i> Support</a></li>
+            
+                <li class="toctree-l1"><a href="https://"><i class="fa fa-gitlab fa-fw"></i> Source Code</a></li>
+            
+                <li class="toctree-l1"><a href="https://"><i class="fa fa-gavel fa-fw"></i> Contributing</a></li>
+            
+                <li class="toctree-l1"><a href="https://"><i class="fa fa-file-text fa-fw"></i> The Paper</a></li>
+            
+        </ul>
+    
+
         </div>
       </div>
     </nav>
@@ -183,7 +226,7 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2019, Tomaž Bregar
+        &copy; Copyright 2020, The pyFBS Developers
 
     </p>
   </div>

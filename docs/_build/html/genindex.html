@@ -1,6 +1,7 @@
 
 
 
+
 <!DOCTYPE html>
 <!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
@@ -14,6 +15,8 @@
 
   
   
+    <link rel="shortcut icon" href="_static/logo-small.png"/>
+  
   
   
 
@@ -22,10 +25,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -34,8 +37,20 @@
   
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/style.css" type="text/css" />
+  <link rel="stylesheet" href="_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="_static/gallery-dataframe.css" type="text/css" />
     <link rel="index" title="Index" href="#" />
-    <link rel="search" title="Search" href="search.html" /> 
+    <link rel="search" title="Search" href="search.html" />
+ 
+
+<meta name="description" content="A Python package for Frequency Based Substructuring">
+<meta name="author" content="The pyFBS Developers">
+<meta name="keywords" content="python, structural dynamics, frequency based substructuring, virtual point transformation, system equivalent model mixing, modal analysis, frequency response function">
+
+</script>
+
 </head>
 
 <body class="wy-body-for-nav">
@@ -49,9 +64,12 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> pyFBS
+            <a href="index.html">
           
 
+          
+            
+            <img src="_static/logo-big.png" class="logo" alt="Logo"/>
           
           </a>
 
@@ -74,6 +92,7 @@
 
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
+    
             
             
               
@@ -82,25 +101,49 @@
               <p class="caption"><span class="caption-text">About</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="intro.html">Why pyFBS?</a></li>
-<li class="toctree-l1"><a class="reference internal" href="authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="credits.html">Credits</a></li>
 <li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Getting Started</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples/basic_examples.html">Basic Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="examples/basic_examples.html">Basic examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples/application_examples.html">Application Examples</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Code Documentation</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="code_documentation/display.html">pyFBS.display</a></li>
-<li class="toctree-l1"><a class="reference internal" href="code_documentation/SEMM.html">pyFBS.SEMM</a></li>
-<li class="toctree-l1"><a class="reference internal" href="code_documentation/VPT.html">pyFBS.VPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="code_documentation/core.html">Core API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="code_documentation/util.html">Utilities</a></li>
 </ul>
 
             
           
+
+    
+        <p class="caption">
+            <span class="caption-text">
+            
+                Getting Connected
+            
+            </span>
+        </p>
+        <ul>
+            
+                <li class="toctree-l1"><a href="https://"><i class="fa fa-comment fa-fw"></i> Support</a></li>
+            
+                <li class="toctree-l1"><a href="https://"><i class="fa fa-gitlab fa-fw"></i> Source Code</a></li>
+            
+                <li class="toctree-l1"><a href="https://"><i class="fa fa-gavel fa-fw"></i> Contributing</a></li>
+            
+                <li class="toctree-l1"><a href="https://"><i class="fa fa-file-text fa-fw"></i> The Paper</a></li>
+            
+        </ul>
+    
+
         </div>
       </div>
     </nav>
@@ -166,10 +209,17 @@
  <a href="#A"><strong>A</strong></a>
  | <a href="#C"><strong>C</strong></a>
  | <a href="#D"><strong>D</strong></a>
+ | <a href="#E"><strong>E</strong></a>
  | <a href="#F"><strong>F</strong></a>
+ | <a href="#G"><strong>G</strong></a>
+ | <a href="#I"><strong>I</strong></a>
  | <a href="#L"><strong>L</strong></a>
+ | <a href="#M"><strong>M</strong></a>
+ | <a href="#O"><strong>O</strong></a>
  | <a href="#R"><strong>R</strong></a>
  | <a href="#S"><strong>S</strong></a>
+ | <a href="#T"><strong>T</strong></a>
+ | <a href="#U"><strong>U</strong></a>
  | <a href="#V"><strong>V</strong></a>
  | <a href="#W"><strong>W</strong></a>
  
@@ -177,19 +227,43 @@
 <h2 id="A">A</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="code_documentation/display.html#pyFBS.display.view3D.add_accelerometer">add_accelerometer() (pyFBS.display.view3D method)</a>
+      <li><a href="code_documentation/display.html#pyFBS.view3D.acc_callback">acc_callback() (pyFBS.view3D method)</a>
 </li>
-      <li><a href="code_documentation/display.html#pyFBS.display.view3D.add_channel">add_channel() (pyFBS.display.view3D method)</a>
+      <li><a href="code_documentation/display.html#pyFBS.view3D.add_acc_dynamic">add_acc_dynamic() (pyFBS.view3D method)</a>
 </li>
-      <li><a href="code_documentation/display.html#pyFBS.display.view3D.add_csys">add_csys() (pyFBS.display.view3D method)</a>
+      <li><a href="code_documentation/display.html#pyFBS.view3D.add_accelerometer">add_accelerometer() (pyFBS.view3D method)</a>
+</li>
+      <li><a href="code_documentation/display.html#pyFBS.view3D.add_action">add_action() (pyFBS.view3D method)</a>
+</li>
+      <li><a href="code_documentation/display.html#pyFBS.view3D.add_channel">add_channel() (pyFBS.view3D method)</a>
+</li>
+      <li><a href="code_documentation/display.html#pyFBS.view3D.add_csys">add_csys() (pyFBS.view3D method)</a>
+</li>
+      <li><a href="code_documentation/display.html#pyFBS.view3D.add_imp_dynamic">add_imp_dynamic() (pyFBS.view3D method)</a>
+</li>
+      <li><a href="code_documentation/display.html#pyFBS.view3D.add_impact">add_impact() (pyFBS.view3D method)</a>
+</li>
+      <li><a href="code_documentation/display.html#pyFBS.view3D.add_modeshape">add_modeshape() (pyFBS.view3D method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="code_documentation/display.html#pyFBS.display.view3D.add_impact">add_impact() (pyFBS.display.view3D method)</a>
+      <li><a href="code_documentation/MCK.html#pyFBS.MK_model.add_noise">add_noise() (pyFBS.MK_model method)</a>
 </li>
-      <li><a href="code_documentation/display.html#pyFBS.display.view3D.add_stl">add_stl() (pyFBS.display.view3D method)</a>
+      <li><a href="code_documentation/display.html#pyFBS.view3D.add_objects_animation">add_objects_animation() (pyFBS.view3D method)</a>
 </li>
-      <li><a href="code_documentation/display.html#pyFBS.display.view3D.add_vp">add_vp() (pyFBS.display.view3D method)</a>
+      <li><a href="code_documentation/display.html#pyFBS.view3D.add_stl">add_stl() (pyFBS.view3D method)</a>
+</li>
+      <li><a href="code_documentation/display.html#pyFBS.view3D.add_vp">add_vp() (pyFBS.view3D method)</a>
+</li>
+      <li><a href="code_documentation/display.html#pyFBS.view3D.add_vp_dynamic">add_vp_dynamic() (pyFBS.view3D method)</a>
+</li>
+      <li><a href="code_documentation/utility.html#pyFBS.angle">angle() (in module pyFBS)</a>
+</li>
+      <li><a href="code_documentation/utility.html#pyFBS.angle_between">angle_between() (in module pyFBS)</a>
+</li>
+      <li><a href="code_documentation/display.html#pyFBS.view3D.animate_modeshape">animate_modeshape() (pyFBS.view3D method)</a>
+</li>
+      <li><a href="code_documentation/display.html#pyFBS.view3D.animate_objects">animate_objects() (pyFBS.view3D method)</a>
 </li>
       <li><a href="code_documentation/VPT.html#pyFBS.VPT.apply_VPT">apply_VPT() (pyFBS.VPT method)</a>
 </li>
@@ -199,11 +273,25 @@
 <h2 id="C">C</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="code_documentation/VPT.html#pyFBS.VPT.consistency">consistency() (pyFBS.VPT method)</a>
+      <li><a href="code_documentation/display.html#pyFBS.view3D.clear_labels">clear_labels() (pyFBS.view3D method)</a>
+</li>
+      <li><a href="code_documentation/display.html#pyFBS.view3D.clear_modeshape">clear_modeshape() (pyFBS.view3D method)</a>
+</li>
+      <li><a href="code_documentation/utility.html#pyFBS.CMIF">CMIF() (in module pyFBS)</a>
+</li>
+      <li><a href="code_documentation/utility.html#pyFBS.coh_frf">coh_frf() (in module pyFBS)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="code_documentation/display.html#pyFBS.display.view3D.create_accelerometer">create_accelerometer() (pyFBS.display.view3D method)</a>
+      <li><a href="code_documentation/utility.html#pyFBS.coh_on_FRF">coh_on_FRF() (in module pyFBS)</a>
+</li>
+      <li><a href="code_documentation/utility.html#pyFBS.complex_plot">complex_plot() (in module pyFBS)</a>
+</li>
+      <li><a href="code_documentation/utility.html#pyFBS.complex_plot_3D">complex_plot_3D() (in module pyFBS)</a>
+</li>
+      <li><a href="code_documentation/VPT.html#pyFBS.VPT.consistency">consistency() (pyFBS.VPT method)</a>
+</li>
+      <li><a href="code_documentation/display.html#pyFBS.view3D.create_accelerometer">create_accelerometer() (pyFBS.view3D method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -211,11 +299,23 @@
 <h2 id="D">D</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="code_documentation/MCK.html#pyFBS.MK_model.data_preparation">data_preparation() (pyFBS.MK_model static method)</a>
+</li>
       <li><a href="code_documentation/VPT.html#pyFBS.VPT.define_IDM_F">define_IDM_F() (pyFBS.VPT method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="code_documentation/VPT.html#pyFBS.VPT.define_IDM_U">define_IDM_U() (pyFBS.VPT method)</a>
+</li>
+      <li><a href="code_documentation/utility.html#pyFBS.dict_animation">dict_animation() (in module pyFBS)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="E">E</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="code_documentation/MCK.html#pyFBS.MK_model.eig_solve">eig_solve() (pyFBS.MK_model static method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -223,11 +323,45 @@
 <h2 id="F">F</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="code_documentation/VPT.html#pyFBS.VPT.find_group">find_group() (pyFBS.VPT method)</a>
+      <li><a href="code_documentation/VPT.html#pyFBS.VPT.find_group">find_group() (pyFBS.VPT static method)</a>
+</li>
+      <li><a href="code_documentation/MCK.html#pyFBS.MK_model.find_nearest_locations">find_nearest_locations() (pyFBS.MK_model static method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="code_documentation/VPT.html#pyFBS.VPT.find_overlap_ch">find_overlap_ch() (pyFBS.VPT method)</a>
+      <li><a href="code_documentation/VPT.html#pyFBS.VPT.find_overlap_ch">find_overlap_ch() (pyFBS.VPT static method)</a>
+</li>
+      <li><a href="code_documentation/utility.html#pyFBS.flatten_FRFs">flatten_FRFs() (in module pyFBS)</a>
+</li>
+      <li><a href="code_documentation/MCK.html#pyFBS.MK_model.FRF_synth">FRF_synth() (pyFBS.MK_model method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="G">G</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="code_documentation/utility.html#pyFBS.generate_channels_from_sensors">generate_channels_from_sensors() (in module pyFBS)</a>
+</li>
+      <li><a href="code_documentation/utility.html#pyFBS.generate_sensors_from_channels">generate_sensors_from_channels() (in module pyFBS)</a>
+</li>
+      <li><a href="code_documentation/display.html#pyFBS.view3D.get_acc_data">get_acc_data() (pyFBS.view3D method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="code_documentation/display.html#pyFBS.view3D.get_imp_data">get_imp_data() (pyFBS.view3D method)</a>
+</li>
+      <li><a href="code_documentation/MCK.html#pyFBS.MK_model.get_modeshape">get_modeshape() (pyFBS.MK_model method)</a>
+</li>
+      <li><a href="code_documentation/display.html#pyFBS.view3D.get_vp_data">get_vp_data() (pyFBS.view3D method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="I">I</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="code_documentation/display.html#pyFBS.view3D.imp_callback">imp_callback() (pyFBS.view3D method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -235,17 +369,51 @@
 <h2 id="L">L</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="code_documentation/display.html#pyFBS.display.view3D.label_acc">label_acc() (pyFBS.display.view3D method)</a>
+      <li><a href="code_documentation/display.html#pyFBS.view3D.label_acc">label_acc() (pyFBS.view3D method)</a>
 </li>
-      <li><a href="code_documentation/display.html#pyFBS.display.view3D.label_chn">label_chn() (pyFBS.display.view3D method)</a>
+      <li><a href="code_documentation/display.html#pyFBS.view3D.label_chn">label_chn() (pyFBS.view3D method)</a>
+</li>
+      <li><a href="code_documentation/display.html#pyFBS.view3D.label_imp">label_imp() (pyFBS.view3D method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="code_documentation/display.html#pyFBS.display.view3D.label_imp">label_imp() (pyFBS.display.view3D method)</a>
+      <li><a href="code_documentation/display.html#pyFBS.view3D.label_vp">label_vp() (pyFBS.view3D method)</a>
 </li>
-      <li><a href="code_documentation/display.html#pyFBS.display.view3D.label_vp">label_vp() (pyFBS.display.view3D method)</a>
+      <li><a href="code_documentation/IO.html#pyFBS.load_uff_file_PAK">load_uff_file_PAK() (in module pyFBS)</a>
 </li>
-      <li><a href="code_documentation/SEMM.html#pyFBS.SEMM.LocOfExp">LocOfExp() (in module pyFBS.SEMM)</a>
+      <li><a href="code_documentation/MCK.html#pyFBS.MK_model.loc_definition">loc_definition() (pyFBS.MK_model static method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="M">M</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="code_documentation/utility.html#pyFBS.M">M() (in module pyFBS)</a>
+</li>
+      <li><a href="code_documentation/utility.html#pyFBS.MCF">MCF() (in module pyFBS)</a>
+</li>
+      <li><a href="code_documentation/MCK.html#pyFBS.MK_model">MK_model (class in pyFBS)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="code_documentation/utility.html#pyFBS.mode_animation">mode_animation() (in module pyFBS)</a>
+</li>
+      <li><a href="code_documentation/utility.html#pyFBS.modeshape_scaling_DP">modeshape_scaling_DP() (in module pyFBS)</a>
+</li>
+      <li><a href="code_documentation/utility.html#pyFBS.modeshape_sync_lstsq">modeshape_sync_lstsq() (in module pyFBS)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="O">O</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="code_documentation/utility.html#pyFBS.orient_in_global">orient_in_global() (in module pyFBS)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="code_documentation/utility.html#pyFBS.orient_in_global_2">orient_in_global_2() (in module pyFBS)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -253,11 +421,13 @@
 <h2 id="R">R</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="code_documentation/VPT.html#pyFBS.VPT.R_matrix_F">R_matrix_F() (pyFBS.VPT method)</a>
+      <li><a href="code_documentation/VPT.html#pyFBS.VPT.R_matrix_F">R_matrix_F() (pyFBS.VPT static method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="code_documentation/VPT.html#pyFBS.VPT.R_matrix_U">R_matrix_U() (pyFBS.VPT method)</a>
+      <li><a href="code_documentation/VPT.html#pyFBS.VPT.R_matrix_U">R_matrix_U() (pyFBS.VPT static method)</a>
+</li>
+      <li><a href="code_documentation/utility.html#pyFBS.rotation_matrix_from_vectors">rotation_matrix_from_vectors() (in module pyFBS)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -265,15 +435,47 @@
 <h2 id="S">S</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="code_documentation/display.html#pyFBS.display.view3D.show_acc">show_acc() (pyFBS.display.view3D method)</a>
+      <li><a href="code_documentation/SEMM.html#pyFBS.SEMM">SEMM() (in module pyFBS)</a>
 </li>
-      <li><a href="code_documentation/display.html#pyFBS.display.view3D.show_chn">show_chn() (pyFBS.display.view3D method)</a>
+      <li><a href="code_documentation/display.html#pyFBS.view3D.show_acc">show_acc() (pyFBS.view3D method)</a>
+</li>
+      <li><a href="code_documentation/display.html#pyFBS.view3D.show_chn">show_chn() (pyFBS.view3D method)</a>
+</li>
+      <li><a href="code_documentation/display.html#pyFBS.view3D.show_hide_accelerometers">show_hide_accelerometers() (pyFBS.view3D method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="code_documentation/display.html#pyFBS.display.view3D.show_imp">show_imp() (pyFBS.display.view3D method)</a>
+      <li><a href="code_documentation/display.html#pyFBS.view3D.show_hide_channels">show_hide_channels() (pyFBS.view3D method)</a>
 </li>
-      <li><a href="code_documentation/display.html#pyFBS.display.view3D.show_vp">show_vp() (pyFBS.display.view3D method)</a>
+      <li><a href="code_documentation/display.html#pyFBS.view3D.show_hide_impacts">show_hide_impacts() (pyFBS.view3D method)</a>
+</li>
+      <li><a href="code_documentation/display.html#pyFBS.view3D.show_hide_vps">show_hide_vps() (pyFBS.view3D method)</a>
+</li>
+      <li><a href="code_documentation/display.html#pyFBS.view3D.show_imp">show_imp() (pyFBS.view3D method)</a>
+</li>
+      <li><a href="code_documentation/display.html#pyFBS.view3D.show_vp">show_vp() (pyFBS.view3D method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="T">T</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="code_documentation/utility.html#pyFBS.TSVD">TSVD() (in module pyFBS)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="U">U</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="code_documentation/utility.html#pyFBS.unflatten_modes">unflatten_modes() (in module pyFBS)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="code_documentation/utility.html#pyFBS.unit_vector">unit_vector() (in module pyFBS)</a>
+</li>
+      <li><a href="code_documentation/MCK.html#pyFBS.MK_model.update_locations_df">update_locations_df() (pyFBS.MK_model method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -281,10 +483,12 @@
 <h2 id="V">V</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="code_documentation/display.html#pyFBS.display.view3D">view3D (class in pyFBS.display)</a>
+      <li><a href="code_documentation/display.html#pyFBS.view3D">view3D (class in pyFBS)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="code_documentation/display.html#pyFBS.view3D.vp_callback">vp_callback() (pyFBS.view3D method)</a>
+</li>
       <li><a href="code_documentation/VPT.html#pyFBS.VPT">VPT (class in pyFBS)</a>
 </li>
   </ul></td>
@@ -293,7 +497,7 @@
 <h2 id="W">W</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="code_documentation/VPT.html#pyFBS.VPT.W_rotational">W_rotational() (pyFBS.VPT method)</a>
+      <li><a href="code_documentation/VPT.html#pyFBS.VPT.W_rotational">W_rotational() (pyFBS.VPT static method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -310,7 +514,7 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2019, Tomaž Bregar
+        &copy; Copyright 2020, The pyFBS Developers
 
     </p>
   </div>

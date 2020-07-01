@@ -17,6 +17,11 @@ def find_locations_in_data_frames(df_1, df_2):
     """
     df_1_val = df_1[["Position_1", "Position_2", "Position_3", "Direction_1", "Direction_2", "Direction_3"]].values
     df_2_val = df_2[["Position_1", "Position_2", "Position_3", "Direction_1", "Direction_2", "Direction_3"]].values
+
+    # to prevent numerical errors
+    df_1_val = np.round(df_1_val, 6) 
+    df_2_val = np.round(df_2_val, 6)
+
     return np.array(np.all((df_1_val[:, None, :] == df_2_val[None, :, :]), axis=-1).nonzero()).T
 
 
@@ -136,10 +141,6 @@ def SEMM(Y_num, Y_exp, df_chn_num, df_imp_num, df_chn_exp, df_imp_exp, SEMM_type
         Y_SEMM = Y_par - Y_par @ np.linalg.pinv(TSVD(Y_par[:, -len(uniq_resp_nodes_DoF):, :], reduction=red_comp))  @ (
             Y_rem - Y_ov) @ np.linalg.pinv(TSVD(Y_par[:, :, -len(uniq_exc_nodes_DoF):], reduction=red_eq)) @ Y_par
 
-    #U, s, VT = np.linalg.svd(Y_par[:, -len(uniq_resp_nodes_DoF):, :])
-    #U, s, VT = np.linalg.svd(Y_par[:, :, -len(uniq_exc_nodes_DoF):])
-    # plt.semilogy(s)
-
     # rearranging SEMM model to input numerical form od DOFs
     # moved collumns
     _all_exc_nodes_DoF = Y_SEMM[:, :, -len(uniq_exc_nodes_DoF):]
@@ -156,7 +157,3 @@ def SEMM(Y_num, Y_exp, df_chn_num, df_imp_num, df_chn_exp, df_imp_exp, SEMM_type
         Y_SEMM = np.insert(Y_SEMM, i, _all_resp_nodes_DoF[:, index, :], axis=1)
 
     return Y_SEMM
-
-
-if __name__ == '__main__':
-    print("Test: Cat!")

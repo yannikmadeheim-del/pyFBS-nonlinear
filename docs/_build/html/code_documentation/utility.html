@@ -1,0 +1,621 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pyFBS.utility &mdash; pyFBS  documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../_static/logo-small.png"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/style.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery-dataframe.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="pyFBS.IO" href="IO.html" />
+ 
+
+<meta name="description" content="A Python package for Frequency Based Substructuring">
+<meta name="author" content="The pyFBS Developers">
+<meta name="keywords" content="python, structural dynamics, frequency based substructuring, virtual point transformation, system equivalent model mixing, modal analysis, frequency response function">
+
+</script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html">
+          
+
+          
+            
+            <img src="../_static/logo-big.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+    
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">About</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro.html">Why pyFBS?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../credits.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../examples/basic_examples.html">Basic examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/application_examples.html">Application Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Code Documentation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="core.html">Core API</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="util.html">Utilities</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="IO.html">pyFBS.IO</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">pyFBS.utility</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+
+    
+        <p class="caption">
+            <span class="caption-text">
+            
+                Getting Connected
+            
+            </span>
+        </p>
+        <ul>
+            
+                <li class="toctree-l1"><a href="https://"><i class="fa fa-comment fa-fw"></i> Support</a></li>
+            
+                <li class="toctree-l1"><a href="https://"><i class="fa fa-gitlab fa-fw"></i> Source Code</a></li>
+            
+                <li class="toctree-l1"><a href="https://"><i class="fa fa-gavel fa-fw"></i> Contributing</a></li>
+            
+                <li class="toctree-l1"><a href="https://"><i class="fa fa-file-text fa-fw"></i> The Paper</a></li>
+            
+        </ul>
+    
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pyFBS</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="util.html">Utilities</a> &raquo;</li>
+        
+      <li>pyFBS.utility</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/code_documentation/utility.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="pyfbs-utility">
+<h1>pyFBS.utility<a class="headerlink" href="#pyfbs-utility" title="Permalink to this headline">¶</a></h1>
+<dl class="py function">
+<dt id="pyFBS.modeshape_sync_lstsq">
+<code class="sig-prename descclassname">pyFBS.</code><code class="sig-name descname">modeshape_sync_lstsq</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mode_shape_vec</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/utility.html#modeshape_sync_lstsq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.modeshape_sync_lstsq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a straight line fit in the complex plane and alligns the mode shape with the real-axis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>mode_shape_vec</strong> (<em>array</em><em>(</em><em>float</em><em>)</em>) – Mode shape vector</p>
+</dd>
+<dt class="field-even">Return _n</dt>
+<dd class="field-even"><p>Alligned mode shape vector</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pyFBS.modeshape_scaling_DP">
+<code class="sig-prename descclassname">pyFBS.</code><code class="sig-name descname">modeshape_scaling_DP</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mode_shape_vec</span></em>, <em class="sig-param"><span class="n">driving_point</span></em>, <em class="sig-param"><span class="n">sync</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/utility.html#modeshape_scaling_DP"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.modeshape_scaling_DP" title="Permalink to this definition">¶</a></dt>
+<dd><p>Scales mode shapes according to the driving point measurement.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mode_shape_vec</strong> (<em>array</em><em>(</em><em>float</em><em>)</em>) – Mode shape vector</p></li>
+<li><p><strong>driving_point</strong> (<em>int</em>) – Driving point location</p></li>
+<li><p><strong>sync</strong> (<em>bool</em><em>, </em><em>optional</em>) – Allign mode shape with the real-axis</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Scalled mode shape</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pyFBS.MCF">
+<code class="sig-prename descclassname">pyFBS.</code><code class="sig-name descname">MCF</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mod</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/utility.html#MCF"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.MCF" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate Mode Complexity Factor (MCF)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>mod</strong> (<em>array</em><em>(</em><em>float</em><em>)</em>) – Mode shape</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Mode complexity factor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pyFBS.flatten_FRFs">
+<code class="sig-prename descclassname">pyFBS.</code><code class="sig-name descname">flatten_FRFs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">Y</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/utility.html#flatten_FRFs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.flatten_FRFs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Flattens input FRF matrix Y from shape (out,in,freq) in (out x in,freq)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>Y</strong> (<em>array</em><em>(</em><em>float</em><em>)</em>) – Matrix of FRFs [out,in,f]</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Matrix of FRFs [out x in,f]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pyFBS.unflatten_modes">
+<code class="sig-prename descclassname">pyFBS.</code><code class="sig-name descname">unflatten_modes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">_modes_acc</span></em>, <em class="sig-param"><span class="n">Y</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/utility.html#unflatten_modes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.unflatten_modes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unflattens mode shapes based on the shape of the input FRF matrix [out x in] in [out, in]</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>_modes_acc</strong> (<em>array</em><em>(</em><em>float</em><em>)</em>) – Mode shape [out x in]</p></li>
+<li><p><strong>Y</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Unflattened mode shape [out, in]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pyFBS.complex_plot">
+<code class="sig-prename descclassname">pyFBS.</code><code class="sig-name descname">complex_plot</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mode_shape</span></em>, <em class="sig-param"><span class="n">color</span><span class="o">=</span><span class="default_value">'k'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/utility.html#complex_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.complex_plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots a mode shape on a radial plot.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mode_shape</strong> (<em>array</em><em>(</em><em>float</em><em>)</em>) – mode shape</p></li>
+<li><p><strong>color</strong> (<em>str</em>) – Color of the plot</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pyFBS.complex_plot_3D">
+<code class="sig-prename descclassname">pyFBS.</code><code class="sig-name descname">complex_plot_3D</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mode_shape</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/utility.html#complex_plot_3D"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.complex_plot_3D" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots a 3D mode shape on a radial plot.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>mode_shape</strong> (<em>array</em><em>(</em><em>float</em><em>)</em>) – 3D mode shape</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pyFBS.mode_animation">
+<code class="sig-prename descclassname">pyFBS.</code><code class="sig-name descname">mode_animation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mode_shape</span></em>, <em class="sig-param"><span class="n">scale</span></em>, <em class="sig-param"><span class="n">no_points</span><span class="o">=</span><span class="default_value">60</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/utility.html#mode_animation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.mode_animation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates an animation sequence from the mode shape and scales the displacemetns.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mode_shape</strong> (<em>array</em><em>(</em><em>float</em><em>)</em>) – mode shape</p></li>
+<li><p><strong>scale</strong> (<em>float</em>) – mode shape</p></li>
+<li><p><strong>no_points</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of points in the animation sequence</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Animation sequence</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pyFBS.coh_frf">
+<code class="sig-prename descclassname">pyFBS.</code><code class="sig-name descname">coh_frf</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">y_1</span></em>, <em class="sig-param"><span class="n">y_2</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/utility.html#coh_frf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.coh_frf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates values of coherence between two FRFs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>y_1</strong> (<em>array</em><em>(</em><em>float</em><em>)</em>) – FRF 1</p></li>
+<li><p><strong>y_2</strong> (<em>array</em><em>(</em><em>float</em><em>)</em>) – FRF 2</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>coherence criterion</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pyFBS.dict_animation">
+<code class="sig-prename descclassname">pyFBS.</code><code class="sig-name descname">dict_animation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">_modeshape</span></em>, <em class="sig-param"><span class="n">a_type</span></em>, <em class="sig-param"><span class="n">mesh</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">pts</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">fps</span><span class="o">=</span><span class="default_value">30</span></em>, <em class="sig-param"><span class="n">r_scale</span><span class="o">=</span><span class="default_value">10</span></em>, <em class="sig-param"><span class="n">no_points</span><span class="o">=</span><span class="default_value">60</span></em>, <em class="sig-param"><span class="n">object_list</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/utility.html#dict_animation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.dict_animation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a predefined dictionary for animation sequency in the 3D display.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>_modeshape</strong> (<em>array</em><em>(</em><em>float</em><em>)</em>) – A mode shape or response to be animated</p></li>
+<li><p><strong>a_type</strong> (<em>str</em>) – Animation type (“modeshape” or “object”)</p></li>
+<li><p><strong>mesh</strong> (<em>array</em><em>(</em><em>float</em><em>)</em><em>, </em><em>optional</em>) – Mesh to be animated</p></li>
+<li><p><strong>pts</strong> (<em>array</em><em>(</em><em>float</em><em>)</em><em>, </em><em>optional</em>) – Points to be animated</p></li>
+<li><p><strong>fps</strong> (<em>int</em><em>, </em><em>optional</em>) – Frames per second of the animation</p></li>
+<li><p><strong>r_scale</strong> (<em>float</em><em>, </em><em>optional</em>) – Relative scale of the displacement</p></li>
+<li><p><strong>no_points</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of points in the animation sequence</p></li>
+<li><p><strong>object_list</strong> (<em>list</em><em>, </em><em>optional</em>) – A list containing objects to be animated</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pyFBS.CMIF">
+<code class="sig-prename descclassname">pyFBS.</code><code class="sig-name descname">CMIF</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">FRF</span></em>, <em class="sig-param"><span class="n">return_svector</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/utility.html#CMIF"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.CMIF" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates a CMIF parameter of input FRF matrix</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>FRF</strong> (<em>array</em><em>(</em><em>float</em><em>)</em>) – Input FRF matrix</p></li>
+<li><p><strong>singular_vector</strong> (<em>bool</em><em>, </em><em>optional</em>) – Return corresponding singular vectors</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>CMIF parameters (singular values with or without left and right singular vectors)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pyFBS.TSVD">
+<code class="sig-prename descclassname">pyFBS.</code><code class="sig-name descname">TSVD</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">matrix</span></em>, <em class="sig-param"><span class="n">reduction</span><span class="o">=</span><span class="default_value">0</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/utility.html#TSVD"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.TSVD" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filters a FRF matrix  with a truncated singular value decomposition (TSVD) by removing the smallest singular values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>matrix</strong> (<em>array</em><em>(</em><em>float</em><em>)</em>) – Matrix to be filtered by singular value decomposition</p></li>
+<li><p><strong>reduction</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of singular values not taken into account by reconstruction of the matrix</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Filtered matrix</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>array(float)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pyFBS.M">
+<code class="sig-prename descclassname">pyFBS.</code><code class="sig-name descname">M</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">axis</span></em>, <em class="sig-param"><span class="n">theta</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/utility.html#M"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.M" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates rotational matrix based on the Euler-Rodrigues formula.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>axis</strong> (<em>array</em><em>(</em><em>float</em><em>)</em>) – Axis of rotation</p></li>
+<li><p><strong>theta</strong> (<em>float</em>) – Angle of rotation</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Rotational matrix</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pyFBS.angle">
+<code class="sig-prename descclassname">pyFBS.</code><code class="sig-name descname">angle</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">vector1</span></em>, <em class="sig-param"><span class="n">vector2</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/utility.html#angle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.angle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates angle of rotation between two 3D vectors.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vector1</strong> (<em>array</em><em>(</em><em>float</em><em>)</em>) – 3D vector</p></li>
+<li><p><strong>vector2</strong> (<em>array</em><em>(</em><em>float</em><em>)</em>) – 3D vector</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>angle</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pyFBS.rotation_matrix_from_vectors">
+<code class="sig-prename descclassname">pyFBS.</code><code class="sig-name descname">rotation_matrix_from_vectors</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">vec1</span></em>, <em class="sig-param"><span class="n">vec2</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/utility.html#rotation_matrix_from_vectors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.rotation_matrix_from_vectors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the rotation matrix that aligns vec1 to vec2</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vec1</strong> (<em>array</em><em>(</em><em>float</em><em>)</em>) – A 3D “source” vector</p></li>
+<li><p><strong>vec2</strong> (<em>array</em><em>(</em><em>float</em><em>)</em>) – A 3D “destination” vector</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Rotational matrix which when applied to vec1, aligns it with vec2.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pyFBS.unit_vector">
+<code class="sig-prename descclassname">pyFBS.</code><code class="sig-name descname">unit_vector</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">vector</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/utility.html#unit_vector"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.unit_vector" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the unit vector of input vector.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>vector</strong> (<em>array</em><em>(</em><em>float</em><em>)</em>) – A 3D “source” vector</p>
+</dd>
+<dt class="field-even">Return unit vector</dt>
+<dd class="field-even"><p></p></dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pyFBS.angle_between">
+<code class="sig-prename descclassname">pyFBS.</code><code class="sig-name descname">angle_between</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">v1</span></em>, <em class="sig-param"><span class="n">v2</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/utility.html#angle_between"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.angle_between" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates angle of rotation between two 3D vectors.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vector1</strong> (<em>array</em><em>(</em><em>float</em><em>)</em>) – 3D vector</p></li>
+<li><p><strong>vector2</strong> (<em>array</em><em>(</em><em>float</em><em>)</em>) – 3D vector</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>angle</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pyFBS.generate_channels_from_sensors">
+<code class="sig-prename descclassname">pyFBS.</code><code class="sig-name descname">generate_channels_from_sensors</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">df</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/utility.html#generate_channels_from_sensors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.generate_channels_from_sensors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a set of channels based on the orientation of sensors. CUrrent implementation assumes that each sensor has
+three channels (i.e. tri-axial sensors).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>df</strong> (<em>pd.DataFrame</em>) – A DataFrame containing information on sensors</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A DataFrame containing information on channels</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pyFBS.generate_sensors_from_channels">
+<code class="sig-prename descclassname">pyFBS.</code><code class="sig-name descname">generate_sensors_from_channels</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">df</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/utility.html#generate_sensors_from_channels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.generate_sensors_from_channels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a set of sensors based on the supplied channel data. CUrrent implementation assumes that each sensor has
+three channels (i.e. tri-axial sensors).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>df</strong> (<em>pd.DataFrame</em>) – A DataFrame containing information on channels</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A DataFrame containing information on sensors</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pyFBS.coh_on_FRF">
+<code class="sig-prename descclassname">pyFBS.</code><code class="sig-name descname">coh_on_FRF</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">FRF_matrix</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/utility.html#coh_on_FRF"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.coh_on_FRF" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluates a reciprocity on the whole FRF matrix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>FRF_matrix</strong> (<em>array</em><em>(</em><em>float</em><em>)</em>) – Matrix of FRFs [f,out,in]</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A matrix of coherence criterion values on the reciprocal FRFs</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pyFBS.orient_in_global">
+<code class="sig-prename descclassname">pyFBS.</code><code class="sig-name descname">orient_in_global</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mode</span></em>, <em class="sig-param"><span class="n">df_chn</span></em>, <em class="sig-param"><span class="n">df_acc</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/utility.html#orient_in_global"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.orient_in_global" title="Permalink to this definition">¶</a></dt>
+<dd><p>Positions a response in 3D space based on the information of channel and sensor DataFrames</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mode</strong> (<em>array</em><em>(</em><em>float</em><em>)</em>) – A mode shape or response to be animated</p></li>
+<li><p><strong>df_chn</strong> (<em>pd.DataFrame</em>) – A DataFrame containing information on channels</p></li>
+<li><p><strong>df_acc</strong> (<em>pd.DataFrame</em>) – A DataFrame containing information on sensors</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Oriented response in 3D</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pyFBS.orient_in_global_2">
+<code class="sig-prename descclassname">pyFBS.</code><code class="sig-name descname">orient_in_global_2</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mode</span></em>, <em class="sig-param"><span class="n">df_imp</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyFBS/utility.html#orient_in_global_2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyFBS.orient_in_global_2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Positions a response in 3D space based on the information of impact DataFrames (impact testing)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mode</strong> (<em>array</em><em>(</em><em>float</em><em>)</em>) – A mode shape or response to be animated</p></li>
+<li><p><strong>df_imp</strong> (<em>pd.DataFrame</em>) – A DataFrame containing information on impacts</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Oriented response in 3D</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="IO.html" class="btn btn-neutral float-left" title="pyFBS.IO" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, The pyFBS Developers
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

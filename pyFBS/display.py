@@ -1,4 +1,5 @@
 import pyvista as pv
+from pyvistaqt import BackgroundPlotter
 import pandas as pd
 from time import time,sleep
 from PyQt5.QtWidgets import QAction
@@ -10,34 +11,38 @@ from scipy.spatial.transform import Rotation as R
 from pathlib import Path
 import os
 
+# static color variables
 RED = "#d62728"
 BLUE = "#1f77b4"
 GREEN = "#2ca02c"
-
 BACKGROUND = "#FFFFFF"
-
 
 class view3D():
     """
-    A 3D visualization tool for the pyFBS. The units of the 3D display are in milimeters.
+    A 3D display where structure, impacts, accelerometer and channels can be quickly displayed. The units of the
+    3D display are in milimeters.
 
     :param show_origin: Display the CSYS in origin
-    :type show_origin: bool
+    :type show_origin: bool, optional
+    :param show_axes: Display axes in the bottom left corner
+    :type show_axes: bool, optional
+    :param title: A title of the 3D display
+    :type title: str, optional
     """
+
     def __init__(self,show_origin = True,show_axes = True,title = None,**kwargs):
-        self.plot = pv.BackgroundPlotter(show = True,**kwargs)
+        self.plot = BackgroundPlotter(show = True,**kwargs)
 
         if title != None:
             self.plot.app_window.setWindowTitle("pyFBS - " + str(title))
         else:
             self.plot.app_window.setWindowTitle("pyFBS ")
 
+        # set the pyFBS logo
+        icon = str(Path(__file__).parents[1]) + os.sep + "data" + os.sep + "logo-small.png"
 
-
-        icon = str(Path(__file__).parents[1]) + os.sep + "data" + os.sep + "logo-small_up.ico"
         self.plot.app_window.setWindowIcon(QtGui.QIcon(icon))
         self.plot.background_color = BACKGROUND
-        #self.plot.enable_parallel_projection()
 
         if show_origin:
             self.add_csys([0,0,0])
@@ -45,7 +50,7 @@ class view3D():
         if show_axes:
             self.plot.add_axes(labels_off=True)
 
-        # Static Variables
+        # Static global variables
         self.global_acc = []
         self.acc_visible = False
 
@@ -64,10 +69,6 @@ class view3D():
         self.name = None
         self.name_ev = None
 
-        # Toolbars
-        self.show_hide_toolbar = self.plot.app_window.addToolBar('Show/hide Actors')
-        self.animate_toolbar = self.plot.app_window.addToolBar('Animate Modeshape')
-
         self.displayed_bodies = []
 
         self.obj_animation = None
@@ -76,24 +77,32 @@ class view3D():
         self.take_gif = False
         self.gif_dir = "sample.gif"
 
-        #
+        # Interactive objects
         self.all_accs_dynamic = []
         self.all_imps_dynamic = []
         self.all_vps_dynamic = []
 
+        # Toolbars
+        self.show_hide_toolbar = self.plot.app_window.addToolBar('Show/hide Actors')
+        self.animate_toolbar = self.plot.app_window.addToolBar('Animate Modeshape')
+        self.animate_clear_toolbar = self.plot.app_window.addToolBar('Clear Modeshape')
+
+
     def add_modeshape(self,dict_shape,run_animation = False,add_note = False):
         """
-        Add a modeshape animation to the 3D view.
+        Add a modeshape animation to the 3D display.
 
-        :param dict_animation: Modeshape animation information.
+        :param dict_animation: Mode shape dictionary
         :type dict_animation: dict
         :param run_animation: Run animation at start.
-        :type run_animation: bool
-        :param add_note: Add a note to a corner.
-        :type add_note: bool
+        :type run_animation: bool, optional
+        :param add_note: Add a note to a corner of 3D display.
+        :type add_note: bool, optional
         """
+
         if self.modeshape_animation == None:
             self.add_action(self.animate_toolbar, "Animate modeshape", self.animate_modeshape)
+            self.add_action(self.animate_clear_toolbar, "Clear modeshape", self.clear_modeshape)
 
         self.modeshape_animation = dict_shape
 
@@ -110,8 +119,9 @@ class view3D():
 
     def animate_modeshape(self):
         """
-        Animate modeshape from *add_modeshape* function.
+        Animate a mode shape in the 3D display.
         """
+
         frameperiod = 1.0 / self.modeshape_animation["fps"]
 
         now = time()
@@ -144,10 +154,14 @@ class view3D():
             nextframe += frameperiod
 
         if self.take_gif:
-            gif = imageio.mimread(self.gif_dir)
+            gif = imageio.mimread(self.gif_dir, memtest=False)
             imageio.mimsave(self.gif_dir, gif, fps=30)
 
     def clear_modeshape(self):
+        """
+        Clear mode shape from the 3D display.
+        """
+
         self.plot.update_coordinates(self.modeshape_animation["or_pts"], mesh=self.modeshape_animation["mesh"],render = True)
         self.plot.update_scalars(np.zeros(self.modeshape_animation["or_pts"].shape[0]), mesh=self.modeshape_animation["mesh"] ,render = False)
         self.plot.update_scalar_bar_range(clim=[0,100])
@@ -155,15 +169,16 @@ class view3D():
 
     def add_objects_animation(self,dict_animation,run_animation = False,add_note = False):
         """
-        Add an object animation to the 3D view.
+        Add an object animation to the 3D display.
 
         :param dict_animation: Object animation information.
         :type dict_animation: dict
         :param run_animation: Run animation at start.
-        :type run_animation: bool
-        :param add_note: Add a note to the corner.
-        :type add_note: bool
+        :type run_animation: bool, optional
+        :param add_note: Add a note to a corner of the 3D display.
+        :type add_note: bool, optional
         """
+
         if self.obj_animation == None:
             self.add_action(self.animate_toolbar, "Animate objects", self.animate_objects)
 
@@ -178,8 +193,9 @@ class view3D():
 
     def animate_objects(self):
         """
-        Animate objects from *add_objects_animation* function.
+        Animate objects in the 3D display.
         """
+
         frameperiod = 1.0 / self.obj_animation["fps"]
 
         now = time()
@@ -217,10 +233,11 @@ class view3D():
         """
         Connects a toolbar button with a certain function
 
-        :param toolbar: Toolbar.
-        :param key: Name of the toolbar.
-        :param function: Function to connect to.
+        :param toolbar: Toolbar parameter
+        :param key: Name of the toolbar
+        :param function: Function to connect the action to
         """
+
         action = QAction(key, self.plot.app_window)
         action.triggered.connect(function)
         toolbar.addAction(action)
@@ -228,13 +245,14 @@ class view3D():
 
     def add_csys(self,position = [0,0,0], size = 10):
         """
-        Adds a coordinate system at a certain position.
+        Add a coordinate system at a certain position.
 
-        :param position: Position of the CSYS [x,y,z]
+        :param position: Position of the CSYS [x, y, z]
         :type position: list, optional
         :param size: Size of the CSYS
         :type size: float, optional
         """
+
         arrow = pv.Arrow(start=(0.0, 0.0, 0.0), direction=(1, 0, 0))
         arrow.points *= size
         arrow.points += np.asarray(position)
@@ -252,13 +270,14 @@ class view3D():
 
     def add_stl(self, stl_path, name = "model", **kwargs):
         """
-        Adds a mesh to 3D view from .stl file.
+        Adds a mesh to the 3D display from STL file.
 
         :param stl_path: Path to the .stl file
         :type stl_path: str
         :param color: Color of the mesh
         :type color: str, optional
         """
+
         mesh = pv.PolyData(stl_path)
         actor = self.plot.add_mesh(mesh,name = name,**kwargs)
         self.displayed_bodies.append([name,actor])
@@ -268,7 +287,7 @@ class view3D():
 
     def add_impact(self, position, direction, size = 10, color = RED, **kwargs):
         """
-        Adds an impact to 3D view.
+        Adds an impact to the 3D display.
 
         :param position: Position of the impact [x,y,z]
         :type position: list
@@ -290,7 +309,7 @@ class view3D():
 
     def add_channel(self, position, direction, size = 10, color = BLUE,**kwargs):
         """
-        Adds a channel to 3D view.
+        Adds a channel to the 3D display.
 
         :param position: Position of the channel [x,y,z]
         :type position: list
@@ -312,7 +331,7 @@ class view3D():
 
     def create_accelerometer(self,position,orientation,size = 10):
         """
-        Create a 3D model of accelerometer.
+        Create a 3D model of an accelerometer.
 
         :param position: Position of the accelerometer [x,y,z]
         :type position: list
@@ -320,7 +339,6 @@ class view3D():
         :type orientation: list
         :param size: Size of the accelerometer
         :type size: float, optional
-
         :return: Accelerometer object
         """
 
@@ -346,10 +364,13 @@ class view3D():
 
     def add_accelerometer(self, acc):
         """
-        Adds an accelerometer to 3D view.
+        Add an accelerometer to the 3D display.
 
         :param acc: Accelerometer object
+        :type acc: list
+        :return: List of accelerometer mesh actors
         """
+
         acc_1 = self.plot.add_mesh(acc[0], opacity=0.5, show_edges=True, color="#8c8c8c", reset_camera =False)
         acc_2 = self.plot.add_mesh(acc[1], opacity=0.5, show_edges=False, color="#8c8c8c", reset_camera =False)
         acc_3 = self.plot.add_mesh(acc[2], color=RED, line_width=5, reset_camera =False)
@@ -361,29 +382,35 @@ class view3D():
 
     def add_vp(self,position,size = 10,color = GREEN,**kwargs):
         """
-        Adds a virtual point to 3D view.
+        Add a virtual point to the 3D display.
 
         :param position: Position of the virtual point [x,y,z]
-        :type position: list
+        :type position: array(float)
         :param size: Size of the virtual point
         :type size: float, optional
         :param color: Color of the virtual point
         :type color: str, optional
         """
+
         sphere = pv.Sphere(radius = size, center = position)
-        vp_actor = self.plot.add_mesh(sphere, color=color,**kwargs,reset_camera= False)
+        vp_actor = self.plot.add_mesh(sphere, color=color,reset_camera= False,**kwargs)
+
         return sphere,vp_actor
 
 
     def acc_callback(self,point, orientation = None):
         """
-        Description
+        Interactive accelerometer callback function.
 
-        :param point:
-        :return:
+        :param point: Point in 3D space
+        :type point: array(float)
+        :param orientation: Orientation in 3D space
+        :type orientation: array(float), optional
         """
+
         i = int(len(self.all_accs_dynamic)+len(self.all_imps_dynamic)+len(self.all_vps_dynamic))
         size = 10
+
         if orientation == None:
             acc = self.create_accelerometer([size/2, size/2, size/2], [0, 0, 0], size=size)
             rot = np.diag([1]*3)
@@ -391,6 +418,7 @@ class view3D():
             acc = self.create_accelerometer([size/2, size/2, size/2], orientation, size=size)
             r = R.from_euler('xyz', orientation, degrees=True)
             rot = r.as_matrix()
+
         self.add_accelerometer(acc)
         _gg = DynamicPosition(acc, self.plot, i, mesh=self.mesh, size=10,rot = rot)
         self.plot.add_sphere_widget(_gg.callback, center=_gg.points, color=["k", "r", "g", "b"], radius=10 / 15)
@@ -400,12 +428,15 @@ class view3D():
 
     def add_acc_dynamic(self, mesh, predefined=None):
         """
-        Description
+        Add a set of predefined accelerometers to the 3D display and toggle the possibility to add
+        additional accelerometers.
 
-        :param mesh:
-        :param predefined:
-        :return:
+        :param mesh: A mesh on which to snap
+        :type mesh: array(float)
+        :param predefined: Predefined set of accelerometers
+        :type predefined: pd.DataFrame, optional
         """
+
         self.mesh = mesh
 
         if isinstance(predefined, pd.DataFrame):
@@ -420,11 +451,14 @@ class view3D():
 
     def imp_callback(self,point, direction = None):
         """
-        Description
+        Interactive impact callback function.
 
-        :param point:
-        :return:
+        :param point: Point in 3D space
+        :type point: array(float)
+        :param orientation: Orientation in 3D space
+        :type orientation: array(float)
         """
+
         i = int(len(self.all_accs_dynamic)+len(self.all_imps_dynamic)+len(self.all_vps_dynamic))
         size = 10
         if direction == None:
@@ -433,7 +467,6 @@ class view3D():
         else:
             #imp, _ = self.add_impact([size/2, size/2, size/2],[0, 0, 1], size=10)
             imp, _ = self.add_impact([size/2, size/2, size/2],direction, size=10)
-            # somethin wrong here o.O
 
             #rot = np.diag([1]*3)
             rot = rotation_matrix_from_vectors(direction,[0, 0, 1]).T
@@ -446,12 +479,15 @@ class view3D():
 
     def add_imp_dynamic(self, mesh, predefined=None):
         """
-        Description
+        Add a set of predefined impacts to the 3D display and toggle the possibility to add
+        additional impacts.
 
-        :param mesh:
-        :param predefined:
-        :return:
+        :param mesh: A mesh on which to snap
+        :type mesh: array(float)
+        :param predefined: Predefined set of impacts
+        :type predefined: pd.DataFrame, optional
         """
+
         self.mesh = mesh
 
         if isinstance(predefined, pd.DataFrame):
@@ -465,11 +501,12 @@ class view3D():
 
     def vp_callback(self,point):
         """
-        Description
+        Interactive virtual point callback function.
 
-        :param point:
-        :return:
+        :param point: Point in 3D space
+        :type point: array(float)
         """
+
         i = int(len(self.all_accs_dynamic)+len(self.all_imps_dynamic)+len(self.all_vps_dynamic))
         size = 4
 
@@ -485,12 +522,15 @@ class view3D():
 
     def add_vp_dynamic(self, mesh, predefined=None):
         """
-        Description
+        Add a set of predefined virtual points to the 3D display and toggle the possibility to add
+        additional virtual points.
 
-        :param mesh:
-        :param predefined:
-        :return:
+        :param mesh: A mesh on which to snap
+        :type mesh: array(float)
+        :param predefined: Predefined set of virtual points
+        :type predefined: pd.DataFrame, optional
         """
+
         self.mesh = mesh
 
         if isinstance(predefined, pd.DataFrame):
@@ -508,10 +548,11 @@ class view3D():
 
     def get_imp_data(self):
         """
-        Description
+        Returns positional information on current impacts in the 3D display.
 
-        :return:
+        :return: pd.DataFrame containing positional information on impacts
         """
+
         columns_chann = ["Name", "Description", "Type", "DirectionLabel", "Quantity", "Unit", "Component", "NodeNumber",
                          "Grouping", "Position_1", "Position_2", "Position_3", "Direction_1", "Direction_2",
                          "Direction_3"]
@@ -530,10 +571,11 @@ class view3D():
 
     def get_acc_data(self):
         """
-        Description
+        Returns positional information on interactive accelerometers in the 3D display.
 
-        :return:
+        :return: pd.DataFrame containing positional information on accelerometers
         """
+
         columns_chann = ["Name", "Description", "Type", "DirectionLabel", "Quantity", "Unit", "Component", "NodeNumber",
                          "Grouping", "Position_1", "Position_2", "Position_3", "Orientation_1", "Orientation_2",
                          "Orientation_3"]
@@ -550,10 +592,11 @@ class view3D():
 
     def get_vp_data(self):
         """
-        Description
+        Returns positional information on interactive virtual points in the 3D display.
 
-        :return:
+        :return: pd.DataFrame containing positional information on virtual points
         """
+
         columns_chann = ["Name", "Description", "Type", "DirectionLabel", "Quantity", "Unit", "Component", "NodeNumber",
                          "Grouping", "Position_1", "Position_2", "Position_3", "Orientation_1", "Orientation_2",
                          "Orientation_3"]
@@ -570,11 +613,16 @@ class view3D():
 
     def show_acc(self,df,size = 10,overwrite = True):
         """
-        Adds accelerometers from the DataFrame to 3D view.
+        Add accelerometers to the 3D display.
 
-        :param df: A DataFrame containing relevant information about the accelerometers
+        :param df: A DataFrame containing information on the accelerometers
         :type df: pd.DataFrame
+        :param size: size of the accelerometer
+        :type size: float, optional
+        :param overwrite: Toggle the option to overwrite currently displayed accelerometers
+        :type overwrite: bool, optional
         """
+
         if self.global_acc != []:
             if overwrite:
                 self.acc_visible = True
@@ -603,10 +651,14 @@ class view3D():
 
     def show_imp(self,df,color = RED,overwrite = True,**kwargs):
         """
-        Adds impacts from the DataFrame to 3D view.
+        Add impacts to the 3D display.
 
-        :param df: A DataFrame containing relevant information about the impacts
+        :param df: A DataFrame containing information on the impacts
         :type df: pd.DataFrame
+        :param color: Color of the channel
+        :type color: str, optional
+        :param overwrite: Toggle option to overwrite currently displayed impacts
+        :type overwrite: bool, optional
         """
 
         if self.global_imp != []:
@@ -629,10 +681,16 @@ class view3D():
 
     def show_chn(self,df,color = BLUE,overwrite = True,**kwargs):
         """
-        Adds channels from the DataFrame to 3D view.
+        Add channels to the 3D display.
 
-        :param df: A DataFrame containing relevant information about the channels
+        :param df: A DataFrame containing information on the channels
         :type df: pd.DataFrame
+        :param color: Color of the channel
+        :type color: str, optional
+        :param overwrite: Toggle option to overwrite currently displayed channels
+        :type overwrite: bool, optional
+        :param size: size of the accelerometer
+        :type size: float, optional
         """
 
         if self.global_chn != []:
@@ -655,11 +713,18 @@ class view3D():
 
     def show_vp(self,df,color = GREEN,overwrite = True,size = 10,**kwargs):
         """
-        Adds virtual points from the DataFrame to 3D view.
+        Add virtual points to the 3D display.
 
-        :param df: A DataFrame containing relevant information about the virtual points
+        :param df: A DataFrame containing information on the virtual points
         :type df: pd.DataFrame
+        :param color: Color of the virtual point
+        :type color: str, optional
+        :param overwrite: Toggle option to overwrite currently displayed channels
+        :type overwrite: bool, optional
+        :param size: size of the accelerometer
+        :type size: float, optional
         """
+
         if self.global_vps != []:
             if overwrite:
                 self.vps_visible = True
@@ -680,15 +745,18 @@ class view3D():
         self.vps_visible = True
 
 
-    def label_acc(self,df,name = "Accelerometers",**kwargs):
+    def label_acc(self,df,name = "Accelerometers",font_size = 12,**kwargs):
         """
-        Adds labels to accelerometers from the DataFrame to 3D view.
+        Add labels of accelerometers to the 3D display.
 
-        :param df: A DataFrame containing relevant information about the accelerometers
+        :param df: A DataFrame containing relevant information on the sensors
         :type df: pd.DataFrame
         :param name: Name of the label which can be used to update existing notations
         :type name: str, optional
+        :param font_size: Size of the label font
+        :type font_size: float
         """
+
         if self.global_labels == []:
             self.add_action(self.show_hide_toolbar, "Clear Labels", self.clear_labels)
 
@@ -698,19 +766,22 @@ class view3D():
             positions.append([row["Position_1"] * 1000, row["Position_2"] * 1000, row["Position_3"] * 1000])
             labels.append(row["Name"])
 
-        self.plot.add_point_labels(positions, labels, font_size=12,name = name,shape_opacity=.5,show_points=False,**kwargs)
+        self.plot.add_point_labels(positions, labels, font_size=font_size,name = name,shape_opacity=.5,show_points=False,**kwargs)
         self.global_labels.append([[positions, labels], name])
         self.labels_visible = True
 
-    def label_imp(self,df,name = "Impacts",**kwargs):
+    def label_imp(self,df,name = "Impacts",font_size= 12,**kwargs):
         """
-        Adds labels to impacts from the DataFrame to 3D view.
+        Add labels of impacts to the 3D display.
 
-        :param df: A DataFrame containing relevant information about the impacts
+        :param df: A DataFrame containing information on the impacts
         :type df: pd.DataFrame
         :param name: Name of the label which can be used to update existing notations
         :type name: str, optional
+        :param font_size: Size of the label font
+        :type font_size: float, optional
         """
+
         if self.global_labels == []:
             self.add_action(self.show_hide_toolbar, "Clear Labels", self.clear_labels)
 
@@ -721,19 +792,24 @@ class view3D():
             positions.append([row["Position_1"] * 1000, row["Position_2"] * 1000, row["Position_3"] * 1000])
             labels.append(row["Name"])
 
-        self.plot.add_point_labels(positions, labels, font_size=12,name = name,shape_color = RED,font_family = "times",shape_opacity=0.5,show_points=False,**kwargs)
+        self.plot.add_point_labels(positions, labels, font_size=font_size,name = name,shape_color = RED,font_family = "times",shape_opacity=0.5,show_points=False,**kwargs)
         self.global_labels.append([[positions, labels], name])
         self.labels_visible = True
 
-    def label_chn(self,df,name = "Channels",size = 10,**kwargs):
+    def label_chn(self,df,name = "Channels",size = 10,font_size = 12,**kwargs):
         """
-        Adds labels to channels from the DataFrame to 3D view.
+        Adds labels of channels to the 3D display.
 
         :param df: A DataFrame containing relevant information about the channels
         :type df: pd.DataFrame
         :param name: Name of the label which can be used to update existing notations
         :type name: str, optional
+        :param size: Size of the channel arrow
+        :type size: float, optional
+        :param font_size: Size of the label font
+        :type font_size: float, optional
         """
+
         if self.global_labels == []:
             self.add_action(self.show_hide_toolbar, "Clear Labels", self.clear_labels)
 
@@ -747,19 +823,22 @@ class view3D():
             positions.append([row["Position_1"]*1000+x, row["Position_2"]*1000+y, row["Position_3"]*1000+z])
             labels.append(row["Name"])
 
-        self.plot.add_point_labels(positions, labels, font_size=12, name=name, shape_color=BLUE, font_family = "times",shape_opacity=0.5,show_points=False,**kwargs)
+        self.plot.add_point_labels(positions, labels, font_size=font_size, name=name, shape_color=BLUE, font_family = "times",shape_opacity=0.5,show_points=False,**kwargs)
         self.global_labels.append([[positions,labels],name])
         self.labels_visible = True
 
-    def label_vp(self,df,name = "VPs",**kwargs):
+    def label_vp(self,df,name = "VPs",font_size = 12,**kwargs):
         """
-        Adds labels to virtual point from the DataFrame to 3D view.
+        Adds labels to virtual point from the DataFrame to 3D display.
 
-        :param df: A DataFrame containing relevant information about the virtual points
+        :param df: A DataFrame containing information on the virtual points
         :type df: pd.DataFrame
         :param name: Name of the label which can be used to update existing notations
         :type name: str, optional
+        :param font_size: Size of the label font
+        :type font_size: float, optional
         """
+
         if self.global_labels == []:
             self.add_action(self.show_hide_toolbar, "Clear Labels", self.clear_labels)
 
@@ -771,15 +850,16 @@ class view3D():
 
         L = df["Grouping"].unique()
 
-        self.plot.add_point_labels(position, L, font_size=12,name = name,font_family = "times",shape_opacity=0.5,shape_color = GREEN,show_points=False,**kwargs)
+        self.plot.add_point_labels(position, L, font_size=font_size,name = name,font_family = "times",shape_opacity=0.5,shape_color = GREEN,show_points=False,**kwargs)
         self.global_labels.append([[position, L], name])
         self.labels_visible = True
 
 
     def show_hide_accelerometers(self):
         """
-        Show or hide all the accelerometers in the 3D view.
+        Toggles visibility of the accelerometers in the 3D display.
         """
+
         if self.acc_visible == False:
             for _acc in self.global_acc:
                 for item in _acc[2]:
@@ -795,8 +875,9 @@ class view3D():
 
     def show_hide_impacts(self):
         """
-        Show or hide all the impacts in the 3D view.
+        Toggles visibility of the impacts in the 3D display.
         """
+
         if self.imp_visible == False:
             for _imp in self.global_imp:
                 self.plot.add_actor(_imp[1],reset_camera =False)
@@ -809,8 +890,9 @@ class view3D():
 
     def show_hide_channels(self):
         """
-        Show or hide all the channels in the 3D view.
+        Toggles visibility of the channels in the 3D display.
         """
+
         if self.chn_visible == False:
             for _chn in self.global_chn:
                 self.plot.add_actor(_chn[1],reset_camera =False)
@@ -825,8 +907,9 @@ class view3D():
 
     def show_hide_vps(self):
         """
-        Show or hide all the VPs in the 3D view.
+        Toggles visibility of the virtual points in the 3D display.
         """
+
         if self.vps_visible == False:
             for _vp in self.global_vps:
                 self.plot.add_actor(_vp[1],reset_camera =False)
@@ -840,7 +923,7 @@ class view3D():
 
     def clear_labels(self):
         """
-        Clear all labels in the 3D view.
+        Clear all displayed labels in the 3D display.
         """
         for _label in self.global_labels:
             self.plot.remove_actor(_label[1],reset_camera =False)
@@ -850,12 +933,26 @@ class view3D():
 
 class DynamicPosition():
     """
-    Description
+    A wrapper for object interaction within the 3D display.
 
+    :param objects: A list of objects to be interacted with withing the 3D display
+    :type objects: list
+    :param p: A pv.BackgroundPlotter instance in which the object are interacted with
+    :type: pv.BackgroundPlotter
+    :param N: An unique iteration number for sphere widgets
+    :type N: int
+    :param mesh: A mesh for object snapping
+    :type mesh: array(float), optional
+    :param snap_outward: An option for snapping outward of the mesh
+    :type snap_outward: bool, optional
+    :param size: size of the bounding box for the object
+    :type size: float, optional
+    :param rot: default orientation matrix of the object
+    :tpye rot: array(float), optional
     """
 
     def __init__(self, objects, p, N, mesh=None, snap_outward=True, size=1, rot = np.diag([1]*3)):
-
+        # set size and static points
         self.size = size
         self.points = np.array([[size / 2, size / 2, size / 2],
                                 [0, size / 2, size / 2],
@@ -902,8 +999,8 @@ class DynamicPosition():
                                       [0, -1, 0],
                                       [0, 0, -1]]).T * ray_size
 
+        # allign everything with new rotational matrix
         self.local_orientation = (rot @ (self.local_orientation))
-
         self.local_widgets = (rot @ (self.local_widgets).T).T
         self.local_normals = rot @ self.local_normals
         self.local_rays = rot @ self.local_rays
@@ -922,13 +1019,17 @@ class DynamicPosition():
 
     def get_pos_orient(self, euler_angles=False, one_dir=None, eps=1e-10):
         """
-        Description
+        Extracts the positional and orientational data of the object.
 
-        :param euler_angles:
-        :param one_dir:
-        :param eps:
+        :param euler_angles: Define orientation with Euler angles
+        :type euler_angles: bool, optional
+        :param one_dir: Extracts the direction of only one axis
+        :type one_dir: int, optional
+        :param eps: A round-off error
+        :type eps: float, optional
         :return:
         """
+
         position = self.box.center_of_mass()
 
         # return euler_angles
@@ -953,11 +1054,13 @@ class DynamicPosition():
 
     def translate(self, point, snap=False):
         """
-        Description
+        Translation to the corresponding point. If snapping is enabled the object snapps to the mesh surface and it's
+        oriented based on the mesh normal.
 
-        :param point:
-        :param snap:
-        :return:
+        :param point: Point in 3D space
+        :type point: array(float)
+        :param snap: Enable or disable snapping to mesh
+        :type snap: bool, optional
         """
 
         # definest rays to find intersection with the supplied mesh
@@ -1050,11 +1153,12 @@ class DynamicPosition():
 
     def callback(self, point, i):
         """
-        Description
+        A callback function for interaction with a sphere-widget.
 
-        :param point:
-        :param i:
-        :return:
+        :param point: Point in 3D space
+        :type point: array(float)
+        :param i: point ID
+        :type: int
         """
         # 3D translation in space
         if i == 0:

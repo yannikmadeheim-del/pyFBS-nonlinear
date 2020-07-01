@@ -45,7 +45,7 @@ extensions = ['sphinx.ext.autodoc', 'sphinx.ext.intersphinx', 'sphinx.ext.todo',
               'sphinx.ext.doctest', 'sphinx.ext.ifconfig', 'sphinx.ext.mathjax',
               'sphinx.ext.napoleon','sphinxcontrib.bibtex','sphinx.ext.autodoc',
               'sphinx.ext.doctest','sphinx.ext.autosummary','sphinx.ext.extlinks',
-              'sphinx.ext.coverage',
+              'sphinx.ext.coverage','sphinx_gallery.gen_gallery',
               ]
 			  
 # Add any paths that contain templates here, relative to this directory.
@@ -87,7 +87,7 @@ language = None
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = 'sphinx'
+pygments_style = 'friendly'
 
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = False
@@ -139,6 +139,7 @@ latex_elements = {
     'figure_align': 'htbp',
 }
 
+
 import sphinx_rtd_theme
 html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 
@@ -153,7 +154,7 @@ html_context = {
     'menu_links_name': 'Getting Connected',
     'menu_links': [
         ('<i class="fa fa-comment fa-fw"></i> Support', 'https://'),
-        ('<i class="fa fa-github fa-fw"></i> Source Code', 'https://'),
+        ('<i class="fa fa-gitlab fa-fw"></i> Source Code', 'https://'),
         ('<i class="fa fa-gavel fa-fw"></i> Contributing', 'https://'),
         ('<i class="fa fa-file-text fa-fw"></i> The Paper', 'https://'),
     ],
@@ -179,14 +180,14 @@ man_pages = [
      [author], 1)
 ]
 
-html_favicon = 'logo-small_up.ico'
+html_favicon = '../data/logo-small.png'
 
 html_theme_options = {
     'logo_only': True,
     'body_max_width': '30%'
 }
 
-html_logo = "logo_big.JPG"
+html_logo = "../data/logo-big.png"
 
 # -- Options for Texinfo output ----------------------------------------
 
@@ -202,5 +203,7 @@ texinfo_documents = [
      'Miscellaneous'),
 ]
 
+def setup(app):
+    app.add_css_file("style.css")
 
 

@@ -1,5 +1,6 @@
 
 
+
 <!DOCTYPE html>
 <!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
@@ -8,10 +9,12 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Basic Examples &mdash; pyFBS  documentation</title>
+  <title>Basic examples &mdash; pyFBS  documentation</title>
   
 
   
+  
+    <link rel="shortcut icon" href="../_static/logo-small.png"/>
   
   
   
@@ -21,10 +24,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -33,10 +36,22 @@
   
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/style.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery-dataframe.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Application Examples" href="application_examples.html" />
-    <link rel="prev" title="Installation" href="../installation.html" /> 
+    <link rel="next" title="3D Display" href="01_static_display.html" />
+    <link rel="prev" title="Usage" href="../usage.html" />
+ 
+
+<meta name="description" content="A Python package for Frequency Based Substructuring">
+<meta name="author" content="The pyFBS Developers">
+<meta name="keywords" content="python, structural dynamics, frequency based substructuring, virtual point transformation, system equivalent model mixing, modal analysis, frequency response function">
+
+</script>
+
 </head>
 
 <body class="wy-body-for-nav">
@@ -50,9 +65,12 @@
           
 
           
-            <a href="../index.html" class="icon icon-home"> pyFBS
+            <a href="../index.html">
           
 
+          
+            
+            <img src="../_static/logo-big.png" class="logo" alt="Logo"/>
           
           </a>
 
@@ -75,6 +93,7 @@
 
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
+    
             
             
               
@@ -83,38 +102,56 @@
               <p class="caption"><span class="caption-text">About</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../intro.html">Why pyFBS?</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../credits.html">Credits</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Getting Started</span></p>
-<ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Basic Examples</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#static-3d-display">Static 3D display</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#d-viewer">3D viewer</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#structure">Structure</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#accelerometers">Accelerometers</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#channels">Channels</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#impacts">Impacts</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#virtual-points">Virtual points</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#labels">Labels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
 </ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#interactive-3d-display">Interactive 3D display</a></li>
+<p class="caption"><span class="caption-text">Examples</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Basic examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="01_static_display.html">3D Display</a></li>
+<li class="toctree-l2"><a class="reference internal" href="02_interactive_display.html">Interactive positioning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="03_FRF_synthetization.html">FRF synthetization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="04_VPT.html">Virtual Point Transformation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="05_SEMM.html">SEMM - System equivalent model mixing</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="application_examples.html">Application Examples</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Code Documentation</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../code_documentation/display.html">pyFBS.display</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../code_documentation/SEMM.html">pyFBS.SEMM</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../code_documentation/VPT.html">pyFBS.VPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../code_documentation/core.html">Core API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../code_documentation/util.html">Utilities</a></li>
 </ul>
 
             
           
+
+    
+        <p class="caption">
+            <span class="caption-text">
+            
+                Getting Connected
+            
+            </span>
+        </p>
+        <ul>
+            
+                <li class="toctree-l1"><a href="https://"><i class="fa fa-comment fa-fw"></i> Support</a></li>
+            
+                <li class="toctree-l1"><a href="https://"><i class="fa fa-gitlab fa-fw"></i> Source Code</a></li>
+            
+                <li class="toctree-l1"><a href="https://"><i class="fa fa-gavel fa-fw"></i> Contributing</a></li>
+            
+                <li class="toctree-l1"><a href="https://"><i class="fa fa-file-text fa-fw"></i> The Paper</a></li>
+            
+        </ul>
+    
+
         </div>
       </div>
     </nav>
@@ -156,7 +193,7 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
-      <li>Basic Examples</li>
+      <li>Basic examples</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -176,98 +213,37 @@
            <div itemprop="articleBody">
             
   <div class="section" id="basic-examples">
-<h1>Basic Examples<a class="headerlink" href="#basic-examples" title="Permalink to this headline">¶</a></h1>
-<p>A short description of basic features of the pyFBS. Additional examples are available in the examples folder (<em>./pyFBS/examples/</em>)  (prepared to be published on MyBinder).</p>
-<div class="section" id="static-3d-display">
-<h2>Static 3D display<a class="headerlink" href="#static-3d-display" title="Permalink to this headline">¶</a></h2>
-<p>A simple example of the 3D display. Sensors, impacts, channels, virtual points and the structure can be depicted in 3D view in a simple and intuitive way.</p>
-<div class="section" id="d-viewer">
-<h3>3D viewer<a class="headerlink" href="#d-viewer" title="Permalink to this headline">¶</a></h3>
-<p>First open a blank 3D display with a CSYS depicted in the origin.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pyFBS</span>
-<span class="n">view3D</span> <span class="o">=</span> <span class="n">pyFBS</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">view3D</span><span class="p">()</span>
-</pre></div>
+<h1>Basic examples<a class="headerlink" href="#basic-examples" title="Permalink to this headline">¶</a></h1>
+<p>This examples show how to use basic features of pyFBS. Explore this basic examples to get familiar with the pyFBS workflow.</p>
+<div class="sphx-glr-thumbcontainer" tooltip="Static display"><div class="figure align-default" id="id1">
+<a class="reference external image-reference" href="01_static_display.html"><img alt="../_images/interaction.gif" src="../_images/interaction.gif" /></a>
+<p class="caption"><span class="caption-text">Static display</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
 </div>
+</div><div class="toctree-wrapper compound">
 </div>
-<div class="section" id="structure">
-<h3>Structure<a class="headerlink" href="#structure" title="Permalink to this headline">¶</a></h3>
-<p>Structures can be added to 3Dview in a simple manner. Currently, only  STL file format is supported for the 3D display in the pyFBS.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">path_stl</span> <span class="o">=</span> <span class="s2">&quot;../data/AM_substructuring_testbench/STL/AM_AB_final.stl&quot;</span>
-<span class="n">view3D</span> <span class="o">=</span> <span class="n">pyFBS</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">view3D</span><span class="p">(</span><span class="n">path_stl</span><span class="p">)</span>
-<span class="n">view3D</span><span class="o">.</span><span class="n">add_stl</span><span class="p">(</span><span class="n">AB_stl</span><span class="p">)</span>
-</pre></div>
+<div class="sphx-glr-thumbcontainer" tooltip="Interactive positioning"><div class="figure align-default" id="id2">
+<a class="reference external image-reference" href="02_interactive_display.html"><img alt="../_images/snapping.gif" src="../_images/snapping.gif" /></a>
+<p class="caption"><span class="caption-text">Interactive positioning</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
 </div>
-<div class="figure align-default" id="id1">
-<a class="reference internal image-reference" href="../_images/3D_view.png"><img alt="../_images/3D_view.png" src="../_images/3D_view.png" style="width: 500px;" /></a>
-<p class="caption"><span class="caption-text">AM substructuring testbench depicted in the pyFBS 3Dviewer.</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
+</div><div class="toctree-wrapper compound">
 </div>
+<div class="sphx-glr-thumbcontainer" tooltip="FRF synthetization"><div class="figure align-default" id="id3">
+<a class="reference external image-reference" href="03_FRF_synthetization.html"><img alt="../_images/FRF_syn-FRF-visualization.png" src="../_images/FRF_syn-FRF-visualization.png" /></a>
+<p class="caption"><span class="caption-text">FRF synthetization</span><a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
 </div>
-<div class="section" id="accelerometers">
-<h3>Accelerometers<a class="headerlink" href="#accelerometers" title="Permalink to this headline">¶</a></h3>
-<p>Accelerometers can be added to 3D view based on the information from the DataFrame.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">path_xlsx</span> <span class="o">=</span> <span class="s2">&quot;../data/AM_substructuring_testbench/Measurements/decoupling/Excel/AM_Measurements.xlsx&quot;</span>
-<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="n">path_xlsx</span><span class="p">,</span> <span class="n">sheetname</span><span class="o">=</span><span class="s1">&#39;Sensors_AB&#39;</span><span class="p">)</span>
-<span class="n">view3D</span><span class="o">.</span><span class="n">show_acc</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
-</pre></div>
+</div><div class="toctree-wrapper compound">
 </div>
-<div class="figure align-default" id="id2">
-<a class="reference internal image-reference" href="../_images/acc.png"><img alt="../_images/acc.png" src="../_images/acc.png" style="width: 500px;" /></a>
-<p class="caption"><span class="caption-text">Accelerometers on the AM substructuring testbench depicted in the pyFBS 3Dviewer.</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
+<div class="sphx-glr-thumbcontainer" tooltip="Virtual Point Transformation"><div class="figure align-default" id="id4">
+<a class="reference external image-reference" href="04_VPT.html"><img alt="../_images/pic_vpt.png" src="../_images/pic_vpt.png" /></a>
+<p class="caption"><span class="caption-text">Virtual Point Transformation</span><a class="headerlink" href="#id4" title="Permalink to this image">¶</a></p>
 </div>
+</div><div class="toctree-wrapper compound">
 </div>
-<div class="section" id="channels">
-<h3>Channels<a class="headerlink" href="#channels" title="Permalink to this headline">¶</a></h3>
-<p>Channels associated with each accelerometer can be added to 3D view based on the information supplied from the DataFrame.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="n">path_xlsx</span><span class="p">,</span> <span class="n">sheetname</span><span class="o">=</span><span class="s1">&#39;Channels_AB&#39;</span><span class="p">)</span>
-<span class="n">view3D</span><span class="o">.</span><span class="n">show_chn</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
-</pre></div>
+<div class="sphx-glr-thumbcontainer" tooltip="System Equivalent Model Mixing"><div class="figure align-default" id="id5">
+<a class="reference external image-reference" href="05_SEMM.html"><img alt="../_images/SEMM_result.png" src="../_images/SEMM_result.png" /></a>
+<p class="caption"><span class="caption-text">System Equivalent Model Mixing</span><a class="headerlink" href="#id5" title="Permalink to this image">¶</a></p>
 </div>
-<div class="figure align-default" id="id3">
-<a class="reference internal image-reference" href="../_images/chn.png"><img alt="../_images/chn.png" src="../_images/chn.png" style="width: 500px;" /></a>
-<p class="caption"><span class="caption-text">Channels from accelerometers on the AM substructuring testbench depicted in the pyFBS 3Dviewer.</span><a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
-</div>
-</div>
-<div class="section" id="impacts">
-<h3>Impacts<a class="headerlink" href="#impacts" title="Permalink to this headline">¶</a></h3>
-<p>Impact can be added to 3D view based on the information supplied  from the DataFrame.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="n">path_xlsx</span><span class="p">,</span> <span class="n">sheetname</span><span class="o">=</span><span class="s1">&#39;Impacts_AB&#39;</span><span class="p">)</span>
-<span class="n">view3D</span><span class="o">.</span><span class="n">show_imp</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="figure align-default" id="id4">
-<a class="reference internal image-reference" href="../_images/imp.png"><img alt="../_images/imp.png" src="../_images/imp.png" style="width: 500px;" /></a>
-<p class="caption"><span class="caption-text">Impacts on the AM substructuring testbench depicted in the pyFBS 3Dviewer.</span><a class="headerlink" href="#id4" title="Permalink to this image">¶</a></p>
-</div>
-</div>
-<div class="section" id="virtual-points">
-<h3>Virtual points<a class="headerlink" href="#virtual-points" title="Permalink to this headline">¶</a></h3>
-<p>Virtual points can be added to 3D view based on the information supplied  from the DataFrame.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="n">path_xlsx</span><span class="p">,</span> <span class="n">sheetname</span><span class="o">=</span><span class="s1">&#39;VP_Channels&#39;</span><span class="p">)</span>
-<span class="n">view3D</span><span class="o">.</span><span class="n">show_vp</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="figure align-default" id="id5">
-<a class="reference internal image-reference" href="../_images/VP.png"><img alt="../_images/VP.png" src="../_images/VP.png" style="width: 500px;" /></a>
-<p class="caption"><span class="caption-text">Channels from accelerometers on the AM substructuring testbench depicted in the pyFBS 3Dviewer.</span><a class="headerlink" href="#id5" title="Permalink to this image">¶</a></p>
-</div>
-</div>
-<div class="section" id="labels">
-<h3>Labels<a class="headerlink" href="#labels" title="Permalink to this headline">¶</a></h3>
-<p>Accelerometer, channels, impacts or virtual points can be labeled or enumerated based on the information from the DataFrame.</p>
-<div class="figure align-default" id="id6">
-<a class="reference internal image-reference" href="../_images/labels.gif"><img alt="../_images/labels.gif" src="../_images/labels.gif" style="width: 500px;" /></a>
-<p class="caption"><span class="caption-text">Accelerometer, channels, impacts and virtual points on the AM substructuring testbench depicted in the pyFBS 3Dviewer.</span><a class="headerlink" href="#id6" title="Permalink to this image">¶</a></p>
-</div>
-</div>
-</div>
-<div class="section" id="interactive-3d-display">
-<h2>Interactive 3D display<a class="headerlink" href="#interactive-3d-display" title="Permalink to this headline">¶</a></h2>
-<p><strong>Coming soon</strong></p>
-<p>The idea behind interactive 3D display is simple. The position as well as the orientation of any componoment should be interactive directly in the 3D viewer.</p>
-<div class="figure align-default" id="id7">
-<a class="reference internal image-reference" href="../_images/dynamic_3Dview.gif"><img alt="../_images/dynamic_3Dview.gif" src="../_images/dynamic_3Dview.gif" style="width: 500px;" /></a>
-<p class="caption"><span class="caption-text">An example of two interactive accelerometers.</span><a class="headerlink" href="#id7" title="Permalink to this image">¶</a></p>
-</div>
+</div><div class="toctree-wrapper compound">
 </div>
 </div>
 
@@ -279,10 +255,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="application_examples.html" class="btn btn-neutral float-right" title="Application Examples" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="01_static_display.html" class="btn btn-neutral float-right" title="3D Display" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="../installation.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="../usage.html" class="btn btn-neutral float-left" title="Usage" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -291,7 +267,7 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2019, Tomaž Bregar
+        &copy; Copyright 2020, The pyFBS Developers
 
     </p>
   </div>

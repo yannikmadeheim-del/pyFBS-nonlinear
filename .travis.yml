@@ -20,10 +20,8 @@ script: tox
 deploy:
   provider: pypi
   distributions: sdist bdist_wheel
-  user: tb93
-  password:
-    secure: PLEASE_REPLACE_ME
+  user: pyFBS
   on:
     tags: true
-    repo: tb93/pyfbs
+    repo: pyFBS/pyFBS
     python: 3.8

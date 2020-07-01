@@ -1,35 +1,30 @@
 import numpy as np
-from scipy.linalg import block_diag, svd, norm
+from scipy.linalg import block_diag, norm
 from pyFBS.utility import coh_frf
 
 class VPT(object):
     """
-    Virtual point transformation
+    Virtual Point Transformation (VPT) - enables transformation of measured responses to a virtual DoFs.  Current
+    implementation enables rigid interface deformation modes and all 6 DoFs (3 translations + 3 rotations), have to
+    be included in the transformation.
 
-    Parameters
-    ----------
-
-    ch : pandas.DataFrame
-        Channels used in the transformation (outputs - sensors).
-    refch : pandas.DataFrame
-        Reference channels used in the transformation (input - impacts).
-    vp_ch : pandas.DataFrame
-        Virtual point channels used in the transformation (output - VP).
-    vp_refch : pandas.DataFrame
-        Virtual point reference channels used in the transformation (input - VP).
-    Wu : numpy.array
-        Displacement weighting matrix.
-    Wf : numpy.array
-        Force weighting matrix.
-
-    References
-    ----------
-
-    .. [1]  M. V. van der Seijs, Experimental Dynamic Substructuring: Analysis and design strategies for vehicle development, Ph.D. thesis, TU Delft (2016).
-
-
+    :param ch: A DataFrame containing information on channels (i.e. outputs)
+    :type ch: pd.DataFrame
+    :param refch: A DataFrame containing information on reference channels (i.e. inputs)
+    :type refch: pd.DataFrame
+    :param vp_ch: A DataFrame containing information on virtual point channels
+    :type vp_ch: pd.DataFrame
+    :param vp_refch: A DataFrame containing information on reference virtual point channels
+    :type vp_refch: pd.DataFrame
+    :param Wu: Displacement weigting matrix
+    :type Wu: array(float), optional
+    :param Wf: Force weighting matrix
+    :type Wf: array(float), optional
+    :param sort_matrix: Sort transformation matrixes
+    :type sort_matrix: bool, optional
     """
-    def __init__(self, ch, refch, vp_ch, vp_refch ,Wu = None, Wf = None,sort_matrix = True):
+
+    def __init__(self, ch, refch, vp_ch, vp_refch, Wu = None, Wf = None, sort_matrix = True):
         self.sort_matrix = sort_matrix
 
         # Load the physical input-output DoFs
@@ -51,7 +46,8 @@ class VPT(object):
 
     def define_IDM_U(self):
         """
-        Calculates the Ru, Tu, Fu matrices based on the supplied position and orientation of Channels and Virtual Channels. In the current implementation only Rigid IDMs are supported.
+        Calculates Ru, Tu and Fu matrices based on the supplied position and orientation of Channels and Virtual
+        Channels.
         """
         ov_u, _vps, mask_u = self.find_overlap_ch(self.Channels, self.Virtual_Channels)
 
@@ -114,8 +110,10 @@ class VPT(object):
 
     def define_IDM_F(self):
         """
-        Calculates the Rf, Tf, Ff matrices based on the supplied position and orientation of Channels and Virtual Channels. In the current implementation only Rigid IDMs are supported.
+        Calculates the Rf, Tf, Ff matrices based on the supplied position and orientation of Reference Channels and
+        Reference Virtual Channels.
         """
+
         ov_f, _vps, mask_f = self.find_overlap_ch(self.RefChannels, self.Virtual_RefChannels)
         # print(mask_f)
         R_all = []
@@ -175,10 +173,12 @@ class VPT(object):
         Calculate Ru matrix based on the channel position/orientation and sensor type.
 
         :param pos: Position of the channel.
-        :type pos: numpy.array
+        :type pos: array(float)
         :param type: Type of the channel (i.e. Acceleration or Angular Acceleration).
-        :returns: numpy.array, Ru
+        :type pos: string, optional
+        :returns: Ru matrix
         """
+
         rx, ry, rz = pos[0], pos[1], pos[2]
 
 
@@ -196,13 +196,16 @@ class VPT(object):
     @staticmethod
     def W_rotational(pos, dir, type="Angular Acceleration"):
         """
-        Defines the weighting matrix based on the
+        Defines the weighting matrix based on the location of rotational accelerometer
 
         :param pos: Position of the channel.
-        :type pos: numpy.array
+        :type pos: array(float)
+        :param dir: Direction of the channel
+        :type dir: array(float)
         :param type: Type of the channel (i.e. Acceleration or Angular Acceleration)
-        :type type: str
+        :type type: str, optional
         """
+
         rx, ry, rz = pos[0], pos[1], pos[2]
 
         _W = 1
@@ -221,12 +224,13 @@ class VPT(object):
     @staticmethod
     def R_matrix_F(pos):
         """
-        Calculate Rf matrix based on the reference channel position/orientation.
+        Calculates Rf matrix based on the reference channel position/orientation.
 
-        :param pos: Position of the reference channel relative to virtual point.
-        :type pos: numpy.array
-        :returns: numpy.array, Rf
+        :param pos: Position of the reference channel relative to the virtual point.
+        :type pos: array(float)
+        :returns: Rf matrix
         """
+
         rx, ry, rz = pos[0], pos[1], pos[2]
 
         _R = np.asarray([[1, 0, 0],
@@ -241,13 +245,13 @@ class VPT(object):
     @staticmethod
     def find_overlap_ch(channelsA, channelsB):
         """
-        Finds an overlap of grouping number between two channel datasets.
+        Finds an overlap of grouping number between two channel DataFrames.
 
-        :param channelsA:
-        :type channelsA: pandas.DataFrame
-        :param channelsB:
-        :type channelsB: pandas.DataFrame
-        :return GG: numpy.array, Overlap mask
+        :param channelsA: First set of channels
+        :type channelsA: pd.DataFrame
+        :param channelsB: Second set of channels
+        :type channelsB: pd.DataFrame
+        :return: overlap,unique_index, overlap_mask
         """
 
         # Get the grouping numbers from DataFrames
@@ -266,14 +270,15 @@ class VPT(object):
     @staticmethod
     def find_group(gr, gr_list):
         """
-        Get a grouping overlap between two sets.
+        Get a grouping overlap between two DataFrames.
 
-        :param gr: blah
-        :type gr: list
-        :param gr_list: blah
+        :param gr: Grouping number
+        :type gr: int
+        :param gr_list: A list of grouping numbers
         :type gr_list: list
-        :return: numpy.array
+        :return: overlap_mask
         """
+
         _overlap = []
         for a in np.unique(gr):
             _overlap.append(np.where(gr_list == a))
@@ -282,17 +287,13 @@ class VPT(object):
 
     def apply_VPT(self, freq,FRF):
         """
-        Applies the Virtual Point Transformation on the supplied FRF matrix.
+        Applies the Virtual Point Transformation on the FRF matrix.
 
-        :param freq: Frequency vector.
-        :type freq: numpy.array
-        :param FRF: A matrix of Frequency Response Functions FRFs.
-        :type: numpy.array
+        :param freq: Frequency vector
+        :type freq: array(float)
+        :param FRF: A matrix of Frequency Response Functions FRFs [f,out,in].
+        :type FRF: array(float)
         """
-        #_freq_lim = FRF.shape[2]
-        #_Y_vpt = np.zeros((self.Tu.shape[0], self.Tf.shape[1], _freq_lim), dtype=complex)
-        #for i in range(_freq_lim):
-        #    _Y_vpt[:, :, i] = self.Tu @ FRF[:, :, i] @ self.Tf
 
         _Y_vpt = self.Tu @ FRF @ self.Tf
 
@@ -302,7 +303,7 @@ class VPT(object):
 
     def consistency(self, grouping, ref_grouping):
         """
-        Calculates the VP consistency indicators based on the supplied grouping numbers.
+        Evaluates VP consistency indicators based on the supplied grouping numbers.
 
         :param grouping: Grouping number of the VP.
         :type grouping: float
@@ -376,7 +377,7 @@ class VPT(object):
         self.specific_impact = np.asarray(specific_impact)
 
     """
-    Frequency-dependend weighting matrix
+    Frequency-dependend weighting matrix - to be implemented in the pyFBS with next release
 
     Wu = block_diag(*_Warray)
     Wu = block_diag(Wu, np.eye(len(np.where(mask_u != 0)[0])))
@@ -417,4 +418,3 @@ class VPT(object):
     self.Tu_f = Tu_f
     self.Fu_f = Fu_f
     """
-
