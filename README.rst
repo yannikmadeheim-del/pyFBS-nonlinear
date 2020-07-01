@@ -1,7 +1,8 @@
 .. image:: ../data/logo-big.png
 	:align: right
-	:height: 50px
 	
+
+
 pyFBS is a Python package for Frequency Based Substructuring. It enables the user to use state-of-the-art dynamic substructuring methodologies in an intuitive manner. 
 
 With the package also basic and application examples are provided, together with real datasets so you can simply try out capabilities of the pyFBS.
@@ -29,10 +30,12 @@ Acknowledgements
 
 The pyFBS package was developed as a part of collaboration between the Laboratory for Dynamics of Machines and Structures (`LADISK <http://ladisk.si/>`_), Faculty of Mechanical Engineering, University of Ljubljana (FME, UL) and the Chair of Applied Mechanics (`AM <https://www.mw.tum.de/am/home/>`_), Technical University of Munich (TUM).
 
+.. raw:: html
 
-.. image:: http://lab.fs.uni-lj.si/ladisk/data/pic/ladisk_logo_navbar_line.png
-	:align: right
-	:height: 80px
+	<a href="http://ladisk.si/">
+		<img src="http://lab.fs.uni-lj.si/ladisk/data/pic/ladisk_logo_navbar_line.png" alt="LADISK logo" title="LADISK" align="right" width=80 height=80 />
+	</a>
+
 	
 Laboratory for Dynamics of Machines and Structures (LADISK), FME UL
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -44,11 +47,13 @@ text
 text
 
 	
-
 	
-.. image:: https://www.mw.tum.de/typo3/ext/tumtheme/Resources/Public/Icons/Org/tum-logo.png
-	:align: right
-	:height: 50px
+.. raw:: html
+
+	<a href="https://www.mw.tum.de/">
+		<img src="https://www.mw.tum.de/typo3/ext/tumtheme/Resources/Public/Icons/Org/tum-logo.png" alt="LADISK logo" title="LADISK" align="right" width=80 height=80 />
+	</a>
+
 
 Chair of Applied Mechanics (AM), TUM
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
