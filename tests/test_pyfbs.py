@@ -3,7 +3,6 @@ import sys
 
 import pyFBS
 import numpy as np
-from test_data import *
 
 import pandas as pd
 import os.path
@@ -183,8 +182,6 @@ class TestPyfbs(unittest.TestCase):
                        df_chn_exp = df_chn[0:15],
                        df_imp_exp = df_imp[5:20],
                        SEMM_type='fully-extend')
-
-
 
 if __name__ == '__main__':
     unittest.main()
