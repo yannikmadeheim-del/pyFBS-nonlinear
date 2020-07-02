@@ -5,7 +5,7 @@ Decoupling
 With the pyFBS also decoupling of different substructers can be performed in relatively simple manner. In this example a numerical example is used to demonstrate a basic coupling example with a virtual point transformation at the interface.
 
 .. note:: 
-   Example showing an substructure coupling application: :download:`08_decoupling.ipynb <../../examples/08_FBS_decoupling.ipynb>`.
+   Download example showing a substructure decoupling application: :download:`08_decoupling.ipynb <../../examples/08_FBS_decoupling.ipynb>`
     
 Example Datasets and 3D view
 ****************************
@@ -114,7 +114,7 @@ First the compatibility and the equiliubrium condition has to be defined through
     plt.imshow(Bf)
     
 .. figure:: ./data/eight_four.png
-   :width: 500px
+   :width: 300px
     
 Apply the LM-FBS based on the defined coompatibility and equilibrium conditions.
 
@@ -135,7 +135,7 @@ First extract the FRFs at the reference DoFs:
     Y_A_coupled = Y_An[:,arr_coup,:][:,:,arr_coup]
     Y_A_ref = MK_A.FRF
     
-The decoupled and the reference results can then be compared:
+The decoupled and the reference results can then be compared and evaluated:
    
 .. figure:: ./data/eight_last.png
    :width: 500px

@@ -2,21 +2,24 @@
 Coupling
 ########
 
-With the pyFBS coupling and decoupling of different substructers can be performed in relatively simple manner. In this example a numerical example is used to demonstrate a basic coupling example with a virtual point transformation at the interface. This can also be performed analogously with experimentally determined data.
+With the pyFBS coupling and also decoupling of different substructers can be performed in relatively simple manner. 
+In this example a numerical example is used to demonstrate a basic coupling example with a virtual point transformation at the interface. 
+This can also be performed analogously with experimentally acquired data.
 
 .. note:: 
-   Example showing an substructure coupling application: :download:`07_coupling.ipynb <../../examples/07_FBS_coupling.ipynb>`.
+   Download example showing a substructure coupling application: :download:`07_coupling.ipynb <../../examples/07_FBS_coupling.ipynb>`
 
     
 Example Datasets and 3D view
 ****************************
-Load the required predefined datasets and open the 3D viewer in the background as already shown in `3D Display <../../html/examples/01_static_display.html>`_. Especially for the illustration of different substructures and the assembly, the 3D viewer subplot capabilities of `PyVista <https://docs.pyvista.org/index.html>`_ can be used.
+Load the required predefined datasets and open the 3D viewer in the background as already shown in `3D Display <../../html/examples/01_static_display.html>`_. 
+Especially for the illustration of different substructures and the assembly, the 3D viewer subplot capabilities of `PyVista <https://docs.pyvista.org/index.html>`_ can be used.
 
 .. code-block:: python
 
     view3D = pyFBS.view3D(show_origin = False, show_axes = False,shape =  (1,3),title = "Overview")
     
-Add the STL file of substructure A to the 1-1 subplot and show the corresponding accelerometer, channels and impacts.
+Add an STL file of substructure A to the 1-1 subplot and show the corresponding accelerometers, channels and impacts.
 
 .. code-block:: python
 
@@ -33,7 +36,7 @@ Add the STL file of substructure A to the 1-1 subplot and show the corresponding
    :width: 500px
     
     
-Add the STL file of substructure B to the 1-2 subplot and show the corresponding accelerometer, channels and impacts.
+Add an STL file of substructure B to the 1-2 subplot and show the corresponding accelerometers, channels and impacts.
 
 .. code-block:: python
 
@@ -50,7 +53,7 @@ Add the STL file of substructure B to the 1-2 subplot and show the corresponding
    :width: 500px
    
     
-Add STL file of the assembly AB to the 1-2 subplot and show the corresponding reference accelerometer, channels and impacts.
+Add an STL file of the assembly AB to the 1-2 subplot and show the corresponding reference accelerometers, channels and impacts.
  
 .. code-block:: python
 
@@ -173,7 +176,7 @@ First the compatibility and the equiliubrium condition has to be defined through
     plt.imshow(Bf)
 
 .. figure:: ./data/seven_four.png
-   :width: 500px
+   :width: 300px
     
     
 Apply the LM-FBS based on the defined coompatibility and equilibrium conditions.
@@ -196,7 +199,7 @@ First extract the FRFs at the reference DoFs:
     Y_AB_coupled = Y_ABn[:,arr_coup,:][:,:,arr_coup]
     Y_AB_ref = MK_AB.FRF
     
-The coupled and the reference results can then be compared:
+The coupled and the reference results can then be compared and evaluated:
     
 .. figure:: ./data/seven_five.png
    :width: 500px

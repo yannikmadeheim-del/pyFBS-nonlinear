@@ -1,17 +1,7 @@
 ============
 Installation
 ============
-pyFBS is supported on Python versions 3.5+. 
-
-
-************
-Dependencies
-************
-
-* PyVista
-* pyansys
-* numpy
-* pandas
+pyFBS is supported on Python versions 3.5+. You can install the pyFBS with following the instructions.
 
 
 ****
@@ -20,7 +10,7 @@ PyPI
 
 :mod:`pyFBS` can be installed from PyPI using ``pip``:
 
-.. code-block:: python
+.. code-block:: 
 
 	pip install pyFBS
 
@@ -29,7 +19,7 @@ Anaconda
 ********
 :mod:`pyFBS` can also be installed with ``conda`` run:
 
-.. code-block:: python
+.. code-block:: 
 
 	conda install -c conda-forge pyFBS
 
@@ -43,4 +33,4 @@ The source code of the pyFBS can be also downloaded (cloned) by running:
 
 	git clone https://gitlab.com/pyFBS.git
 	cd pyFBS
-	python setup.py install
+	pip install -e .

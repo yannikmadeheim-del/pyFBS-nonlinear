@@ -26,12 +26,15 @@ class MK_model(object):
     :type allow_pickle: bool
     :param recalculate: if ``False`` just mass and stiffness matrices with corresponding nodes and their DoFs will be imported. If ``True`` also the eigenvalue problem will be solved.
     :type recalculate: bool
+    :param scale: distance scaling factor
+    :type scale: float
     """
-    def __init__(self, rst_file, full_file, no_modes = 100, allow_pickle = True, recalculate = False):
+
+    def __init__(self, rst_file, full_file, no_modes = 100, allow_pickle = True, recalculate = False,scale = 1000):
         rst = pyansys.read_binary(rst_file)
-        self.nodes = rst.geometry["nodes"][:, :3]  # only translational dofs
+        self.nodes = rst.geometry["nodes"][:, :3]*scale  # only translational dofs
         self.mesh = rst.grid
-        self.mesh.points *= 1000
+        self.mesh.points *= scale
         self.pts = self.mesh.points.copy()
 
         self.no_modes = no_modes
@@ -191,7 +194,7 @@ class MK_model(object):
 
         return sel1, sel2
 
-    def update_locations_df(self,df):
+    def update_locations_df(self,df,scale = 1):
         """
         Update locations in data frame ``df`` to nearest nodal locations of the finite element model.
         Directions remain the same.
@@ -202,7 +205,7 @@ class MK_model(object):
         :rtype: pandas.DataFrame
         """
         _df = df.copy(deep = True)
-        _loc = _df[["Position_1", "Position_2", "Position_3"]].to_numpy()
+        _loc = _df[["Position_1", "Position_2", "Position_3"]].to_numpy()*scale
         _index = self.find_nearest_locations(self.nodes,_loc)
         for i,_ind in enumerate(_index):
             _df.loc[i, ["Position_1", "Position_2", "Position_3"]] = self.nodes[_ind]
@@ -320,7 +323,7 @@ class MK_model(object):
         self.freq = freq
 
 
-    def add_noise(self,n1 = 1e-3, n2 = 1e-3, n3 = 8e-4 ,n4 = 7e-4):
+    def add_noise(self,n1 = 2e-2, n2 = 2e-1, n3 = 2e-1 ,n4 = 5e-2):
         """
         Additive noise to synthesized FRFs by random values as per standard normal distribution with defined scaling factors.
 

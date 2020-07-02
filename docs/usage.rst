@@ -22,7 +22,7 @@ Academic testbench
 The first testbench is an academic example ``pyFBS.example_lab_testbench``. 
 The testbench is used to evaluate and compare different dynamic substructuring methodologies. 
 
-.. figure:: ./examples/data/3D_view.png
+.. figure:: ./examples/data/structure_t.png
    :width: 800px
    
    An example of a academic substructuring testbench depicted in the pyFBS 3D display.
@@ -45,7 +45,7 @@ The second testbench is an automotive example ``pyFBS.example_auto_testbench``.
 The automotive testbench was designed to represent an engine-transmission unit’s suspension from a real car.
 
 
-.. figure:: ./examples/data/nine_one.png
+.. figure:: ./examples/data/structure.png
    :width: 800px
    
    An example of a automotive testbench depicted in the pyFBS 3D display.

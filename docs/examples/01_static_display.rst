@@ -6,7 +6,7 @@ The :mod:`pyFBS` can be used for 3D visualization. The 3D display enables depict
 Furthermore, the 3D display supports motion animation, where objects or mode shapes can be animated with ease. For the 3D visualization a python package `PyVista <https://docs.pyvista.org/index.html>`_ is used.
 
 .. note:: 
-   Example showing the basic use of the 3D display: :download:`01_static_display.ipynb <../../examples/01_static_display.ipynb>`.
+   Download example showing the basic use of the 3D display: :download:`01_static_display.ipynb <../../examples/01_static_display.ipynb>`
 
 
 To open a blank 3D display simply make an instance of the :class:`pyFBS.view3D`.
@@ -33,7 +33,6 @@ After the code execution the geometric object will apear in the rendering window
 .. figure:: ./data/3D_view.png
    :width: 800px
 
-   An example of a laboratory substructuring testbench depicted in the pyFBS 3D display.
 
 Multiple geometric objects can be added to the display with different colors and even opacity (checkout :func:`pyvista.BackgroundPlotter.add_mesh` for all options). 
 When adding multiple geometric objects, care should be taken that different ``name`` variable is provided, otherwise the object with the same name will be overwritten (discarded from the 3D display). 
@@ -59,7 +58,6 @@ After the code execution accelerometers will be shown in the 3D display.
 .. figure:: ./data/acc.png
    :width: 800px
 
-   Accelerometers on the laboratory substructuring testbench.
 
 Channels
 ========
@@ -74,8 +72,6 @@ After the code execution channels will be shown in the 3D display.
 
 .. figure:: ./data/chn.png
    :width: 800px
-
-   Channels from the corresponding accelerometers on the laboratory substructuring testbench.
 
 
 Impacts
@@ -93,7 +89,6 @@ After the code execution impacts will be shown in the 3D display.
 .. figure:: ./data/imp.png
    :width: 800px
 
-   Impacts on the laboratory substructuring testbench.
 
 
 Virtual points
@@ -110,7 +105,6 @@ After the code execution virtual points will be shown in the 3D display.
 .. figure:: ./data/VP.png
    :width: 800px
 
-   Virtual point on the laboratory substructuring testbench.
 
 Labels
 ======
@@ -128,7 +122,6 @@ Corresponding labels will appear in the 3D display after the code execution.
 .. figure:: ./data/labels.PNG
    :width: 800px
 
-   Displayed labels of accelerometers, channels, impacts and virtual points laboraty substructuring testbench.
    
 *******************************
 Interaction with the 3D display
@@ -138,5 +131,3 @@ For more information refer to the `PyVista plotting shortcuts <https://docs.pyvi
 
 .. figure:: ./data/interaction.gif
    :width: 800px
-
-   Interaction with the 3D display.

@@ -373,8 +373,8 @@ def generate_channels_from_sensors(df):
     :return: A DataFrame containing information on channels
     """
 
-    columns_chann = ["Name", "Description", "Type", "DirectionLabel", "Quantity", "Unit", "Component", "NodeNumber",
-                     "Grouping", "Position_1", "Position_2", "Position_3", "Direction_1", "Direction_2", "Direction_3"]
+    columns_chann = ["Name", "Description", "Quantity", "Grouping",
+                     "Position_1", "Position_2", "Position_3", "Direction_1", "Direction_2", "Direction_3"]
     df_ch = pd.DataFrame(columns=columns_chann)
 
     axes = ["x", "y", "z"]
@@ -382,8 +382,8 @@ def generate_channels_from_sensors(df):
         r = R.from_euler('xyz', angle, degrees=True)
         rot = r.as_matrix().T
         for i in range(3):
-            data_chn = np.asarray([[df["Name"][s] + axes[i], df["Description"][s], df["Type"][s], None, None, None,
-                                    None, None, df["Grouping"][s], df["Position_1"][s], df["Position_2"][s],
+            data_chn = np.asarray([[df["Name"][s] + axes[i], df["Description"][s],
+                                    None, df["Grouping"][s], df["Position_1"][s], df["Position_2"][s],
                                     df["Position_3"][s], rot[i][0], rot[i][1], rot[i][2]]])
             df_row = pd.DataFrame(data=data_chn, columns=columns_chann)
             df_ch = df_ch.append(df_row,ignore_index = True)
@@ -400,8 +400,8 @@ def generate_sensors_from_channels(df):
     :return: A DataFrame containing information on sensors
     """
 
-    columns_sen = ["Name", "Description", "Type", "DirectionLabel", "Quantity", "Unit", "Component", "NodeNumber",
-                     "Grouping", "Position_1", "Position_2", "Position_3", "Orientation_1", "Orientation_2", "Orientation_3"]
+    columns_sen = ["Name", "Description", "Quantity", "Grouping",
+                   "Position_1", "Position_2", "Position_3", "Orientation_1", "Orientation_2", "Orientation_3"]
     df_sen = pd.DataFrame(columns=columns_sen)
 
     for i in range(int(len(df)/3)):
@@ -413,7 +413,7 @@ def generate_sensors_from_channels(df):
 
         orient = r.as_euler('xyz', degrees=True)
 
-        data_chn = np.asarray([["S"+str(i+1),None,None,None,None,None,None,None,None,sen_pos[0],sen_pos[1],sen_pos[2],orient[0],orient[1],orient[2]]])
+        data_chn = np.asarray([["S"+str(i+1),None,None,None,sen_pos[0],sen_pos[1],sen_pos[2],orient[0],orient[1],orient[2]]])
 
 
         df_row = pd.DataFrame(data=data_chn, columns=columns_sen)

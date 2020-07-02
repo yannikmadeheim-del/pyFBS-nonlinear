@@ -19,8 +19,9 @@ BACKGROUND = "#FFFFFF"
 
 class view3D():
     """
-    A 3D display where structure, impacts, accelerometer and channels can be quickly displayed. The units of the
-    3D display are in milimeters.
+    A 3D display where structure, impacts, accelerometer and channels can be quickly displayed. Additionaly, all objects
+    can be interactively placed on the mesh from a STL file. Also the 3D display supports basic animations.
+    The units of the 3D display are in milimeters, use scale factor for different units.
 
     :param show_origin: Display the CSYS in origin
     :type show_origin: bool, optional
@@ -426,7 +427,7 @@ class view3D():
         _gg.turn_on = True
         self.all_accs_dynamic.append(_gg)
 
-    def add_acc_dynamic(self, mesh, predefined=None):
+    def add_acc_dynamic(self, mesh, predefined=None,scale = 1):
         """
         Add a set of predefined accelerometers to the 3D display and toggle the possibility to add
         additional accelerometers.
@@ -435,13 +436,15 @@ class view3D():
         :type mesh: array(float)
         :param predefined: Predefined set of accelerometers
         :type predefined: pd.DataFrame, optional
+        :param scale: distance scaling factor
+        :type scale: float
         """
 
         self.mesh = mesh
 
         if isinstance(predefined, pd.DataFrame):
             for i, row in predefined.iterrows():
-                point = [row["Position_1"] * 1000, row["Position_2"] * 1000, row["Position_3"] * 1000]
+                point = [row["Position_1"] * scale, row["Position_2"] * scale, row["Position_3"] * scale]
                 orientation = [row["Orientation_1"], row["Orientation_2"], row["Orientation_3"]]
                 self.acc_callback(point, orientation=orientation)
 
@@ -477,7 +480,7 @@ class view3D():
         _gg.turn_on = True
         self.all_imps_dynamic.append(_gg)
 
-    def add_imp_dynamic(self, mesh, predefined=None):
+    def add_imp_dynamic(self, mesh, predefined=None,scale = 1):
         """
         Add a set of predefined impacts to the 3D display and toggle the possibility to add
         additional impacts.
@@ -486,18 +489,20 @@ class view3D():
         :type mesh: array(float)
         :param predefined: Predefined set of impacts
         :type predefined: pd.DataFrame, optional
+        :param scale: distance scaling factor
+        :type scale: float
         """
 
         self.mesh = mesh
 
         if isinstance(predefined, pd.DataFrame):
             for i, row in predefined.iterrows():
-                point = [row["Position_1"] * 1000, row["Position_2"] * 1000, row["Position_3"] * 1000]
+                point = [row["Position_1"] * scale, row["Position_2"] * scale, row["Position_3"] * scale]
                 direction = [row["Direction_1"], row["Direction_2"], row["Direction_3"]]
                 self.imp_callback(point, direction=direction)
 
         self.plot.enable_point_picking(callback=self.imp_callback, color="r", show_message="", show_point=False)
-        self.plot.add_text("Press P too add an impact (hold down letter t to disable snapping to mesh).", font_size = 10,color = "k",font  = "times",name = "text")
+        self.plot.add_text("Press P too add an impact (hold down letter T to disable snapping to mesh).", font_size = 10,color = "k",font  = "times",name = "text")
 
     def vp_callback(self,point):
         """
@@ -520,7 +525,7 @@ class view3D():
 
         self.all_vps_dynamic.append(_gg)
 
-    def add_vp_dynamic(self, mesh, predefined=None):
+    def add_vp_dynamic(self, mesh, predefined=None, scale = 1):
         """
         Add a set of predefined virtual points to the 3D display and toggle the possibility to add
         additional virtual points.
@@ -529,6 +534,8 @@ class view3D():
         :type mesh: array(float)
         :param predefined: Predefined set of virtual points
         :type predefined: pd.DataFrame, optional
+        :param scale: distance scaling factor
+        :type scale: float
         """
 
         self.mesh = mesh
@@ -539,7 +546,7 @@ class view3D():
             y = predefined["Position_2"].unique()
             z = predefined["Position_3"].unique()
             position = np.asarray([x, y, z]).T
-            position *= 1000
+            position *= scale
             for pos in position:
                 self.vp_callback(pos)
 
@@ -553,16 +560,14 @@ class view3D():
         :return: pd.DataFrame containing positional information on impacts
         """
 
-        columns_chann = ["Name", "Description", "Type", "DirectionLabel", "Quantity", "Unit", "Component", "NodeNumber",
-                         "Grouping", "Position_1", "Position_2", "Position_3", "Direction_1", "Direction_2",
-                         "Direction_3"]
+        columns_chann = ["Name", "Description","Quantity","Grouping",
+                         "Position_1", "Position_2", "Position_3", "Direction_1", "Direction_2","Direction_3"]
         df = pd.DataFrame(columns=columns_chann)
 
         for i, _imp in enumerate(self.all_imps_dynamic):
             pos, _dir = _imp.get_pos_orient(one_dir=2)
 
-            data_chn = np.asarray([["Impact " + str(1 + i), None, None, None, None, None, None, None, None, pos[0],
-                                    pos[1], pos[2], _dir[0], _dir[1], _dir[2]]])
+            data_chn = np.asarray([["Impact " + str(1 + i), None, None, None, pos[0],pos[1], pos[2], _dir[0], _dir[1], _dir[2]]])
 
             df_row = pd.DataFrame(data=data_chn, columns=columns_chann)
             df = df.append(df_row, ignore_index=True)
@@ -576,14 +581,13 @@ class view3D():
         :return: pd.DataFrame containing positional information on accelerometers
         """
 
-        columns_chann = ["Name", "Description", "Type", "DirectionLabel", "Quantity", "Unit", "Component", "NodeNumber",
-                         "Grouping", "Position_1", "Position_2", "Position_3", "Orientation_1", "Orientation_2",
-                         "Orientation_3"]
+        columns_chann = ["Name", "Description", "Quantity","Grouping",
+                         "Position_1", "Position_2", "Position_3", "Orientation_1", "Orientation_2", "Orientation_3"]
         df = pd.DataFrame(columns=columns_chann)
 
         for i, _acc in enumerate(self.all_accs_dynamic):
             pos, euler_dir = _acc.get_pos_orient(euler_angles=True)
-            data_chn = np.asarray([["Sensor " + str(1 + i), None, None, None, None, None, None, None, None, pos[0],pos[1],pos[2],euler_dir[0],euler_dir[1],euler_dir[2] ]])
+            data_chn = np.asarray([["Sensor " + str(1 + i), None, None, None, pos[0],pos[1],pos[2],euler_dir[0],euler_dir[1],euler_dir[2] ]])
 
             df_row = pd.DataFrame(data=data_chn, columns=columns_chann)
             df = df.append(df_row, ignore_index=True)
@@ -597,21 +601,20 @@ class view3D():
         :return: pd.DataFrame containing positional information on virtual points
         """
 
-        columns_chann = ["Name", "Description", "Type", "DirectionLabel", "Quantity", "Unit", "Component", "NodeNumber",
-                         "Grouping", "Position_1", "Position_2", "Position_3", "Orientation_1", "Orientation_2",
-                         "Orientation_3"]
+        columns_chann = ["Name", "Description", "Quantity", "Grouping",
+                         "Position_1", "Position_2", "Position_3", "Orientation_1", "Orientation_2", "Orientation_3"]
         df = pd.DataFrame(columns=columns_chann)
 
         for i, _acc in enumerate(self.all_vps_dynamic):
             pos, euler_dir = _acc.get_pos_orient(euler_angles=True)
-            data_chn = np.asarray([["VP " + str(1 + i), None, None, None, None, None, None, None, None, pos[0],pos[1],pos[2],euler_dir[0],euler_dir[1],euler_dir[2] ]])
+            data_chn = np.asarray([["VP " + str(1 + i), None, None, None, pos[0],pos[1],pos[2],euler_dir[0],euler_dir[1],euler_dir[2] ]])
 
             df_row = pd.DataFrame(data=data_chn, columns=columns_chann)
             df = df.append(df_row, ignore_index=True)
 
         return df
 
-    def show_acc(self,df,size = 10,overwrite = True):
+    def show_acc(self,df,size = 10,overwrite = True,scale = 1):
         """
         Add accelerometers to the 3D display.
 
@@ -621,6 +624,8 @@ class view3D():
         :type size: float, optional
         :param overwrite: Toggle the option to overwrite currently displayed accelerometers
         :type overwrite: bool, optional
+        :param scale: distance scaling factor
+        :type scale: float
         """
 
         if self.global_acc != []:
@@ -635,7 +640,7 @@ class view3D():
 
         for i, row in df.iterrows():
 
-            acc_mesh = self.create_accelerometer((row["Position_1"] * 1000, row["Position_2"] * 1000, row["Position_3"] * 1000),
+            acc_mesh = self.create_accelerometer((row["Position_1"] * scale, row["Position_2"] * scale, row["Position_3"] * scale),
                                          (row["Orientation_1"], row["Orientation_2"], row["Orientation_3"]),size = size)
 
             acc_actor = self.add_accelerometer(acc_mesh)
@@ -649,7 +654,7 @@ class view3D():
 
 
 
-    def show_imp(self,df,color = RED,overwrite = True,**kwargs):
+    def show_imp(self,df,color = RED,overwrite = True,scale = 1,**kwargs):
         """
         Add impacts to the 3D display.
 
@@ -659,6 +664,8 @@ class view3D():
         :type color: str, optional
         :param overwrite: Toggle option to overwrite currently displayed impacts
         :type overwrite: bool, optional
+        :param scale: distance scaling factor
+        :type scale: float
         """
 
         if self.global_imp != []:
@@ -672,14 +679,14 @@ class view3D():
             self.add_action(self.show_hide_toolbar, "Impacts", self.show_hide_impacts)
 
         for i, row in df.iterrows():
-            imp_mesh,imp_actor = self.add_impact((row["Position_1"] * 1000, row["Position_2"] * 1000, row["Position_3"] * 1000),
+            imp_mesh,imp_actor = self.add_impact((row["Position_1"] * scale, row["Position_2"] * scale, row["Position_3"] * scale),
                          (row["Direction_1"], row["Direction_2"], row["Direction_3"]),color = color, **kwargs)
             self.global_imp.append([imp_mesh,imp_actor])
 
         self.imp_visible = True
 
 
-    def show_chn(self,df,color = BLUE,overwrite = True,**kwargs):
+    def show_chn(self,df,color = BLUE,overwrite = True, scale = 1,**kwargs):
         """
         Add channels to the 3D display.
 
@@ -691,6 +698,8 @@ class view3D():
         :type overwrite: bool, optional
         :param size: size of the accelerometer
         :type size: float, optional
+        :param scale: distance scaling factor
+        :type scale: float
         """
 
         if self.global_chn != []:
@@ -704,14 +713,14 @@ class view3D():
             self.add_action(self.show_hide_toolbar, "Channels", self.show_hide_channels)
 
         for i, row in df.iterrows():
-            chn_mesh,chn_actor = self.add_channel((row["Position_1"] * 1000, row["Position_2"] * 1000, row["Position_3"] * 1000),
+            chn_mesh,chn_actor = self.add_channel((row["Position_1"] * scale, row["Position_2"] * scale, row["Position_3"] * scale),
                           (row["Direction_1"], row["Direction_2"], row["Direction_3"]),color = color,**kwargs)
             self.global_chn.append([chn_mesh,chn_actor])
 
         self.chn_visible = True
 
 
-    def show_vp(self,df,color = GREEN,overwrite = True,size = 10,**kwargs):
+    def show_vp(self,df,color = GREEN,overwrite = True,size = 10,scale = 1,**kwargs):
         """
         Add virtual points to the 3D display.
 
@@ -723,6 +732,8 @@ class view3D():
         :type overwrite: bool, optional
         :param size: size of the accelerometer
         :type size: float, optional
+        :param scale: distance scaling factor
+        :type scale: float
         """
 
         if self.global_vps != []:
@@ -739,13 +750,13 @@ class view3D():
         y = df["Position_2"].unique()
         z = df["Position_3"].unique()
         position = np.asarray([x, y, z]).T
-        position *= 1000
+        position *= scale
         vp_mesh,vp_actor = self.add_vp(position,color = color,size = size,**kwargs)
         self.global_vps.append([vp_mesh, vp_actor])
         self.vps_visible = True
 
 
-    def label_acc(self,df,name = "Accelerometers",font_size = 12,**kwargs):
+    def label_acc(self,df,name = "Accelerometers",font_size = 12,scale = 1,**kwargs):
         """
         Add labels of accelerometers to the 3D display.
 
@@ -755,6 +766,8 @@ class view3D():
         :type name: str, optional
         :param font_size: Size of the label font
         :type font_size: float
+        :param scale: distance scaling factor
+        :type scale: float
         """
 
         if self.global_labels == []:
@@ -763,14 +776,14 @@ class view3D():
         positions = []
         labels = []
         for i, row in df.iterrows():
-            positions.append([row["Position_1"] * 1000, row["Position_2"] * 1000, row["Position_3"] * 1000])
+            positions.append([row["Position_1"] * scale, row["Position_2"] * scale, row["Position_3"] * scale])
             labels.append(row["Name"])
 
         self.plot.add_point_labels(positions, labels, font_size=font_size,name = name,shape_opacity=.5,show_points=False,**kwargs)
         self.global_labels.append([[positions, labels], name])
         self.labels_visible = True
 
-    def label_imp(self,df,name = "Impacts",font_size= 12,**kwargs):
+    def label_imp(self,df,name = "Impacts",font_size= 12,scale = 1,**kwargs):
         """
         Add labels of impacts to the 3D display.
 
@@ -780,6 +793,8 @@ class view3D():
         :type name: str, optional
         :param font_size: Size of the label font
         :type font_size: float, optional
+        :param scale: distance scaling factor
+        :type scale: float
         """
 
         if self.global_labels == []:
@@ -789,14 +804,14 @@ class view3D():
         labels = []
         for i, row in df.iterrows():
 
-            positions.append([row["Position_1"] * 1000, row["Position_2"] * 1000, row["Position_3"] * 1000])
+            positions.append([row["Position_1"] * scale, row["Position_2"] * scale, row["Position_3"] * scale])
             labels.append(row["Name"])
 
         self.plot.add_point_labels(positions, labels, font_size=font_size,name = name,shape_color = RED,font_family = "times",shape_opacity=0.5,show_points=False,**kwargs)
         self.global_labels.append([[positions, labels], name])
         self.labels_visible = True
 
-    def label_chn(self,df,name = "Channels",size = 10,font_size = 12,**kwargs):
+    def label_chn(self,df,name = "Channels",size = 10,font_size = 12,scale = 1,**kwargs):
         """
         Adds labels of channels to the 3D display.
 
@@ -808,6 +823,8 @@ class view3D():
         :type size: float, optional
         :param font_size: Size of the label font
         :type font_size: float, optional
+        :param scale: distance scaling factor
+        :type scale: float
         """
 
         if self.global_labels == []:
@@ -820,14 +837,14 @@ class view3D():
             y = row["Direction_2"]*size
             z = row["Direction_3"]*size
 
-            positions.append([row["Position_1"]*1000+x, row["Position_2"]*1000+y, row["Position_3"]*1000+z])
+            positions.append([row["Position_1"]*scale+x, row["Position_2"]*scale+y, row["Position_3"]*scale+z])
             labels.append(row["Name"])
 
         self.plot.add_point_labels(positions, labels, font_size=font_size, name=name, shape_color=BLUE, font_family = "times",shape_opacity=0.5,show_points=False,**kwargs)
         self.global_labels.append([[positions,labels],name])
         self.labels_visible = True
 
-    def label_vp(self,df,name = "VPs",font_size = 12,**kwargs):
+    def label_vp(self,df,name = "VPs",font_size = 12,scale = 1,**kwargs):
         """
         Adds labels to virtual point from the DataFrame to 3D display.
 
@@ -837,6 +854,8 @@ class view3D():
         :type name: str, optional
         :param font_size: Size of the label font
         :type font_size: float, optional
+        :param scale: distance scaling factor
+        :type scale: float
         """
 
         if self.global_labels == []:
@@ -846,7 +865,7 @@ class view3D():
         y = df["Position_2"].unique()
         z = df["Position_3"].unique()
         position = np.asarray([x, y, z]).T
-        position *= 1000
+        position *= scale
 
         L = df["Grouping"].unique()
 
@@ -1017,7 +1036,7 @@ class DynamicPosition():
         # define display
         self.p = p
 
-    def get_pos_orient(self, euler_angles=False, one_dir=None, eps=1e-10):
+    def get_pos_orient(self, euler_angles=False, one_dir=None, eps=1e-10,scale = 1):
         """
         Extracts the positional and orientational data of the object.
 
@@ -1050,7 +1069,7 @@ class DynamicPosition():
         # set to zero for very small numbers
         orientation[np.abs(orientation) < eps] = 0
 
-        return position/1000, orientation
+        return position/scale, orientation
 
     def translate(self, point, snap=False):
         """

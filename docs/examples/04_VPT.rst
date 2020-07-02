@@ -3,18 +3,16 @@ Virtual Point Transformation
 ============================
 Virtual point transformation (VPT) projects measured dynamics on the predefined interface displacement modes (IDMs) :cite:`vpt-solvingRDOF`. 
 The interface is usualy considered to be rigid; therefore, only 6 rigid interface displacement modes are used in the transformation. Rigid IDMs can also be extended with flexible interface modes.
-Current implementation of the :class:`pyFBS.VPT` enables only rigid IDMs in the transformation. But it supports the expansion where directly measured rotational response is included in the transformation :cite:`vpt-Bregar2020`. 
+Current implementation of the :class:`pyFBS.VPT` enables only rigid IDMs in the transformation. But it additionaly supports the expansion where directly measured rotational response is included in the transformation :cite:`vpt-Bregar2020`. 
 
 .. note:: 
-   Example showing the basic use of the VPT: :download:`04_VPT.ipynb <../../examples/04_VPT.ipynb>`
+   Download example showing the basic use of the VPT: :download:`04_VPT.ipynb <../../examples/04_VPT.ipynb>`
    
 Consider an example for the VPT where 9 impacts and 9 channels (3 tri-axial accelerometers) are positioned around the interface:
    
 .. figure:: ./data/pic_vpt.png
    :width: 800px
    
-   Channels and impacts positioned around the interface.
-
 ****************************
 Interface displacement modes
 ****************************
@@ -45,10 +43,8 @@ Transformed FRF matrix is then available as a class variable ``vpt.vptData``.
 Measurement quality indicators
 ******************************
 
-One of the primary advantages of the VPT is also the ability to evaluate the consistency of performed measurements. 
-Measurement consistency is evaluated by expanding the reduced virtual DoFs back to the original DoFs.
-
-
+One of the primary advantages of the VPT is also the ability to evaluate consistency of the performed measurements. 
+Measurement consistency is evaluated by expanding the reduced virtual DoFs back to the original DoFs and comparing them with the measured ones.
 
 .. code-block:: python
 

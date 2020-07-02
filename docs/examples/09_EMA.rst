@@ -2,16 +2,18 @@
 Experimental modal analysis (EMA)
 #################################
 
-The pyFBS can be also used with other python packages for structural dynamics. One of those packages is pyEMA which performes a Experimental Modal Analysis (EMA). In this example an integration of the two packages is shown on a frame the automotive testbench example. Real experimental data is used in this example.
+The pyFBS can be also used with other Python packages for structural dynamics. 
+One of those packages is `pyEMA <https://pypi.org/project/pyEMA/>`_ which can be used to perform an Experimental Modal Analysis (EMA). 
+In this example an integration of the two packages is shown on a frame of the automotive testbench example. 
+Real experimental data is used in this example and it is also available directly within the pyFBS.
 
 .. note:: 
-   Example showing an Experimental Modal Analysis (EMA) application: :download:`09_EMA.ipynb <../../examples/09_experimental_modal_analysis_EMA.ipynb>`.
+   Download example showing an Experimental Modal Analysis (EMA) application: :download:`09_EMA.ipynb <../../examples/09_experimental_modal_analysis_EMA.ipynb>`
 
-    
-Example Datasests and 3D View
-*****************************
+Example Datasests and 3D display
+********************************
 
-Load the required predefined datasets. Open a 3Dviewer in the background. Add the STL file of the assembly to the 3D view:
+Load the required predefined datasets. Open a 3Dviewer in the background. Add the STL file of the assembly to the 3D display:
 
 .. figure:: ./data/nine_one.png
    :width: 800px
@@ -41,14 +43,15 @@ Perform the LSCF/LSFD experimental identification of modal parameters:
    
    
 .. figure:: ./data/nine_three.png
-   :width: 250px
+   :width: 200px
    
-For animation a mesh can be manually created. In this example a line connections between points are made. For more details on pv.PolyData check an example from PyVista.
+For the animation a mesh can be manually created. In this example line connections between the points are made. For more details on :mod:`pv.PolyData` check an example from `PyVista <https://docs.pyvista.org/index.html>`_.
 
 .. code-block:: python
 
 	pos_array = df_acc[["Position_1","Position_2","Position_3"]].to_numpy()*1000
-	faces = np.hstack([[2,1,2],[2,3,2],[2,3,13],[2,0,13],[2,0,1],[2,0,1],[2,5,1],[2,5,12],[2,4,12],[2,9,4],[2,9,8],[2,8,7],[2,0,4],[2,5,11],[2,10,11],[2,10,6],[2,2,6],[2,3,7]]).astype(np.int8)
+	faces = np.hstack([[2,1,2],[2,3,2],[2,3,13],[2,0,13],[2,0,1],[2,0,1],[2,5,1],[2,5,12],[2,4,12],[2,9,4],
+	                   [2,9,8],[2,8,7],[2,0,4],[2,5,11],[2,10,11],[2,10,6],[2,2,6],[2,3,7]]).astype(np.int8)
 	point_cloud_1 = pv.PolyData(pos_array,faces)
 	pts_1 = point_cloud_1.points.copy()
 
@@ -117,7 +120,7 @@ Perform the LSCF/LSFD experimental identification of modal parameters:
    :width: 800px
    
 .. figure:: ./data/nine_five.png
-   :width: 250px
+   :width: 200px
    
 Create a mesh and add it to the 3D view:
 ****************************************
