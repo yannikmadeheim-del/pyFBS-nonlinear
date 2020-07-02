@@ -1,11 +1,9 @@
 .. image:: ../data/logo-big.png
 	:align: right
 	
-
-
 pyFBS is a Python package for Frequency Based Substructuring. It enables the user to use state-of-the-art dynamic substructuring methodologies in an intuitive manner. 
 
-With the package also basic and application examples are provided, together with real datasets so you can simply try out capabilities of the pyFBS.
+With the package also basic and application examples are provided, together with real datasets so you can directly try out the capabilities of the pyFBS.
 
 Features
 --------
@@ -21,8 +19,11 @@ Features
 * Singular Vector Transformation
 
 
-For more information on features or basic and application examples check out the documentation. 
+For more information on features, basic and application examples check out the documentation. 
 
+Citation
+--------
+A paper about the pyFBS will be submitted to the Journal of Open Source Software journal. If you will be using pyFBS in your scientific research, please consider citing the paper.
 
 Acknowledgements
 ----------------
@@ -33,19 +34,18 @@ The pyFBS package was developed as a part of collaboration between the Laborator
 .. raw:: html
 
 	<a href="http://ladisk.si/">
-		<img src="http://lab.fs.uni-lj.si/ladisk/data/pic/ladisk_logo_navbar_line.png" alt="LADISK logo" title="LADISK" align="right" width=80 height=80 />
+		<img src="http://lab.fs.uni-lj.si/ladisk/data/pic/ladisk_logo_navbar_line.png" alt="LADISK logo" title="LADISK" align="right" width=90 height=90 />
 	</a>
 
 	
 Laboratory for Dynamics of Machines and Structures (LADISK), FME UL
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Text
-
-text
-
-text
-
+The LADISK research group of the Faculty of Mechanical Engineering at the University of Ljubljana is the leading research laboratory in the field of vibroacoustic and structural dynamics in Slovenia. 
+The research activities include the simulation and measurement of structural vibrations as well as the development of methods for modeling rigid-flexible multibody systems with one-sided contacts. 
+In the field of structural dynamics, research activities focus on theoretical and experimental modal analysis as well as the management of vibration fatigue. 
+Different optical and acoustic methods are researched to obtain full-field dynamic parameters of the structure.
+In recent years the group has been actively involved in the research of substructuring approaches in the frequency domain and their application for efficient noise, vibration and harshness engineering. 
 	
 	
 .. raw:: html
@@ -59,14 +59,13 @@ Chair of Applied Mechanics (AM), TUM
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The Chair of Applied Mechanics (Technical University of Munich) covers a wide range of research fields, that directly impact the future of industry and society, but are always related to Structural Dynamics and Mechatronics.
-These research fields are divided into three areas: Experimental Dynamics, Numerical Methods, and Robotics. They range from fundamental research, such as development of new numerical methods, to applied research in cooperation with industry. This research can help on the path to a sustainable future by providing tools and technologies for a more advanced product design, that reduces the amount of prototypes and, thus, saves development costs and minimizes material consumption.
+These research fields are divided into three areas: Experimental Dynamics, Numerical Methods, and Robotics. They range from fundamental research, such as development of new numerical methods, to applied research in cooperation with industry. 
+This research can help on the path to a sustainable future by providing tools and technologies for a more advanced product design, that reduces the amount of prototypes and, thus, saves development costs and minimizes material consumption.
 
 
 
 
-Citation
---------
-A paper about the pyFBS will be submitted to the Journal of Open Source Software journal. If you will be using pyFBS in your scientific research, please consider citing the paper.
+
 
 
 License

@@ -17,18 +17,16 @@ Translation of an object in the 3D display can be performed by moving a black sp
 .. figure:: ./data/translation.gif
    :width: 800px
 
-   Translation of accelerometers within the 3D display.
 
 ********
 Rotation
 ********
 To rotate an object in the 3D display, three sphere widgets are available, for rotation around each axis. 
-Red sphere widget is used for rotation around `X`-axis, green for rotation around `Y`-axis and blue for rotation around `Z`-axis. An example of rotation in the 3D display is depcted on a GIF bellow.
+Red sphere widget is used for rotation around `X`-axis, green for rotation around `Y`-axis and blue for rotation around `Z`-axis. An example of rotation in the 3D display is depicted on a GIF bellow.
 
 .. figure:: ./data/rotation.gif
    :width: 800px
 
-   Rotation of accelerometers within the 3D display. 
 
 ********
 Snapping
@@ -41,7 +39,6 @@ when moving the object in the 3D display.
 .. figure:: ./data/snapping.gif
    :width: 800px
 
-   Snapping of accelerometers to the mesh of a structure.
 
 ***********
 I/O Objects
@@ -117,6 +114,7 @@ The updated positions and orientations can be obtained directly.
 ************************
 Export updated positions
 ************************
+The updated datasets can be exported to Excel file in a simple manner with the ``pd.ExcelWriter``.
 
 .. code-block:: python
  

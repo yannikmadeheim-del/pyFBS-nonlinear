@@ -2,16 +2,17 @@
 Operational Deflection Shapes
 #############################
 
-The 3D display of the pyFBS can be used to animate objects. Animation can be performed on meshes directly on predefined objects (such as accelerometers). In this example an operational deflection shape of the a structure is animated.
+The 3D display of the pyFBS can also be used to animate any objects. Animation can either be performed on meshes or on the predefined objects (such as accelerometers). 
+In this example an Operational Deflection Shape (ODS) of an automotive testbench is animated.
 
 .. note:: 
-   Example showing an application of the Operational Deflection Shapes: :download:`06_ODS.ipynb <../../examples/06_operational_deflection_shapes_ODS.ipynb>`.
+   Download example showing an application of the ODS: :download:`06_ODS.ipynb <../../examples/06_operational_deflection_shapes_ODS.ipynb>`
 
 
 Example Datasets and 3D view
 ----------------------------
 
-As already shown in the `3D Display <../../html/examples/01_static_display.html>`_ one can load predefined datasets from an example and add a structure from STL file to the 3D view. This allows both the acceleration sensors and excitation points to be visualized.
+As already shown in the `3D Display <../../html/examples/01_static_display.html>`_ one can load predefined datasets from the available examples and add a structure from STL file to the 3D view. This allows both the sensors and excitation points (impacts) to be visualized.
 
     
 .. figure:: ./data/six_one.png
@@ -19,7 +20,7 @@ As already shown in the `3D Display <../../html/examples/01_static_display.html>
 
 Experimental example
 ********************
-Load experimental data for the operational deflection shape animation
+Load the experimental data, which will be used for the operational deflection shape animation
 
 .. code-block:: python
 
@@ -45,11 +46,15 @@ Checkout a single FRF:
 
 	
 .. figure:: ./data/six_two.png
-   :width: 600px
+   :width: 500px
 	
 Accelerometer animation and GIF export
 --------------------------------------
-The objects placed in the 3D view can be simply animated. In this example an operational deflection shape at a certain impact position can be animated. The pyFBS supports also an export to a GIF file. Before running the animation just set the output directory view3D.gif_dir and set the variable view3D.take_gif = True. When the GIF is exporting the animation lags the animation can lag in the 3D display. 
+The objects placed in the 3D view can be simply animated.
+In this example an operational deflection shape at a certain impact position is animated.
+The pyFBS supports also an export to a GIF file. 
+Before running the animation just set the output directory ``view3D.gif_dir`` and set the variable ``view3D.take_gif = True``. 
+When the GIF is exporting the animation can lag within the 3D display. 
 
 .. code-block:: python
 
@@ -69,5 +74,3 @@ The objects placed in the 3D view can be simply animated. In this example an ope
 
 .. figure:: ./data/ods.gif
    :width: 400px
-
-   GIF export of the Operational Deflection Shapes (ODS). 
