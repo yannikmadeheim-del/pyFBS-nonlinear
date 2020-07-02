@@ -5,7 +5,10 @@
 from setuptools import setup, find_packages
 try:  # for pip >= 10
     from pip._internal.req import parse_requirements
-    from pip._internal.download import PipSession
+    try:
+        from pip._internal.download import PipSession
+    except ImportError:  # for pip >= 20
+        from pip._internal.network.session import PipSession
 except ImportError:  # for pip <= 9.0.3
     from pip.req import parse_requirements
     from pip.download import PipSession
@@ -32,6 +35,11 @@ def package_files(directory):
 
 extra_files = package_files('./data')
 
+try: 
+    all_requirements = [str(requirement.req) for requirement in requirements]
+except AttributeError:
+    all_requirements = [str(requirement.requirement) for requirement in requirements]
+
 # print(extra_files)
 setup(
     author="The pyFBS developers",
@@ -54,7 +62,7 @@ setup(
             'pyfbs=pyfbs.cli:main',
         ],
     },
-    install_requires=[str(requirement.req) for requirement in requirements],
+    install_requires=all_requirements,
     license="MIT license",
     long_description=readme,
     include_package_data=True,
