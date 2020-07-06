@@ -9,6 +9,9 @@ Furthermore, basic and application examples are provided with the package togeth
 The pyFBS has been designed to be used for scientific research in the field of dynamic substructuring. 
 It is currently being used by a number of undergraduate students and postgraduate researchers. 
 
+.. figure:: ../data/pyFBS_logo_presenttion.gif
+   :width: 800px
+
 
 **********************
 Dynamic Substructuring
