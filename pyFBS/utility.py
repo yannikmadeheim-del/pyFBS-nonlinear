@@ -124,7 +124,7 @@ def complex_plot_3D(mode_shape):
 
     plt.yticks([])
 
-def mode_animation(mode_shape, scale, no_points=60):
+def mode_animation(mode_shape, scale, no_points=60,abs_scale = False):
     """
     Creates an animation sequence from the mode shape and scales the displacemetns.
 
@@ -141,7 +141,12 @@ def mode_animation(mode_shape, scale, no_points=60):
     for g, _t in enumerate(np.linspace(0, 2, no_points)):
         ann[:, :, g] = (np.real(mode_shape) * np.cos(2 * np.pi * _t) - np.imag(mode_shape) * np.sin(
             2 * np.pi * _t))
-    ann = ann / np.max(ann) * scale
+    if abs_scale:
+        ann = ann / np.max(ann) * scale
+    else:
+        ann = ann * scale
+
+
     return ann
 
 
@@ -175,7 +180,7 @@ def coh_frf(y_1, y_2):
 
     return coh_abs
 
-def dict_animation(_modeshape,a_type,mesh= None,pts = None,fps = 30,r_scale = 10,no_points = 60, object_list = None):
+def dict_animation(_modeshape,a_type,mesh= None,pts = None,fps = 30,r_scale = 10,no_points = 60, object_list = None,abs_scale = False):
     """
     Creates a predefined dictionary for animation sequency in the 3D display.
 
@@ -199,7 +204,7 @@ def dict_animation(_modeshape,a_type,mesh= None,pts = None,fps = 30,r_scale = 10
     """
     mode_dict = dict()
 
-    mode_dict["animation_pts"] = mode_animation(_modeshape, r_scale, no_points=no_points)
+    mode_dict["animation_pts"] = mode_animation(_modeshape, r_scale, no_points=no_points,abs_scale = abs_scale)
     mode_dict["fps"] = fps
 
     if a_type == "modeshape":
