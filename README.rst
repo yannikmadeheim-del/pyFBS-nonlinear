@@ -29,7 +29,7 @@ Acknowledgements
 ----------------
 
 
-The pyFBS package was developed as a part of collaboration between the Laboratory for Dynamics of Machines and Structures (`LADISK <http://ladisk.si/>`_), Faculty of Mechanical Engineering, University of Ljubljana (FME, UL) and the Chair of Applied Mechanics (`AM <https://www.mw.tum.de/am/home/>`_), Technical University of Munich (TUM).
+The pyFBS package was developed as a part of collaboration between the Laboratory for Dynamics of Machines and Structures (`LADISK <http://ladisk.si/>`_), University of Ljubljana, Faculty of Mechanical Engineering (UL FME) and the Chair of Applied Mechanics (`AM <https://www.mw.tum.de/am/home/>`_), Technical University of Munich (TUM).
 
 .. raw:: html
 
@@ -38,7 +38,7 @@ The pyFBS package was developed as a part of collaboration between the Laborator
 	</a>
 
 	
-Laboratory for Dynamics of Machines and Structures (LADISK), FME UL
+Laboratory for Dynamics of Machines and Structures (LADISK), UL FME
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The LADISK research group of the Faculty of Mechanical Engineering at the University of Ljubljana is the leading research laboratory in the field of vibroacoustic and structural dynamics in Slovenia. 
