@@ -399,7 +399,7 @@ class view3D():
         return sphere,vp_actor
 
 
-    def acc_callback(self,point, orientation = None):
+    def acc_callback(self,point, orientation = None,fixed_rotation = None):
         """
         Interactive accelerometer callback function.
 
@@ -407,6 +407,8 @@ class view3D():
         :type point: array(float)
         :param orientation: Orientation in 3D space
         :type orientation: array(float), optional
+        :param fixed_rotation: fixed rotation angle
+        :type fixed_rotation: float
         """
 
         i = int(len(self.all_accs_dynamic)+len(self.all_imps_dynamic)+len(self.all_vps_dynamic))
@@ -421,13 +423,13 @@ class view3D():
             rot = r.as_matrix()
 
         self.add_accelerometer(acc)
-        _gg = DynamicPosition(acc, self.plot, i, mesh=self.mesh, size=10,rot = rot)
+        _gg = DynamicPosition(acc, self.plot, i, mesh=self.mesh, size=10,rot = rot,fixed_rotation = fixed_rotation)
         self.plot.add_sphere_widget(_gg.callback, center=_gg.points, color=["k", "r", "g", "b"], radius=10 / 15)
         _gg.translate(point)
         _gg.turn_on = True
         self.all_accs_dynamic.append(_gg)
 
-    def add_acc_dynamic(self, mesh, predefined=None,scale = 1):
+    def add_acc_dynamic(self, mesh, predefined=None,scale = 1,fixed_rotation = None):
         """
         Add a set of predefined accelerometers to the 3D display and toggle the possibility to add
         additional accelerometers.
@@ -438,6 +440,8 @@ class view3D():
         :type predefined: pd.DataFrame, optional
         :param scale: distance scaling factor
         :type scale: float
+        :param fixed_rotation: fixed rotation angle
+        :type fixed_rotation: float
         """
 
         self.mesh = mesh
@@ -446,13 +450,13 @@ class view3D():
             for i, row in predefined.iterrows():
                 point = [row["Position_1"] * scale, row["Position_2"] * scale, row["Position_3"] * scale]
                 orientation = [row["Orientation_1"], row["Orientation_2"], row["Orientation_3"]]
-                self.acc_callback(point, orientation=orientation)
+                self.acc_callback(point, orientation=orientation,fixed_rotation = fixed_rotation)
 
         self.plot.enable_point_picking(callback=self.acc_callback, color="r", show_message="", show_point=False)
         self.plot.add_text("Press P too add an accelerometer (hold down letter T to disable snapping to mesh).",
                            font_size=10, color="k", font="times", name="text")
 
-    def imp_callback(self,point, direction = None):
+    def imp_callback(self,point, direction = None,fixed_rotation = None):
         """
         Interactive impact callback function.
 
@@ -460,6 +464,8 @@ class view3D():
         :type point: array(float)
         :param orientation: Orientation in 3D space
         :type orientation: array(float)
+        :param fixed_rotation: fixed rotation angle
+        :type fixed_rotation: float
         """
 
         i = int(len(self.all_accs_dynamic)+len(self.all_imps_dynamic)+len(self.all_vps_dynamic))
@@ -468,19 +474,18 @@ class view3D():
             imp, _ = self.add_impact([size/2, size/2, size/2], [0, 0, 1], size=10)
             rot = np.diag([1]*3)
         else:
-            #imp, _ = self.add_impact([size/2, size/2, size/2],[0, 0, 1], size=10)
             imp, _ = self.add_impact([size/2, size/2, size/2],direction, size=10)
 
             #rot = np.diag([1]*3)
             rot = rotation_matrix_from_vectors(direction,[0, 0, 1]).T
 
-        _gg = DynamicPosition([imp], self.plot, i, mesh=self.mesh, size=10,rot = rot,snap_outward = False)
+        _gg = DynamicPosition([imp], self.plot, i, mesh=self.mesh, size=10,rot = rot,snap_outward = False, fixed_rotation = fixed_rotation)
         self.plot.add_sphere_widget(_gg.callback, center=_gg.points, color=["k", "r", "g", "b"], radius=10 / 15)
         _gg.translate(point)
         _gg.turn_on = True
         self.all_imps_dynamic.append(_gg)
 
-    def add_imp_dynamic(self, mesh, predefined=None,scale = 1):
+    def add_imp_dynamic(self, mesh, predefined=None,scale = 1,fixed_rotation = None):
         """
         Add a set of predefined impacts to the 3D display and toggle the possibility to add
         additional impacts.
@@ -491,6 +496,8 @@ class view3D():
         :type predefined: pd.DataFrame, optional
         :param scale: distance scaling factor
         :type scale: float
+        :param fixed_rotation: fixed rotation angle
+        :type fixed_rotation: float
         """
 
         self.mesh = mesh
@@ -499,17 +506,19 @@ class view3D():
             for i, row in predefined.iterrows():
                 point = [row["Position_1"] * scale, row["Position_2"] * scale, row["Position_3"] * scale]
                 direction = [row["Direction_1"], row["Direction_2"], row["Direction_3"]]
-                self.imp_callback(point, direction=direction)
+                self.imp_callback(point, direction=direction,fixed_rotation = fixed_rotation)
 
         self.plot.enable_point_picking(callback=self.imp_callback, color="r", show_message="", show_point=False)
         self.plot.add_text("Press P too add an impact (hold down letter T to disable snapping to mesh).", font_size = 10,color = "k",font  = "times",name = "text")
 
-    def vp_callback(self,point):
+    def vp_callback(self,point,fixed_rotation = None):
         """
         Interactive virtual point callback function.
 
         :param point: Point in 3D space
         :type point: array(float)
+        :param fixed_rotation: fixed rotation angle
+        :type fixed_rotation: float
         """
 
         i = int(len(self.all_accs_dynamic)+len(self.all_imps_dynamic)+len(self.all_vps_dynamic))
@@ -517,7 +526,7 @@ class view3D():
 
         acc, _ = self.add_vp([size/2, size/2, size/2], size=size, opacity=.1)
 
-        _gg = DynamicPosition([acc], self.plot, i, mesh=self.mesh, size=4, snap_outward=False)
+        _gg = DynamicPosition([acc], self.plot, i, mesh=self.mesh, size=4, snap_outward=False,fixed_rotation = fixed_rotation)
         self.plot.add_sphere_widget(_gg.callback, center=_gg.points, color=["k", "r", "g", "b"], radius=4 / 15)
 
         _gg.turn_on = True
@@ -525,7 +534,7 @@ class view3D():
 
         self.all_vps_dynamic.append(_gg)
 
-    def add_vp_dynamic(self, mesh, predefined=None, scale = 1):
+    def add_vp_dynamic(self, mesh, predefined=None, scale = 1,fixed_rotation = None):
         """
         Add a set of predefined virtual points to the 3D display and toggle the possibility to add
         additional virtual points.
@@ -536,6 +545,8 @@ class view3D():
         :type predefined: pd.DataFrame, optional
         :param scale: distance scaling factor
         :type scale: float
+        :param fixed_rotation: fixed rotation angle
+        :type fixed_rotation: float
         """
 
         self.mesh = mesh
@@ -548,7 +559,7 @@ class view3D():
             position = np.asarray([x, y, z]).T
             position *= scale
             for pos in position:
-                self.vp_callback(pos)
+                self.vp_callback(pos,fixed_rotation = fixed_rotation)
 
         self.plot.enable_point_picking(callback=self.vp_callback, color="r", show_message="", show_point=False)
         self.plot.add_text("Press P too add a VP (hold down letter T to disable snapping to mesh).", font_size=10, color="k", font="times", name="text")
@@ -968,9 +979,11 @@ class DynamicPosition():
     :type size: float, optional
     :param rot: default orientation matrix of the object
     :tpye rot: array(float), optional
+    :param fixed_rotation: fixed rotation angle
+    :type fixed_rotation: float
     """
 
-    def __init__(self, objects, p, N, mesh=None, snap_outward=True, size=1, rot = np.diag([1]*3)):
+    def __init__(self, objects, p, N, mesh=None, snap_outward=True, size=1, rot = np.diag([1]*3), fixed_rotation = None):
         # set size and static points
         self.size = size
         self.points = np.array([[size / 2, size / 2, size / 2],
@@ -982,6 +995,8 @@ class DynamicPosition():
         self.box = pv.Box((-size, size, -size, size, -size, size))
         self.box.translate([size, size, size])
         self.box.points /= 2
+
+        self.fixed_theta = fixed_rotation
 
         # defines the objects
         objects.insert(0, self.box)
@@ -1193,6 +1208,11 @@ class DynamicPosition():
 
                 # define the rotational matrix based on angle of rotation
                 theta = angle(_vec1, _vec2)
+
+                # overwrite calculated rotational angle
+                if self.fixed_theta != None:
+                    theta =  self.fixed_theta*(np.pi/180)
+
                 rot = M(self.local_orientation[i - 1, :], theta)
 
                 # rotate everything within accelerometer
