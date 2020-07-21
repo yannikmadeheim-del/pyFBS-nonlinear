@@ -117,4 +117,26 @@ This examples show applications of the pyFBS on more complex problems. Explore t
    
    
 
+  
+ 
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="in-situ TPA">
+
+.. only:: html
+
+    .. figure:: ./data/ten_display_four.png   
+       :target: 11_insitu_TPA.html
+
+       in-situ TPA
+
+.. raw:: html
+
+    </div>
+
+.. toctree::
+   :hidden:
+
+   11_insitu_TPA
+
 
