@@ -494,3 +494,25 @@ def orient_in_global_2(mode, df_imp):
         empty[i, :] += _dir[sel:sel + 1, :].T @ np.asarray([mode[sel]])
 
     return empty
+
+def auralization(freq,FRF, load_case = None):
+    """
+    Auralization of FRFs, performs an IFFT and if the load case is supplied a convolution to obtain time response.
+
+    :param freq: Frequency vector
+    :type freq: array(float)
+    :param FRF: Frequency Response Function
+    :type FRF: array(float)
+    :param load_case: Load vector
+    :type load_case: array(float)
+    :return: time vector, time response
+    """
+
+    s = np.fft.irfft(FRF).real
+    fs = 1 / (freq[1] - freq[0])
+    xt = np.linspace(0, fs, len(s), endpoint=False)
+
+    if type(load_case) == type(np.asarray([])):
+        s = (np.convolve(load_case, s, 'full').real)[:len(s)]
+
+    return xt,s
