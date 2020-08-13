@@ -55,7 +55,7 @@ This examples show applications of the pyFBS on more complex problems. Explore t
 
 .. only:: html
 
-    .. figure:: ./data/eight_last.png   
+    .. figure:: ./data/seven_three.png   
        :target: 08_decoupling.html
 
        Decoupling
@@ -115,28 +115,3 @@ This examples show applications of the pyFBS on more complex problems. Explore t
 
    10_TS
    
-   
-
-  
- 
-.. raw:: html
-
-    <div class="sphx-glr-thumbcontainer" tooltip="in-situ TPA">
-
-.. only:: html
-
-    .. figure:: ./data/ten_display_four.png   
-       :target: 11_insitu_TPA.html
-
-       in-situ TPA
-
-.. raw:: html
-
-    </div>
-
-.. toctree::
-   :hidden:
-
-   11_insitu_TPA
-
-
