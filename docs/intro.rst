@@ -16,13 +16,19 @@ It is currently being used by a number of undergraduate students and postgraduat
 **********************
 Dynamic Substructuring
 **********************
-In science and engineering complex problems are often decomposed into smaller, simpler subsystems. Each subsystem can then be analyzed and evaluated separately. 
-This approach can often reduce the complexity of the overall problem and provide invaluable insight into optimization and troubleshooting of individual component. 
+In science, engineering and technology complex problems are often decomposed into smaller, simpler subsystems. 
+Each subsystem can then be analyzed and evaluated separately. 
+This approach can often reduce the complexity of the overall problem and provide invaluable insight into the optimization and troubleshooting of each individual component. 
+The subsystems can also be assembled back together and with that the system can be analyzed as a whole.
 
-Dynamic Substructuring (DS) :cite:`intro-deKlerk2008` is an engineering concept where dynamic systems are modeled and analyzed in terms of its components or so-called substructures. 
+Dynamic Substructuring (DS) is an engineering concept where dynamic systems are modeled and analyzed in terms of their components or so-called substructures. 
 There are several ways of formulating the dynamics of substructures. One of them is with Frequency Response Functions (FRFs), which describe the response as the result of a unit harmonic force. 
-Frequency Based Substructuring (FBS) has gained popularity in recent years. Since a significant advance has been made in experimental substructuring, where substructures are assembled directly from the measured data. 
-In addition, a hybrid approach was developed in which an experimental model is mixed with a numerical model, forming a hybrid model. 
+The method is well suited for experimental approaches where FRFs are obtained from measurement of components. Such approaches were already investigated in the 70s :cite:`intro-KLOSTERMAN_1971_PHD`  
+and 80s (e.g. :cite:`intro-MARTINEZ_1984_COMBINEDEXPANALYTICAL,intro-KLOSTERMAN_1984_SMURF,intro-JETMUNDSEN_1988_FBS,intro-URGUEIRA_1989_DYNAMIC`). 
+Due to complicated formulations and difficulties in obtaining good measurements, the method was hardly applicable. 
+Thanks to better measurement hardware and proper formulation of the problem,  Frequency Based Substructuring (FBS) has gained popularity in recent years :cite:`intro-deKlerk2008,intro-vanderSeijs2016,intro-RIXEN_2006_GUITAR`.  
+With this approach, it is also possible to build hybrid models in which experimentally characterized and numerically modelled parts are combined.
+
 
 .. rubric:: References
 

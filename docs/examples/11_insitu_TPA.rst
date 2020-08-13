@@ -2,7 +2,7 @@
 in-situ Transfer Path Analysis
 ##############################
 
-Description
+Coming soon.
 
 .. note:: 
-   Download example showing a numerical example of the in-situ TPA: :download:`11_insitu_TPA.ipynb <../../examples/11_in-situ_TPA.ipynb>`
+   Download example showing a numerical example of the in-situ TPA: :download:`11_insitu_TPA.ipynb <../../examples/11_TPA_in-situ.ipynb>`
