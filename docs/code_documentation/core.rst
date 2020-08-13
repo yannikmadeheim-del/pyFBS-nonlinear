@@ -5,7 +5,7 @@ Core API
 .. toctree::
 	:maxdepth: 2
 
-	display
+	view3D
 	MCK
 	VPT
 	SEMM
