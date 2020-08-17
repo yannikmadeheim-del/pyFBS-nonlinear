@@ -3,6 +3,7 @@
 """The setup script."""
 
 from setuptools import setup, find_packages
+
 try:  # for pip >= 10
     from pip._internal.req import parse_requirements
     try:
@@ -20,20 +21,8 @@ with open('README.rst') as readme_file:
 #    history = history_file.read()
 
 requirements = parse_requirements('requirements.txt', session=PipSession())
-# print([str(requirement.req) for requirement in requirements])
 setup_requirements = [ ]
 test_requirements = [ ]
-
-import os
-
-def package_files(directory):
-    paths = []
-    for (path, directories, filenames) in os.walk(directory):
-        for filename in filenames:
-            paths.append(os.path.join('..', path, filename))
-    return paths
-
-extra_files = package_files('./data')
 
 try: 
     all_requirements = [str(requirement.req) for requirement in requirements]
@@ -64,17 +53,13 @@ setup(
     },
     install_requires=all_requirements,
     license="MIT license",
-    long_description=readme,
-    include_package_data=True,
-    package_data={'': extra_files},
+    long_description="",
+    include_package_data=False,
+    #package_data={'': extra_files},
     keywords='pyFBS',
     name='pyFBS',
     packages=["pyFBS"],
     test_suite='tests',
     url='https://gitlab.com/pyFBS',
-    version='0.1.0',
-    # zip_safe=False,
-    # long_description=readme + '\n\n' + history,
-    # setup_requires=setup_requirements,
-    # tests_require=test_requirements,
+    version='0.1.2',
 )

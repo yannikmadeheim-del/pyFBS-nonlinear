@@ -1,4 +1,4 @@
-.. image:: ../data/logo-big.png
+.. image:: ./logo/logo-big.png
 	:align: right
 	
 pyFBS is a Python package for Frequency Based Substructuring. It enables the user to use state-of-the-art dynamic substructuring methodologies in an intuitive manner. 
