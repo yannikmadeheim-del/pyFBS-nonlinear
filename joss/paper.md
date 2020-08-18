@@ -56,7 +56,7 @@ Sensors and impacts can be interactively positioned on structures and the update
 With this feature the experimental setup can be prepared in advance, to avoid possible mistakes in experimental modelling.
 Furthermore, various animations can be performed directly in the 3D display, such as the animation of mode shapes or operational deflection shapes.
 
-![An example of a simple structure depicted in the pyFBS 3D display.\label{fig:3D}](./images/3D_display.png)
+![An example of a simple structure depicted in the pyFBS 3D display.\label{fig:3D}](./3D_display.png)
 
 
 ## FRF synthetization
