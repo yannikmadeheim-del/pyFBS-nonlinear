@@ -1,37 +1,101 @@
 ---
-title: 'pytest: testpackage'
+title: 'pyFBS: A Python package for Frequency Based Substructuring'
 tags:
-  - Python
-  - Structural dynamics
+	- Python
+	- Structural dynamics
+	- Frequency Based Substructuring
+	- Virtual Point Transformation
+	- Mass and stifness model
+	- Frequency Response Function synthethisation
+	- System Equivalent Model Mixing
+	- Transfer Path Analysis
 authors:
-  - name: Tomaž Bregar
-    affiliation: "1" # (Multiple affiliations must be quoted)
+	- name: Tomaž Bregar
+	  affiliation: 1
+	- name: Ahmed El Mahmoudi
+	  affiliation: 2 
+	- name: Miha Kodrič
+	  affiliation: 3
+	- name: Gregor Čepon
+	  affiliation: 3
+	- name: Miha Boltežar
+	  affiliation: 3
+	- name: Daniel J. Rixen
+	  affiliation: 2 
 affiliations:
- - name: Gorenje d.o.o., Partizanska 12, 3503 Velenje, Slovenia
-   index: 1
-date: 1 June 2020
+	- name: Gorenje d.o.o., Partizanska 12, 3503 Velenje, Slovenia
+	  index: 1
+	- name: Technical University of Munich, Institute of Applied Mechanics, Boltzmannstr.  15, 85748 Garching, Germany
+	  index: 2
+	- name: Faculty of Mechanical Engineering, University of Ljubljana, Aškerčeva 6, 1000 Ljubljana, Slovenia
+	  index: 3
+	
+date: 12 August 2020
 bibliography: paper.bib
-
-# Optional fields if submitting to a AAS journal too, see this blog post:
-# https://blog.joss.theoj.org/2018/12/a-new-collaboration-with-aas-publishing
-# aas-doi: 10.3847/xxxxx <- update this with the DOI from AAS once you know it.
-# aas-journal: Astrophysical Journal <- The name of the AAS journal.
 ---
 
 # Summary
 
-[@Pearson_2017]
+In science, engineering and technology complex problems are often decomposed into smaller, simpler subsystems. 
+Each subsystem can then be analyzed and evaluated separately. 
+This approach can often reduce the complexity of the overall problem and provide invaluable insight into the optimization and troubleshooting of each individual component. 
+The subsystems can also be assembled back together and with that the system can be analyzed as a whole.
+Dynamic Substructuring (DS) is an engineering concept where dynamic systems are modeled and analyzed in terms of their components or so-called substructures. 
+There are several ways of formulating the dynamics of substructures. One of them is with Frequency Response Functions (FRFs), which describe the response as the result of a unit harmonic force. 
+The method is well suited for experimental approaches where FRFs are obtained from measurement of components. Such approaches were already investigated in the 70s [@KLOSTERMAN_1971_PHD]  and 80s (e.g. [@MARTINEZ_1984_COMBINEDEXPANALYTICAL], 
+[@KLOSTERMAN_1984_SMURF], [@JETMUNDSEN_1988_FBS], [@URGUEIRA_1989_DYNAMIC]). 
+Due to complicated formulations and difficulties in obtaining good measurements, the method was hardly applicable. 
+Thanks to better measurement hardware and proper formulation of the problem,  Frequency Based Substructuring (FBS) has gained popularity in recent years [@deKlerk2008], [@vanderSeijs2016], [@RIXEN_2006_GUITAR].  
+With this approach, it is also possible to build hybrid models in which experimentally characterized and numerically modelled parts are combined.
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam in velit eget orci rutrum blandit. Integer pharetra leo ante, ac mattis dolor venenatis sodales. Aenean lobortis metus vel libero facilisis placerat. Proin malesuada fringilla pellentesque. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Pellentesque semper vel nibh eget hendrerit. Sed nec mollis neque. Nunc vitae commodo ligula. Fusce sit amet augue lectus. Vestibulum eget tincidunt erat. Suspendisse non bibendum diam.
+pyFBS is a Python package for Frequency Based Substructuring. The package implements an object-oriented approach for dynamic substructuring. 
+Current state-of-the-art methodologies in frequency based substructuring are available in pyFBS. Each method can be used as a standalone or interchangeably with others. 
+Furthermore, basic and application examples are provided with the package together with real experimental and numerical data [@ahmed]. 
+The pyFBS has been designed to be used for scientific research in the field of dynamic substructuring. 
+It is currently being used by a number of undergraduate students and postgraduate researchers. 
 
-Fusce viverra lacinia massa vitae rhoncus. Aenean consectetur libero sed justo condimentum varius. Aenean et turpis vitae sem blandit rhoncus sed id nibh. Mauris velit enim, rhoncus vitae sem at, dapibus sagittis libero. Interdum et malesuada fames ac ante ipsum primis in faucibus. Etiam nec egestas urna. Quisque porttitor, eros sed scelerisque finibus, nisi mauris semper erat, ac pulvinar turpis metus nec leo. Vestibulum ante lectus, congue id tortor a, accumsan fringilla urna. Aenean at egestas mi, eget egestas lacus.
+# Features
 
-Morbi ornare blandit vestibulum. Aliquam volutpat eget lacus ac sodales. Etiam a augue a velit consectetur facilisis eget eget tortor. Donec euismod gravida luctus. Integer tincidunt tortor nec erat molestie, et posuere mauris feugiat. Nulla aliquet sem non enim ullamcorper egestas id vitae nunc. Cras lacinia massa quam, vel venenatis enim eleifend sed. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Quisque non maximus odio. Phasellus vitae mi at nunc semper tincidunt. Proin dui purus, malesuada in nisl ac, dapibus auctor ligula. Aenean eleifend diam in pulvinar efficitur.
+pyFBS enables the user to use state-of-the-art dynamic substructuring methodologies in an intuitive manner.
+Currently implemented features are listed below. 
 
-Donec at lectus eu justo ornare aliquet vitae ac est. Ut varius cursus orci vitae tincidunt. Fusce ac lacus dignissim, sagittis ante eu, feugiat nulla. Suspendisse potenti. Curabitur facilisis nisl nec eros gravida, eget aliquam enim sagittis. Nulla laoreet nisi vitae purus viverra, at rutrum sapien semper. Nam eu porta dolor. Integer tempus placerat porta. Mauris pharetra nisi vitae odio ultricies rhoncus.
+## 3D display
 
-Aliquam velit lorem, pulvinar eu diam at, ultrices cursus nunc. Nulla interdum pulvinar lorem, a aliquet nisl blandit at. Quisque congue nulla mollis, hendrerit libero non, lacinia justo. Pellentesque justo erat, fringilla ut purus ut, facilisis semper risus. In commodo tempus sem nec egestas. Vivamus ac elit in dui vehicula rutrum. Morbi non enim ac justo tincidunt gravida. Aenean auctor libero vel ligula condimentum interdum. Vivamus tempor tincidunt ullamcorper.# Features
+Structures and positions of impacts, sensors and channels can be visualized in 3D autoref{fig:3D}. 
+The 3D display is built on top of PyVista [@sullivan2019pyvista] and enables an intuitive way to display relevant data. 
+Sensors and impacts can be interactively positioned on structures and the updated positions can be directly used within the pyFBS.
+With this feature the experimental setup can be prepared in advance, to avoid possible mistakes in experimental modelling.
+Furthermore, various animations can be performed directly in the 3D display, such as the animation of mode shapes or operational deflection shapes.
 
-# Acknowledgements
+![An example of a simple structure depicted in the pyFBS 3D display.\label{fig:3D}](./images/3D_display.png)
 
-# References
+## FRF synthetization
+
+Frequency Response Functions can be synthetized for predefined positions of channels and impacts in a numerical model. 
+Currently, mode superposition FRF synthetization is supported, where mass and stiffness matrices are imported from FEM software. 
+Damping can be introduced as modal damping for each mode shape. 
+Additionally, noise can be introduced to the response so a realistic set of FRFs, representing experimental measurements, can be obtained.
+
+## Virtual Point Transformation (VPT) 
+
+VPT projects measured dynamics on the predefined interface displacement modes (IDMs) [@solvingRDOF]. 
+The interface is usually considered to be rigid; therefore, only 6 rigid IDMs are used in the transformation. 
+After applying the transformation, a collocated set of FRFs is obtained, which can afterwards directly be used in DS. 
+Expanded VPT is also supported, where directly measured rotational response is included in the transformation [@Bregar2020].
+
+## System Equivalent Model Mixing (SEMM)
+
+SEMM enables mixing of two equivalent frequency-based models into a hybrid model [@Klaassen2018], [@semm_svd]. 
+The models used can either be of numerical or experimental nature. One of the models provides the dynamic properties (overlay model) and the second model provides a set of degrees of freedom. 
+A numerical model is commonly used as a parent model and an experimental model is used as an overlay model. 
+
+# Discussion
+
+The development of the pyFBS is an ongoing effort. Currently the package is used as a research tool. 
+In the future, more examples on the topic of DS and applications of Transfer Path Analysis (TPA) are going to be introduced in the documentation. 
+Furthermore, implementation of Operational Source Identification (OSI) is going to be integrated into the pyFBS in the near future.
+
+# Acknowledgments
+
+The pyFBS package was developed as a part of collaboration between the Laboratory for Dynamics of Machines and Structures (LADISK), Faculty of Mechanical Engineering, University of Ljubljana (UL FME) 
+and the Chair of Applied Mechanics (AM), Technical University of Munich (TUM).
