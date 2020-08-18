@@ -1,6 +1,5 @@
 ---
 title: 'pyFBS: A Python package for Frequency Based Substructuring'
-
 tags:
   - Python
   - Structural dynamics
@@ -9,21 +8,19 @@ tags:
   - Mass and stifness model
   - Frequency Response Function synthethisation
   - System Equivalent Model Mixing
-  
 authors:
   - name: Tomaž Bregar
-    affiliation: "1" 
+    affiliation: 1
   - name: Ahmed El Mahmoudi
-    affiliation: "2" 
+    affiliation: 2 
   - name: Miha Kodrič
-	affiliation: "3" 
+	affiliation: 3
   - name: Gregor Čepon
-	affiliation: "3"
+	affiliation: 3
   - name: Miha Boltežar
-	affiliation: "3"
+	affiliation: 3
   - name: Daniel J. Rixen
-    affiliation: "2" 
-	
+    affiliation: 2 
 affiliations:
  - name: Gorenje d.o.o., Partizanska 12, 3503 Velenje, Slovenia
    index: 1
@@ -33,7 +30,6 @@ affiliations:
    index: 3
 date: 12 August 2020
 bibliography: paper.bib
-
 ---
 
 # Summary
@@ -44,10 +40,10 @@ This approach can often reduce the complexity of the overall problem and provide
 The subsystems can also be assembled back together and with that the system can be analyzed as a whole.
 Dynamic Substructuring (DS) is an engineering concept where dynamic systems are modeled and analyzed in terms of their components or so-called substructures. 
 There are several ways of formulating the dynamics of substructures. One of them is with Frequency Response Functions (FRFs), which describe the response as the result of a unit harmonic force. 
-The method is well suited for experimental approaches where FRFs are obtained from measurement of components. Such approaches were already investigated in the 70s [@KLOSTERMAN_1971_PHD]  and 80s (e.g. [@MARTINEZ_1984_COMBINEDEXPANALYTICAL, 
-@KLOSTERMAN_1984_SMURF, @JETMUNDSEN_1988_FBS, @URGUEIRA_1989_DYNAMIC]). 
+The method is well suited for experimental approaches where FRFs are obtained from measurement of components. Such approaches were already investigated in the 70s [@KLOSTERMAN_1971_PHD]  and 80s (e.g. [@MARTINEZ_1984_COMBINEDEXPANALYTICAL], 
+[@KLOSTERMAN_1984_SMURF], [@JETMUNDSEN_1988_FBS], [@URGUEIRA_1989_DYNAMIC]). 
 Due to complicated formulations and difficulties in obtaining good measurements, the method was hardly applicable. 
-Thanks to better measurement hardware and proper formulation of the problem,  Frequency Based Substructuring (FBS) has gained popularity in recent years [@deKlerk2008, @vanderSeijs2016, @RIXEN_2006_GUITAR].  
+Thanks to better measurement hardware and proper formulation of the problem,  Frequency Based Substructuring (FBS) has gained popularity in recent years [@deKlerk2008], [@vanderSeijs2016], [@RIXEN_2006_GUITAR].  
 With this approach, it is also possible to build hybrid models in which experimentally characterized and numerically modelled parts are combined.
 
 pyFBS is a Python package for Frequency Based Substructuring. The package implements an object-oriented approach for dynamic substructuring. 
@@ -88,7 +84,7 @@ Expanded VPT is also supported, where directly measured rotational response is i
 
 ## System Equivalent Model Mixing (SEMM)
 
-SEMM enables mixing of two equivalent frequency-based models into a hybrid model [@Klaassen2018, @semm_svd]. 
+SEMM enables mixing of two equivalent frequency-based models into a hybrid model [@Klaassen2018], [@semm_svd]. 
 The models used can either be of numerical or experimental nature. One of the models provides the dynamic properties (overlay model) and the second model provides a set of degrees of freedom. 
 A numerical model is commonly used as a parent model and an experimental model is used as an overlay model. 
 
