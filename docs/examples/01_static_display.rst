@@ -21,11 +21,11 @@ A rendering window will open in the background, which will not pause the code ex
 Geometric objects
 *****************
 Geometric objects can be added to the 3D display in a simple manner. For simple objects (cylinders, spheres, boxes, ...) `PyVista methods <https://docs.pyvista.org/examples/00-load/create-geometric-objects.html#sphx-glr-examples-00-load-create-geometric-objects-py>`_ 
-can be used for the geometry generation. For displaying a more complex geometric objects a STL file can be loaded in the 3D display.
+can be used for the geometry generation. For displaying a more complex geometric objects a STL file can be loaded in the 3D display (example datasets can be downloaded with :func:`pyFBS.download_lab_testbench`).
 
 .. code-block:: python
  
-	path_to_stl = pyFBS.example_lab_testbench["STL"]["AB"]
+	path_to_stl = r"./lab_testbench/STL/A.stl"
 	view3D.add_stl(path_to_stl,name = "AB")
 
 After the code execution the geometric object will apear in the rendering window.
@@ -48,7 +48,7 @@ Accelerometers can be added to 3D display directly from the :mod:`pd.DataFrame`.
 
 .. code-block:: python
 
-	path_to_xlsx = pyFBS.example_lab_testbench["meas"]["xlsx"]
+	path_to_xlsx = r"./lab_testbench/Measurements/AM_measurements.xlsx"
 	
 	df_acc = pd.read_excel(path_to_xlsx, sheetname='Sensors_AB')
 	view3D.show_acc(df_acc)
