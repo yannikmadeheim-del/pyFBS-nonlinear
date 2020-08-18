@@ -10,7 +10,8 @@ PyPI
 
 :mod:`pyFBS` can be installed from PyPI using ``pip``:
 
-.. code-block:: 
+.. code-block:: python
+
 	pip install pyFBS
 
 ******
@@ -18,7 +19,8 @@ Source
 ******
 The source code of the pyFBS can be also downloaded (cloned) by running:
 
-.. code-block:: 
+.. code-block:: python
+
 	git clone https://gitlab.com/pyFBS/pyFBS.git
 	cd pyFBS
 	pip install -e .
