@@ -8,6 +8,7 @@ tags:
   - Mass and stifness model
   - Frequency Response Function synthethisation
   - System Equivalent Model Mixing
+  - Transfer Path Analysis
 authors:
   - name: Tomaž Bregar
     affiliation: 1
