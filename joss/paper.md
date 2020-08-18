@@ -1,5 +1,6 @@
 ---
 title: 'pyFBS: A Python package for Frequency Based Substructuring'
+
 tags:
   - Python
   - Structural dynamics
@@ -8,9 +9,21 @@ tags:
   - Mass and stifness model
   - Frequency Response Function synthethisation
   - System Equivalent Model Mixing
+  
 authors:
-  - name: Tomaž Bregar, Ahmed El Mahmoudi, Miha Kodrič, Gregor Čepon, Miha Boltežar, Daniel J. Rixen
-    affiliation: "1, 2, 3, 3, 3, 2" 
+  - name: Tomaž Bregar
+    affiliation: "1" 
+  - name: Ahmed El Mahmoudi
+    affiliation: "2" 
+  - name: Miha Kodrič
+	affiliation: "3" 
+  - name: Gregor Čepon
+	affiliation: "3"
+  - name: Miha Boltežar
+	affiliation: "3"
+  - name: Daniel J. Rixen
+    affiliation: "2" 
+	
 affiliations:
  - name: Gorenje d.o.o., Partizanska 12, 3503 Velenje, Slovenia
    index: 1
