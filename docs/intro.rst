@@ -1,7 +1,7 @@
 ==========
 Why pyFBS?
 ==========
-pyFBS is a Python package for Frequency Based Substructuring. 
+:mod:`pyFBS` is a Python package for Frequency Based Substructuring and Transfer Path Analysis. 
 The package implements an object-oriented approach for dynamic substructuring. 
 Current state-of-the-art methodologies in frequency based substructuring are available in pyFBS. 
 Each method can be used as a standalone or interchangeably with others. 

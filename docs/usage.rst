@@ -19,7 +19,7 @@ Predefined datasets are also used directly in basic and application examples.
 
 Academic testbench
 ==================
-The first testbench is an academic example ``pyFBS.example_lab_testbench``. 
+The first testbench is an academic example :func:`pyFBS.download_lab_testbench`. 
 The testbench is used to evaluate and compare different dynamic substructuring methodologies. 
 
 .. figure:: ./examples/data/structure_t.png
@@ -30,18 +30,18 @@ The testbench is used to evaluate and compare different dynamic substructuring m
 
 Example datasets for academic testbench contain:
 
-* STL files of the testbench (e.g. ``pyFBS.example_lab_testbench['STL']['A']``),
+* STL files of the testbench (e.g. ``./lab_testbench/STL/A.stl``),
 
-* FEM of each substructure (e.g. ``pyFBS.example_lab_testbench['FEM']``),
+* FEM of each substructure (e.g. ``./lab_testbench/FEM/A.full``),
 
-* Excel files of positional data for sensors and impacts (e.g. ``pyFBS.example_lab_testbench['meas']['xlsx']``),
+* Excel files of positional data for sensors and impacts (e.g. ``./lab_testbench/Measurements/coupling_example.xlsx``),
 
-* Experimental FRF measurements (e.g. ``pyFBS.example_lab_testbench['meas']['Y_A']``).
+* Experimental FRF measurements (e.g. ``./lab_testbench/Measurements/Y_A.p``).
 
 Automotive testbench
 ====================
 
-The second testbench is an automotive example ``pyFBS.example_auto_testbench``. 
+The second testbench is an automotive example, which can be downloaded with :func:`pyFBS.download_automotive_testbench`. 
 The automotive testbench was designed to represent an engine-transmission unitâ€™s suspension from a real car.
 
 
@@ -52,11 +52,11 @@ The automotive testbench was designed to represent an engine-transmission unitâ€
    
 Example datasets for automotive testbench contain:
 
-* STL files of the testbench (e.g. ``pyFBS.example_auto_testbench['STL']['receiver']``),
+* STL files of the testbench (e.g. ``./automotive_testbench/STL/receiver.stl``),
 
-* Excel files of positional data for sensors and impacts (e.g. ``pyFBS.example_auto_testbench['meas']['xlsx_modal']``),
+* Excel files of positional data for sensors and impacts (e.g. ``./automotive_testbench/Measurements/A.xlsx``),
 
-* Experimental FRF measurements (e.g. ``pyFBS.example_auto_testbench['meas']['Y_m_1']``).
+* Experimental FRF measurements (e.g. ``./automotive_testbench/Measurements/A.p``).
 
 ********
 Features

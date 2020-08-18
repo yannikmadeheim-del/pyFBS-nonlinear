@@ -31,19 +31,15 @@ except AttributeError:
 
 # print(extra_files)
 setup(
-    author="The pyFBS developers",
+    author="Tomaž Bregar, Ahmed El Mahmoudi, Miha Kodrič",
     author_email='tomaz.bregar@gorenje.com',
     python_requires='>=3.5',
     classifiers=[
-        'Development Status :: 2 - Pre-Alpha',
-        'Intended Audience :: Developers',
+        'Development Status :: 3 - Alpha',
+        'Intended Audience :: Science/Research',
+		'Operating System :: OS Independent',
         'License :: OSI Approved :: MIT License',
-        'Natural Language :: English',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3'
     ],
     description="pyFBS: A Python package for Frequency Based Substructuring",
     entry_points={
@@ -53,13 +49,12 @@ setup(
     },
     install_requires=all_requirements,
     license="MIT license",
-    long_description="",
+    long_description=readme,
     include_package_data=False,
-    #package_data={'': extra_files},
     keywords='pyFBS',
     name='pyFBS',
     packages=["pyFBS"],
     test_suite='tests',
     url='https://gitlab.com/pyFBS',
-    version='0.1.2',
+    version='0.1.94',
 )
