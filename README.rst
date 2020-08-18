@@ -22,7 +22,6 @@ Features
 
 * Singular Vector Transformation
 
-
 For more information on features, basic and application examples check out the `documentation`_. 
 
 Citation
