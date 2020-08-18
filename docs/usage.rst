@@ -111,7 +111,7 @@ Since the reduction space is defined directly from the measured dynamics, no ana
 
 .. rubric:: References
 
-.. bibliography:: ..\joss\paper.bib
+.. bibliography:: .\paper.bib
    :style: unsrt
    :filter: docname in docnames
    :keyprefix: usage-

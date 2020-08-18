@@ -32,7 +32,7 @@ With this approach, it is also possible to build hybrid models in which experime
 
 .. rubric:: References
 
-.. bibliography:: ..\joss\paper.bib
+.. bibliography:: .\paper.bib
    :style: unsrt
    :filter: docname in docnames
    :keyprefix: intro-
