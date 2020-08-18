@@ -41,8 +41,8 @@ class view3D():
 
         # set the pyFBS logo
         icon = str(Path(__file__).parents[1]) + os.sep + "data" + os.sep + "logo-small.png"
-
         self.plot.app_window.setWindowIcon(QtGui.QIcon(icon))
+
         self.plot.background_color = BACKGROUND
 
         if show_origin:

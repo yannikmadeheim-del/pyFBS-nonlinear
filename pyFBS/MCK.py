@@ -32,7 +32,8 @@ class MK_model(object):
 
     def __init__(self, rst_file, full_file, no_modes = 100, allow_pickle = True, recalculate = False,scale = 1000):
         rst = pyansys.read_binary(rst_file)
-        self.nodes = rst.geometry["nodes"][:, :3]*scale  # only translational dofs
+        #self.nodes = rst.geometry["nodes"][:, :3]*scale  # only translational dofs
+        self.nodes = rst.geometry.nodes*scale  # only translational dofs
         self.mesh = rst.grid
         self.mesh.points *= scale
         self.pts = self.mesh.points.copy()

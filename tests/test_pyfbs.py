@@ -17,20 +17,6 @@ class TestPyfbs(unittest.TestCase):
     Tests for `pyFBS` package.
     """
 
-
-    def test_example_data(self):
-        """
-        Check if the relative directions to example datasets are correct.
-        """
-
-        for key_one in pyFBS.example_lab_testbench:
-            for key_two in pyFBS.example_lab_testbench[key_one]:
-                assert path.exists(pyFBS.example_lab_testbench[key_one][key_two])
-
-        for key_one in pyFBS.example_auto_testbench:
-            for key_two in pyFBS.example_auto_testbench[key_one]:
-                assert path.exists(pyFBS.example_auto_testbench[key_one][key_two])
-
     def test_3Ddisplay_static(self):
         """
         Test static part of the 3D display. Evaluate only if the code runs without error.
@@ -39,11 +25,14 @@ class TestPyfbs(unittest.TestCase):
         # load 3D display
         view3D = pyFBS.view3D(off_screen = True)
 
+        pyFBS.download_lab_testbench()
+
+
         # STL file
-        stl_dir = pyFBS.example_lab_testbench["STL"]["B"]
+        stl_dir = r"./lab_testbench/STL/B.stl"
         view3D.add_stl(stl_dir, opacity=1)
 
-        pos_xlsx = pyFBS.example_lab_testbench["meas"]["xlsx"]
+        pos_xlsx = r"./lab_testbench/Measurements/AM_measurements.xlsx"
 
         # sensors
         df_acc = pd.read_excel(pos_xlsx, sheet_name='Sensors_AB')
@@ -72,15 +61,17 @@ class TestPyfbs(unittest.TestCase):
         """
         Test interactive part of the 3D display. Evaluate only if the code runs without error.
         """
+        pyFBS.download_lab_testbench()
+
         #view3D = pyFBS.view3D(off_screen = True) # cant use off_screen plotting, sphere widhets are not available
         view3D = pyFBS.view3D()
 
         # STL file
-        stl = pyFBS.example_lab_testbench["STL"]["A"]
+        stl = r"./lab_testbench/STL/A.stl"
         mesh = view3D.add_stl(stl, name="ts", color="#83afd2")
 
         # load the required DataFrames
-        pos_xlsx = pyFBS.example_lab_testbench["meas"]["xlsx"]
+        pos_xlsx = r"./lab_testbench/Measurements/AM_measurements.xlsx"
         df_sensors = pd.read_excel(pos_xlsx, sheet_name='Sensors_A')
         df_impacts = pd.read_excel(pos_xlsx, sheet_name='Impacts_A')
         df_vp = pd.read_excel(pos_xlsx, sheet_name='VP_Channels')
@@ -106,9 +97,10 @@ class TestPyfbs(unittest.TestCase):
         Test of MK_model. Evaluate only if the code runs without error.
         """
 
-        full_file = pyFBS.example_lab_testbench["FEM"]["B_full"]
-        rst_file = pyFBS.example_lab_testbench["FEM"]["B_rst"]
-        xlsx = pyFBS.example_lab_testbench["meas"]["xlsx"]
+        full_file = r"./lab_testbench/FEM/B.full"
+        rst_file = r"./lab_testbench/FEM/B.rst"
+
+        xlsx = r"./lab_testbench/Measurements/AM_measurements.xlsx"
 
         df_acc = pd.read_excel(xlsx, sheet_name='Sensors_B')
         df_chn = pd.read_excel(xlsx, sheet_name='Channels_B')
@@ -130,14 +122,16 @@ class TestPyfbs(unittest.TestCase):
         """
         Test Virtual Point Transformation. Evaluate only if the code runs without error.
         """
+        pyFBS.download_lab_testbench()
 
-        xlsx_pos = pyFBS.example_lab_testbench["meas"]["xlsx"]
+        pos_xlsx = r"./lab_testbench/Measurements/AM_measurements.xlsx"
 
-        df_imp = pd.read_excel(xlsx_pos, sheet_name='Impacts_B')
-        df_chn = pd.read_excel(xlsx_pos, sheet_name='Channels_B')
 
-        df_vp = pd.read_excel(xlsx_pos, sheet_name='VP_Channels')
-        df_vpref = pd.read_excel(xlsx_pos, sheet_name='VP_RefChannels')
+        df_imp = pd.read_excel(pos_xlsx, sheet_name='Impacts_B')
+        df_chn = pd.read_excel(pos_xlsx, sheet_name='Channels_B')
+
+        df_vp = pd.read_excel(pos_xlsx, sheet_name='VP_Channels')
+        df_vpref = pd.read_excel(pos_xlsx, sheet_name='VP_RefChannels')
 
         vpt = pyFBS.VPT(df_chn, df_imp, df_vp, df_vpref)
 
@@ -149,10 +143,14 @@ class TestPyfbs(unittest.TestCase):
         Test System Equivalent Model Mixing. Evaluate only if the code runs without error.
         """
 
-        exp_file = pyFBS.example_lab_testbench["meas"]["Y_AB"]
-        xlsx = pyFBS.example_lab_testbench["meas"]["xlsx"]
-        full_file = pyFBS.example_lab_testbench["FEM"]["AB_full"]
-        rst_file = pyFBS.example_lab_testbench["FEM"]["AB_rst"]
+        pyFBS.download_lab_testbench()
+
+        xlsx = r"./lab_testbench/Measurements/AM_measurements.xlsx"
+
+        full_file = r"./lab_testbench/FEM/AB.full"
+        rst_file = r"./lab_testbench/FEM/AB.rst"
+
+        exp_file = r"./lab_testbench/Measurements/Y_AB.p"
 
         df_chn = pd.read_excel(xlsx, sheet_name='Channels_AB')
         df_imp = pd.read_excel(xlsx, sheet_name='Impacts_AB')

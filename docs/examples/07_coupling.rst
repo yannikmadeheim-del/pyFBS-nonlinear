@@ -83,14 +83,14 @@ Load the corresponding .full and .ress file from the example datasets. For more 
 
 .. code-block:: python
 
-    full_file_AB = pyFBS.example_lab_testbench["FEM"]["AB_full"]
-    ress_file_AB = pyFBS.example_lab_testbench["FEM"]["AB_rst"]
+	full_file_AB = r"./lab_testbench/FEM/AB.full"
+	ress_file_AB = r"./lab_testbench/FEM/AB.rst"
 
-    full_file_B = pyFBS.example_lab_testbench["FEM"]["B_full"]
-    ress_file_B = pyFBS.example_lab_testbench["FEM"]["B_rst"]
+	full_file_B = r"./lab_testbench/FEM/B.full"
+	ress_file_B = r"./lab_testbench/FEM/B.rst"
 
-    full_file_A = pyFBS.example_lab_testbench["FEM"]["A_full"]
-    ress_file_A = pyFBS.example_lab_testbench["FEM"]["A_rst"]
+	full_file_A = r"./lab_testbench/FEM/A.full"
+	ress_file_A = r"./lab_testbench/FEM/A.rst"
     
 Create an MK model for each component:
 

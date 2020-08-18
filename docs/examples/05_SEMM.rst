@@ -21,7 +21,7 @@ The first dimension represents the frequency depth, second the response points, 
 
 .. code-block:: python
 
-   exp_file = pyFBS.example_lab_testbench["meas"]["Y_AB"]
+   exp_file = r"./lab_testbench/Measurements/Y_AB.p"
 
    freq, Y_exp = np.load(exp_file, allow_pickle = True)
    Y_exp = np.transpose(Y_exp, (2, 0, 1))
@@ -34,11 +34,11 @@ Locations and directions for which FRFs are generated are defined in an Excel fi
 
 .. code-block:: python
 
-   stl = pyFBS.example_lab_testbench["STL"]["AB"]
-   xlsx = pyFBS.example_lab_testbench["meas"]["xlsx"]
+   stl = r"./lab_testbench/STL/AB.stl"
+   xlsx = r"./lab_testbench/Measurements/AM_measurements.xlsx"
 
-   full_file = pyFBS.example_lab_testbench["FEM"]["AB_full"]
-   rst_file = pyFBS.example_lab_testbench["FEM"]["AB_rst"]
+   full_file = r"./lab_testbench/FEM/AB.full"
+   rst_file = r"./lab_testbench/FEM/AB.rst"]
 
    MK = pyFBS.MK_model(rst_file, full_file, no_modes = 100, recalculate = False)
 

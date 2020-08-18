@@ -20,8 +20,8 @@ the mass and stiffness matrix of the system.
 
 .. code-block:: python
 
-    full_file = pyFBS.example_lab_testbench["FEM"]["B_full"]
-    rst_file = pyFBS.example_lab_testbench["FEM"]["B_rst"]
+    full_file = r"./lab_testbench/FEM/B.full"
+    rst_file = r"./lab_testbench/FEM/B.rst"
 
     MK = pyFBS.MK_model(rst_file, full_file, no_modes = 100, allow_pickle = False, recalculate = False)
 
@@ -34,7 +34,7 @@ After the MK model is defined, the calculated mode shapes can be animated. You c
 
 .. code-block:: python
 
-    stl = pyFBS.example_lab_testbench["STL"]["B"]
+    stl = r"./lab_testbench/STL/B.stl"
     view3D = pyFBS.view3D(show_origin= True)
     view3D.add_stl(stl,name = "engine_mount",color = "#8FB1CC",opacity = .1)   
 
@@ -75,7 +75,7 @@ Locations and directions of impacts and responses must be passed with a :mod:`pd
 .. code-block:: python
 
     # Path to .xslx file
-    xlsx = pyFBS.example_lab_testbench["meas"]["xlsx"]
+    xlsx = r"./lab_testbench/Measurements/AM_measurements.xlsx"
 
     # Import and show locations of accelereometers
     df_acc = pd.read_excel(xlsx, sheet_name='Sensors_B')

@@ -24,7 +24,7 @@ Load the experimental data, which will be used for the operational deflection sh
 
 .. code-block:: python
 
-	_file = pyFBS.example_auto_testbench["meas"]["Y_ODS"]
+	_file = r"./automotive_testbench/Measurements/ODS.p"
 	freq, Y_ODS = np.load(_file,allow_pickle = True)
 	
 Checkout a single FRF:

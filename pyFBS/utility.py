@@ -124,7 +124,7 @@ def complex_plot_3D(mode_shape):
 
     plt.yticks([])
 
-def mode_animation(mode_shape, scale, no_points=60,abs_scale = False):
+def mode_animation(mode_shape, scale, no_points=60,abs_scale = True):
     """
     Creates an animation sequence from the mode shape and scales the displacemetns.
 
@@ -180,7 +180,7 @@ def coh_frf(y_1, y_2):
 
     return coh_abs
 
-def dict_animation(_modeshape,a_type,mesh= None,pts = None,fps = 30,r_scale = 10,no_points = 60, object_list = None,abs_scale = False):
+def dict_animation(_modeshape,a_type,mesh= None,pts = None,fps = 30,r_scale = 10,no_points = 60, object_list = None,abs_scale = True):
     """
     Creates a predefined dictionary for animation sequency in the 3D display.
 

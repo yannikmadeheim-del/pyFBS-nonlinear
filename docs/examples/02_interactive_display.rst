@@ -51,7 +51,7 @@ To enable the snapping to mesh option, first load an STL file in the 3D display:
 
 .. code-block:: python
 
-	stl = pyFBS.example_lab_testbench["STL"]["A"]
+	stl = r"./lab_testbench/STL/A.stl"
 	mesh = view3D.add_stl(stl,name = "ts")
 
 Accelerometers can then be placed on the predefined positions, which can then be moved around and rotated in the 3D display. 

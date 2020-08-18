@@ -106,3 +106,6 @@ ENV/
 pyFBS/__pycache__
 docs/_build
 docs/auto_examples
+.idea
+examples/lab_testbench
+examples/automotive_testbench
