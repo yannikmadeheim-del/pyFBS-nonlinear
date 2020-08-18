@@ -1,36 +1,32 @@
 ---
 title: 'pyFBS: A Python package for Frequency Based Substructuring'
 tags:
-	- Python
-	- Structural dynamics
-	- Frequency Based Substructuring
-	- Virtual Point Transformation
-	- Mass and stifness model
-	- Frequency Response Function synthethisation
-	- System Equivalent Model Mixing
-	- Transfer Path Analysis
+  - Python
+  - Structural dynamics
+  - Frequency Based Substructuring
+  - System Equivalent Model Mixing
+  - Transfer Path Analysis
 authors:
-	- name: Tomaž Bregar
-	  affiliation: 1
-	- name: Ahmed El Mahmoudi
-	  affiliation: 2 
-	- name: Miha Kodrič
-	  affiliation: 3
-	- name: Gregor Čepon
-	  affiliation: 3
-	- name: Miha Boltežar
-	  affiliation: 3
-	- name: Daniel J. Rixen
-	  affiliation: 2 
+  - name: Tomaž Bregar^[Custom footnotes for e.g. denoting who the corresponding author is can be included like this.]
+    affiliation: 1 
+  - name: Ahmed El Mahmoudi
+    affiliation: 2
+  - name: Miha Kodrič
+    affiliation: 3
+  - name: Gregor Čepon
+    affiliation: 3
+  - name: Miha Boltežar
+    affiliation: 3
+  - name: Daniel J. Rixen
+    affiliation: 2
 affiliations:
-	- name: Gorenje d.o.o., Partizanska 12, 3503 Velenje, Slovenia
-	  index: 1
-	- name: Technical University of Munich, Institute of Applied Mechanics, Boltzmannstr.  15, 85748 Garching, Germany
-	  index: 2
-	- name: Faculty of Mechanical Engineering, University of Ljubljana, Aškerčeva 6, 1000 Ljubljana, Slovenia
-	  index: 3
-	
-date: 12 August 2020
+ - name: Gorenje d.o.o., Partizanska 12, 3503 Velenje, Slovenia
+   index: 1
+ - name: Technical University of Munich, Institute of Applied Mechanics, Boltzmannstr.  15, 85748 Garching, Germany
+   index: 2
+ - name: Faculty of Mechanical Engineering, University of Ljubljana, Aškerčeva 6, 1000 Ljubljana, Slovenia
+   index: 3
+date: 13 August 2017
 bibliography: paper.bib
 ---
 
@@ -54,6 +50,7 @@ Furthermore, basic and application examples are provided with the package togeth
 The pyFBS has been designed to be used for scientific research in the field of dynamic substructuring. 
 It is currently being used by a number of undergraduate students and postgraduate researchers. 
 
+
 # Features
 
 pyFBS enables the user to use state-of-the-art dynamic substructuring methodologies in an intuitive manner.
@@ -67,7 +64,7 @@ Sensors and impacts can be interactively positioned on structures and the update
 With this feature the experimental setup can be prepared in advance, to avoid possible mistakes in experimental modelling.
 Furthermore, various animations can be performed directly in the 3D display, such as the animation of mode shapes or operational deflection shapes.
 
-![An example of a simple structure depicted in the pyFBS 3D display.\label{fig:3D}](./images/3D_display.png)
+![An example of a simple structure depicted in the pyFBS 3D display.\label{fig:3D}](./images/figure.png)
 
 ## FRF synthetization
 
@@ -99,3 +96,5 @@ Furthermore, implementation of Operational Source Identification (OSI) is going 
 
 The pyFBS package was developed as a part of collaboration between the Laboratory for Dynamics of Machines and Structures (LADISK), Faculty of Mechanical Engineering, University of Ljubljana (UL FME) 
 and the Chair of Applied Mechanics (AM), Technical University of Munich (TUM).
+
+# References
