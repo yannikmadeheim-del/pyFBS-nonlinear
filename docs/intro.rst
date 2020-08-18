@@ -16,6 +16,7 @@ It is currently being used by a number of undergraduate students and postgraduat
 **********************
 Dynamic Substructuring
 **********************
+[Ref]_
 In science, engineering and technology complex problems are often decomposed into smaller, simpler subsystems. 
 Each subsystem can then be analyzed and evaluated separately. 
 This approach can often reduce the complexity of the overall problem and provide invaluable insight into the optimization and troubleshooting of each individual component. 
@@ -31,6 +32,8 @@ With this approach, it is also possible to build hybrid models in which experime
 
 
 .. rubric:: References
+
+.. [Ref] Book or article reference, URL or whatever.
 
 .. bibliography:: .\paper.bib
    :style: unsrt
