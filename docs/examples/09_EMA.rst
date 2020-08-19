@@ -97,7 +97,7 @@ Add the STL files of the assembly without the source structure to the 3D view:
     view3D_2.add_stl(stl_rm,name = "roll_mount_0",color = "#83afd2",opacity = .1)
     view3D_2.add_stl(stl_em,name = "engine_mount_0",color = "#83afd2",opacity = .1);
  
-.. figure:: ./data/nine_EMA.png
+.. figure:: ./data/nine_one.png
    :width: 800px
 
 pyEMA
