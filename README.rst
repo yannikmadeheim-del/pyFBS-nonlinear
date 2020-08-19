@@ -1,4 +1,4 @@
-.. image:: https://gitlab.com/pyFBS/pyFBS/-/raw/data_fix/docs/logo/logo-big.png
+.. image:: https://gitlab.com/pyFBS/pyFBS/-/raw/master/docs/logo/logo-big.png
 	:align: right
 	:width: 300
 
