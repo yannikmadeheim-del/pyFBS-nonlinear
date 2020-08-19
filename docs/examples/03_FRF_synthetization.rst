@@ -89,7 +89,7 @@ Locations and directions of impacts and responses must be passed with a :mod:`pd
     df_imp = pd.read_excel(xlsx, sheet_name='Impacts_B')
     view3D.show_imp(df_imp,overwrite = True)
 
-.. figure:: ./data/FRF_syn-chn_and_imp.PNG
+.. figure:: ./data/FRF_syn-chn_and_imp.png
    :width: 800px
    
 
@@ -114,7 +114,7 @@ Updated locations can also be displayed in the 3D display.
     view3D.show_chn(df_chn_up, color = "y", overwrite = False)
     view3D.show_imp(df_imp_up, color = "y", overwrite = False)
 
-.. figure:: ./data/FRF_syn-updated_chn_and_imp.PNG
+.. figure:: ./data/FRF_syn-updated_chn_and_imp.png
    :width: 800px
    
    Visualization of updated locations of impacts and channels with a yellow color.

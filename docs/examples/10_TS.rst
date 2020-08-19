@@ -67,7 +67,7 @@ First the compatibility and the equiliubrium condition has to be defined through
 	plt.figure()
 	plt.imshow(Bf);
 	
-.. figure:: ./data/ten_LBS.PNG
+.. figure:: ./data/ten_LBS.png
    :width: 300px
    
 Apply the LM-FBS based on the defined coompatibility and equilibrium conditions.
@@ -91,5 +91,5 @@ First extract the FRFs at the reference DoFs:
 	
 Finnaly, the coupled and the reference results can be compared and evaluated:
 
-.. figure:: ./data/ten_result.PNG
+.. figure:: ./data/ten_result.png
    :width: 500px

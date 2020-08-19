@@ -38,11 +38,11 @@ Perform the LSCF/LSFD experimental identification of modal parameters:
     H_acc, modes_1 = modal_1.get_constants(whose_poles=modal_1,least_squares_type="old")
     pd.DataFrame({"Nat. freq [Hz]": modal_1.nat_freq,"Damping [/]": modal_1.nat_xi},index = np.arange(len(modal_1.nat_freq))+1)
 
-.. figure:: ./data/nine_two.PNG
+.. figure:: ./data/nine_two.png
    :width: 800px
    
    
-.. figure:: ./data/nine_three.PNG
+.. figure:: ./data/nine_three.png
    :width: 200px
    
 For the animation a mesh can be manually created. In this example line connections between the points are made. For more details on :mod:`pv.PolyData` check an example from `PyVista <https://docs.pyvista.org/index.html>`_.

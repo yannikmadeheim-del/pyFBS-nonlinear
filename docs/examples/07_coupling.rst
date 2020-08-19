@@ -32,7 +32,7 @@ Add an STL file of substructure A to the 1-1 subplot and show the corresponding 
     view3D.show_imp(df_imp_A)
     view3D.show_chn(df_chn_A)
     
-.. figure:: ./data/seven_one.PNG
+.. figure:: ./data/seven_one.png
    :width: 500px
     
     
@@ -175,7 +175,7 @@ First the compatibility and the equiliubrium condition has to be defined through
     plt.figure()
     plt.imshow(Bf)
 
-.. figure:: ./data/seven_four.PNG
+.. figure:: ./data/seven_four.png
    :width: 300px
     
     
@@ -201,6 +201,6 @@ First extract the FRFs at the reference DoFs:
     
 The coupled and the reference results can then be compared and evaluated:
     
-.. figure:: ./data/seven_five.PNG
+.. figure:: ./data/seven_five.png
    :width: 500px
     
