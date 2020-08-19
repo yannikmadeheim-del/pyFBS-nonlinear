@@ -65,7 +65,7 @@ Features
 3D display
 ==========
 With the pyFBS substructures and positions of impacts, sensors and channels can be visualized in 3D display :mod:`pyFBS.view3D`. 
-The 3D display uses PyVista :cite:`usage-sullivan2019pyvista` for the visualization and enables an intuitive way to display relevant data. 
+The 3D display uses PyVista [1]_ for the visualization and enables an intuitive way to display relevant data. 
 Sensors and impacts can be interactively positioned on the substructures and the updated positions can be directly used within pyFBS. 
 Furthermore, various animations can be performed directly in the 3D display, such as the animation of mode shapes or operational deflection shapes.
 
@@ -84,34 +84,27 @@ Additionally, noise can be introduced to the response so a realistic set of FRFs
 
 Virtual Point Transformation
 ============================
-Within the pyFBS Virtual Point Transformation (VPT) :mod:`pyFBS.VPT` is implemented :cite:`usage-solvingRDOF`. 
+Within the pyFBS Virtual Point Transformation (VPT) :mod:`pyFBS.VPT` is implemented [2]_. 
 VPT projects measured dynamics on the predefined interface displacement modes (IDMs). 
 The interface is usually considered to be rigid; therefore, only 6 rigid IDMs are used in the transformation. 
 After applying the transformation, a collocated set of FRFs is obtained, which can afterwards directly be used in DS. 
-Expanded VPT is also supported, where directly measured rotational response is included in the transformation :cite:`usage-Bregar2020`.
+Expanded VPT is also supported, where directly measured rotational response is included in the transformation [3]_.
 
 
 System Equivalent Model Mixing
 ==============================
-The pyFBS supports System Equivalent Model Mixing (SEMM) :mod:`pyFBS.SEMM` :cite:`usage-Klaassen2018`. 
+The pyFBS supports System Equivalent Model Mixing (SEMM) [4]_. 
 SEMM enables mixing of two equivalent frequency-based models into a hybrid model. 
 The models used can either be of numerical or experimental nature. 
 One of the models provides the dynamic properties (overlay model) and the second model provides a set of degrees of freedom. 
 A numerical model is commonly used as a parent model and an experimental model is used as an overlay model. 
 
 
-Singular Vector Transformation
-==============================
-With the pyFBS the Singular Vector Transformation is supported  (SVT) :mod:`pyFBS.SVT`. 
-SVT projects measured dynamics into subspaces composed by dominant singular vectors. 
-The singular vectors are extracted directly from the measured interface dynamics by using Singular Value Decomposition (SVD). 
-Since the reduction space is defined directly from the measured dynamics, no analytical or geometrical model is required.
-
-
-
 .. rubric:: References
 
-.. bibliography:: .\paper.bib
-   :style: unsrt
-   :filter: docname in docnames
-   :keyprefix: usage-
+.. [1] C. Bane Sullivan and Alexander Kaszynski. PyVista: 3d plotting and mesh analysis through a streamlined interface for the visualization toolkit (VTK). Journal of Open Source Software, 4(37):1450, may 2019.
+.. [2] D. de Klerk, D. J. Rixen, S. N. Voormeeren, and F. Pasteuning. Solving the RDoF Problem in Experimental Dynamic Substructuring. in: Proceedings of the 26th International Modal Analysis Conference, A Conference on Structural Dynamics, (2010), pages, 2008.
+.. [3] Tomaž Bregar, Nikola Holeček, Gregor Čepon, Daniel J. Rixen, and Miha Boltežar. Including directly measured rotations in the virtual point transformation. Mechanical Systems and Signal Processing, 141:106440, July 2020.
+.. [4] Steven WB Klaassen, Maarten V. van der Seijs, and Dennis de Klerk. System equivalent model mixing. Mechanical Systems and Signal Processing, 105:90–112, 2018.
+
+

@@ -1,7 +1,7 @@
 System Equivalent Model Mixing
 ==============================
 
-System Equivalent Model Mixing (SEMM) :cite:`05-Klaassen2018` enables mixing of two equivalent frequency-based models into a hybrid model. 
+System Equivalent Model Mixing (SEMM) [1]_ enables mixing of two equivalent frequency-based models into a hybrid model. 
 The models used can either be of numerical or experimental nature. 
 One of the models provides the dynamic properties (overlay model) and the second model provides a set of degrees of freedom (parent model). 
 A numerical model is commonly used as a parent model and an experimental model is used as an overlay model.
@@ -61,7 +61,7 @@ Application of SEMM
 *******************
 
 The function enables the implementation of three SEMM method formulations: ``basic``, ``fully-extend`` and ``fully-extend-svd``, the choice of which is defined with the ``SEMM_type`` parameter.
-The ``red_comp`` and ``red_eq`` parameters can be used to influence the number of eigenvalues used to ensure equilibrium and compatibility conditions when the ``fully-extend-svd`` formulation is used :cite:`05-semm_svd`.
+The ``red_comp`` and ``red_eq`` parameters can be used to influence the number of eigenvalues used to ensure equilibrium and compatibility conditions when the ``fully-extend-svd`` formulation is used [2]_.
 
 The result is a hybrid model that contains the DoFs represented in the numerical model.
 
@@ -110,7 +110,5 @@ Finnaly, the results of the hybrid model can be compared with the reference and 
 
 .. rubric:: References
 
-.. bibliography:: ..\..\joss\paper.bib
-   :style: unsrt
-   :filter: docname in docnames
-   :keyprefix: 05-
+.. [1] Steven WB Klaassen, Maarten V. van der Seijs, and Dennis de Klerk. System equivalent model mixing. Mechanical Systems and Signal Processing, 105:90–112, 2018.
+.. [2] Steven WB Klaassen and D. J. Rixen. The Inclusion of a Singular-value Based Filter in SEMM. in: Proceedings of the 38th International Modal Analysis Conference, A Conference on Structural Dynamics, (2020), 2020.

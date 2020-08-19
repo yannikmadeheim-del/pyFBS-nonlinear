@@ -1,9 +1,9 @@
 ============================
 Virtual Point Transformation
 ============================
-Virtual point transformation (VPT) projects measured dynamics on the predefined interface displacement modes (IDMs) :cite:`vpt-solvingRDOF`. 
+Virtual point transformation (VPT) projects measured dynamics on the predefined interface displacement modes (IDMs) [1]_. 
 The interface is usualy considered to be rigid; therefore, only 6 rigid interface displacement modes are used in the transformation. Rigid IDMs can also be extended with flexible interface modes.
-Current implementation of the :class:`pyFBS.VPT` enables only rigid IDMs in the transformation. But it additionaly supports the expansion where directly measured rotational response is included in the transformation :cite:`vpt-Bregar2020`. 
+Current implementation of the :class:`pyFBS.VPT` enables only rigid IDMs in the transformation. But it additionaly supports the expansion where directly measured rotational response is included in the transformation [2]_. 
 
 .. note:: 
    Download example showing the basic use of the VPT: :download:`04_VPT.ipynb <../../examples/04_VPT.ipynb>`
@@ -58,7 +58,6 @@ Both channel/sensor (``vpt.specific_sensor`` and ``vpt.overall_sensor``) and imp
 
 .. rubric:: References
 
-.. bibliography:: ..\..\joss\paper.bib
-   :style: unsrt
-   :filter: docname in docnames
-   :keyprefix: vpt-
+.. [1] D. de Klerk, D. J. Rixen, S. N. Voormeeren, and F. Pasteuning. Solving the RDoF Problem in Experimental Dynamic Substructuring. in: Proceedings of the 26th International Modal Analysis Conference, A Conference on Structural Dynamics, (2010), pages, 2008.
+.. [2] Tomaž Bregar, Nikola Holeček, Gregor Čepon, Daniel J. Rixen, and Miha Boltežar. Including directly measured rotations in the virtual point transformation. Mechanical Systems and Signal Processing, 141:106440, July 2020.
+
