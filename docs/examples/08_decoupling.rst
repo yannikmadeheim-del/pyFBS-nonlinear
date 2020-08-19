@@ -113,7 +113,7 @@ First the compatibility and the equiliubrium condition has to be defined through
     plt.figure()
     plt.imshow(Bf)
     
-.. figure:: ./data/eight_four.png
+.. figure:: ./data/eight_four.PNG
    :width: 300px
     
 Apply the LM-FBS based on the defined coompatibility and equilibrium conditions.
@@ -137,7 +137,7 @@ First extract the FRFs at the reference DoFs:
     
 The decoupled and the reference results can then be compared and evaluated:
    
-.. figure:: ./data/eight_last.png
+.. figure:: ./data/eight_last.PNG
    :width: 500px
    
 

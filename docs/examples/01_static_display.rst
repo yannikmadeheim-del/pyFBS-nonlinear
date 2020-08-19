@@ -30,7 +30,7 @@ can be used for the geometry generation. For displaying a more complex geometric
 
 After the code execution the geometric object will apear in the rendering window.
 
-.. figure:: ./data/3D_view.png
+.. figure:: ./data/3D_view.PNG
    :width: 800px
 
 
@@ -55,7 +55,7 @@ Accelerometers can be added to 3D display directly from the :mod:`pd.DataFrame`.
 
 After the code execution accelerometers will be shown in the 3D display.
 
-.. figure:: ./data/acc.png
+.. figure:: ./data/acc.PNG
    :width: 800px
 
 
@@ -70,7 +70,7 @@ Channels associated with accelerometers can be added to the 3D display directly 
 
 After the code execution channels will be shown in the 3D display.	
 
-.. figure:: ./data/chn.png
+.. figure:: ./data/chn.PNG
    :width: 800px
 
 
@@ -86,7 +86,7 @@ Impacts can be added to the 3D display directly from the :mod:`pd.DataFrame`.
 After the code execution impacts will be shown in the 3D display.	
 
 
-.. figure:: ./data/imp.png
+.. figure:: ./data/imp.PNG
    :width: 800px
 
 
@@ -102,7 +102,7 @@ Virtual points can also be added to the 3D display directly from the :mod:`pd.Da
 
 After the code execution virtual points will be shown in the 3D display.	
 	
-.. figure:: ./data/VP.png
+.. figure:: ./data/VP.PNG
    :width: 800px
 
 
