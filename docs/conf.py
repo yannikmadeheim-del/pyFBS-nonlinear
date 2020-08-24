@@ -153,7 +153,7 @@ html_context = {
     'github_version': 'master/docs/',
     'menu_links_name': 'Getting Connected',
     'menu_links': [
-        ('<i class="fa fa-comment fa-fw"></i> Support', 'https://gitlab.com/pyFBS/pyFBS-support'),
+        ('<i class="fa fa-comment fa-fw"></i> Support', 'https://gitlab.com/pyFBS/pyFBS_support'),
         ('<i class="fa fa-gitlab fa-fw"></i> Source Code', 'https://gitlab.com/pyFBS/pyFBS'),
         #('<i class="fa fa-gavel fa-fw"></i> Contributing', 'https://gitlab.com/pyFBS/pyFBS/-/graphs/master'),
         ('<i class="fa fa-file-text fa-fw"></i> The Paper', 'https://'),
