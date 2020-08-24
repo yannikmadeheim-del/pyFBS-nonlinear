@@ -46,7 +46,15 @@ With this approach, it is also possible to build hybrid models in which experime
 
 pyFBS is a Python package for Frequency Based Substructuring. The package implements an object-oriented approach for dynamic substructuring. 
 Current state-of-the-art methodologies in frequency based substructuring are available in pyFBS. Each method can be used as a standalone or interchangeably with others. 
+Also a 3D display is available so a user can simply place and orient associated input/outputs used with each method.
 Furthermore, basic and application examples are provided with the package together with real experimental and numerical data [@ahmed]. 
+
+
+# Statement of need
+
+To the best of authors knowledge there is currently no opensource software alternative, which would enable the user to use dnamic substructuring methodologies. 
+For the 3D display the PyVista [@sullivan2019pyvista] enables strealined interface to the Visualization Toolkit (VTK) [@vtkbook].
+but it doesn't support the specific routines for the display and placement of inputs/outputs.
 The pyFBS has been designed to be used for scientific research in the field of dynamic substructuring. 
 It is currently being used by a number of undergraduate students and postgraduate researchers. 
 
