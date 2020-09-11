@@ -54,15 +54,14 @@ Furthermore, basic and application examples are provided with the package togeth
 # Statement of need
 
 Evaluating structural dynamics is a necessary step in the development of any complex mechanical system. 
-Vibro-acoustic character together with the visual design contributes to the customer's perception of a premium product
+Vibro-acoustic character together with the visual design contributes to the customer's perception of a premium product.
 With DS the vibro-acoustic performance of a product can be analysed in terms of its subcomponents. This approach is highly beneficial, as almost all complex products are designed modularly.
 The pyFBS helps the user to perform experimental modelling in DS. It enables an intuitive way to position sensors and impact locations on the analysed structures.
 The position and orientation of sensors/impacts can be then be used in each implemented DS method. 
 Furthermore, experimental measurements can be simulated with ease from a numerical model, where the same positional information can be used.   
 
 To the best of authors knowledge there is currently no opensource software alternative, which would enable the user to use dynamic substructuring methodologies. 
-For the 3D display the PyVista [@sullivan2019pyvista] enables strealined interface to the Visualization Toolkit (VTK) [@vtkbook].
-but it doesn't support the specific routines for the display and placement of inputs/outputs.
+For the 3D display the PyVista [@sullivan2019pyvista] enables strealined interface to the Visualization Toolkit (VTK) [@vtkbook], but it doesn't support the specific routines for the display and placement of inputs/outputs.
 The pyFBS has been designed to be used for scientific research in the field of dynamic substructuring. 
 It is currently being used by a number of undergraduate students and postgraduate researchers. 
 
