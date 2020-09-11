@@ -61,7 +61,6 @@ The position and orientation of sensors/impacts can be then be used in each impl
 Furthermore, experimental measurements can be simulated with ease from a numerical model, where the same positional information can be used.   
 
 To the best of authors knowledge there is currently no opensource software alternative, which would enable the user to use dynamic substructuring methodologies. 
-For the 3D display the PyVista [@sullivan2019pyvista] enables strealined interface to the Visualization Toolkit (VTK) [@vtkbook], but it doesn't support the specific routines for the display and placement of inputs/outputs.
 The pyFBS has been designed to be used for scientific research in the field of dynamic substructuring. 
 It is currently being used by a number of undergraduate students and postgraduate researchers. 
 
