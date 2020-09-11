@@ -7,7 +7,7 @@ tags:
   - System Equivalent Model Mixing
   - Transfer Path Analysis
 authors:
-  - name: Tomaž Bregar^[Custom footnotes for e.g. denoting who the corresponding author is can be included like this.]
+  - name: Tomaž Bregar
     affiliation: 1 
   - name: Ahmed El Mahmoudi
     affiliation: 2
