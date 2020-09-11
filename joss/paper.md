@@ -1,3 +1,4 @@
+
 ---
 title: 'pyFBS: A Python package for Frequency Based Substructuring'
 tags:
@@ -36,13 +37,13 @@ In science, engineering and technology complex problems are often decomposed int
 Each subsystem can then be analyzed and evaluated separately. 
 This approach can often reduce the complexity of the overall problem and provide invaluable insight into the optimization and troubleshooting of each individual component. 
 The subsystems can also be assembled back together and with that the system can be analyzed as a whole.
+
 Dynamic Substructuring (DS) is an engineering concept where dynamic systems are modeled and analyzed in terms of their components or so-called substructures. 
 There are several ways of formulating the dynamics of substructures. One of them is with Frequency Response Functions (FRFs), which describe the response as the result of a unit harmonic force. 
 The method is well suited for experimental approaches where FRFs are obtained from measurement of components. Such approaches were already investigated in the 70s [@KLOSTERMAN_1971_PHD]  and 80s (e.g. [@MARTINEZ_1984_COMBINEDEXPANALYTICAL], 
 [@KLOSTERMAN_1984_SMURF], [@JETMUNDSEN_1988_FBS], [@URGUEIRA_1989_DYNAMIC]). 
 Due to complicated formulations and difficulties in obtaining good measurements, the method was hardly applicable. 
-Thanks to better measurement hardware and proper formulation of the problem,  Frequency Based Substructuring (FBS) has gained popularity in recent years [@deKlerk2008], [@vanderSeijs2016], [@RIXEN_2006_GUITAR].  
-With this approach, it is also possible to build hybrid models in which experimentally characterized and numerically modelled parts are combined.
+Thanks to better measurement hardware and proper formulation of the problem,  Frequency Based Substructuring (FBS) has gained popularity in recent years [@deKlerk2008], [@vanderSeijs2016], [@RIXEN_2006_GUITAR]. With this approach, it is also possible to build hybrid models in which experimentally characterized and numerically modelled parts are combined.
 
 pyFBS is a Python package for Frequency Based Substructuring. The package implements an object-oriented approach for dynamic substructuring. 
 Current state-of-the-art methodologies in frequency based substructuring are available in pyFBS. Each method can be used as a standalone or interchangeably with others. 
@@ -52,7 +53,14 @@ Furthermore, basic and application examples are provided with the package togeth
 
 # Statement of need
 
-To the best of authors knowledge there is currently no opensource software alternative, which would enable the user to use dnamic substructuring methodologies. 
+Evaluating structural dynamics is a necessary step in the development of any complex mechanical system. 
+Vibro-acoustic character together with the visual design contributes to the customer's perception of a premium product
+With DS the vibro-acoustic performance of a product can be analysed in terms of its subcomponents. This approach is highly beneficial, as almost all complex products are designed modularly.
+The pyFBS helps the user to perform experimental modelling in DS. It enables an intuitive way to position sensors and impact locations on the analysed structures.
+The position and orientation of sensors/impacts can be then be used in each implemented DS method. 
+Furthermore, experimental measurements can be simulated with ease from a numerical model, where the same positional information can be used.   
+
+To the best of authors knowledge there is currently no opensource software alternative, which would enable the user to use dynamic substructuring methodologies. 
 For the 3D display the PyVista [@sullivan2019pyvista] enables strealined interface to the Visualization Toolkit (VTK) [@vtkbook].
 but it doesn't support the specific routines for the display and placement of inputs/outputs.
 The pyFBS has been designed to be used for scientific research in the field of dynamic substructuring. 
