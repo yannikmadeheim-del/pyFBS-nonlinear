@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 from scipy.linalg import block_diag, norm
 from pyFBS.utility import coh_frf
 
@@ -52,6 +53,7 @@ class VPT(object):
         ov_u, _vps, mask_u = self.find_overlap_ch(self.Channels, self.Virtual_Channels)
 
         R_all = []
+        
         # iterates through all unique virtual points (through grouping)
         _Warray = []
         for i in range(len(ov_u)):
@@ -59,14 +61,18 @@ class VPT(object):
             _posVP = np.asarray(self.Virtual_Channels.iloc[i][["Position_1","Position_2","Position_3"]].to_numpy())
             # gets the current positions
             ov_c = ov_u[i]
-
-            r = np.zeros((len(ov_c[0]), 6))
+            # gets defined DoF for specific VP
+            _desc = self.Virtual_Channels["Description"].to_list()
+        
+            #changed r size
+            r = np.zeros((len(ov_c[0]), len(_desc)))
             for j, ch in enumerate(ov_c[0]):
                 _pos = np.asarray(self.Channels.iloc[ch][["Position_1","Position_2","Position_3"]].to_numpy()).astype(float)
                 _dir = np.asarray(self.Channels.iloc[ch][["Direction_1","Direction_2","Direction_3"]].to_numpy()).astype(float)
                 _group = self.Channels.iloc[ch]["Grouping"]
                 _type = self.Channels.iloc[ch]["Quantity"]
-                r[j, :] = _dir @ self.R_matrix_U(_posVP - _pos, type=_type)
+                # argument _desc in R_matrix_U
+                r[j, :] = _dir @ self.R_matrix_U(_posVP - _pos, _desc, type=_type)
                 _Warray.append(self.W_rotational(_pos, _dir, type=_type))
             R_all.append(r)
 
@@ -123,13 +129,18 @@ class VPT(object):
             _posVP = np.asarray(self.Virtual_RefChannels.iloc[i][["Position_1","Position_2","Position_3"]].to_numpy())
             # gets the current positions
             ov_c = ov_f[i]
-            r = np.zeros((len(ov_c[0]), 6))
+            # gets defined DoF for specific VP
+            _desc = self.Virtual_RefChannels["Description"].to_list()
+            
+            #changed r size
+            r = np.zeros((len(ov_c[0]), len(_desc)))
             for j, ch in enumerate(ov_c[0]):
                 _pos = np.asarray(self.RefChannels.iloc[ch][["Position_1", "Position_2", "Position_3"]].to_numpy()).astype(float)
                 _dir = np.asarray(self.RefChannels.iloc[ch][["Direction_1", "Direction_2", "Direction_3"]].to_numpy()).astype(float)
                 _group = self.RefChannels.iloc[ch]["Grouping"]
                 _type = self.RefChannels.iloc[ch]["Quantity"]
-                r[j, :] = (self.R_matrix_F(_posVP - _pos) @ (_dir.T)).reshape(-1)
+                # argument _desc in R_matrix_F
+                r[j, :] = (self.R_matrix_F(_posVP - _pos, _desc) @ (_dir.T)).reshape(-1)
             R_all.append(r)
 
         # position the transformation matrix based on location it the .xlsx file
@@ -168,7 +179,7 @@ class VPT(object):
         self.Ff = Ff
 
     @staticmethod
-    def R_matrix_U(pos, type="Acceleration"):
+    def R_matrix_U(pos, desc, type="Acceleration"):
         """
         Calculate Ru matrix based on the channel position/orientation and sensor type.
 
@@ -191,6 +202,9 @@ class VPT(object):
                              [0, 0, 0, 0, 1, 0],
                              [0, 0, 0, 0, 0, 1]])
 
+        # isolating desired DoF
+        _R = np.asarray(pd.DataFrame(_R, columns=['ux','uy','uz','tx','ty','tz'])[desc])
+        
         return _R
 
     @staticmethod
@@ -222,7 +236,7 @@ class VPT(object):
         return _W
 
     @staticmethod
-    def R_matrix_F(pos):
+    def R_matrix_F(pos, desc):
         """
         Calculates Rf matrix based on the reference channel position/orientation.
 
@@ -240,6 +254,9 @@ class VPT(object):
                          [rz, 0, -rx],
                          [-ry, rx, 0]])
 
+        # isolating desired DoF
+        _R = np.asarray(pd.DataFrame(_R.T, columns=['fx','fy','fz','mx','my','mz'])[desc]).T
+        
         return _R
 
     @staticmethod
