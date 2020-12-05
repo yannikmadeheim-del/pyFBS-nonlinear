@@ -30,10 +30,11 @@ class MK_model(object):
     :type scale: float
     """
 
-    def __init__(self, rst_file, full_file, no_modes = 100, allow_pickle = True, recalculate = False,scale = 1000):
+    def __init__(self, rst_file, full_file, no_modes = 100, allow_pickle = True, recalculate = False,scale = 1000,read_rst = False):
         rst = pyansys.read_binary(rst_file)
-        #self.nodes = rst.geometry["nodes"][:, :3]*scale  # only translational dofs
-        self.nodes = rst.geometry.nodes*scale  # only translational dofs
+
+        # new version of pyansys
+        self.nodes = rst.mesh.nodes*scale  # only translational dofs
         self.mesh = rst.grid
         self.mesh.points *= scale
         self.pts = self.mesh.points.copy()
@@ -43,45 +44,70 @@ class MK_model(object):
         self._all = False
 
         full = pyansys.read_binary(full_file)
-
         self.dof_ref, self.K, self.M = full.load_km(sort=True)  # dof_ref: 0-x 1-y 2-z
-        if self.dof_ref[0, 0]!=1:
-            self.dof_ref[:, 0] = self.dof_ref[:, 0] - (self.dof_ref[0, 0]-1)
+        if self.dof_ref[0, 0] != 1:
+            self.dof_ref[:, 0] = self.dof_ref[:, 0] - (self.dof_ref[0, 0] - 1)
 
-        self._K = self.K + diags(np.random.random(self.K.shape[0]) / 1e20, shape=self.K.shape) # avoid error
-
-        self.M += sp.sparse.triu(self.M, 1).T
-        self._K += sp.sparse.triu(self._K, 1).T
-
-        if np.max(self.dof_ref[:, 1])==5:
+        if np.max(self.dof_ref[:, 1]) == 5:
             self.rotation_included = True
-        elif np.max(self.dof_ref[:, 1])==2:
+        elif np.max(self.dof_ref[:, 1]) == 2:
             self.rotation_included = False
 
-        p_file = '{}.pkl'.format(full_file)
-        # check if there is a .pkl file
-        same = False
-        if allow_pickle and path.exists(p_file):
-            # load the pickle file
-            _M,_K,_eig_freq,_eig_val,_eig_vec,_no_modes = pickle.load( open(p_file, "rb" ))
-            # check if the solution is the same
-            if _K.shape == self.K.shape and _M.shape == self.M.shape:
-                check_mas  = (_K != self.K).nnz == 0
-                check_stif = (_M != self.M).nnz == 0
-            else:
-                check_mas = False
-                check_stif = False
-            check_no_modes = _no_modes == no_modes
-            same = np.all([check_mas,check_stif,check_no_modes])
-            if same:
-                self.M, self.K, self.eig_freq, self.eig_val, self.eig_vec, no_modes = pickle.load(open(p_file, "rb"))
+        # an option to read directly the .rst file
+        if read_rst == False:
+            #print("evaluating M and K matrices")
+            self._K = self.K + diags(np.random.random(self.K.shape[0]) / 1e20, shape=self.K.shape) # avoid error
 
-        # solve the problem
-        if same == False or recalculate == True:
-            self.eig_freq, self.eig_val, self.eig_vec = self.eig_solve(self.M,self._K,no_modes)
+            self.M += sp.sparse.triu(self.M, 1).T
+            self._K += sp.sparse.triu(self._K, 1).T
 
-            if allow_pickle:
-                pickle.dump([self.M, self.K, self.eig_freq, self.eig_val, self.eig_vec, no_modes], open(p_file, "wb"))
+            p_file = '{}.pkl'.format(full_file)
+            # check if there is a .pkl file
+            same = False
+            if allow_pickle and path.exists(p_file):
+                # load the pickle file
+                _M,_K,_eig_freq,_eig_val,_eig_vec,_no_modes = pickle.load( open(p_file, "rb" ))
+                # check if the solution is the same
+                if _K.shape == self.K.shape and _M.shape == self.M.shape:
+                    check_mas  = (_K != self.K).nnz == 0
+                    check_stif = (_M != self.M).nnz == 0
+                else:
+                    check_mas = False
+                    check_stif = False
+                check_no_modes = _no_modes == no_modes
+                same = np.all([check_mas,check_stif,check_no_modes])
+                if same:
+                    self.M, self.K, self.eig_freq, self.eig_val, self.eig_vec, no_modes = pickle.load(open(p_file, "rb"))
+                # solve the problem
+            if same == False or recalculate == True:
+                self.eig_freq, self.eig_val, self.eig_vec = self.eig_solve(self.M, self._K, no_modes)
+
+                if allow_pickle:
+                    pickle.dump([self.M, self.K, self.eig_freq, self.eig_val, self.eig_vec, no_modes],open(p_file, "wb"))
+        else:
+            # read from pyansys - from rst file
+            #print("Reading RST file")
+            self.eig_freq, self.eig_val, self.eig_vec = self.get_values_from_rst(rst)
+
+
+    @staticmethod
+    def get_values_from_rst(rst):
+        """
+        Return eigenvalues and eigenvectors for a given rst file.
+
+        :param rst: rst file
+        :rtype: (array(float), array(float), array(float))
+        """
+        eigen_freq = rst.time_values
+        eigen_val = eigen_freq**2
+        eigen_vec = []
+        for i in range(len(rst.time_values)):
+            nnum, disp = rst.nodal_solution(i)
+            eigen_vec.append(disp.flatten())
+
+        eigen_vec = np.asarray(eigen_vec).T
+
+        return (eigen_freq, eigen_val, eigen_vec)
 
 
     @staticmethod
