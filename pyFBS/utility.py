@@ -466,7 +466,8 @@ def orient_in_global(mode, df_chn, df_acc):
 
     empty = np.zeros((n_sen, n_ax), dtype=complex)
 
-    _dir = df_chn[["Direction_1", "Direction_2", "Direction_3"]].to_numpy()
+    _dir = df_chn[["Direction_1", "Direction_2", "Direction_3"]].to_numpy(dtype = float)
+
     for i in range(n_sen):
         for j in range(n_ax):
             sel = (i) * 3 + j
