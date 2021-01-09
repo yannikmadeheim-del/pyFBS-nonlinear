@@ -28,6 +28,8 @@ class MK_model(object):
     :type recalculate: bool
     :param scale: distance scaling factor
     :type scale: float
+    :param read_rst: if ``True`` reads the eigenvalue solution directly from .rst file
+    :type read_rst: bool
     """
 
     def __init__(self, rst_file, full_file, no_modes = 100, allow_pickle = True, recalculate = False,scale = 1000,read_rst = False):
