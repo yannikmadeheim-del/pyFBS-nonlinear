@@ -15,10 +15,8 @@ NBDIR = str(Path(__file__).parents[1] ) + os.sep + "examples" + os.sep # where a
 
 def setUp():
     # list of notebooks, with file paths
-    #nbpaths = [str(Path(__file__).parents[1] ) + os.sep + "examples" + os.sep + "01_static_display.ipynb"]
     nbpaths = []
     # list of notebook names (for making the tests)
-    #nbnames = ["01_static_display"]
     nbnames = []
     # walk the test directory and find all notebooks
     for dirname, dirnames, filenames in os.walk(NBDIR):
@@ -35,18 +33,25 @@ def get(nbname, nbpath):
         print('\n--------------- Testing {0} ---------------'.format(nbname))
         print('   {0}'.format(nbpath))
         # execute the notebook using nbconvert to generate html
-        nbexe = subprocess.Popen(['jupyter', 'nbconvert', '{0}'.format(nbpath),
-                                  '--execute',
-                                  '--ExecutePreprocessor.timeout=120'],
+        #print("gg", nbpath)
+        #nbexe = subprocess.Popen(['jupyter', 'nbconvert', '{0}'.format(nbpath),
+        #                          '--execute',
+        #                          '--ExecutePreprocessor.timeout=120'],
+        #                         stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+        #                         stderr=subprocess.PIPE)
+
+        nbexe = subprocess.Popen(['jupyter', 'nbconvert','--to','notebook',
+                                  '--execute', '{0}'.format(nbpath),'--ExecutePreprocessor.timeout=120'],
                                  stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                                 stderr=subprocess.PIPE)
+                                stderr=subprocess.PIPE)
+
         output, err = nbexe.communicate()
         check = nbexe.returncode
         if check == 0:
             print('\n ..... {0} Passed ..... \n'.format(nbname))
 
-            # if passed remove the generated html file
-            os.remove(nbpath[:-6] + '.html')
+            # if passed remove the generated  file
+            os.remove(nbpath[:-6] + '.nbconvert.ipynb')
         else:
             print('\n <<<<< {0} FAILED >>>>> \n'.format(nbname))
             print('Captured Output: \n {0}'.format(err))
