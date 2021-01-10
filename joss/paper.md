@@ -60,7 +60,7 @@ The pyFBS helps the user to perform experimental modelling in DS. It enables an 
 The position and orientation of sensors/impacts can be then be used in each implemented DS method. 
 Furthermore, experimental measurements can be simulated with ease from a numerical model, where the same positional information can be used.   
 
-To the best of authors knowledge there is currently no opensource software alternative, which would enable the user to use dynamic substructuring methodologies. 
+To the best of authors knowledge there is currently no open source software alternative, which would enable the user to use dynamic substructuring methodologies. 
 The pyFBS has been designed to be used for scientific research in the field of dynamic substructuring. 
 It is currently being used by a number of undergraduate students and postgraduate researchers. 
 
