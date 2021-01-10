@@ -368,7 +368,7 @@ class VPT(object):
 
 
         # Calculate impact consistency
-        sub_Y = np.transpose(self.FRF,(1,2,0))[:, ind_Rch, :]
+        sub_Y = np.transpose(self.FRF,(1,2,0))[ind_ch, :, :][:, ind_Rch, :]
         sub_Ff = self.Ff[ind_Rch, :][:, ind_Rch]
 
         y_f = np.zeros((sub_Y.shape[1], 1, sub_Y.shape[2]), dtype=complex)
