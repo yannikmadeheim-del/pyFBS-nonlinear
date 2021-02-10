@@ -59,6 +59,8 @@ class VPT(object):
         for i in range(len(ov_u)):
             # gets the unique VP position
             _posVP = np.asarray(self.Virtual_Channels.iloc[i][["Position_1","Position_2","Position_3"]].to_numpy())
+            # gets the unique VP orientation
+            _dirVP = np.asarray(self.Virtual_Channels.iloc[i:i+3][["Direction_1","Direction_2","Direction_3"]].to_numpy())
             # gets the current positions
             ov_c = ov_u[i]
             # gets defined DoF for specific VP
@@ -72,7 +74,7 @@ class VPT(object):
                 _group = self.Channels.iloc[ch]["Grouping"]
                 _type = self.Channels.iloc[ch]["Quantity"]
                 # argument _desc in R_matrix_U
-                r[j, :] = _dir @ self.R_matrix_U(_posVP - _pos, _desc, type=_type)
+                r[j, :] = (_dirVP @ _dir) @ self.R_matrix_U(_posVP - _pos, _desc, type=_type)
                 _Warray.append(self.W_rotational(_pos, _dir, type=_type))
             R_all.append(r)
 
