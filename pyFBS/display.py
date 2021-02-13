@@ -88,6 +88,8 @@ class view3D():
         self.animate_toolbar = self.plot.app_window.addToolBar('Animate Modeshape')
         self.animate_clear_toolbar = self.plot.app_window.addToolBar('Clear Modeshape')
 
+        # fixed_rotation
+        self.fixed_rotation = None
 
     def add_modeshape(self,dict_shape,run_animation = False,add_note = False):
         """
@@ -410,7 +412,7 @@ class view3D():
         :param fixed_rotation: fixed rotation angle
         :type fixed_rotation: float
         """
-
+        self.fixed_rotation = fixed_rotation
         i = int(len(self.all_accs_dynamic)+len(self.all_imps_dynamic)+len(self.all_vps_dynamic))
         size = 10
 
@@ -423,7 +425,7 @@ class view3D():
             rot = r.as_matrix()
 
         self.add_accelerometer(acc)
-        _gg = DynamicPosition(acc, self.plot, i, mesh=self.mesh, size=10,rot = rot,fixed_rotation = fixed_rotation)
+        _gg = DynamicPosition(acc, self.plot, i, mesh=self.mesh, size=10,rot = rot,fixed_rotation = self.fixed_rotation)
         self.plot.add_sphere_widget(_gg.callback, center=_gg.points, color=["k", "r", "g", "b"], radius=10 / 15)
         _gg.translate(point)
         _gg.turn_on = True
@@ -443,7 +445,7 @@ class view3D():
         :param fixed_rotation: fixed rotation angle
         :type fixed_rotation: float
         """
-
+        self.fixed_rotation = fixed_rotation
         self.mesh = mesh
 
         if isinstance(predefined, pd.DataFrame):
@@ -479,7 +481,7 @@ class view3D():
             #rot = np.diag([1]*3)
             rot = rotation_matrix_from_vectors(direction,[0, 0, 1]).T
 
-        _gg = DynamicPosition([imp], self.plot, i, mesh=self.mesh, size=10,rot = rot,snap_outward = False, fixed_rotation = fixed_rotation)
+        _gg = DynamicPosition([imp], self.plot, i, mesh=self.mesh, size=10,rot = rot,snap_outward = False, fixed_rotation = self.fixed_rotation)
         self.plot.add_sphere_widget(_gg.callback, center=_gg.points, color=["k", "r", "g", "b"], radius=10 / 15)
         _gg.translate(point)
         _gg.turn_on = True
@@ -526,7 +528,7 @@ class view3D():
 
         acc, _ = self.add_vp([size/2, size/2, size/2], size=size, opacity=.1)
 
-        _gg = DynamicPosition([acc], self.plot, i, mesh=self.mesh, size=4, snap_outward=False,fixed_rotation = fixed_rotation)
+        _gg = DynamicPosition([acc], self.plot, i, mesh=self.mesh, size=4, snap_outward=False,fixed_rotation = self.fixed_rotation)
         self.plot.add_sphere_widget(_gg.callback, center=_gg.points, color=["k", "r", "g", "b"], radius=4 / 15)
 
         _gg.turn_on = True
@@ -985,6 +987,8 @@ class DynamicPosition():
 
     def __init__(self, objects, p, N, mesh=None, snap_outward=True, size=1, rot = np.diag([1]*3), fixed_rotation = None):
         # set size and static points
+
+
         self.size = size
         self.points = np.array([[size / 2, size / 2, size / 2],
                                 [0, size / 2, size / 2],
@@ -1207,13 +1211,14 @@ class DynamicPosition():
                 _vec2 = (np.asarray(self.local_widgets[i, :]))
 
                 # define the rotational matrix based on angle of rotation
-                theta = angle(_vec1, _vec2)
+                theta = -1*angle(_vec1, _vec2)
 
                 # overwrite calculated rotational angle
                 if self.fixed_theta != None:
                     theta =  self.fixed_theta*(np.pi/180)
 
-                rot = M(self.local_orientation[i - 1, :], theta)
+                rot = M(_vec2, theta)
+                #rot = rotation_matrix_from_vectors(_vec1, _vec2)
 
                 # rotate everything within accelerometer
                 for item in self.objects:
