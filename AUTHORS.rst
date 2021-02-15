@@ -7,6 +7,8 @@ Development Lead
 
 * Miha Kodrič
 
+* Domen Ocepek
+
 Contributors
 ------------
 
