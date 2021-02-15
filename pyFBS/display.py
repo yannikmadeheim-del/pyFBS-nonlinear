@@ -401,7 +401,7 @@ class view3D():
         return sphere,vp_actor
 
 
-    def acc_callback(self,point, orientation = None,fixed_rotation = None):
+    def acc_callback(self,point, orientation = None):
         """
         Interactive accelerometer callback function.
 
@@ -409,10 +409,7 @@ class view3D():
         :type point: array(float)
         :param orientation: Orientation in 3D space
         :type orientation: array(float), optional
-        :param fixed_rotation: fixed rotation angle
-        :type fixed_rotation: float
         """
-        self.fixed_rotation = fixed_rotation
         i = int(len(self.all_accs_dynamic)+len(self.all_imps_dynamic)+len(self.all_vps_dynamic))
         size = 10
 
@@ -452,13 +449,13 @@ class view3D():
             for i, row in predefined.iterrows():
                 point = [row["Position_1"] * scale, row["Position_2"] * scale, row["Position_3"] * scale]
                 orientation = [row["Orientation_1"], row["Orientation_2"], row["Orientation_3"]]
-                self.acc_callback(point, orientation=orientation,fixed_rotation = fixed_rotation)
+                self.acc_callback(point, orientation=orientation)
 
         self.plot.enable_point_picking(callback=self.acc_callback, color="r", show_message="", show_point=False)
         self.plot.add_text("Press P too add an accelerometer (hold down letter T to disable snapping to mesh).",
                            font_size=10, color="k", font="times", name="text")
 
-    def imp_callback(self,point, direction = None,fixed_rotation = None):
+    def imp_callback(self,point, direction = None):
         """
         Interactive impact callback function.
 
@@ -466,8 +463,6 @@ class view3D():
         :type point: array(float)
         :param orientation: Orientation in 3D space
         :type orientation: array(float)
-        :param fixed_rotation: fixed rotation angle
-        :type fixed_rotation: float
         """
 
         i = int(len(self.all_accs_dynamic)+len(self.all_imps_dynamic)+len(self.all_vps_dynamic))
@@ -501,26 +496,24 @@ class view3D():
         :param fixed_rotation: fixed rotation angle
         :type fixed_rotation: float
         """
-
+        self.fixed_rotation = fixed_rotation
         self.mesh = mesh
 
         if isinstance(predefined, pd.DataFrame):
             for i, row in predefined.iterrows():
                 point = [row["Position_1"] * scale, row["Position_2"] * scale, row["Position_3"] * scale]
                 direction = [row["Direction_1"], row["Direction_2"], row["Direction_3"]]
-                self.imp_callback(point, direction=direction,fixed_rotation = fixed_rotation)
+                self.imp_callback(point, direction=direction)
 
         self.plot.enable_point_picking(callback=self.imp_callback, color="r", show_message="", show_point=False)
         self.plot.add_text("Press P too add an impact (hold down letter T to disable snapping to mesh).", font_size = 10,color = "k",font  = "times",name = "text")
 
-    def vp_callback(self,point,fixed_rotation = None):
+    def vp_callback(self,point):
         """
         Interactive virtual point callback function.
 
         :param point: Point in 3D space
         :type point: array(float)
-        :param fixed_rotation: fixed rotation angle
-        :type fixed_rotation: float
         """
 
         i = int(len(self.all_accs_dynamic)+len(self.all_imps_dynamic)+len(self.all_vps_dynamic))
