@@ -66,14 +66,12 @@ class VPT(object):
             # gets defined DoF for specific VP
             _desc = self.Virtual_Channels["Description"].to_list()
         
-            #changed r size
             r = np.zeros((len(ov_c[0]), len(_desc)))
             for j, ch in enumerate(ov_c[0]):
                 _pos = np.asarray(self.Channels.iloc[ch][["Position_1","Position_2","Position_3"]].to_numpy()).astype(float)
                 _dir = np.asarray(self.Channels.iloc[ch][["Direction_1","Direction_2","Direction_3"]].to_numpy()).astype(float)
                 _group = self.Channels.iloc[ch]["Grouping"]
                 _type = self.Channels.iloc[ch]["Quantity"]
-                # argument _desc in R_matrix_U
                 r[j, :] = (_dirVP @ _dir) @ self.R_matrix_U(_posVP - _pos, _desc, type=_type)
                 _Warray.append(self.W_rotational(_pos, _dir, type=_type))
             R_all.append(r)
@@ -129,20 +127,20 @@ class VPT(object):
         for i in range(len(ov_f)):
             # gets the unique VP position
             _posVP = np.asarray(self.Virtual_RefChannels.iloc[i][["Position_1","Position_2","Position_3"]].to_numpy())
+            # gets the unique VP orientation
+            _dirVP = np.asarray(self.Virtual_RefChannels.iloc[i:i+3][["Direction_1","Direction_2","Direction_3"]].to_numpy())
             # gets the current positions
             ov_c = ov_f[i]
             # gets defined DoF for specific VP
             _desc = self.Virtual_RefChannels["Description"].to_list()
             
-            #changed r size
             r = np.zeros((len(ov_c[0]), len(_desc)))
             for j, ch in enumerate(ov_c[0]):
                 _pos = np.asarray(self.RefChannels.iloc[ch][["Position_1", "Position_2", "Position_3"]].to_numpy()).astype(float)
                 _dir = np.asarray(self.RefChannels.iloc[ch][["Direction_1", "Direction_2", "Direction_3"]].to_numpy()).astype(float)
                 _group = self.RefChannels.iloc[ch]["Grouping"]
                 _type = self.RefChannels.iloc[ch]["Quantity"]
-                # argument _desc in R_matrix_F
-                r[j, :] = (self.R_matrix_F(_posVP - _pos, _desc) @ (_dir.T)).reshape(-1)
+                r[j, :] = (self.R_matrix_F(_posVP - _pos, _desc) @ (_dirVP @ _dir).T).reshape(-1)
             R_all.append(r)
 
         # position the transformation matrix based on location it the .xlsx file
