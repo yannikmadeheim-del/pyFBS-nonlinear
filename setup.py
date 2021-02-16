@@ -44,7 +44,7 @@ extra_files = package_files('./data')
 
 
 setup(
-    author="Tomaž Bregar, Ahmed El Mahmoudi, Miha Kodrič",
+    author="Tomaž Bregar, Ahmed El Mahmoudi, Miha Kodrič, Domen Ocepek",
     author_email='tomaz.bregar@gorenje.com',
     python_requires='>=3.6',
     classifiers=[
@@ -73,5 +73,5 @@ setup(
     packages=["pyFBS"],
     test_suite='tests',
     url='https://pyfbs.readthedocs.io/en/latest/intro.html',
-    version='0.1.2',
+    version='0.1.3',
 )
