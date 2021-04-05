@@ -1,9 +1,7 @@
 from scipy.sparse import linalg,diags
 import pyansys
 from numpy.random import randn
-from pyFBS.VPT import VPT
 
-import pandas as pd
 import scipy as sp
 import numpy as np
 from scipy import spatial
@@ -30,15 +28,12 @@ class MK_model(object):
     :type recalculate: bool
     :param scale: distance scaling factor
     :type scale: float
-    :param read_rst: if ``True`` reads the eigenvalue solution directly from .rst file
-    :type read_rst: bool
     """
 
-    def __init__(self, rst_file, full_file, no_modes = 100, allow_pickle = True, recalculate = False,scale = 1000,read_rst = False):
+    def __init__(self, rst_file, full_file, no_modes = 100, allow_pickle = True, recalculate = False,scale = 1000):
         rst = pyansys.read_binary(rst_file)
-
-        # new version of pyansys
-        self.nodes = rst.mesh.nodes*scale  # only translational dofs
+        #self.nodes = rst.geometry["nodes"][:, :3]*scale  # only translational dofs
+        self.nodes = rst.geometry.nodes*scale  # only translational dofs
         self.mesh = rst.grid
         self.mesh.points *= scale
         self.pts = self.mesh.points.copy()
@@ -48,70 +43,45 @@ class MK_model(object):
         self._all = False
 
         full = pyansys.read_binary(full_file)
-        self.dof_ref, self.K, self.M = full.load_km(sort=True)  # dof_ref: 0-x 1-y 2-z
-        if self.dof_ref[0, 0] != 1:
-            self.dof_ref[:, 0] = self.dof_ref[:, 0] - (self.dof_ref[0, 0] - 1)
 
-        if np.max(self.dof_ref[:, 1]) == 5:
+        self.dof_ref, self.K, self.M = full.load_km(sort=True)  # dof_ref: 0-x 1-y 2-z
+        if self.dof_ref[0, 0]!=1:
+            self.dof_ref[:, 0] = self.dof_ref[:, 0] - (self.dof_ref[0, 0]-1)
+
+        self._K = self.K + diags(np.random.random(self.K.shape[0]) / 1e20, shape=self.K.shape) # avoid error
+
+        self.M += sp.sparse.triu(self.M, 1).T
+        self._K += sp.sparse.triu(self._K, 1).T
+
+        if np.max(self.dof_ref[:, 1])==5:
             self.rotation_included = True
-        elif np.max(self.dof_ref[:, 1]) == 2:
+        elif np.max(self.dof_ref[:, 1])==2:
             self.rotation_included = False
 
-        # an option to read directly the .rst file
-        if read_rst == False:
-            #print("evaluating M and K matrices")
-            self._K = self.K + diags(np.random.random(self.K.shape[0]) / 1e20, shape=self.K.shape) # avoid error
+        p_file = '{}.pkl'.format(full_file)
+        # check if there is a .pkl file
+        same = False
+        if allow_pickle and path.exists(p_file):
+            # load the pickle file
+            _M,_K,_eig_freq,_eig_val,_eig_vec,_no_modes = pickle.load( open(p_file, "rb" ))
+            # check if the solution is the same
+            if _K.shape == self.K.shape and _M.shape == self.M.shape:
+                check_mas  = (_K != self.K).nnz == 0
+                check_stif = (_M != self.M).nnz == 0
+            else:
+                check_mas = False
+                check_stif = False
+            check_no_modes = _no_modes == no_modes
+            same = np.all([check_mas,check_stif,check_no_modes])
+            if same:
+                self.M, self.K, self.eig_freq, self.eig_val, self.eig_vec, no_modes = pickle.load(open(p_file, "rb"))
 
-            self.M += sp.sparse.triu(self.M, 1).T
-            self._K += sp.sparse.triu(self._K, 1).T
+        # solve the problem
+        if same == False or recalculate == True:
+            self.eig_freq, self.eig_val, self.eig_vec = self.eig_solve(self.M,self._K,no_modes)
 
-            p_file = '{}.pkl'.format(full_file)
-            # check if there is a .pkl file
-            same = False
-            if allow_pickle and path.exists(p_file):
-                # load the pickle file
-                _M,_K,_eig_freq,_eig_val,_eig_vec,_no_modes = pickle.load( open(p_file, "rb" ))
-                # check if the solution is the same
-                if _K.shape == self.K.shape and _M.shape == self.M.shape:
-                    check_mas  = (_K != self.K).nnz == 0
-                    check_stif = (_M != self.M).nnz == 0
-                else:
-                    check_mas = False
-                    check_stif = False
-                check_no_modes = _no_modes == no_modes
-                same = np.all([check_mas,check_stif,check_no_modes])
-                if same:
-                    self.M, self.K, self.eig_freq, self.eig_val, self.eig_vec, no_modes = pickle.load(open(p_file, "rb"))
-                # solve the problem
-            if same == False or recalculate == True:
-                self.eig_freq, self.eig_val, self.eig_vec = self.eig_solve(self.M, self._K, no_modes)
-
-                if allow_pickle:
-                    pickle.dump([self.M, self.K, self.eig_freq, self.eig_val, self.eig_vec, no_modes],open(p_file, "wb"))
-        else:
-            # read from pyansys - from rst file
-            #print("Reading RST file")
-            self.eig_freq, self.eig_val, self.eig_vec = self.get_values_from_rst(rst)
-
-
-    @staticmethod
-    def get_values_from_rst(rst):
-        """
-        Return eigenvalues and eigenvectors for a given rst file.
-
-        :param rst: rst file
-        :rtype: (array(float), array(float), array(float))
-        """
-        eigen_freq = rst.time_values
-        eigen_val = eigen_freq**2
-        eigen_vec = []
-        for i in range(len(rst.time_values)):
-            nnum, disp = rst.nodal_solution(i)
-            eigen_vec.append(disp.flatten())
-
-        eigen_vec = np.asarray(eigen_vec).T
-
-        return (eigen_freq, eigen_val, eigen_vec)
+            if allow_pickle:
+                pickle.dump([self.M, self.K, self.eig_freq, self.eig_val, self.eig_vec, no_modes], open(p_file, "wb"))
 
 
     @staticmethod
@@ -352,102 +322,6 @@ class MK_model(object):
 
         self.FRF = _temp
         self.freq = freq
-
-
-    def full_DoF_FRF_synth(self, df_imp, df_sen,f_start = 1, f_end = 2000, f_resolution= 1, limit_modes = None, modal_damping = None, frf_type = "receptance", _all = False):
-    
-        imp_coord = np.asarray([df_imp['Position_1'], df_imp['Position_2'], df_imp['Position_3']]).T
-        sen_coord = np.asarray([df_sen['Position_1'], df_sen['Position_2'], df_sen['Position_3']]).T
-        
-        # finding three nearest nodes
-        ind_imp = np.zeros_like(imp_coord,dtype=int)
-        nodes_copy = np.copy(self.nodes)
-
-        for i in range(ind_imp.shape[1]):
-            ind_imp[:,i] = self.find_nearest_locations(nodes_copy, imp_coord)
-            nodes_copy[ind_imp[:,i]] = 0 # change nearest node to 0 not to be selected in next loops
-        ind_sen = np.zeros_like(sen_coord,dtype=int)
-
-        nodes_copy = np.copy(self.nodes)
-        for j in range(ind_sen.shape[1]):
-            ind_sen[:,j] = self.find_nearest_locations(nodes_copy, sen_coord)
-            nodes_copy[ind_sen[:,j]] = 0 # change nearest node to 0 not to be selected in next loops
-            
-        #generating data frame for impacts
-        df_imp_ = np.zeros((int(3*3*ind_imp.shape[0]),3)) # assume nine nearest impacts for VPT
-        for k in range(self.nodes[ind_imp].shape[0]):
-            df_imp_[9*k:9+9*k,:] = np.repeat(np.asarray([[self.nodes[ind_imp][k,:]]][0]),3,axis=1) # assume nine nearest impacts for VPT
-        df_imp = pd.DataFrame(data=df_imp_,columns=('Position_1','Position_2','Position_3'))
-        df_imp['Direction_1'] = np.tile([1,0,0,1,0,0,1,0,0],self.nodes[ind_imp].shape[0])
-        df_imp['Direction_2'] = np.tile([0,1,0,0,1,0,0,1,0],self.nodes[ind_imp].shape[0])
-        df_imp['Direction_3'] = np.tile([0,0,1,0,0,1,0,0,1],self.nodes[ind_imp].shape[0])
-        df_imp['Grouping'] = np.repeat([np.arange(ind_imp.shape[0])], 9)
-        df_imp['Quantity'] = np.tile(np.repeat(['Acceleration'], 9), ind_imp.shape[0])
-            
-        #generating data frame for channels
-        df_chn_ = np.zeros((int(3*3*ind_sen.shape[0]),3)) # assume three nearest sensors (9 channels) for VPT
-        for l in range(self.nodes[ind_sen].shape[0]):
-            df_chn_[9*l:9+9*l,:] = np.repeat(np.asarray([[self.nodes[ind_sen][l,:]]][0]),3,axis=1) # assume three nearest sensors for VPT
-        df_chn = pd.DataFrame(data=df_chn_,columns=('Position_1','Position_2','Position_3'))
-        df_chn['Direction_1'] = np.tile([1,0,0,1,0,0,1,0,0],self.nodes[ind_sen].shape[0])
-        df_chn['Direction_2'] = np.tile([0,1,0,0,1,0,0,1,0],self.nodes[ind_sen].shape[0])
-        df_chn['Direction_3'] = np.tile([0,0,1,0,0,1,0,0,1],self.nodes[ind_sen].shape[0])
-        df_chn['Grouping'] = np.repeat([np.arange(ind_sen.shape[0])], 9)
-        df_chn['Quantity'] = np.tile(np.repeat(['Acceleration'], 9), ind_sen.shape[0])
-        
-        # generating FRF
-        self.FRF_synth(df_chn,df_imp,f_start, f_end, f_resolution, limit_modes, modal_damping, frf_type,_all)
-            
-        # generating data frame for impact virtual points
-        df_vp_imp_ = np.zeros((int(6*imp_coord.shape[0]),3))
-        for ii in range(imp_coord.shape[0]):
-            df_vp_imp_[6*ii:6+6*ii,:] = np.asarray([imp_coord[ii,:]]*6)
-        df_vp_imp = pd.DataFrame(data=df_vp_imp_,columns=('Position_1','Position_2','Position_3'))
-        df_vp_imp['Direction_1'] = np.tile([1,0,0,1,0,0],imp_coord.shape[0])
-        df_vp_imp['Direction_2'] = np.tile([0,1,0,0,1,0],imp_coord.shape[0])
-        df_vp_imp['Direction_3'] = np.tile([0,0,1,0,0,1],imp_coord.shape[0])
-        df_vp_imp['Quantity'] = np.tile(np.repeat(['Acceleration', 'Rotational Acceleration'], 3), imp_coord.shape[0])
-        #df_vp_imp['Grouping'] = np.repeat([np.arange(imp_coord.shape[0])], imp_coord.shape[0])
-        df_vp_imp['Grouping'] = np.repeat([np.arange(imp_coord.shape[0])], 6)
-
-        df_vp_imp['Description'] = np.tile(['fx','fy','fz','mx','my','mz'],imp_coord.shape[0])
-        
-        # generating data frame for channel virtual points
-        df_vp_chn_ = np.zeros((int(6*sen_coord.shape[0]),3))
-        for jj in range(sen_coord.shape[0]):
-            df_vp_chn_[6*jj:6+6*jj,:] = np.asarray([sen_coord[jj,:]]*6)
-        df_vp_chn = pd.DataFrame(data=df_vp_chn_,columns=('Position_1','Position_2','Position_3'))
-        df_vp_chn['Direction_1'] = np.tile([1,0,0,1,0,0],sen_coord.shape[0])
-        df_vp_chn['Direction_2'] = np.tile([0,1,0,0,1,0],sen_coord.shape[0])
-        df_vp_chn['Direction_3'] = np.tile([0,0,1,0,0,1],sen_coord.shape[0])
-        df_vp_chn['Quantity'] = np.tile(np.repeat(['Acceleration', 'Rotational Acceleration'], 3), sen_coord.shape[0])
-        #df_vp_chn['Grouping'] = np.repeat([np.arange(imp_coord.shape[0])], sen_coord.shape[0])
-        df_vp_chn['Grouping'] = np.repeat([np.arange(imp_coord.shape[0])], 6)
-        df_vp_chn['Description'] = np.tile(['ux','uy','uz','tx','ty','tz'],sen_coord.shape[0])
-        
-        # empty array
-        FRF_FDoF = np.zeros((self.FRF.shape[0],ind_sen.shape[0]*6,ind_imp.shape[0]*6),dtype=complex)
-        
-        # apply VPT
-        for res_ in df_chn['Grouping'].unique():
-            for exc_ in df_imp['Grouping'].unique():
-                # Read impacts and VP impacts
-                _df_imp = df_imp[df_imp['Grouping'] == exc_]
-                _df_vp_imp = df_vp_imp[df_vp_imp['Grouping'] == exc_]
-                # Set impacts Group to match responses Group
-                #print("a", _df_imp['Grouping'], _df_vp_imp['Grouping'])
-                #_df_imp['Grouping'] = res_
-                #_df_vp_imp['Grouping'] = res_
-                #print("b",_df_imp['Grouping'], _df_vp_imp['Grouping'])
-
-                # Read responses and VP responses
-                _df_chn = df_chn[df_chn['Grouping'] == res_]
-                _df_vp_chn = df_vp_chn[df_vp_chn['Grouping'] == res_]
-                vpt_ = VPT(_df_chn, _df_imp, _df_vp_chn, _df_vp_imp)
-                vpt_.apply_VPT(self.freq, self.FRF[:,9*res_:9*res_+9,9*exc_:9*exc_+9])
-                FRF_FDoF[:,6*res_:6*res_+6,6*exc_:6*exc_+6] = vpt_.vptData            
-        
-        return FRF_FDoF
 
 
     def add_noise(self,n1 = 2e-2, n2 = 2e-1, n3 = 2e-1 ,n4 = 5e-2):

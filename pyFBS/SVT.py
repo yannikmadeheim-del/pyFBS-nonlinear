@@ -111,11 +111,11 @@ class SVT(object):
         TF_g = np.zeros((len(freq), refch.shape[0], self.no_svs + len(overlap_imp)), dtype=complex)
 
         # Insert data in global matrixes
-        for _ind in ind_chn:
-            TU_g[:,:self.no_svs,_ind] = self.Tu[:,:,_ind]
+        for i,_ind in enumerate(ind_chn):
+            TU_g[:,:self.no_svs,_ind] = self.Tu[:,:,i]
 
-        for _ind in ind_imp:
-            TF_g[:,_ind,:self.no_svs] = self.Tf[:,_ind,:]
+        for i,_ind in enumerate(ind_imp):
+            TF_g[:,_ind,:self.no_svs] = self.Tf[:,i,:]
 
         # not-transformed channels append
         i = np.identity(len(overlap_chn))

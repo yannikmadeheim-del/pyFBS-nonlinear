@@ -4,7 +4,6 @@ from numpy import cross, eye
 from scipy.linalg import expm, norm
 import pandas as pd
 from scipy.spatial.transform import Rotation as R
-from pyts.decomposition import SingularSpectrumAnalysis
 
 
 def modeshape_sync_lstsq(mode_shape_vec):
@@ -466,8 +465,7 @@ def orient_in_global(mode, df_chn, df_acc):
 
     empty = np.zeros((n_sen, n_ax), dtype=complex)
 
-    _dir = df_chn[["Direction_1", "Direction_2", "Direction_3"]].to_numpy(dtype = float)
-
+    _dir = df_chn[["Direction_1", "Direction_2", "Direction_3"]].to_numpy()
     for i in range(n_sen):
         for j in range(n_ax):
             sel = (i) * 3 + j
@@ -497,37 +495,6 @@ def orient_in_global_2(mode, df_imp):
 
     return empty
 
-
-def MCC(mod):
-    """
-    Calculate a correlation coefficient MCC
-    source: 10.1016/j.jsv.2013.01.039
-    """
-    Sxy = np.imag(mod).T @ np.real(mod)
-
-    Sxx = np.real(mod).T @ np.real(mod)
-    Syy = np.imag(mod).T @ np.imag(mod)
-    MCC = Sxy ** 2 / (Sxx * Syy)
-    return MCC
-
-
-def MPC(mod, sel=0):
-    """
-    Calculate a modal phase collinearity coefficient MCC
-    source: 10.1016/S0045-7949(03)00034-8
-    """
-    mod_t = mod
-
-    _re = np.real(mod_t)
-    _im = np.imag(mod_t)
-
-    crr = _re.T @ _re
-    cri = _re.T @ _im
-    cii = _im.T @ _im
-
-    MPC = ((cii - crr) ** 2 + 4 * cri ** 2) / (crr + cii) ** 2
-    return MPC
-
 def auralization(freq,FRF, load_case = None):
     """
     Auralization of FRFs, performs an IFFT and if the load case is supplied a convolution to obtain time response.
@@ -549,43 +516,3 @@ def auralization(freq,FRF, load_case = None):
         s = (np.convolve(load_case, s, 'full').real)[:len(s)]
 
     return xt,s
-
-
-
-
-def SSA_filter(time_series, no_sel, window_size=100):
-    groups = [np.arange(0, no_sel), np.arange(no_sel, window_size)]
-    transformer = SingularSpectrumAnalysis(window_size=window_size, groups=groups)
-
-    X_new = transformer.transform(time_series.reshape(1, len(time_series)))
-
-    signal = X_new[0, :]
-    noise = X_new[1, :]
-
-    return signal, noise
-
-
-def SSA_evaluate(time_series, window_size=100):
-    L = window_size
-    N = len(time_series)
-    K = N - L + 1
-
-    # create trajectory matrix
-    X_trajectory = np.column_stack([time_series[i:i + L] for i in range(0, K)])
-
-    # compute singular values
-    s = np.linalg.svd(X_trajectory, compute_uv=False)
-    return s
-
-
-def PRF(H1_main, n_sel):
-    k = n_sel
-
-    new_arr = H1_main.reshape(H1_main.shape[0], H1_main.shape[1] * H1_main.shape[2])
-    u, s, vh = np.linalg.svd(new_arr, full_matrices=False)
-
-    prfs = u @ np.diag(s)
-
-    H1_rec = (u[:, :k] @ np.diag(s[:k]) @ vh[:k, :]).reshape(H1_main.shape[0], H1_main.shape[1], H1_main.shape[2])
-
-    return prfs, H1_rec

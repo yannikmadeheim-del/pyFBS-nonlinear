@@ -1,5 +1,4 @@
 import numpy as np
-import pandas as pd
 from scipy.linalg import block_diag, norm
 from pyFBS.utility import coh_frf
 
@@ -53,26 +52,21 @@ class VPT(object):
         ov_u, _vps, mask_u = self.find_overlap_ch(self.Channels, self.Virtual_Channels)
 
         R_all = []
-        
         # iterates through all unique virtual points (through grouping)
         _Warray = []
         for i in range(len(ov_u)):
             # gets the unique VP position
             _posVP = np.asarray(self.Virtual_Channels.iloc[i][["Position_1","Position_2","Position_3"]].to_numpy())
-            # gets the unique VP orientation
-            _dirVP = np.asarray(self.Virtual_Channels.iloc[i:i+3][["Direction_1","Direction_2","Direction_3"]].to_numpy())
             # gets the current positions
             ov_c = ov_u[i]
-            # gets defined DoF for specific VP
-            _desc = self.Virtual_Channels["Description"].to_list()
-        
-            r = np.zeros((len(ov_c[0]), len(_desc)))
+
+            r = np.zeros((len(ov_c[0]), 6))
             for j, ch in enumerate(ov_c[0]):
                 _pos = np.asarray(self.Channels.iloc[ch][["Position_1","Position_2","Position_3"]].to_numpy()).astype(float)
                 _dir = np.asarray(self.Channels.iloc[ch][["Direction_1","Direction_2","Direction_3"]].to_numpy()).astype(float)
                 _group = self.Channels.iloc[ch]["Grouping"]
                 _type = self.Channels.iloc[ch]["Quantity"]
-                r[j, :] = (_dirVP @ _dir) @ self.R_matrix_U(_posVP - _pos, _desc, type=_type)
+                r[j, :] = _dir @ self.R_matrix_U(_posVP - _pos, type=_type)
                 _Warray.append(self.W_rotational(_pos, _dir, type=_type))
             R_all.append(r)
 
@@ -127,20 +121,15 @@ class VPT(object):
         for i in range(len(ov_f)):
             # gets the unique VP position
             _posVP = np.asarray(self.Virtual_RefChannels.iloc[i][["Position_1","Position_2","Position_3"]].to_numpy())
-            # gets the unique VP orientation
-            _dirVP = np.asarray(self.Virtual_RefChannels.iloc[i:i+3][["Direction_1","Direction_2","Direction_3"]].to_numpy())
             # gets the current positions
             ov_c = ov_f[i]
-            # gets defined DoF for specific VP
-            _desc = self.Virtual_RefChannels["Description"].to_list()
-            
-            r = np.zeros((len(ov_c[0]), len(_desc)))
+            r = np.zeros((len(ov_c[0]), 6))
             for j, ch in enumerate(ov_c[0]):
                 _pos = np.asarray(self.RefChannels.iloc[ch][["Position_1", "Position_2", "Position_3"]].to_numpy()).astype(float)
                 _dir = np.asarray(self.RefChannels.iloc[ch][["Direction_1", "Direction_2", "Direction_3"]].to_numpy()).astype(float)
                 _group = self.RefChannels.iloc[ch]["Grouping"]
                 _type = self.RefChannels.iloc[ch]["Quantity"]
-                r[j, :] = (self.R_matrix_F(_posVP - _pos, _desc) @ (_dirVP @ _dir).T).reshape(-1)
+                r[j, :] = (self.R_matrix_F(_posVP - _pos) @ (_dir.T)).reshape(-1)
             R_all.append(r)
 
         # position the transformation matrix based on location it the .xlsx file
@@ -179,7 +168,7 @@ class VPT(object):
         self.Ff = Ff
 
     @staticmethod
-    def R_matrix_U(pos, desc, type="Acceleration"):
+    def R_matrix_U(pos, type="Acceleration"):
         """
         Calculate Ru matrix based on the channel position/orientation and sensor type.
 
@@ -202,9 +191,6 @@ class VPT(object):
                              [0, 0, 0, 0, 1, 0],
                              [0, 0, 0, 0, 0, 1]])
 
-        # isolating desired DoF
-        _R = np.asarray(pd.DataFrame(_R, columns=['ux','uy','uz','tx','ty','tz'])[desc])
-        
         return _R
 
     @staticmethod
@@ -236,7 +222,7 @@ class VPT(object):
         return _W
 
     @staticmethod
-    def R_matrix_F(pos, desc):
+    def R_matrix_F(pos):
         """
         Calculates Rf matrix based on the reference channel position/orientation.
 
@@ -254,9 +240,6 @@ class VPT(object):
                          [rz, 0, -rx],
                          [-ry, rx, 0]])
 
-        # isolating desired DoF
-        _R = np.asarray(pd.DataFrame(_R.T, columns=['fx','fy','fz','mx','my','mz'])[desc]).T
-        
         return _R
 
     @staticmethod
@@ -290,7 +273,7 @@ class VPT(object):
         Get a grouping overlap between two DataFrames.
 
         :param gr: Grouping number
-        :type gr: int
+        :type gr: List of integers
         :param gr_list: A list of grouping numbers
         :type gr_list: list
         :return: overlap_mask
@@ -298,9 +281,11 @@ class VPT(object):
 
         _overlap = []
         for a in np.unique(gr):
-            _overlap.append(np.where(gr_list == a))
-        return np.asarray(_overlap).reshape(-1)
+            _arr_file=np.array(np.where(gr_list == a)).reshape(-1)
+            _overlap.append(_arr_file)
+        return np.concatenate(_overlap,axis=0)
 
+        
 
     def apply_VPT(self, freq,FRF):
         """
@@ -368,7 +353,7 @@ class VPT(object):
 
 
         # Calculate impact consistency
-        sub_Y = np.transpose(self.FRF,(1,2,0))[ind_ch, :, :][:, ind_Rch, :]
+        sub_Y = np.transpose(self.FRF,(1,2,0))[:, ind_Rch, :]
         sub_Ff = self.Ff[ind_Rch, :][:, ind_Rch]
 
         y_f = np.zeros((sub_Y.shape[1], 1, sub_Y.shape[2]), dtype=complex)
