@@ -64,7 +64,7 @@ class VPT(object):
             # gets the current positions
             ov_c = ov_u[i]
             # gets defined DoF for specific VP
-            _desc = self.Virtual_Channels["Description"].to_list()
+            _desc = self.Virtual_Channels.loc[self.Virtual_Channels["Grouping"]==_vps[0][i]]["Description"].to_list()
         
             r = np.zeros((len(ov_c[0]), len(_desc)))
             for j, ch in enumerate(ov_c[0]):
@@ -132,7 +132,7 @@ class VPT(object):
             # gets the current positions
             ov_c = ov_f[i]
             # gets defined DoF for specific VP
-            _desc = self.Virtual_RefChannels["Description"].to_list()
+            _desc = self.Virtual_RefChannels.loc[self.Virtual_RefChannels["Grouping"]==_vps[0][i]]["Description"].to_list()
             
             r = np.zeros((len(ov_c[0]), len(_desc)))
             for j, ch in enumerate(ov_c[0]):
