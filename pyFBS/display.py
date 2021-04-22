@@ -91,7 +91,7 @@ class view3D():
         # fixed_rotation
         self.fixed_rotation = None
 
-    def add_modeshape(self,dict_shape,run_animation = False,add_note = False):
+    def add_modeshape(self,dict_animation,run_animation = False,add_note = False):
         """
         Add a modeshape animation to the 3D display.
 
@@ -107,7 +107,7 @@ class view3D():
             self.add_action(self.animate_toolbar, "Animate modeshape", self.animate_modeshape)
             self.add_action(self.animate_clear_toolbar, "Clear modeshape", self.clear_modeshape)
 
-        self.modeshape_animation = dict_shape
+        self.modeshape_animation = dict_animation
 
         if add_note:
             _freq = self.modeshape_animation["freq"]
@@ -131,6 +131,7 @@ class view3D():
         nextframe = now + frameperiod
 
         ann = self.modeshape_animation["animation_pts"]
+        ann_secondary = self.modeshape_animation["animation_pts_secondary"]
 
         if self.take_gif:
             self.plot.open_gif(self.gif_dir)
@@ -138,14 +139,21 @@ class view3D():
         if self.modeshape_animation["scalars"]:
             set_lim = np.sqrt(np.mean(ann ** 2, axis=0))
             self.plot.update_scalar_bar_range(clim=[np.min(set_lim), np.max(set_lim)])
+            if self.modeshape_animation["animate_secondary_mode_shape"]==True:
+                self.plot.update_scalar_bar_range(clim=[np.min(ann_secondary), np.max(ann_secondary)])
+
 
 
         for i in range(ann.shape[2]):
             add_val = ann[:, :, i]
+            add_val_secondary = ann_secondary[:, i]
 
             self.plot.update_coordinates(self.modeshape_animation["or_pts"] + add_val, mesh=self.modeshape_animation["mesh"],render = False)
             if self.modeshape_animation["scalars"]:
-                self.plot.update_scalars(np.sqrt(np.mean(add_val ** 2, axis=1)).reshape(self.modeshape_animation["or_pts"].shape[0]), mesh=self.modeshape_animation["mesh"] ,render = False)
+                if self.modeshape_animation["animate_secondary_mode_shape"]==True:
+                    self.plot.update_scalars(add_val_secondary, mesh=self.modeshape_animation["mesh"] ,render = False) # for color changing
+                else: 
+                    self.plot.update_scalars(np.sqrt(np.mean(add_val ** 2, axis=1)).reshape(self.modeshape_animation["or_pts"].shape[0]), mesh=self.modeshape_animation["mesh"] ,render = False) # for color changing
 
             self.plot.render()
             if self.take_gif:

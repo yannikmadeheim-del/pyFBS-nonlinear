@@ -125,7 +125,7 @@ def complex_plot_3D(mode_shape):
 
     plt.yticks([])
 
-def mode_animation(mode_shape, scale, no_points=60,abs_scale = True):
+def mode_animation(mode_shape, scale, no_points=60,abs_scale = True, secondary_mode_shape = None, animate_secondary_mode_shape = False):
     """
     Creates an animation sequence from the mode shape and scales the displacemetns.
 
@@ -138,9 +138,13 @@ def mode_animation(mode_shape, scale, no_points=60,abs_scale = True):
     :return: Animation sequence
     """
     ann = np.zeros((mode_shape.shape[0], mode_shape.shape[1], no_points))
+    ann_secondary = np.zeros((mode_shape.shape[0], no_points))
 
     for g, _t in enumerate(np.linspace(0, 2, no_points)):
         ann[:, :, g] = (np.real(mode_shape) * np.cos(2 * np.pi * _t) - np.imag(mode_shape) * np.sin(
+            2 * np.pi * _t))
+        if animate_secondary_mode_shape:
+            ann_secondary[:, g] = (np.real(secondary_mode_shape) * np.cos(2 * np.pi * _t) - np.imag(secondary_mode_shape) * np.sin(
             2 * np.pi * _t))
     if abs_scale:
         ann = ann / np.max(ann) * scale
@@ -148,40 +152,42 @@ def mode_animation(mode_shape, scale, no_points=60,abs_scale = True):
         ann = ann * scale
 
 
-    return ann
+    return ann, ann_secondary
 
 
-def coh_frf(y_1, y_2):
+def coh_frf(Y_1, Y_2):
     """
     Calculates values of coherence between two FRFs.
 
-    :param y_1: FRF 1
-    :type y_1: array(float)
-    :param y_2: FRF 2
-    :type y_2: array(float)
+    :param Y_1: FRF 1
+    :type Y_1: array(float)
+    :param Y_2: FRF 2
+    :type Y_2: array(float)
     :return: coherence criterion
     """
 
-    y_1_k = np.conjugate(y_1)
-    y_2_k = np.conjugate(y_2)
+    if Y_1.shape == Y_2.shape:
+        if len(Y_1.shape) == 3:
+            numerator = np.einsum("ijk,ijk->ijk", (Y_1+Y_2), (np.conj(Y_1)+np.conj(Y_2)))
+            denumerator = 2*(np.einsum("ijk,ijk->ijk", Y_1, np.conj(Y_1)) + np.einsum("ijk,ijk->ijk", Y_2, np.conj(Y_2)))
+            coh = np.einsum("ijk,ijk->ijk", numerator, 1/denumerator)
+        elif len(Y_1.shape) == 2:
+            numerator = np.einsum("ij,ij->ij", (Y_1+Y_2), (np.conj(Y_1)+np.conj(Y_2)))
+            denumerator = 2*(np.einsum("ij,ij->ij", Y_1, np.conj(Y_1)) + np.einsum("ij,ij->ij", Y_2, np.conj(Y_2)))
+            coh = np.einsum("ij,ij->ij", numerator, 1/denumerator)
+        elif len(Y_1.shape) == 1:
+            numerator = (Y_1+Y_2)*(np.conj(Y_1)+np.conj(Y_2))
+            denumerator = 2*((Y_1*np.conj(Y_1)) + (Y_2*np.conj(Y_2)))
+            coh = numerator/denumerator
+        else:
+            print("Wrong matrix shape")
+        
+        return np.abs(coh)
+    else:
+        print("Wrong matrix shape")
+        return None
 
-    def vector(h_, h_K):
-        """
-        :param h_: complex vector
-        :param h_K: conjugated complex vector
-
-        :return: vector product
-        """
-
-        vec = np.dot(h_, h_K)
-        return vec
-
-    coh = np.abs(vector((y_1 + y_2), (y_1_k + y_2_k))) / 2 / (vector(y_1_k, y_1) + vector(y_2_k, y_2))
-    coh_abs = np.abs(coh)
-
-    return coh_abs
-
-def dict_animation(_modeshape,a_type,mesh= None,pts = None,fps = 30,r_scale = 10,no_points = 60, object_list = None,abs_scale = True):
+def dict_animation(_modeshape,a_type,mesh= None,pts = None,fps = 30,r_scale = 10,no_points = 60, object_list = None,abs_scale = True, secondary_mode_shape=None, animate_secondary_mode_shape = False):
     """
     Creates a predefined dictionary for animation sequency in the 3D display.
 
@@ -204,8 +210,11 @@ def dict_animation(_modeshape,a_type,mesh= None,pts = None,fps = 30,r_scale = 10
     :return:
     """
     mode_dict = dict()
-
-    mode_dict["animation_pts"] = mode_animation(_modeshape, r_scale, no_points=no_points,abs_scale = abs_scale)
+    
+    mode_animation_frames = mode_animation(_modeshape, r_scale, no_points=no_points,abs_scale = abs_scale, secondary_mode_shape = secondary_mode_shape, animate_secondary_mode_shape = animate_secondary_mode_shape)
+    mode_dict["animation_pts"] = mode_animation_frames[0]
+    mode_dict["animation_pts_secondary"] = mode_animation_frames[1]
+    mode_dict["animate_secondary_mode_shape"] = animate_secondary_mode_shape
     mode_dict["fps"] = fps
 
     if a_type == "modeshape":
