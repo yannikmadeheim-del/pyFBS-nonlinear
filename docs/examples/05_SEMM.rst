@@ -1,23 +1,87 @@
 System Equivalent Model Mixing
 ==============================
 
-System Equivalent Model Mixing (SEMM) [1]_ enables mixing of two equivalent frequency-based models into a hybrid model. 
+System Equivalent Model Mixing (SEMM) [1]_ enables the mixing of equivalent models into a hybrid model in the frequency domain. 
 The models used can either be of numerical or experimental nature. 
-One of the models provides the dynamic properties (overlay model) and the second model provides a set of degrees of freedom (parent model). 
-A numerical model is commonly used as a parent model and an experimental model is used as an overlay model.
+The overlay model provides the dynamic properties which are expanded to the DoFs of the parent model. 
+Therefore the overlay model is usually represented by the experimental model and parent model with the numerical model.
 
 .. note:: 
    Download example showing the basic use of SEMM: :download:`05_SEMM.ipynb <../../examples/05_SEMM.ipynb>`
 
+DoF-set of parent model is contained from internal (i) and boundary (b) DoFs. 
+Boundary DoFs must overlap with the overlay model so the dynamic coupling can be performed, while the internal DoFs of the parent model can be unique to its own. 
+The equivalent models, appearing in the SEMM method, are arranged by separating internal and boundary DoFs in the admittance matrices:
+
+.. math::
+
+   \begin{equation}\label{parent_overlay}
+   \mathbf{Y}^{\text{par}}=
+   \begin{bmatrix}
+   \mathbf{Y}_{\text{ii}}&\mathbf{Y}_{\text{ib}}\\
+   \mathbf{Y}_{\text{bi}}&\mathbf{Y}_{\text{bb}}
+   \end{bmatrix}^{\text{par}},\quad
+   \mathbf{Y}^{\text{ov}}=
+   \begin{bmatrix}
+   \mathbf{Y}_{\text{bb}}
+   \end{bmatrix}^{\text{ov}},\quad
+   \mathbf{Y}^{\text{rem}}=
+   \begin{bmatrix}
+   \mathbf{Y}_{\text{bb}}
+   \end{bmatrix}^{\text{rem}}.
+   \end{equation}
+
+After fulfilling compatibility and equilibrium conditions between equivalent models, the basic form of the SEMM method is defined using the equation:
+
+.. math::
+
+   \mathbf{Y}^{\text{SEMM}}=
+   \begin{bmatrix}
+   \mathbf{Y}
+   \end{bmatrix}^{\text{par}}
+   -
+   \begin{bmatrix}
+   \mathbf{Y}_{\text{ib}}\\
+   \mathbf{Y}_{\text{bb}}
+   \end{bmatrix}^{\text{par}}
+   %\,
+   \left( \mathbf{Y}^{\text{rem}}\right) ^{-1}
+   %\,
+   \left( \mathbf{Y}^{\text{rem}}-\mathbf{Y}^{\text{ov}}\right)
+   %\,
+   \left( \mathbf{Y}^{\text{rem}}\right)^{-1}
+   %\,
+   \begin{bmatrix}
+   \mathbf{Y}_{\text{bi}}&\mathbf{Y}_{\text{bb}}
+   \end{bmatrix}^{\text{par}}
+
+By extending the removed model to all DoFs of numerical model, the fully extend formulation of SEMM method follows equation:
+
+.. math::
+
+   \mathbf{Y}^{\text{SEMM}}=
+   \mathbf{Y}^{\text{par}}
+   -
+   \mathbf{Y}^{\text{par}}
+   %\,
+   \left( \begin{bmatrix} \mathbf{Y}_{\text{bi}}&\mathbf{Y}_{\text{bb}}\end{bmatrix}^{\text{rem}}\right ) ^{+}
+   %\,
+   \left( \mathbf{Y}^{\text{rem}}_{\text{bb}}-\mathbf{Y}^{\text{ov}}\right)
+   %\,
+   \left( \begin{bmatrix} \mathbf{Y}_{\text{ib}}\\ \mathbf{Y}_{\text{bb}}\end{bmatrix}^{\text{rem}}\right ) ^{+}
+   %\,
+   \mathbf{Y}^{\text{par}}
+
 Example data import
 *******************
 
-First import numerical and experimental data (response models). Datasets used in this example are from a laboratory testbench and are available directly within the :mod:`pyFBS`.
+In the beginning, it necessary to define numerical and experimental data (response models). Datasets used in this example are from a laboratory testbench and are available directly within the :mod:`pyFBS`.
 
 Experimental model
 ------------------
 The experimental model must be properly aranged so that the FRFs are of correct shape. 
-The first dimension represents the frequency depth, second the response points, and the third excitation points. The experimental model is used as the overlay model.
+The first dimension represents the frequency depth, second the response points, and the third excitation points. 
+The experimental model is used as the overlay model.
 
 .. code-block:: python
 
@@ -29,7 +93,7 @@ The first dimension represents the frequency depth, second the response points, 
 
 Numerical model
 ---------------
-FRFs used for the parent model numerical model can be imported, or generated from the mass and stiffness matrix.
+FRFs used for the parent model numerical model can be imported to Python or generated with the mass and stiffness matrix using :mod:`pyFBS.MK_model.FRF_synth`.
 Locations and directions for which FRFs are generated are defined in an Excel file and can be parsed into a :mod:`pandas.DataFrame`.
 
 .. code-block:: python
@@ -38,7 +102,7 @@ Locations and directions for which FRFs are generated are defined in an Excel fi
    xlsx = r"./lab_testbench/Measurements/AM_measurements.xlsx"
 
    full_file = r"./lab_testbench/FEM/AB.full"
-   rst_file = r"./lab_testbench/FEM/AB.rst"]
+   rst_file = r"./lab_testbench/FEM/AB.rst"
 
    MK = pyFBS.MK_model(rst_file, full_file, no_modes = 100, recalculate = False)
 
@@ -52,10 +116,11 @@ Locations and directions for which FRFs are generated are defined in an Excel fi
                 modal_damping = 0.003,
                 frf_type = "accelerance")
 
-The numerical model must also be properly aranged. The first dimension represents the frequency depth, second the response points, and the third excitation points. 
-Additionaly, the frequency resolution of the numerical and experimental model has to be the same.
+As experimental, also the numerical model must be properly arranged. The first dimension represents the frequency depth, the second the response points, and the third excitation points. 
+Additionally, the frequency resolution of the numerical and experimental model has to be the same.
 
-The numerical model is not necessarily a square matrix, as it can also be rectangular. But the numerical model should contain all the DoFs from the experimental model.
+The numerical model is not necessarily a square matrix, as it can also be rectangular. 
+But the numerical model must contain at least all the DoFs contained in the experimental model.
 
 Application of SEMM
 *******************
@@ -66,7 +131,8 @@ The ``red_comp`` and ``red_eq`` parameters can be used to influence the number o
 The result is a hybrid model that contains the DoFs represented in the numerical model.
 
 In the example below, only a part of the experimental response matrix is included in SEMM. The remaining DoFs are used to evaluate SEMM.
-It is essential that the order of measurements in the experimental model ``Y_exp`` coincides with the order of measurements in the parameters ``df_chn_exp`` and ``df_imp_exp``.
+It is essential that the order of measurements in the experimental model ``Y_exp`` coincides with the order of measurements in the parameters ``df_chn_exp`` and ``df_imp_exp`` and the same must be valid for the numerical model. 
+Function :mod:`pyFBS.SEMM` will automatically match corresponding DoFs.
 
 .. code-block:: python
 
@@ -77,7 +143,7 @@ It is essential that the order of measurements in the experimental model ``Y_exp
                           df_imp_exp = df_imp[5:20], 
                           SEMM_type='fully-extend-svd', red_comp=10, red_eq=10)
 
-Finnaly, the results of the hybrid model can be compared with the reference and the numerical model.
+Finally, the results of the hybrid model can be compared with the reference experimental and the numerical model.
 
 .. code-block:: python
 
@@ -106,8 +172,6 @@ Finnaly, the results of the hybrid model can be compared with the reference and 
 .. figure:: ./data/SEMM_result.png
    :width: 600px
    
-
-
 .. rubric:: References
 
 .. [1] Steven WB Klaassen, Maarten V. van der Seijs, and Dennis de Klerk. System equivalent model mixing. Mechanical Systems and Signal Processing, 105:90–112, 2018.
