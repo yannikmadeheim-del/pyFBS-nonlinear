@@ -2,10 +2,11 @@ import numpy as np
 import copy
 import matplotlib.pyplot as plt
 from pyFBS.utility import *
+from tqdm  import tqdm
 
 
 
-def find_locations_in_data_frames(df_1, df_2):
+def find_locations_in_data_frames(df_1, df_2, additional_columns=[]):
     """Find matching locations of data frames ``df_1`` and ``df_2``.
 
     :param df_1: Data frame 1
@@ -15,8 +16,10 @@ def find_locations_in_data_frames(df_1, df_2):
     :return: Vector of matching locations of both data frames.
     :rtype: array(float)
     """
-    df_1_val = df_1[["Position_1", "Position_2", "Position_3", "Direction_1", "Direction_2", "Direction_3"]].values
-    df_2_val = df_2[["Position_1", "Position_2", "Position_3", "Direction_1", "Direction_2", "Direction_3"]].values
+    DEFAULT_COLUMNS = ["Position_1", "Position_2", "Position_3", "Direction_1", "Direction_2", "Direction_3"]
+    columns = DEFAULT_COLUMNS + additional_columns
+    df_1_val = df_1[columns].values
+    df_2_val = df_2[columns].values
 
     # to prevent numerical errors
     df_1_val = np.round(df_1_val, 6) 
@@ -25,7 +28,7 @@ def find_locations_in_data_frames(df_1, df_2):
     return np.array(np.all((df_1_val[:, None, :] == df_2_val[None, :, :]), axis=-1).nonzero()).T
 
 
-def SEMM(Y_num, Y_exp, df_chn_num, df_imp_num, df_chn_exp, df_imp_exp, SEMM_type='fully-extend', red_comp=0, red_eq=0):
+def SEMM(Y_num, Y_exp, df_chn_num, df_imp_num, df_chn_exp, df_imp_exp, SEMM_type='fully-extend', red_comp=0, red_eq=0, additional_columns = []):
     """
     This function performs SEMM. It couples numerical (``Y_num``) and experimental (``Y_exp``) model to hybrid model. 
 
@@ -47,6 +50,8 @@ def SEMM(Y_num, Y_exp, df_chn_num, df_imp_num, df_chn_exp, df_imp_exp, SEMM_type
     :type red_comp: int
     :param red_eq: Defines how many maximum singular values will not be taken into account in ensuring equilibrium conditions
     :type red_eq: int
+    :param additional_columns: Aditional columns to check for maching between numerical and experimental model in defined data frames: ``df_chn_num``, ``df_imp_num``, ``df_chn_exp``, ``df_imp_exp``
+    :type additional_columns: list
     :return: Hybrid model based on numerical and experimental data
     :rtype: array(float)
 
@@ -85,11 +90,11 @@ def SEMM(Y_num, Y_exp, df_chn_num, df_imp_num, df_chn_exp, df_imp_exp, SEMM_type
 
     # Data preparation for building parent, remowed and overlay model
     # Reviewing all experimental obtained DoFs
-    maching_locations_chn = find_locations_in_data_frames(df_chn_num, df_chn_exp)
+    maching_locations_chn = find_locations_in_data_frames(df_chn_num, df_chn_exp, additional_columns)
     if maching_locations_chn.shape[0] != df_chn_exp.shape[0]:
         raise Exception('Not all locations in the channel data frame have their exact locations in the numeric channel data frame.')
 
-    maching_locations_imp = find_locations_in_data_frames(df_imp_num, df_imp_exp)
+    maching_locations_imp = find_locations_in_data_frames(df_imp_num, df_imp_exp, additional_columns)
     if maching_locations_imp.shape[0] != df_imp_exp.shape[0]:
         raise Exception('Not all locations in the impact data frame have their exact locations in the numeric impact data frame.')
 
@@ -157,3 +162,62 @@ def SEMM(Y_num, Y_exp, df_chn_num, df_imp_num, df_chn_exp, df_imp_exp, SEMM_type
         Y_SEMM = np.insert(Y_SEMM, i, _all_resp_nodes_DoF[:, index, :], axis=1)
 
     return Y_SEMM
+
+def identification_algorithm(Y_num, Y_exp, df_num_chn, df_num_imp, df_exp_chn, df_exp_imp, axis = 1,  SEMM_type='fully-extend', red_comp=0, red_eq=0, additional_columns = []):
+    """
+    This function computes the coherence criterion for the identification of inconsistent measurements.
+    The algorithm is based on the SEMM method.
+
+    :param Y_num: Numerical response matrix
+    :type Y_num: array(float)
+    :param Y_exp: Experimental response matrix
+    :type Y_exp: array(float)
+    :param df_chn_num: Locations and directions of response in the ``Y_num``
+    :type df_chn_num: pandas.DataFrame
+    :param df_imp_num: Locations and directions of excitation in the ``Y_num``
+    :type df_imp_num: pandas.DataFrame
+    :param df_chn_exp: Locations and directions of response in the ``Y_exp``
+    :type df_chn_exp: pandas.DataFrame
+    :param df_imp_exp: Locations and directions of excitation in the ``Y_exp``
+    :type df_imp_exp: pandas.DataFrame
+    :param axis: Axis of eliminating measurements, 0 or 1 
+    :type axis: int
+    :param SEMM_type: Defined which type of SEMM will be performed - basic ("basic") or fully extended ("fully-extend") or fully extended with SVD truncation on compatibility or equilibrium ("fully-extend-svd")
+    :type SEMM_type: str("basic" or "fully-extend" or "fully-extend-svd")
+    :param red_comp: Defines how many maximum singular values will not be taken into account in ensuring compatibility conditions
+    :type red_comp: int
+    :param red_eq: Defines how many maximum singular values will not be taken into account in ensuring equilibrium conditions
+    :type red_eq: int
+    :param additional_columns: Aditional columns to check for maching between numerical and experimental model in defined data frames: ``df_chn_num``, ``df_imp_num``, ``df_chn_exp``, ``df_imp_exp``
+    :type additional_columns: list
+    :return: Hybrid model based on numerical and experimental data
+    :rtype: array(float)
+    """
+    all_exp_chn = np.arange(df_exp_chn.shape[0])
+    all_exp_imp = np.arange(df_exp_imp.shape[0])
+    
+    sel_freq = np.arange(0, np.min([Y_num.shape[0], Y_exp.shape[0]]), 1)
+    
+    rconstructd_FRF = np.zeros_like(Y_exp)
+    
+    if axis == 0:
+        for i in tqdm(all_exp_chn):
+            sel_chn = np.delete(all_exp_chn, i, axis=0)
+            sel_imp = all_exp_imp
+            
+            analsyed_chn = find_locations_in_data_frames(df_num_chn, df_exp_chn.iloc[[i]])[:, 0]
+            analsyed_imp = find_locations_in_data_frames(df_num_imp, df_exp_imp.iloc[sel_imp])[:, 0]
+            
+            rconstructd_FRF[:, analsyed_chn, analsyed_imp] = pyFBS.SEMM(Y_num, Y_exp[np.ix_(sel_freq, sel_chn, sel_imp)], df_num_chn, df_num_imp, df_exp_chn.iloc[sel_chn], df_exp_imp.iloc[sel_imp], SEMM_type, red_comp, red_eq, additional_columns)[:, analsyed_chn, analsyed_imp]
+    elif axis == 1:
+        for i in tqdm(all_exp_imp):
+            sel_chn = all_exp_chn
+            sel_imp = np.delete(all_exp_imp, i, axis=0)
+            
+            analsyed_chn = find_locations_in_data_frames(df_num_chn, df_exp_chn.iloc[sel_chn])[:, 0]
+            analsyed_imp = find_locations_in_data_frames(df_num_imp, df_exp_imp.iloc[[i]])[:, 0]
+            
+            rconstructd_FRF[:, analsyed_chn, analsyed_imp] = SEMM(Y_num[sel_freq, :, :], Y_exp[np.ix_(sel_freq, sel_chn, sel_imp)], df_num_chn, df_num_imp, df_exp_chn.iloc[sel_chn], df_exp_imp.iloc[sel_imp], SEMM_type, red_comp, red_eq, additional_columns)[:, analsyed_chn, analsyed_imp]
+            
+    coh = coh_frf(Y_exp, rconstructd_FRF)
+    return rconstructd_FRF, coh
