@@ -21,6 +21,17 @@ import os
 import sys
 sys.path.insert(0, os.path.abspath('../'))
 
+import faulthandler
+
+faulthandler.enable()
+
+import mock
+
+MOCK_MODULES = ['paraview', 'paraview.simple', 'discretize', 'pyproj']
+for mod_name in MOCK_MODULES:
+    sys.modules[mod_name] = mock.Mock()
+autodoc_mock_imports = ['paraview']
+
 #import pyfbs
 
 # -- General configuration ---------------------------------------------
