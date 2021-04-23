@@ -203,7 +203,7 @@ By setting ``overwrite`` to ``False`` added locations of impacts and responses w
 .. raw:: html
 
     <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; height: auto;">
-            <iframe src="http://viewer.pvgeo.org/?fileURL=https://dl.dropbox.com/s/x6vm2bl9dgi1cmx/FRF_synthetization_imp_chn_updated_locations.vtkjs?dl=0" frameborder="0" allowfullscreen style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></iframe>
+            <iframe src="https://kitware.github.io/vtk-js/examples/SceneExplorer/index.html?fileURL=https://dl.dropbox.com/s/n5nhk4f9wsd8l9t/FRF_synthetization_imp_chn.vtkjs?dl=0" frameborder="0" allowfullscreen style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></iframe>
     </div>
    
    Visualization of updated locations of impacts and channels with a yellow color.
