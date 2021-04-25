@@ -6,6 +6,8 @@ import pandas as pd
 from scipy.spatial.transform import Rotation as R
 from pyts.decomposition import SingularSpectrumAnalysis
 import altair as alt
+
+
 alt.data_transformers.enable('json')
 alt.data_transformers.enable('default', max_rows=None)
 

@@ -290,7 +290,7 @@ class VPT(object):
         Get a grouping overlap between two DataFrames.
 
         :param gr: Grouping number
-        :type gr: int
+        :type gr: List of integers
         :param gr_list: A list of grouping numbers
         :type gr_list: list
         :return: overlap_mask
@@ -298,8 +298,9 @@ class VPT(object):
 
         _overlap = []
         for a in np.unique(gr):
-            _overlap.append(np.where(gr_list == a))
-        return np.asarray(_overlap).reshape(-1)
+            _arr_file = np.array(np.where(gr_list == a)).reshape(-1)
+            _overlap.append(_arr_file)
+        return np.concatenate(_overlap, axis=0)
 
 
     def apply_VPT(self, freq,FRF):

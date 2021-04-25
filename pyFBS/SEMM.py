@@ -1,8 +1,5 @@
-import numpy as np
-import copy
-import matplotlib.pyplot as plt
 from pyFBS.utility import *
-from tqdm  import tqdm
+from tqdm import tqdm
 
 
 

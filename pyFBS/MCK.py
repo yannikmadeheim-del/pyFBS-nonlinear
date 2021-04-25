@@ -1,5 +1,4 @@
 from scipy.sparse import linalg,diags
-# import pyansys
 from ansys.mapdl import reader as pymapdl_reader
 from numpy.random import randn
 from pyFBS.VPT import VPT

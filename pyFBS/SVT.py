@@ -42,7 +42,6 @@ class SVT(object):
         ind_chn = VPT.find_group(self.Group_No, self.Channels.Grouping.to_numpy())
         ind_imp = VPT.find_group(self.Group_No, self.RefChannels.Grouping.to_numpy())
 
-
         # Define a FRF subset
         sub_FRF = self.FRF[:, ind_chn, :][:, :, ind_imp]
 
