@@ -2,8 +2,7 @@
 Coupling
 ########
 
-With the pyFBS coupling and also decoupling of different substructers can be performed in relatively simple manner. 
-In this example a numerical example is used to demonstrate a basic coupling example with a virtual point transformation at the interface. 
+The frequency-based substructure coupling is embedded in `pyFBS`. In particular, the admittance-based dual formulation named Lagrange-Multiplier Frequency-Based Substructuring (LM-FBS) is implemented. In the following, a basic coupling of two numerically-generated substructures is presented. The virtual point transformation is applied to impose collocated matching DoFs at the interface. 
 This can also be performed analogously with experimentally acquired data.
 
 .. note:: 
@@ -151,7 +150,7 @@ Extract the requried FRFs and the frequency vector:
     
 LM-FBS Coupling
 ***************
-First the compatibility and the equiliubrium condition has to be defined through the signed Boolean matrices. For this example the 6 VP DoFs at the interface are coupled.
+First the compatibility and the equilibrium conditions has to be defined through the signed Boolean matrices ``Bu`` and ``Bf``. Make sure that the correct DoFs are selected for the coupling. In the following example the 6 virtual/generalized DoFs at the interface are matched.
 
 .. code-block:: python
 
@@ -188,7 +187,7 @@ Apply the LM-FBS based on the defined coompatibility and equilibrium conditions.
     Y_int = Bu@Y_AnB@Bf.T
     Y_ABn = Y_AnB - Y_AnB@Bf.T@np.linalg.pinv(Y_int)@Bu@Y_AnB
     
-Final results
+Results
 *************
 
 First extract the FRFs at the reference DoFs:

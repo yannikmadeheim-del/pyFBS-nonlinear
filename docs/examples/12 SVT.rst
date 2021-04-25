@@ -3,7 +3,7 @@ Singular Vector Transformation
 ============================
 
 Singular Vector Transformation (SVT) consists in projecting the acquired data into subspaces composed by dominant singular vectors, which are extracted directly from the available FRF datasets. No geometrical and/or analytical model is required. If some basic requirements are met, the reduced orthonormal frequency dependent basis would be able to control and observe most of the rigid and flexible vibration
-modes of interest over a broad frequency range. The SVT can tackle challenging scenarios with flexible behaving interfaces and lightly damped systems. The method combines reduction with filtering and regularization. It shows an overall low sensitivity to measurement error and significantly reduces the condition number of the interface problem. [1]
+modes of interest over a broad frequency range. The SVT can tackle challenging scenarios with flexible behaving interfaces and lightly damped systems. The method combines reduction with filtering and regularization. It shows an overall low sensitivity to measurement error and significantly reduces the condition number of the interface problem. [1]_
 
 .. note:: 
    Download example showing the basic use of the SVT: :download:`SVT.ipynb <../../examples/SVT.ipynb>`
@@ -57,4 +57,4 @@ The filtered FRFs can be obtained by using the class variables ``svt.Fu`` and ``
 
 .. rubric:: References
 
-.. [1] F. Trainotti, T.Bregar, S.W.B.Klaassen and D.J.Rixen. Experimental Decoupling of Substructures by Singular Vector Transformation. in: Mechanical System and Signal Processing ('Under Review'), 2021
+.. [1] F.Trainotti, T.Bregar, S.W.B.Klaassen and D.J.Rixen. Experimental Decoupling of Substructures by Singular Vector Transformation. in: Mechanical System and Signal Processing ('Under Review'), 2021
