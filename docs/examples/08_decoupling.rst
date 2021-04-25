@@ -1,12 +1,12 @@
-##########
-Decoupling
-##########
+##############
+VPT Decoupling
+##############
 
 The decoupling of susbtructures is performed in a similar fashion as the coupling, with the only difference that a minus sign must be applied on the subsystem to be decoupled. The operation is also based on the Lagrange-Multiplier Frequency-Based Substructuring (LM-FBS) formulation. In the following, a basic decoupling of two numerically-generated substructures is presented. The virtual point transformation is applied to impose collocated matching DoFs at the interface. 
 This can also be performed analogously with experimentally acquired data.
 
 .. note:: 
-   Download example showing a substructure decoupling application: :download:`08_decoupling.ipynb <../../examples/08_FBS_decoupling.ipynb>`
+   Download example showing a substructure decoupling application: :download:`08_decoupling_VPT.ipynb <../../examples/08_FBS_decoupling_VPT.ipynb>`
     
 Example Datasets and 3D view
 ****************************

@@ -1,6 +1,6 @@
-########
-Coupling
-########
+##############
+VPT Decoupling
+##############
 
 The frequency-based substructure coupling is embedded in `pyFBS`. In particular, the admittance-based dual formulation named Lagrange-Multiplier Frequency-Based Substructuring (LM-FBS) is implemented. In the following, a basic coupling of two numerically-generated substructures is presented. The virtual point transformation is applied to impose collocated matching DoFs at the interface. 
 This can also be performed analogously with experimentally acquired data.
