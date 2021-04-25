@@ -21,17 +21,6 @@ import os
 import sys
 sys.path.insert(0, os.path.abspath('../'))
 
-import faulthandler
-
-faulthandler.enable()
-
-import mock
-
-MOCK_MODULES = ['paraview', 'paraview.simple', 'discretize', 'pyproj']
-for mod_name in MOCK_MODULES:
-    sys.modules[mod_name] = mock.Mock()
-autodoc_mock_imports = ['paraview']
-
 #import pyfbs
 
 # -- General configuration ---------------------------------------------
@@ -75,7 +64,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'pyFBS'
-copyright = "2020, The pyFBS Developers"
+copyright = "2021, The pyFBS Developers"
 author = "The pyFBS Developers"
 
 # The version info for the project you're documenting, acts as replacement
@@ -169,7 +158,7 @@ html_context = {
         ('<i class="fa fa-comment fa-fw"></i> Support', 'https://gitlab.com/pyFBS/pyFBS_support'),
         ('<i class="fa fa-gitlab fa-fw"></i> Source Code', 'https://gitlab.com/pyFBS/pyFBS'),
         #('<i class="fa fa-gavel fa-fw"></i> Contributing', 'https://gitlab.com/pyFBS/pyFBS/-/graphs/master'),
-        ('<i class="fa fa-file-text fa-fw"></i> The Paper', 'https://'),
+        #('<i class="fa fa-file-text fa-fw"></i> The Paper', 'https://'),
     ],
 }
 
@@ -179,7 +168,7 @@ html_context = {
 latex_documents = [
     (master_doc, 'pyfbs.tex',
      'pyFBS Documentation',
-     'Tomaž Bregar', 'manual'),
+     'pyFBS developers', 'manual'),
 ]
 
 
