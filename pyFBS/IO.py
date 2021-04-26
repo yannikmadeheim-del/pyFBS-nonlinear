@@ -29,7 +29,7 @@ def load_uff_file_PAK(uff_file_data,uff_file_output,uff_file_input):
     uff_file = pyuff.UFF(uff_file_data)
     data = uff_file.read_sets()
 
-    chn_dof = len(data_output["x"]) * 3  # triax acc
+    chn_dof = len(data_output["x"]) # * 3  # triax acc
     imp_dof = len(data_input["x"])
 
     Directions = {0: "None", 1: "+X", 2: "+Y", 3: "+Z", -1: "-X", -2: "-Y", -3: "-Z"}

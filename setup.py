@@ -44,8 +44,8 @@ extra_files = package_files('./data')
 
 
 setup(
-    author="Tomaž Bregar, Ahmed El Mahmoudi, Miha Kodrič, Domen Ocepek",
-    author_email='tomaz.bregar@gorenje.com',
+    author="Tomaž Bregar, Ahmed El Mahmoudi, Miha Kodrič, Domen Ocepek, Francesco Trainotti",
+    author_email='info.pyfbs@gmail.com',
     python_requires='>=3.6',
     classifiers=[
         'Development Status :: 4 - Beta',
@@ -57,7 +57,7 @@ setup(
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
     ],
-    description="pyFBS: A Python package for Frequency Based Substructuring",
+    description="pyFBS: A Python package for Frequency Based Substructuring and Transfer Path Analysis",
     entry_points={
         'console_scripts': [
             'pyFBS=pyFBS.cli:main',
@@ -73,5 +73,5 @@ setup(
     packages=["pyFBS"],
     test_suite='tests',
     url='https://pyfbs.readthedocs.io/en/latest/intro.html',
-    version='0.1.3',
+    version='0.1.4',
 )

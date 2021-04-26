@@ -1,36 +1,110 @@
 ==================
 FRF synthetization
 ==================
-In the :mod:`pyFBS` modal analysis and FRFs synthetization, can be performed based on the mass  and stiffness matrices imported from the FEM software. Currently, only data import from Ansys is supported. 
+The :mod:`pyFBS` package enables user-friendly modal analysis and FRFs synthesis based on the mass and stiffness matrices imported from the FEM software. Currently, only data import from Ansys is supported. 
 
 .. note:: 
    Download example showing the basic use of the FRF synthetization: :download:`03_FRF_synthetization.ipynb <../../examples/03_FRF_synthetization.ipynb>`
 
-The mass and stiffness matrices contain the information about the mass and stiffness distribution of the dynamic system. 
-By solving the eigenvalue problem, the eigenfrequencies and eigenvectors of the system are determined. 
-Calculated eigenvectors can be animated with ease. 
-For the FRF synthetization mode superposition method is used.
-   
+Numerical analysis of continuous systems requires their discretization by division into finite elements [1]_. 
+The dynamic properties of the system are described by the equilibrium equation, where the external forces are equal to the internal forces resulting from inertia, damping and elasticity. 
+The basic equation for a linear dynamical system with viscous damping has the following form:
+
+.. math::
+
+   \mathbf{M} \, \boldsymbol{\ddot{x}}(t) + \mathbf{C} \, \boldsymbol{\dot{x}}(t) + \mathbf{K} \, \boldsymbol{x}(t) = \boldsymbol{f}(t)
+
+To determine the eigenfrequencies and eigenvectors, the considered system responds with free vibration while the damping is neglected. 
+The equilibrium equation takes the form of a homogeneous second-order differential equation:
+
+.. math::
+
+    \mathbf{M}\,\boldsymbol{\ddot{x}}(t)+\mathbf{K}\,\boldsymbol{x}(t)=\boldsymbol{0}
+
+Euler's identity represents the solution of the differential equation: :math:`\boldsymbol{x}(t)=\boldsymbol{X}\,e^{\text{i}\,\omega\,t}` and
+:math:`\boldsymbol{\ddot{x}}(t)=-\omega^2\boldsymbol{X}\,e^{\text{i}\,\omega\,t}`.
+By transformation to modal domain the equation of motoin takes folowing form :math:`\mathbf{M}(-\omega^2\boldsymbol{X}\,e^{\text{i}\,\omega\,t})+\mathbf{K}\,(\boldsymbol{X}\,e^{\text{i}\,\omega\,t})=\boldsymbol{0}`.
+By kowing :math:`e^{\text{i}\,\omega\,t}\neq 0` for any time :math:`t` we get equation: 
+
+.. math::
+
+   (\mathbf{K} - \omega^2\,\mathbf{M}) \boldsymbol{X} = \boldsymbol{0}
+
+To get non-trivial solution it is necesery to satisfy :math:`\text{det}(\mathbf{K}-\omega_r^2\,\mathbf{M})=\boldsymbol{0}`.
+By solving the determinant, the eigenvalues :math:`\omega_1^2, \omega_2^2, \dots` are determined which represents undamped natural frequencies. 
+Each eigen value result in corresponding eigenvector :math:`\boldsymbol{\psi}_1, \boldsymbol{\psi}_2, \dots` wich prepresents mode shapes.
+Eigenvalues and eigenvectors can be organised to matrix form:
+
+.. math::
+
+   [^{\nwarrow}{\pmb{\omega}_{r}^2}_{\searrow}]=\begin{bmatrix} 
+   \omega_1^2 & 0 & \cdots & 0 \\
+   0 & \omega_2^2 & \cdots & 0 \\
+   \vdots & \vdots & \ddots & \vdots \\
+   0 & 0 & \cdots & \omega_N^2
+   \end{bmatrix}, 
+   \qquad
+   [\pmb{\Psi}] = \begin{bmatrix} \boldsymbol{\psi}_1 & \boldsymbol{\psi}_2 & \cdots & \boldsymbol{\psi}_N\end{bmatrix}
+
+Modal mass and modal stifness is calculated using following equiations:
+
+.. math::
+
+   \pmb{\Psi}^{\text{T}}\,\mathbf{M}\,\pmb{\Psi} = [^{\nwarrow}{m_{r}}_{\searrow}], 
+   \qquad
+   \pmb{\Psi}^{\text{T}}\,\mathbf{K}\,\pmb{\Psi} = [^{\nwarrow}{k_{r}}_{\searrow}]
+
+Mass normalised mode is calculated using equation: :math:`\boldsymbol{\phi}_r=\boldsymbol{\psi}_r\,\frac{1}{\sqrt{m_{r}}}`
+and has following properies:
+
+.. math::
+
+   \pmb{\Phi}^{\text{T}}\,\mathbf{M}\,\pmb{\Phi} = [\mathbf{I}], 
+   \qquad
+   \pmb{\Phi}^{\text{T}}\,\mathbf{K}\,\pmb{\Phi} = [^{\nwarrow}{\pmb{\omega}_{r}^2}_{\searrow}]
+
+For FRF generation can be used modalsuperposition method, where contributions of modes are superposed at each frequency point using equation: 
+
+.. math::
+
+   \alpha_{i, j} = \sum_{r=1}^{m}\frac{\boldsymbol{\phi}_{i,r}\,\boldsymbol{\phi}_{j,r}}{\omega_r^2-\omega+i\eta_r\,\omega_r^2}
+
+where :math:`\eta_r` represents modal damping at :math:`r`-th natural frequency and can be neglected for lightly damped systems. 
+Index :math:`i` represents the location of response and index :math:`j` stands for the location of excitation.
+The number of modes used for reconstruction is :math:`m` and is usually :math:`m<N`, therefore modal truncation occurs.
+
+Using the :mod:`pyFBS` package, it is easy to calculate eigenfrequencies and modal shapes from an imported finite element model and analyze them in an animated 3D display.
+Also, the FRF synthetization is user friendly and is currently supported only with the modal superposition method.
+
 MK model initialization
 ***********************
 
-First, we initialize the MK model (with class :class:`pyFBS.MK_model`) by importing ``.rst`` and ``.full`` files, 
-which cointain the information on the locations of finite element nodes, their DoFs, the connection between the nodes, 
+First, the MK model is initialized (with class :class:`pyFBS.MK_model`) by importing ``.rst`` and ``.full`` files, 
+which contain the information on the locations of finite element nodes, their DoFs, the connection between the nodes, 
 the mass and stiffness matrix of the system.
 
 .. code-block:: python
+
+    import pyFBS
+    from pyFBS.utility import *
 
     full_file = r"./lab_testbench/FEM/B.full"
     rst_file = r"./lab_testbench/FEM/B.rst"
 
     MK = pyFBS.MK_model(rst_file, full_file, no_modes = 100, allow_pickle = False, recalculate = False)
 
-In this step also the eigenfrequencies and eigenvectors of the system are simultaneously calculated. The number of calculated eigenvalues is limited by the ``no_modes`` parameter.
+In this step also the eigenfrequencies and eigenvectors of the system are simultaneously calculated. Eigenvectors are mass normalised. The number of calculated eigenvalues is limited by the ``no_modes`` parameter.
+
+.. tip::
+
+   In the case of models with a huge number of DoFs, the process of solving the eigenproblem can take quite some time (depending on the complexity of the model and the computational power of the computer).
+   By setting ``read_rst = True`` in :class:`pyFBS.MK_model` initialization modal parameters will be imported directly from the ``.rst`` file and not calculated again inside Python.
 
 Mode shape visualization
 ************************
 
-After the MK model is defined, the calculated mode shapes can be animated. You can also add an STL file to visualize the undeformed shape of the structure.
+After the MK model is defined, the calculated mode shapes can be animated. For nicer representation, the STL file can be added to visualize the undeformed shape of the structure.
+The 3D display is opened in a new window and allows the user to interact with the added model.
 
 .. code-block:: python
 
@@ -38,15 +112,16 @@ After the MK model is defined, the calculated mode shapes can be animated. You c
     view3D = pyFBS.view3D(show_origin= True)
     view3D.add_stl(stl,name = "engine_mount",color = "#8FB1CC",opacity = .1)   
 
-Then the finite element mesh is added, which is afterwards used for mode shape animation.
+To animate mode shape, a mesh of finite elements must be added to display. 
+Colormap of the model can be changed using ``cmap`` parameter, which supports all `PyVista colormap choices <https://docs.pyvista.org/examples/02-plot/cmap.html>`_.
 
 .. code-block:: python
 
     view3D.plot.add_mesh(MK.mesh, scalars = np.ones(MK.mesh.points.shape[0]), cmap = "coolwarm", show_edges = True)
 
 Mode shape can be selected with the method ``get_modeshape``. 
-Parameters of animation are defined with the function ``dict_animation``, which is imported from :mod:`pyFBS.utility`. 
-Here you can set the frames per second (``fps``), relative scale of deformation (``r_scale``) and the number of points in the animation sequence (``no_points``).
+Animation parameters are defined with the function ``dict_animation``, which is imported from :mod:`pyFBS.utility`. 
+Here you can set the frame rate (``fps``), the relative scale of deformation (``r_scale``) and the number of points in the animation sequence (``no_points``).
 
 .. code-block:: python
 
@@ -56,12 +131,12 @@ Here you can set the frames per second (``fps``), relative scale of deformation 
     mode_dict = dict_animation(_modeshape,"modeshape",pts = MK.pts, mesh = MK.mesh, fps=30, r_scale=10, no_points=60)
     view3D.add_modeshape(mode_dict,run_animation = True)
 
-   Animation of 7th mode shape.
+Animation is visible in the previously defined pop-up window. In the following figure is animated 7th mode shape. 
+
 .. figure:: ./data/mode_shape_animation3.gif
    :width: 800px
    
-
-To show undeformed mesh you can simply click the button in the popup window or call a method :func:`clear_modeshape()`:
+To show undeformed mesh you can simply click the button in the pop-up window or call a method :func:`clear_modeshape()`:
 
 .. code-block:: python
 
@@ -71,6 +146,12 @@ Visualization of impacts and responses
 ======================================
 
 Locations and directions of impacts and responses must be passed with a :mod:`pd.DataFrame`. 
+They can be either read from an Excel file (as shown below) or generated directly in Python.
+In parameter ``df_acc`` must be defined following columns header: ``Position_1``, ``Position_2``,  ``Position_3``, ``Orientation_1``, ``Orientation_2``, ``Orientation_3``. 
+The position parameters describe the location of accelerometers in the global coordinate system and must be in millimetres. 
+Orientation of coordinate systems of accelerometer regarding the global coordinate system is defined with orientation parameters which are defined with Euler angles in degrees.
+In parameter ``df_chn`` and ``df_imp`` must be defined following columns header: ``Position_1``, ``Position_2``,  ``Position_3``, ``Direction_1``, ``Direction_2``, ``Direction_3``. 
+The position parameter must be in millimetres, while the directions presents unit vector directions. 
 
 .. code-block:: python
 
@@ -89,14 +170,18 @@ Locations and directions of impacts and responses must be passed with a :mod:`pd
     df_imp = pd.read_excel(xlsx, sheet_name='Impacts_B')
     view3D.show_imp(df_imp,overwrite = True)
 
-.. figure:: ./data/FRF_syn-chn_and_imp.png
-   :width: 800px
+.. raw:: html
+
+    <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; height: auto;">
+            <iframe src="https://kitware.github.io/vtk-js/examples/SceneExplorer/index.html?fileURL=https://dl.dropbox.com/s/n5nhk4f9wsd8l9t/FRF_synthetization_imp_chn.vtkjs?dl=0" frameborder="0" allowfullscreen style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></iframe>
+    </div>
    
+   Visualization of locations of impacts and channels with a red color.
 
 Defining DoFs of synthetized FRFs
 *********************************
 
-FRFs can currently only be synthetized at the nodes from the numerical model. 
+FRFs can currently only be synthetized on the nodes of the numerical model. 
 Therefore, it is necessary to find the nodes closest to the desired locations in the numerical model and update them. 
 The orientation of the generated FRFs is independent of the direction in the numerical model and will not change with the updated location.
 
@@ -108,14 +193,18 @@ Locations of impacts and channels can be updated to the nodes of the numerical m
     df_imp_up = MK.update_locations_df(df_imp)
 
 Updated locations can also be displayed in the 3D display. 
+By setting ``overwrite`` to ``False`` added locations of impacts and responses won't override previously added features, thus everything is shown simultaneously.
 
 .. code-block:: python
 
     view3D.show_chn(df_chn_up, color = "y", overwrite = False)
     view3D.show_imp(df_imp_up, color = "y", overwrite = False)
 
-.. figure:: ./data/FRF_syn-updated_chn_and_imp.png
-   :width: 800px
+.. raw:: html
+
+    <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; height: auto;">
+            <iframe src="https://kitware.github.io/vtk-js/examples/SceneExplorer/index.html?fileURL=https://dl.dropbox.com/s/n5nhk4f9wsd8l9t/FRF_synthetization_imp_chn.vtkjs?dl=0" frameborder="0" allowfullscreen style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></iframe>
+    </div>
    
    Visualization of updated locations of impacts and channels with a yellow color.
 
@@ -124,10 +213,10 @@ FRF synthetization
 
 FRFs are synthetized at given locations and directions in ``df_channel`` and ``df_impact`` parameters. 
 Even if we forget to define updated response and excitation locations, the function will automatically find 
-the nearest nodes in the numerical model from which the FRFs are then synthetized. 
+the nearest nodes in the numerical model from which the FRFs are generated. 
 Frequency properties are defined in parameters ``f_start``, ``f_end`` and ``f_resolution``. 
-The number of modes that will be considered in the synthetization is defined in the ``no_modes`` parameter 
-and coeficient of modal dampling is defined in parameter ``modal_damping``.
+The number of modes used for modal superposition FRF generation is defined in the ``no_modes`` parameter 
+and coefficient of modal damping is defined in parameter ``modal_damping``.
 The resulting FRFs can be in the form of ``accelerance``, ``mobility`` or ``receptance``, 
 which is defined in the ``frf_type`` parameter.
 
@@ -144,7 +233,7 @@ and the DoFs column matches the order of excitations in ``df_impact``.
 Adding noise
 ============
 
-To analyze various real-life experiments, numerically obtained FRFs are often on purpose contaminated with a random noise to follow experimental data. 
+To analyze various real-life experiments, numerically obtained FRFs are often intentionally contaminated with random noise to follow experimental data. 
 Noise can be added to FRFs by the ``add_noise`` method.
 
 .. code-block:: python
@@ -154,7 +243,7 @@ Noise can be added to FRFs by the ``add_noise`` method.
 FRF visualization
 =================
 
-An experimental measurement is also imported to compare the two FRFs.
+An experimental measurement is imported to compare all FRFs.
 
 .. code-block:: python
 
@@ -162,7 +251,7 @@ An experimental measurement is also imported to compare the two FRFs.
 
     freq, Y_B_exp = np.load(exp_file,allow_pickle = True)
 
-When visualizing FRFs, responses and excitation locations can also be displayed in the form of an organized table.
+When visualizing FRFs, responses and excitation locations can be organized and displayed in a table.
 
 .. code-block:: python
 
@@ -187,10 +276,12 @@ When visualizing FRFs, responses and excitation locations can also be displayed 
     plt.plot(MK.freq,np.angle(MK.FRF_noise[:,s1,s2]), alpha=0.4)
     plt.plot(MK.freq,np.angle(MK.FRF[:,s1,s2]))
     plt.plot(freq,np.angle(Y_B_exp[s1,s2]))
-
 	
 Comparison of different FRFs.
 	
 .. figure:: ./data/FRF_syn-FRF-visualization.png
    :width: 600px
-   
+
+.. rubric:: References
+
+.. [1] e Silva, Júlio M. Montalvão, and Nuno MM Maia, eds. Modal analysis and testing. Vol. 363. Springer Science & Business Media, 2012.

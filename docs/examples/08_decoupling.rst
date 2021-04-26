@@ -1,11 +1,12 @@
-##########
-Decoupling
-##########
+##############
+VPT Decoupling
+##############
 
-With the pyFBS also decoupling of different substructers can be performed in relatively simple manner. In this example a numerical example is used to demonstrate a basic coupling example with a virtual point transformation at the interface.
+The decoupling of susbtructures is performed in a similar fashion as the coupling, with the only difference that a minus sign must be applied on the subsystem to be decoupled. The operation is also based on the Lagrange-Multiplier Frequency-Based Substructuring (LM-FBS) formulation. In the following, a basic decoupling of two numerically-generated substructures is presented. The virtual point transformation is applied to impose collocated matching DoFs at the interface. 
+This can also be performed analogously with experimentally acquired data.
 
 .. note:: 
-   Download example showing a substructure decoupling application: :download:`08_decoupling.ipynb <../../examples/08_FBS_decoupling.ipynb>`
+   Download example showing a substructure decoupling application: :download:`08_decoupling_VPT.ipynb <../../examples/08_FBS_decoupling_VPT.ipynb>`
     
 Example Datasets and 3D view
 ****************************
@@ -89,7 +90,7 @@ Extract the requried FRFs and the frequency vector:
     
 LM-FBS Decoupling
 *****************
-First the compatibility and the equiliubrium condition has to be defined through the signed Boolean matrices. For this example the 6 VP DoFs at the interface are coupled.
+First the compatibility and the equilibrium conditions has to be defined through the signed Boolean matrices ``Bu`` and ``Bf``. Make sure that the correct DoFs are select for the decoupling. Note that the operation is equivalent to the one performed for the coupling case (see *07_FBS_coupling.ipynb*) with the difference that a minus sign here is applied on the subsystem to be decoupled. In the following example the 6 virtual/generalized DoFs at the interface are matched.
 
 .. code-block:: python
 
@@ -116,7 +117,7 @@ First the compatibility and the equiliubrium condition has to be defined through
 .. figure:: ./data/eight_four.png
    :width: 300px
     
-Apply the LM-FBS based on the defined coompatibility and equilibrium conditions.
+Apply the LM-FBS based on the defined compatibility and equilibrium conditions.
 
 .. code-block:: python
 
@@ -125,7 +126,7 @@ Apply the LM-FBS based on the defined coompatibility and equilibrium conditions.
     Y_int = Bu@Y_ABnB@Bf.T
     Y_An =Y_ABnB - Y_ABnB@Bf.T@np.linalg.pinv(Y_int)@Bu@Y_ABnB
     
-Final results
+Results
 *************
 First extract the FRFs at the reference DoFs:
 

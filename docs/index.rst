@@ -12,7 +12,7 @@ The :mod:`pyFBS` was developed as a part of collaboration between the Laboratory
 .. raw:: html
 
 	<a href="http://ladisk.si/">
-		<img src="http://lab.fs.uni-lj.si/ladisk/data/pic/ladisk_logo_navbar_line.png" alt="LADISK logo" title="LADISK" align="right" width=90 height=90 />
+		<img src="https://moj.ladisk.si/static/images/ladisk_logo_navbar_line.49a0c873b5aa.png" alt="LADISK logo" title="LADISK" align="right" width=90 height=90 />
 	</a>
 
 	

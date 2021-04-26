@@ -9,6 +9,8 @@ Development Lead
 
 * Domen Ocepek
 
+* Francesco Trainotti
+
 Contributors
 ------------
 

@@ -1,4 +1,3 @@
-
 Basic examples
 ==============
 
@@ -117,3 +116,26 @@ This examples show how to use basic features of pyFBS. Explore this basic exampl
    :hidden:
 
    05_SEMM
+
+
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Singular Point Transformation">
+
+.. only:: html
+
+    .. figure:: ./data/pic_vpt.png 
+       :target: 12_SVT.html
+
+       Singular Vector Transformation
+
+.. raw:: html
+
+    </div>
+
+.. toctree::
+   :hidden:
+
+   12_SVT

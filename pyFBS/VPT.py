@@ -64,7 +64,7 @@ class VPT(object):
             # gets the current positions
             ov_c = ov_u[i]
             # gets defined DoF for specific VP
-            _desc = self.Virtual_Channels["Description"].to_list()
+            _desc = self.Virtual_Channels.loc[self.Virtual_Channels["Grouping"]==_vps[0][i]]["Description"].to_list()
         
             r = np.zeros((len(ov_c[0]), len(_desc)))
             for j, ch in enumerate(ov_c[0]):
@@ -132,7 +132,7 @@ class VPT(object):
             # gets the current positions
             ov_c = ov_f[i]
             # gets defined DoF for specific VP
-            _desc = self.Virtual_RefChannels["Description"].to_list()
+            _desc = self.Virtual_RefChannels.loc[self.Virtual_RefChannels["Grouping"]==_vps[0][i]]["Description"].to_list()
             
             r = np.zeros((len(ov_c[0]), len(_desc)))
             for j, ch in enumerate(ov_c[0]):
@@ -290,7 +290,7 @@ class VPT(object):
         Get a grouping overlap between two DataFrames.
 
         :param gr: Grouping number
-        :type gr: int
+        :type gr: List of integers
         :param gr_list: A list of grouping numbers
         :type gr_list: list
         :return: overlap_mask
@@ -298,8 +298,9 @@ class VPT(object):
 
         _overlap = []
         for a in np.unique(gr):
-            _overlap.append(np.where(gr_list == a))
-        return np.asarray(_overlap).reshape(-1)
+            _arr_file = np.array(np.where(gr_list == a)).reshape(-1)
+            _overlap.append(_arr_file)
+        return np.concatenate(_overlap, axis=0)
 
 
     def apply_VPT(self, freq,FRF):

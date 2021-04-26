@@ -1,8 +1,7 @@
 ============================
 Virtual Point Transformation
 ============================
-Virtual point transformation (VPT) projects measured dynamics on the predefined interface displacement modes (IDMs) [1]_. 
-The interface is usualy considered to be rigid; therefore, only 6 rigid interface displacement modes are used in the transformation. Rigid IDMs can also be extended with flexible interface modes.
+Virtual point transformation (VPT) projects measured dynamics (input and output signals) into a subspace composed by the predefined interface displacement modes (IDMs) [1]_. By default, only 6 rigid interface displacement modes are used in the transformation, thus retaining only the dynamics loading the surrounded interface in a purely rigid manner. Rigid IDMs can also be extended by the user with flexible interface modes.
 Current implementation of the :class:`pyFBS.VPT` enables only rigid IDMs in the transformation. But it additionaly supports the expansion where directly measured rotational response is included in the transformation [2]_. 
 
 .. note:: 

@@ -1,5 +1,5 @@
 from scipy.sparse import linalg,diags
-import pyansys
+from ansys.mapdl import reader as pymapdl_reader
 from numpy.random import randn
 from pyFBS.VPT import VPT
 
@@ -35,7 +35,7 @@ class MK_model(object):
     """
 
     def __init__(self, rst_file, full_file, no_modes = 100, allow_pickle = True, recalculate = False,scale = 1000,read_rst = False):
-        rst = pyansys.read_binary(rst_file)
+        rst = pymapdl_reader.read_binary(rst_file)
 
         # new version of pyansys
         self.nodes = rst.mesh.nodes*scale  # only translational dofs
@@ -47,7 +47,7 @@ class MK_model(object):
 
         self._all = False
 
-        full = pyansys.read_binary(full_file)
+        full = pymapdl_reader.read_binary(full_file)
         self.dof_ref, self.K, self.M = full.load_km(sort=True)  # dof_ref: 0-x 1-y 2-z
         if self.dof_ref[0, 0] != 1:
             self.dof_ref[:, 0] = self.dof_ref[:, 0] - (self.dof_ref[0, 0] - 1)
@@ -91,7 +91,7 @@ class MK_model(object):
         else:
             # read from pyansys - from rst file
             #print("Reading RST file")
-            self.eig_freq, self.eig_val, self.eig_vec = self.get_values_from_rst(rst)
+            self.eig_freq, self.eig_val, self.eig_vec, self.eig_vec_strain = self.get_values_from_rst(rst)
 
 
     @staticmethod
@@ -102,16 +102,26 @@ class MK_model(object):
         :param rst: rst file
         :rtype: (array(float), array(float), array(float))
         """
-        eigen_freq = rst.time_values
+        eigen_freq = rst.time_values * 2 * np.pi # from Hz to rad/s
         eigen_val = eigen_freq**2
         eigen_vec = []
+        eigen_vec_strain = []
         for i in range(len(rst.time_values)):
-            nnum, disp = rst.nodal_solution(i)
+            nnum, disp = rst.nodal_displacement(i)
             eigen_vec.append(disp.flatten())
-
+            try:
+                nnum, strain = rst.nodal_elastic_strain(i)
+                eigen_vec_strain.append(strain.flatten())
+            except:
+                pass
+                
         eigen_vec = np.asarray(eigen_vec).T
+        try:
+            eigen_vec_strain = np.asarray(eigen_vec_strain).T
+        except:
+            pass
 
-        return (eigen_freq, eigen_val, eigen_vec)
+        return (eigen_freq, eigen_val, eigen_vec, eigen_vec_strain)
 
 
     @staticmethod
@@ -260,6 +270,22 @@ class MK_model(object):
             _dof_ref = np.asarray([val for m, val in enumerate(_dof_ref) if m % (3 * 2) < 3])
         for ref, mode in zip(_dof_ref, _mode):
             _modeshape[ref[0] - 1, ref[1]] = mode
+
+        return _modeshape
+
+    def get_modeshape_strain(self,select_mode, direction = "X"):
+        """
+        Return desired strain mode shape. 
+
+        :param select_mode: order of mode shape, starting from 0
+        :type select_mode: int
+        :return: selected modes shape
+        :rtype: array(float)
+        """
+        STRAIN_DIRECTIONS = ["X", "Y", "Z", "XY", "YZ", "XZ", "EQV"]
+        mode_index = STRAIN_DIRECTIONS.index(direction.upper())
+        
+        _modeshape = self.eig_vec_strain[mode_index::len(STRAIN_DIRECTIONS), select_mode]
 
         return _modeshape
 
@@ -448,6 +474,79 @@ class MK_model(object):
                 FRF_FDoF[:,6*res_:6*res_+6,6*exc_:6*exc_+6] = vpt_.vptData            
         
         return FRF_FDoF
+
+
+    @staticmethod
+    def coustum_FRF_synth(eig_freq, eig_vec_chn, eig_vec_imp ,f_start = 1, f_end = 2000, f_resolution= 1, limit_modes = None, modal_damping = None, frf_type = "receptance"):
+        """
+        Synthetisation of frequency response functions using the mode superposition method.
+
+        :param eig_freq: eigen frequencies of cinsidered system in unit: rad/s
+        :type eig_freq: numpy.array
+        :param eig_vec_chn: eigen vectors of channels where FRFs will be generated 
+        :type eig_vec_chn: numpy.array
+        :param eig_vec_imp: eigen vectors of impacts where FRFs will be generated 
+        :type eig_vec_imp: numpy.array
+        :param f_start: starting point of the frequency range
+        :type f_start: int or float
+        :param f_end: endpoint of the frequency range
+        :type f_end: int or float
+        :param f_resolution: resolution of frequency range
+        :type f_resolution: int or float
+        :param limit_modes: number of modes used for FRF synthesis
+        :type limit_modes: int
+        :param modal_damping: viscose modal damping ratio (constant for whole frequency range or ``None``)
+        :type modal_damping: float or None
+        :param frf_type: define calculated FRF type (``receptance``, ``mobility`` or ``accelerance``)
+        :type frf_type: str
+        """
+        if limit_modes == None:
+            no_modes = len(eig_freq)
+        else:
+            no_modes = limit_modes
+
+
+        if modal_damping == None:
+            damping = np.asarray([0] * no_modes)
+        elif type(modal_damping) == float:
+            damping = np.asarray([modal_damping] * no_modes)
+        else:
+            damping = modal_damping
+
+        if f_start == 0:
+            # approximation at 0Hz
+            _freq = np.arange(f_start+1e-3, f_end, f_resolution)
+        else:
+            _freq = np.arange(f_start, f_end, f_resolution)
+        
+        freq = np.arange(f_start, f_end, f_resolution)
+
+        ome = 2 * np.pi * _freq
+        ome2 = ome ** 2
+        _eig_val2 = eig_freq ** 2
+
+        m_p_chn = eig_vec_chn[:, :no_modes]
+
+        m_p_imp = eig_vec_imp[:, :no_modes]
+
+        m_p = np.einsum('ij,kj->jik', m_p_chn, m_p_imp)
+        
+        denominator = (_eig_val2[:no_modes, np.newaxis] - ome2) + np.einsum('ij,i->ij',(ome * eig_freq[:no_modes, np.newaxis]),(2 * 1j * damping[:no_modes]))
+
+        FRF_matrix = np.einsum('ijk,il->ljk', m_p, 1 / denominator)
+
+        if frf_type == "receptance":
+            _temp = FRF_matrix
+
+        elif frf_type == "mobility":
+            _temp = np.einsum('ijk,i->ijk', FRF_matrix, (1j*2*np.pi*_freq))
+
+        elif frf_type == "accelerance":
+            _temp = np.einsum('ijk,i->ijk', FRF_matrix, -(2*np.pi*_freq)**2)
+
+        FRF = _temp
+
+        return freq, FRF
 
 
     def add_noise(self,n1 = 2e-2, n2 = 2e-1, n3 = 2e-1 ,n4 = 5e-2):

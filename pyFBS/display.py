@@ -88,10 +88,8 @@ class view3D():
         self.animate_toolbar = self.plot.app_window.addToolBar('Animate Modeshape')
         self.animate_clear_toolbar = self.plot.app_window.addToolBar('Clear Modeshape')
 
-        # fixed_rotation
-        self.fixed_rotation = None
 
-    def add_modeshape(self,dict_shape,run_animation = False,add_note = False):
+    def add_modeshape(self,dict_animation,run_animation = False,add_note = False):
         """
         Add a modeshape animation to the 3D display.
 
@@ -107,7 +105,7 @@ class view3D():
             self.add_action(self.animate_toolbar, "Animate modeshape", self.animate_modeshape)
             self.add_action(self.animate_clear_toolbar, "Clear modeshape", self.clear_modeshape)
 
-        self.modeshape_animation = dict_shape
+        self.modeshape_animation = dict_animation
 
         if add_note:
             _freq = self.modeshape_animation["freq"]
@@ -124,13 +122,14 @@ class view3D():
         """
         Animate a mode shape in the 3D display.
         """
-
+        #TODO: Check why ann secondary returns error.
         frameperiod = 1.0 / self.modeshape_animation["fps"]
 
         now = time()
         nextframe = now + frameperiod
 
         ann = self.modeshape_animation["animation_pts"]
+        #ann_secondary = self.modeshape_animation["animation_pts_secondary"]
 
         if self.take_gif:
             self.plot.open_gif(self.gif_dir)
@@ -138,14 +137,21 @@ class view3D():
         if self.modeshape_animation["scalars"]:
             set_lim = np.sqrt(np.mean(ann ** 2, axis=0))
             self.plot.update_scalar_bar_range(clim=[np.min(set_lim), np.max(set_lim)])
+            #if self.modeshape_animation["animate_secondary_mode_shape"]==True:
+            #    self.plot.update_scalar_bar_range(clim=[np.min(ann_secondary), np.max(ann_secondary)])
+
 
 
         for i in range(ann.shape[2]):
             add_val = ann[:, :, i]
+            #add_val_secondary = ann_secondary[:, i]
 
             self.plot.update_coordinates(self.modeshape_animation["or_pts"] + add_val, mesh=self.modeshape_animation["mesh"],render = False)
             if self.modeshape_animation["scalars"]:
-                self.plot.update_scalars(np.sqrt(np.mean(add_val ** 2, axis=1)).reshape(self.modeshape_animation["or_pts"].shape[0]), mesh=self.modeshape_animation["mesh"] ,render = False)
+                #if self.modeshape_animation["animate_secondary_mode_shape"]==True:
+                #    self.plot.update_scalars(add_val_secondary, mesh=self.modeshape_animation["mesh"] ,render = False) # for color changing
+                #else:
+                self.plot.update_scalars(np.sqrt(np.mean(add_val ** 2, axis=1)).reshape(self.modeshape_animation["or_pts"].shape[0]), mesh=self.modeshape_animation["mesh"] ,render = False) # for color changing
 
             self.plot.render()
             if self.take_gif:
@@ -401,7 +407,7 @@ class view3D():
         return sphere,vp_actor
 
 
-    def acc_callback(self,point, orientation = None):
+    def acc_callback(self,point, orientation = None,fixed_rotation = None):
         """
         Interactive accelerometer callback function.
 
@@ -409,7 +415,10 @@ class view3D():
         :type point: array(float)
         :param orientation: Orientation in 3D space
         :type orientation: array(float), optional
+        :param fixed_rotation: fixed rotation angle
+        :type fixed_rotation: float
         """
+
         i = int(len(self.all_accs_dynamic)+len(self.all_imps_dynamic)+len(self.all_vps_dynamic))
         size = 10
 
@@ -422,7 +431,7 @@ class view3D():
             rot = r.as_matrix()
 
         self.add_accelerometer(acc)
-        _gg = DynamicPosition(acc, self.plot, i, mesh=self.mesh, size=10,rot = rot,fixed_rotation = self.fixed_rotation)
+        _gg = DynamicPosition(acc, self.plot, i, mesh=self.mesh, size=10,rot = rot,fixed_rotation = fixed_rotation)
         self.plot.add_sphere_widget(_gg.callback, center=_gg.points, color=["k", "r", "g", "b"], radius=10 / 15)
         _gg.translate(point)
         _gg.turn_on = True
@@ -442,20 +451,20 @@ class view3D():
         :param fixed_rotation: fixed rotation angle
         :type fixed_rotation: float
         """
-        self.fixed_rotation = fixed_rotation
+
         self.mesh = mesh
 
         if isinstance(predefined, pd.DataFrame):
             for i, row in predefined.iterrows():
                 point = [row["Position_1"] * scale, row["Position_2"] * scale, row["Position_3"] * scale]
                 orientation = [row["Orientation_1"], row["Orientation_2"], row["Orientation_3"]]
-                self.acc_callback(point, orientation=orientation)
+                self.acc_callback(point, orientation=orientation,fixed_rotation = fixed_rotation)
 
         self.plot.enable_point_picking(callback=self.acc_callback, color="r", show_message="", show_point=False)
         self.plot.add_text("Press P too add an accelerometer (hold down letter T to disable snapping to mesh).",
                            font_size=10, color="k", font="times", name="text")
 
-    def imp_callback(self,point, direction = None):
+    def imp_callback(self,point, direction = None,fixed_rotation = None):
         """
         Interactive impact callback function.
 
@@ -463,6 +472,8 @@ class view3D():
         :type point: array(float)
         :param orientation: Orientation in 3D space
         :type orientation: array(float)
+        :param fixed_rotation: fixed rotation angle
+        :type fixed_rotation: float
         """
 
         i = int(len(self.all_accs_dynamic)+len(self.all_imps_dynamic)+len(self.all_vps_dynamic))
@@ -476,7 +487,7 @@ class view3D():
             #rot = np.diag([1]*3)
             rot = rotation_matrix_from_vectors(direction,[0, 0, 1]).T
 
-        _gg = DynamicPosition([imp], self.plot, i, mesh=self.mesh, size=10,rot = rot,snap_outward = False, fixed_rotation = self.fixed_rotation)
+        _gg = DynamicPosition([imp], self.plot, i, mesh=self.mesh, size=10,rot = rot,snap_outward = False, fixed_rotation = fixed_rotation)
         self.plot.add_sphere_widget(_gg.callback, center=_gg.points, color=["k", "r", "g", "b"], radius=10 / 15)
         _gg.translate(point)
         _gg.turn_on = True
@@ -496,24 +507,26 @@ class view3D():
         :param fixed_rotation: fixed rotation angle
         :type fixed_rotation: float
         """
-        self.fixed_rotation = fixed_rotation
+
         self.mesh = mesh
 
         if isinstance(predefined, pd.DataFrame):
             for i, row in predefined.iterrows():
                 point = [row["Position_1"] * scale, row["Position_2"] * scale, row["Position_3"] * scale]
                 direction = [row["Direction_1"], row["Direction_2"], row["Direction_3"]]
-                self.imp_callback(point, direction=direction)
+                self.imp_callback(point, direction=direction,fixed_rotation = fixed_rotation)
 
         self.plot.enable_point_picking(callback=self.imp_callback, color="r", show_message="", show_point=False)
         self.plot.add_text("Press P too add an impact (hold down letter T to disable snapping to mesh).", font_size = 10,color = "k",font  = "times",name = "text")
 
-    def vp_callback(self,point):
+    def vp_callback(self,point,fixed_rotation = None):
         """
         Interactive virtual point callback function.
 
         :param point: Point in 3D space
         :type point: array(float)
+        :param fixed_rotation: fixed rotation angle
+        :type fixed_rotation: float
         """
 
         i = int(len(self.all_accs_dynamic)+len(self.all_imps_dynamic)+len(self.all_vps_dynamic))
@@ -521,7 +534,7 @@ class view3D():
 
         acc, _ = self.add_vp([size/2, size/2, size/2], size=size, opacity=.1)
 
-        _gg = DynamicPosition([acc], self.plot, i, mesh=self.mesh, size=4, snap_outward=False,fixed_rotation = self.fixed_rotation)
+        _gg = DynamicPosition([acc], self.plot, i, mesh=self.mesh, size=4, snap_outward=False,fixed_rotation = fixed_rotation)
         self.plot.add_sphere_widget(_gg.callback, center=_gg.points, color=["k", "r", "g", "b"], radius=4 / 15)
 
         _gg.turn_on = True
@@ -980,8 +993,6 @@ class DynamicPosition():
 
     def __init__(self, objects, p, N, mesh=None, snap_outward=True, size=1, rot = np.diag([1]*3), fixed_rotation = None):
         # set size and static points
-
-
         self.size = size
         self.points = np.array([[size / 2, size / 2, size / 2],
                                 [0, size / 2, size / 2],
@@ -1204,14 +1215,13 @@ class DynamicPosition():
                 _vec2 = (np.asarray(self.local_widgets[i, :]))
 
                 # define the rotational matrix based on angle of rotation
-                theta = -1*angle(_vec1, _vec2)
+                theta = angle(_vec1, _vec2)
 
                 # overwrite calculated rotational angle
                 if self.fixed_theta != None:
                     theta =  self.fixed_theta*(np.pi/180)
 
-                rot = M(_vec2, theta)
-                #rot = rotation_matrix_from_vectors(_vec1, _vec2)
+                rot = M(self.local_orientation[i - 1, :], theta)
 
                 # rotate everything within accelerometer
                 for item in self.objects:
