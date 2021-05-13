@@ -1,27 +1,59 @@
-# Config file for automatic testing at travis-ci.org
+dist: xenial
+
+branches:
+  only:
+  - travis_ci
+
+os:
+  - linux
 
 language: python
 python:
-  - 3.8
-  - 3.7
-  - 3.6
-  - 3.5
+  - "3.8"
+  
+before_install:
+  - set -x
+  - sudo apt update && sudo apt install python-qt4 libgl1-mesa-glx
+  - sudo apt-get install -y xvfb
+  - export DISPLAY=:99.0
+  - export PYVISTA_OFF_SCREEN=True
+  - which Xvfb
+  - Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+  - sleep 3
+  - set +x
+  
+  - pip install pytest  
+  - pip install pytest-cov
+  - pip install pytest-qt
+  
+  
+install:
+  - pip install .
+  
+  - pip install pyvista
+  - pip install pyvistaqt
+    
+  - pip install qtpy>=1.9.0
+  - pip install scooby>=0.5.1
+  - pip install PyQt5==5.11.3
+  
+  - "pip install jupyterlab"
+  - "pip install nbconvert"
 
-# Command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
-install: pip install -U tox-travis
+jobs:
+  include:
+    - stage: "Test"     
+      name: "Compile"    
+      script:
+        - pytest -v ./tests/test_plotting.py
 
-# Command to run tests, e.g. python setup.py test
-script: tox
+#    - stage: "Documentation" 
+#      name: "Documentation"     
+#      script: echo Documentation
 
-# Assuming you have installed the travis-ci CLI tool, after you
-# create the Github repo and add it to Travis, run the
-# following command to finish PyPI deployment setup:
-# $ travis encrypt --add deploy.password
-deploy:
-  provider: pypi
-  distributions: sdist bdist_wheel
-  user: pyFBS
-  on:
-    tags: true
-    repo: pyFBS/pyFBS
-    python: 3.8
+#    - stage: "Deploy to PyPi"
+#      name: "Deploy"
+#      script: echo Deploy
+  
+notifications:
+  email: false
