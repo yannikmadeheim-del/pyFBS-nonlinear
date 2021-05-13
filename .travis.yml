@@ -36,9 +36,6 @@ install:
   - pip install qtpy>=1.9.0
   - pip install scooby>=0.5.1
   - pip install PyQt5==5.11.3
-  
-  - "pip install jupyterlab"
-  - "pip install nbconvert"
 
 jobs:
   include:
