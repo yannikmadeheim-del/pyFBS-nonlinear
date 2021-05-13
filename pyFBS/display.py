@@ -31,7 +31,7 @@ class view3D():
     :type title: str, optional
     """
 
-    def __init__(self,show_origin = True,show_axes = True,title = None,**kwargs):
+    def __init__(self,show_origin = True,show_axes = False,title = None,**kwargs):
         self.plot = BackgroundPlotter(show = True,**kwargs)
 
         if title != None:
@@ -39,7 +39,7 @@ class view3D():
         else:
             self.plot.app_window.setWindowTitle("pyFBS ")
 
-        # set the pyFBS logo
+        #set the pyFBS logo
         icon = str(Path(__file__).parents[1]) + os.sep + "data" + os.sep + "logo-small.png"
         self.plot.app_window.setWindowIcon(QtGui.QIcon(icon))
 
