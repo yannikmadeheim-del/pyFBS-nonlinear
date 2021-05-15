@@ -25,9 +25,17 @@ def setUp():
                 nbpaths.append(os.path.abspath(dirname) + os.path.sep + filename) # get abspath of notebook
                 nbnames.append(''.join(filename[:-6])) # strip off the file extension
     
-    nbpaths.pop(1) # Removes interactive example due to CI
-    nbnames.pop(1) # Removes interactive example due to CI
+    #nbpaths.pop(1) # Removes interactive example due to CI
+    #nbnames.pop(1) # Removes interactive example due to CI
     
+    subselect = "interactive"
+
+    removed_paths = [string for string in nbpaths if subselect in string]
+    removed_names = [string for string in nbnames if subselect in string]
+    print(removed_paths)
+    nbpaths.remove(removed_paths[0])
+    nbnames.remove(removed_names[0])
+
     return nbpaths, nbnames
 
 
