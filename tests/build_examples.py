@@ -41,7 +41,7 @@ def get(nbname, nbpath):
         #                         stderr=subprocess.PIPE)
 
         nbexe = subprocess.Popen(['jupyter', 'nbconvert','--to','notebook',
-                                  '--execute', '{0}'.format(nbpath),'--ExecutePreprocessor.timeout=120'],
+                                  '--execute', '{0}'.format(nbpath),'--ExecutePreprocessor.timeout=300'],
                                  stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                                 stderr=subprocess.PIPE)
 

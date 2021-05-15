@@ -110,7 +110,7 @@ def load_uff_file_PAK(uff_file_data,uff_file_output,uff_file_input):
     return freq,FRF,df_chn,df_imp,df_acc
 
 
-def download_automotive_testbench(overwrite=True):
+def download_automotive_testbench(overwrite=False):
     """
 
     """
@@ -151,7 +151,7 @@ def download_automotive_testbench(overwrite=True):
                 with open(folder_name + os.sep + sub_dir + os.sep + '%s' % filename, 'wb') as fout:
                     fout.write(r._content)
 
-def download_lab_testbench(overwrite=True):
+def download_lab_testbench(overwrite=False):
     """
     Download laboratory testbench files
 
@@ -162,7 +162,7 @@ def download_lab_testbench(overwrite=True):
 
     url_l_sub = {"FEM": ["A.full", "A.rst", "AB.full", "AB.rst", "B.full", "B.rst"],
                  "STL": ["A.stl", "B.stl", "AB.stl"],
-                 "Measurements": ["AM_Measurements.xlsx", "coupling_example.xlsx", "decoupling_example.xlsx",
+                 "Measurements": ["AM_Measurements.xlsx","ammeasurements.xlsx", "coupling_example.xlsx", "decoupling_example.xlsx",
                                   "TPA_synt.xlsx", "Y_A.p", "Y_B.p", "Y_AB.p"]}
 
     # remove folder if overwrite
