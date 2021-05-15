@@ -110,7 +110,7 @@ def load_uff_file_PAK(uff_file_data,uff_file_output,uff_file_input):
     return freq,FRF,df_chn,df_imp,df_acc
 
 
-def download_automotive_testbench(overwrite=False):
+def download_automotive_testbench(overwrite=True):
     """
 
     """
@@ -151,7 +151,7 @@ def download_automotive_testbench(overwrite=False):
                 with open(folder_name + os.sep + sub_dir + os.sep + '%s' % filename, 'wb') as fout:
                     fout.write(r._content)
 
-def download_lab_testbench(overwrite=False):
+def download_lab_testbench(overwrite=True):
     """
     Download laboratory testbench files
 
