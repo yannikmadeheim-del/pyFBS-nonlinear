@@ -24,6 +24,10 @@ def setUp():
             if filename.endswith('.ipynb') and not filename.endswith('-checkpoint.ipynb'):
                 nbpaths.append(os.path.abspath(dirname) + os.path.sep + filename) # get abspath of notebook
                 nbnames.append(''.join(filename[:-6])) # strip off the file extension
+    
+    nbpaths.pop(1) # Removes interactive example due to CI
+    nbnames.pop(1) # Removes interactive example due to CI
+    
     return nbpaths, nbnames
 
 
