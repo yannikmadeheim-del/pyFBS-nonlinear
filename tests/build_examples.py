@@ -2,10 +2,11 @@ import unittest
 import subprocess
 from pathlib import Path
 import os
+import warnings
 
-import nbformat
-from nbconvert.preprocessors import ExecutePreprocessor
-from nbconvert.preprocessors import CellExecutionError
+#import nbformat
+#from nbconvert.preprocessors import ExecutePreprocessor
+#from nbconvert.preprocessors import CellExecutionError
 
 # Testing for the notebooks - use nbconvert to execute all cells of the
 # notebook
@@ -70,11 +71,8 @@ def get(nbname, nbpath):
             #    print(msg)
                 
 
-        
-        
         nbexe = subprocess.Popen(['jupyter', 'nbconvert','--to','notebook',
-                                  '--execute', '{0}'.format(nbpath),"--ExecutePreprocessor(timeout=120, kernel_name='python3',store_widget_state = False)"
-                                  ],
+                                  '--execute', '{0}'.format(nbpath),'--ExecutePreprocessor.timeout=120'],
                                  stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                                 stderr=subprocess.PIPE)
         
@@ -86,6 +84,12 @@ def get(nbname, nbpath):
 
             # if passed remove the generated  file
             os.remove(nbpath[:-6] + '.nbconvert.ipynb')
+            
+        elif "A cell timed out while it was being executed" in str(err):
+            print('\n ..... {0} Warning Timeout Passed ..... \n'.format(nbname))
+            warnings.warn(UserWarning('\n ..... {0} Warning Timeout Passed ..... \n'.format(nbname)))
+            check = 0
+            
         else:
             print('\n <<<<< {0} FAILED >>>>> \n'.format(nbname))
             print('Captured Output: \n {0}'.format(err))
