@@ -3,6 +3,10 @@ import subprocess
 from pathlib import Path
 import os
 
+import nbformat
+from nbconvert.preprocessors import ExecutePreprocessor
+from nbconvert.preprocessors import CellExecutionError
+
 # Testing for the notebooks - use nbconvert to execute all cells of the
 # notebook
 
@@ -51,15 +55,32 @@ def get(nbname, nbpath):
         #                          '--ExecutePreprocessor.timeout=120'],
         #                         stdin=subprocess.PIPE, stdout=subprocess.PIPE,
         #                         stderr=subprocess.PIPE)
+        #print(nbpath)
+        #with open(nbpath) as f:
+            #nb = nbformat.read(f, as_version=4)
+            #ep = ExecutePreprocessor(timeout=600, kernel_name='python3')
+            #print(ep)
+            #ep.preprocess(nb, {'metadata': {'path': NBDIR}})
 
+            #try:
+            #    out = ep.preprocess(nb, {'metadata': {'path': NBDIR}})
+            #except CellExecutionError:
+            #    out = None
+            #    msg = 'Error executing the notebook "%s".\n\n' % nbname
+            #    print(msg)
+                
+
+        
+        
         nbexe = subprocess.Popen(['jupyter', 'nbconvert','--to','notebook',
-                                  '--execute', '{0}'.format(nbpath),"--ExecutePreprocessor(timeout=-1, kernel_name='python3')"
+                                  '--execute', '{0}'.format(nbpath),"--ExecutePreprocessor(timeout=120, kernel_name='python3',store_widget_state = False)"
                                   ],
                                  stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                                 stderr=subprocess.PIPE)
-
+        
         output, err = nbexe.communicate()
         check = nbexe.returncode
+        
         if check == 0:
             print('\n ..... {0} Passed ..... \n'.format(nbname))
 
@@ -70,7 +91,7 @@ def get(nbname, nbpath):
             print('Captured Output: \n {0}'.format(err))
 
         self.assertTrue(check == 0)
-
+        
     return test_func
 
 
