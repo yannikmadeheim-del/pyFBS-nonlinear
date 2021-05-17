@@ -1,8 +1,8 @@
 dist: xenial
 
 branches:
-  only:
-  - travis_ci
+  except:
+  - experimental_ui
 
 os:
   - linux
