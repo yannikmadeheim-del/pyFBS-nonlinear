@@ -31,7 +31,7 @@ jobs:
     - stage: "Test"     
       name: "Compile"    
       script:
-        - pytest -v 
+        - pytest -v --cov-report term --cov=app/test/
         - pytest -v ./tests/build_examples.py
         
 #    - stage: "Documentation" 
@@ -41,6 +41,7 @@ jobs:
 #    - stage: "Deploy to PyPi"
 #      name: "Deploy"
 #      script: echo Deploy
+ 
   
-notifications:
-  email: false
+after_success:
+  - codecov
