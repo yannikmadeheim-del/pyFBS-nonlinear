@@ -22,29 +22,18 @@ before_install:
   - sleep 3
   - set +x
   
-  - pip install pytest  
-  - pip install pytest-cov
-  - pip install pytest-qt
-  
-  
 install:
   - pip install .
-  
-  - pip install pyvista
-  - pip install pyvistaqt
-    
-  - pip install qtpy>=1.9.0
-  - pip install scooby>=0.5.1
-  - pip install PyQt5==5.11.3
-  - pip install nbconvert
-  - pip install jupyterlab
+  - pip install -r requirements_dev.txt
+
 jobs:
   include:
     - stage: "Test"     
       name: "Compile"    
       script:
-        - pytest -v ./tests/test_plotting.py
+        - pytest -v 
         - pytest -v ./tests/build_examples.py
+        
 #    - stage: "Documentation" 
 #      name: "Documentation"     
 #      script: echo Documentation
