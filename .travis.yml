@@ -1,5 +1,9 @@
 dist: xenial
 
+env:
+  global:
+    - CODECOV_TOKEN='d42ca8f1-72be-4a3f-8fd1-2d9b3a75bd20'
+
 branches:
   except:
   - experimental_ui
@@ -42,6 +46,5 @@ jobs:
 #      name: "Deploy"
 #      script: echo Deploy
  
-  
 after_success:
-  - codecov
+  - bash <(curl -s https://codecov.io/bash) -t <TOKEN>
