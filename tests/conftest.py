@@ -25,7 +25,7 @@ def file_names_AB():
 
 @pytest.fixture()
 def file_names_xlsx():
-    xlsx = r"./lab_testbench/Measurements/AM_measurements.xlsx"
+    xlsx = r"./lab_testbench/Measurements/AM_Measurements.xlsx"
     return xlsx
 
 @pytest.fixture()
