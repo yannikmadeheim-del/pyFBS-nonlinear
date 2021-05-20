@@ -18,29 +18,32 @@ Load the required predefined datasets and open the 3D viewer in the background a
     
 Experimental model
 ******************
-Load the experimental measurements file from the example datasets. 
+Load the experimental measurements file from the example datasets.
 
-exp_A = r"./lab_testbench/Measurements/Y_A.p"
-exp_B = r"./lab_testbench/Measurements/Y_B.p"
-exp_AB = r"./lab_testbench/Measurements/Y_AB.p"
+.. code-block:: python
 
-freq, _Y_A_exp = np.load(exp_A, allow_pickle = True)
-_, _Y_B_exp = np.load(exp_B, allow_pickle = True)
-_, _Y_AB_exp = np.load(exp_AB, allow_pickle = True)
+	exp_A = r"./lab_testbench/Measurements/Y_A.p"
+	exp_B = r"./lab_testbench/Measurements/Y_B.p"
+	exp_AB = r"./lab_testbench/Measurements/Y_AB.p"
 
-Y_A_exp = np.transpose(_Y_A_exp, (2, 0, 1))
-Y_B_exp = np.transpose(_Y_B_exp, (2, 0, 1))
-Y_AB_exp = np.transpose(_Y_AB_exp, (2, 0, 1))
+	freq, _Y_A_exp = np.load(exp_A, allow_pickle = True)
+	_, _Y_B_exp = np.load(exp_B, allow_pickle = True)
+	_, _Y_AB_exp = np.load(exp_AB, allow_pickle = True)
 
+	Y_A_exp = np.transpose(_Y_A_exp, (2, 0, 1))
+	Y_B_exp = np.transpose(_Y_B_exp, (2, 0, 1))
+	Y_AB_exp = np.transpose(_Y_AB_exp, (2, 0, 1))
+	
 
 Singular vector transformation
 ******************************
 The SVT can be performed directly on the measured data. Make sure that input and output DoFs involved in the transformation are the same in the subsystem to be decoupled (B) and the assembled system (AB). Furthermore, the same reduction spaces must be used for both the systems (B and AB) in order to guarantee a proper compatibility and equilibrium. The reduced singular subspaces are extracted from the subsystem B and a number of 6 DoFs is used.
+
 .. code-block:: python
 
 	k = 6
 	svt = pyFBS.SVT(df_chn_B,df_imp_B,freq,Y_B_exp,[1,10],k)
-
+	
     
 Apply the defined SVT to systems B and AB:
 

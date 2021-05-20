@@ -1,27 +1,50 @@
-# Config file for automatic testing at travis-ci.org
+dist: xenial
+
+env:
+  global:
+    - CODECOV_TOKEN='d42ca8f1-72be-4a3f-8fd1-2d9b3a75bd20'
+
+branches:
+  except:
+  - experimental_ui
+
+os:
+  - linux
 
 language: python
 python:
-  - 3.8
-  - 3.7
-  - 3.6
-  - 3.5
+  - "3.8.5"
+  
+before_install:
+  - set -x
+  - sudo apt update && sudo apt install python-qt4 libgl1-mesa-glx
+  - sudo apt-get install -y xvfb
+  - export DISPLAY=:99.0
+  - export PYVISTA_OFF_SCREEN=True
+  - which Xvfb
+  - Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+  - sleep 3
+  - set +x
+  
+install:
+  - pip install .
+  - pip install -r requirements_dev.txt
 
-# Command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
-install: pip install -U tox-travis
+jobs:
+  include:
+    - stage: "Test"     
+      name: "Compile"    
+      script:
+        - pytest -v --cov-report term --cov=app/test/
+        - pytest -v ./tests/build_examples.py
+        
+#    - stage: "Documentation" 
+#      name: "Documentation"     
+#      script: echo Documentation
 
-# Command to run tests, e.g. python setup.py test
-script: tox
-
-# Assuming you have installed the travis-ci CLI tool, after you
-# create the Github repo and add it to Travis, run the
-# following command to finish PyPI deployment setup:
-# $ travis encrypt --add deploy.password
-deploy:
-  provider: pypi
-  distributions: sdist bdist_wheel
-  user: pyFBS
-  on:
-    tags: true
-    repo: pyFBS/pyFBS
-    python: 3.8
+#    - stage: "Deploy to PyPi"
+#      name: "Deploy"
+#      script: echo Deploy
+ 
+after_success:
+  - bash <(curl -s https://codecov.io/bash) -t <TOKEN>

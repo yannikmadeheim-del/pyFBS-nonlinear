@@ -162,7 +162,7 @@ def download_lab_testbench(overwrite=False):
 
     url_l_sub = {"FEM": ["A.full", "A.rst", "AB.full", "AB.rst", "B.full", "B.rst"],
                  "STL": ["A.stl", "B.stl", "AB.stl"],
-                 "Measurements": ["AM_Measurements.xlsx", "coupling_example.xlsx", "decoupling_example.xlsx",
+                 "Measurements": ["AM_Measurements.xlsx","ammeasurements.xlsx", "coupling_example.xlsx", "decoupling_example.xlsx",
                                   "TPA_synt.xlsx", "Y_A.p", "Y_B.p", "Y_AB.p"]}
 
     # remove folder if overwrite
