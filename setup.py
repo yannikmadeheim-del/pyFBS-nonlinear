@@ -73,5 +73,5 @@ setup(
     packages=["pyFBS"],
     test_suite='tests',
     url='https://pyfbs.readthedocs.io/en/latest/intro.html',
-    version='0.1.6',
+    version='0.1.7',
 )
