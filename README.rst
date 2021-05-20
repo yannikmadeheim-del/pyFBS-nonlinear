@@ -9,7 +9,7 @@ pyFBS is a Python package for Frequency Based Substructuring and Transfer Path A
 
 With the package also basic and application examples are provided, together with real datasets so you can directly try out the capabilities of the pyFBS.
 
-|pypi| |docs| |codecov| |codequality| |MIT|
+|pypi| |docs| |codequality| |MIT|
 
 Features
 --------
