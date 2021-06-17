@@ -193,49 +193,17 @@ class MK_model(object):
             direction_nodes.append(directions[loc])
         return unique_nodes, np.asarray(direction_nodes)
 
-    @staticmethod
-    def loc_definition(response_point, response_direction, excitation_point, excitation_direction, rotation_included,
-                       all_at_once=False):
+    def loc_definition(self, node_index):
         """
-        Computation of DoF od specific node in specific direction to find location in modal matrix or global receptance matrix.
+        DoF index generation for the node index in the global model.
 
-        :param response_point: number of node where responce is observed
+        :param point_index: response/excitation node index in the global model (starting with 1)
         :type response_point: int or array(int)
-        :param response_direction: direction of observed responnce (0-x, 1-y, 2-z)
-        :type response_point: int or array(int)
-        :param excitation_point: number of node where excitation is performed
-        :type excitation_point: int or array(int)
-        :param excitation_direction: direction of performed excitation (0-x, 1-y, 2-z)
-        :type excitation_direction: int or array(int)
-        :param rotation_included: definition of roations inclusion in DoFs in system
-        :type rotation_included: bool
-        :param all_at_once: Compute response at all locations - ODS animation of the whole mesh,
-        :type all_at_once: bool
-        :return: sel1, sel2
-        :rtype: (int, int)
+        :return: DoF indices corresponding to the input point indices 
+        :rtype: int
         """
-        if rotation_included:
-            N_DOFs = 6
-        else:
-            N_DOFs = 3
-
-        if all_at_once == False:
-            sel1 = (response_point - 1) * N_DOFs + response_direction
-            sel2 = (excitation_point - 1) * N_DOFs + excitation_direction
-            # print(sel1,sel2)
-        elif all_at_once == True:
-            _sel1 = (response_point - 1) * N_DOFs
-            _sel2 = (excitation_point - 1) * N_DOFs
-            sel1 = []
-            sel2 = []
-            for i in response_direction:
-                sel1.append(_sel1 + i)
-            for i in excitation_direction:
-                sel2.append(_sel2 + i)
-            sel1 = np.ravel(sel1, 'F')  # combine all together in alternating way
-            sel2 = np.ravel(sel2, 'F')  # combine all together in alternating way
-
-        return sel1, sel2
+        node_index = np.asarray([node_index]).ravel()
+        return np.array([np.argwhere(self.dof_ref[:,0] == _)[:3] for _ in node_index]).ravel()
 
     def update_locations_df(self,df,scale = 1):
         """
