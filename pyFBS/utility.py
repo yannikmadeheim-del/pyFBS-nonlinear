@@ -156,35 +156,67 @@ def mode_animation(mode_shape, scale, no_points=60,abs_scale = True):
     return ann
 
 
-def coh_frf(y_1, y_2):
+def MAC(phi_1, phi_2, output_type = 'matrix'):
+    """
+    Calculates modal assurance criterion matrix.
+
+    :param phi_1: modal matrix or modeshapes 1, shape: ``(n_locations, n_modes)``
+    :type phi_1: array(float)
+    :param phi_2: modal matrix or modeshapes 1, shape: ``(n_locations, n_modes)``
+    :type phi_2: array(float)
+    :param output_type: output type - 'matrix' or 'diagonal'
+    :type output_type: str('matrix', 'diagonal')
+    :return: MAC values
+    """
+    if phi_1.shape[0] != phi_2.shape[0]:
+        raise Exception('Input dimensions are not compatible.')
+    if phi_1.ndim == 1:
+        phi_1 = phi_1[:,np.newaxis]
+    if phi_2.ndim == 1:
+        phi_2 = phi_2[:,np.newaxis]
+
+    MAC_mat = np.abs(np.einsum('ri,ik->rk',np.conj(phi_1).T,phi_2))**2 / (np.einsum('ri,ir->r',np.conj(phi_1).T,phi_1)[:,np.newaxis] * np.einsum('ri,ir->r',np.conj(phi_2).T,phi_2))
+    if output_type == 'matrix':
+        return MAC_mat
+    if output_type == 'diagonal':
+        return np.diagonal(MAC_mat)
+    else:
+        raise Exception('Unknown output type.')
+
+def coh_frf(Y_1, Y_2, return_average = True):
     """
     Calculates values of coherence between two FRFs.
 
-    :param y_1: FRF 1
-    :type y_1: array(float)
-    :param y_2: FRF 2
-    :type y_2: array(float)
+    :param Y_1: FRF 1
+    :type Y_1: array(float)
+    :param Y_2: FRF 2
+    :type Y_2: array(float)
     :return: coherence criterion
     """
 
-    y_1_k = np.conjugate(y_1)
-    y_2_k = np.conjugate(y_2)
-
-    def vector(h_, h_K):
-        """
-        :param h_: complex vector
-        :param h_K: conjugated complex vector
-
-        :return: vector product
-        """
-
-        vec = np.dot(h_, h_K)
-        return vec
-
-    coh = np.abs(vector((y_1 + y_2), (y_1_k + y_2_k))) / 2 / (vector(y_1_k, y_1) + vector(y_2_k, y_2))
-    coh_abs = np.abs(coh)
-
-    return coh_abs
+    if Y_1.shape == Y_2.shape:
+        if len(Y_1.shape) == 3:
+            numerator = np.einsum("ijk,ijk->ijk", (Y_1+Y_2), (np.conj(Y_1)+np.conj(Y_2)))
+            denumerator = 2*(np.einsum("ijk,ijk->ijk", Y_1, np.conj(Y_1)) + np.einsum("ijk,ijk->ijk", Y_2, np.conj(Y_2)))
+            coh = np.einsum("ijk,ijk->ijk", numerator, 1/denumerator)
+        elif len(Y_1.shape) == 2:
+            numerator = np.einsum("ij,ij->ij", (Y_1+Y_2), (np.conj(Y_1)+np.conj(Y_2)))
+            denumerator = 2*(np.einsum("ij,ij->ij", Y_1, np.conj(Y_1)) + np.einsum("ij,ij->ij", Y_2, np.conj(Y_2)))
+            coh = np.einsum("ij,ij->ij", numerator, 1/denumerator)
+        elif len(Y_1.shape) == 1:
+            numerator = (Y_1+Y_2)*(np.conj(Y_1)+np.conj(Y_2))
+            denumerator = 2*((Y_1*np.conj(Y_1)) + (Y_2*np.conj(Y_2)))
+            coh = numerator/denumerator
+        else:
+            print("Wrong matrix shape")
+        
+        if return_average == True:
+            return np.mean(np.abs(coh))
+        else:
+            return np.abs(coh)
+    else:
+        print("Wrong matrix shape")
+        return None
 
 def dict_animation(_modeshape,a_type,mesh= None,pts = None,fps = 30,r_scale = 10,no_points = 60, object_list = None,abs_scale = True):
     """
