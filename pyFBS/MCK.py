@@ -260,65 +260,6 @@ class MK_model(object):
         return _modeshape
 
 
-    def transform_modal_parameters(self, df_channel, df_impact = None, limit_modes = None, modal_damping = None, _all = False, return_channel_only = False, two_dim_data = False):
-        """
-        FEM model reduction to the defined input/output locations and directions.
-
-        :param df_channel: locations and directions of responses where FRFs will be generated
-        :type df_channel: pandas.DataFrame
-        :param df_impact: locations and directions of impacts where FRFs will be generated
-        :type df_impact: pandas.DataFrame
-        :param limit_modes: number of modes used for FRF synthesis
-        :type limit_modes: int
-        :param modal_damping: viscose modal damping ratio (constant for whole frequency range or ``None``)
-        :type modal_damping: float or None
-        """
-        # truncation
-        if limit_modes == None:
-            no_modes = self.no_modes
-        else:
-            no_modes = limit_modes
-
-        # eigenvalues
-        _eig_val2 = self.eig_freq[:no_modes] ** 2
-        # damping
-
-        if modal_damping == None:
-            damping = np.asarray([0] * no_modes)
-        elif type(modal_damping) == float:
-            damping = np.asarray([modal_damping] * no_modes)
-        else:
-            damping = modal_damping
-        
-        # response DoF
-        unique_nodes_chn, direction_nodes_chn = self.data_preparation(df_channel, two_dim_data)
-        index_chn = self.find_nearest_locations(self.nodes, unique_nodes_chn)
-        response_points = index_chn + 1
-        loc1 = self.loc_definition(response_points)
-
-        # response eigenvector reduction/transformation
-        if _all:
-            m_p_chan_all = self.eig_vec[:, :no_modes]
-            m_p_chan_sensors = block_diag(*direction_nodes_chn) @ self.eig_vec[loc1, :no_modes]
-            m_p_chan = np.vstack([m_p_chan_sensors,m_p_chan_all])
-
-        else:
-            m_p_chan = block_diag(*direction_nodes_chn) @ self.eig_vec[loc1, :no_modes]
-        
-        if return_channel_only == True:
-            return(_eig_val2, damping, m_p_chan)
-        else:    
-            # excitation DoF
-            unique_nodes_imp, direction_nodes_imp = self.data_preparation(df_impact, two_dim_data)
-            index_imp = self.find_nearest_locations(self.nodes, unique_nodes_imp)  
-            excitation_points = index_imp + 1
-            loc2 = self.loc_definition(excitation_points)
-            # excitation eigenvector reduction/transformation
-            m_p_imp = block_diag(*direction_nodes_imp) @ self.eig_vec[loc2, :no_modes]
-            m_p = np.einsum('ij,kj->jik', m_p_chan, m_p_imp)
-            return(no_modes, _eig_val2, damping, m_p)
-
-
     def transform_modal_parameters(self, df_channel, df_impact = None, limit_modes = None, modal_damping = None, _all = False, return_channel_only = False, n_dim = 3):
         """
         FEM model reduction to the defined input/output locations and directions.
