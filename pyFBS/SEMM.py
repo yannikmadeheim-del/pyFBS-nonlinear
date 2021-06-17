@@ -225,9 +225,6 @@ def SEREP(eig_vec_num, eig_vec_exp, df_chn_num, df_chn_exp):
     b_dof_ind_exp = np.copy(maching_locations_chn[:,1])
     i_dof_ind_num = np.setdiff1d(np.arange(eig_vec_num.shape[0]),b_dof_ind_num)
 
-    n_i = i_dof_ind_num.shape[0]
-    n_b = b_dof_ind_num.shape[0]
-
     # T matrix generation    
     psi_num_ir = np.copy(eig_vec_num)[i_dof_ind_num,:]
     psi_num_br = np.copy(eig_vec_num)[b_dof_ind_num,:]
