@@ -81,9 +81,8 @@ def SEMM(Y_num, Y_exp, df_chn_num, df_imp_num, df_chn_exp, df_imp_exp, SEMM_type
         raise Exception('The input impact data frame must contain those DoFs that are represented in the numerical model.')
 
     # Initialization data
-    Y_par = np.asarray(np.copy(Y_num))
-    Y_exp = np.asarray(Y_exp)
-    Y_exp = np.copy(Y_exp).reshape(Y_exp.shape[0], Y_exp.shape[1]*Y_exp.shape[2])
+    Y_num = np.asarray(np.copy(Y_num)).astype(np.complex)
+    Y_exp = np.asarray(np.copy(Y_exp)).astype(np.complex)
 
     # Data preparation for building parent, remowed and overlay model
     # Reviewing all experimental obtained DoFs
@@ -95,70 +94,41 @@ def SEMM(Y_num, Y_exp, df_chn_num, df_imp_num, df_chn_exp, df_imp_exp, SEMM_type
     if maching_locations_imp.shape[0] != df_imp_exp.shape[0]:
         raise Exception('Not all locations in the impact data frame have their exact locations in the numeric impact data frame.')
 
-    all_resp_nodes_DoF = np.repeat(maching_locations_chn[:, 0], len(maching_locations_imp[:, 0]))
-    all_exc_nodes_DoF = np.array(list(maching_locations_imp[:, 0])*len(maching_locations_chn[:, 0]))
+    chn_b_dof_ind_num = np.copy(maching_locations_chn[:,0])
+    chn_b_dof_ind_exp = np.copy(maching_locations_chn[:,1])
+    chn_i_dof_ind_num = np.setdiff1d(np.arange(Y_num.shape[1]),chn_b_dof_ind_num)
 
-    # Define unique locations of performed excitations and responses
-    uniq_resp_nodes_DoF = np.unique(all_resp_nodes_DoF)
-    uniq_exc_nodes_DoF = np.unique(all_exc_nodes_DoF)
+    chn_n_b = chn_b_dof_ind_num.shape[0]
 
-    # Define unique locations of performed excitations and responses started counting from 0
-    all_resp_nodes_DoF_0 = [list(uniq_resp_nodes_DoF).index(i) for i in all_resp_nodes_DoF]
-    all_exc_nodes_DoF_0 = [list(uniq_exc_nodes_DoF).index(i) for i in all_exc_nodes_DoF]
+    imp_b_dof_ind_num = np.copy(maching_locations_imp[:,0])
+    imp_b_dof_ind_exp = np.copy(maching_locations_imp[:,1])
+    imp_i_dof_ind_num = np.setdiff1d(np.arange(Y_num.shape[2]),imp_b_dof_ind_num)
 
-    # Construction of parent model
-    # moved collumns
-    _all_exc_nodes_DoF = Y_par[:, :, (uniq_exc_nodes_DoF)]
-    Y_par = np.delete(Y_par, uniq_exc_nodes_DoF, axis=2)
-    Y_par = np.concatenate((Y_par, _all_exc_nodes_DoF), axis=2)
+    imp_n_b = imp_b_dof_ind_num.shape[0]
 
-    # moved rows
-    _all_resp_nodes_DoF = Y_par[:, (uniq_resp_nodes_DoF), :]
-    Y_par = np.delete(Y_par, uniq_resp_nodes_DoF, axis=1)
-    Y_par = np.concatenate((Y_par, _all_resp_nodes_DoF), axis=1)
-
-    # Construction of removed model
-    Y_rem = _all_exc_nodes_DoF[:, (uniq_resp_nodes_DoF), :]
-
-    # Construction of overlay model
-    Y_ov = np.zeros((Y_par.shape[0], len(uniq_resp_nodes_DoF), len(uniq_exc_nodes_DoF)), dtype=complex)
-    for i in range(Y_exp.shape[1]):
-        Y_ov[:, all_resp_nodes_DoF_0[i], all_exc_nodes_DoF_0[i]] = Y_exp[:Y_par.shape[0], i]
+    # Parent model    
+    Y_par = Y_num[:, np.hstack([chn_i_dof_ind_num,chn_b_dof_ind_num])[:,np.newaxis], np.hstack([imp_i_dof_ind_num,imp_b_dof_ind_num])]
+    # Removed model    
+    Y_rem = Y_num[:, chn_b_dof_ind_num[:,np.newaxis], imp_b_dof_ind_num] 
+    # Overlay model    
+    Y_ov = Y_exp[:, chn_b_dof_ind_exp[:,np.newaxis], imp_b_dof_ind_exp]
 
     if SEMM_type == "basic":
         # Single-line method SEMM - basic form - eq(21)
-        try:
-            Y_SEMM = Y_par-Y_par[:, :, -len(uniq_exc_nodes_DoF):]@np.linalg.inv(Y_rem)@(
-                Y_rem-Y_ov)@np.linalg.inv(Y_rem)@Y_par[:, -len(uniq_resp_nodes_DoF):, :]
-        except np.linalg.LinAlgError:
-            Y_SEMM = Y_par-Y_par[:, :, -len(uniq_exc_nodes_DoF):]@np.linalg.pinv(Y_rem)@(
-                Y_rem-Y_ov)@np.linalg.pinv(Y_rem)@Y_par[:, -len(uniq_resp_nodes_DoF):, :]
+        Y_SEMM = Y_par-Y_par[:, :, -imp_n_b:] @ np.linalg.inv(Y_rem)@(Y_rem-Y_ov)@np.linalg.pinv(Y_rem)@Y_par[:, -chn_n_b:, :]
 
     elif SEMM_type == "fully-extend":
         # Single-line method SEMM - fully-extend form - eq(31)
-        Y_SEMM = Y_par-Y_par@np.linalg.pinv(Y_par[:, -len(uniq_resp_nodes_DoF):, :])@(
-            Y_rem-Y_ov)@np.linalg.pinv(Y_par[:, :, -len(uniq_exc_nodes_DoF):])@Y_par
+        Y_SEMM = Y_par-Y_par@np.linalg.pinv(Y_par[:, -chn_n_b:, :])@(Y_rem-Y_ov)@np.linalg.pinv(Y_par[:, :, -imp_n_b:])@Y_par
 
     elif SEMM_type == "fully-extend-svd":
-        Y_SEMM = Y_par - Y_par @ np.linalg.pinv(TSVD(Y_par[:, -len(uniq_resp_nodes_DoF):, :], reduction=red_comp))  @ (
-            Y_rem - Y_ov) @ np.linalg.pinv(TSVD(Y_par[:, :, -len(uniq_exc_nodes_DoF):], reduction=red_eq)) @ Y_par
+        Y_SEMM = Y_par-Y_par@np.linalg.pinv(TSVD(Y_par[:, -chn_n_b:, :], reduction=red_comp))@(Y_rem-Y_ov)@np.linalg.pinv(TSVD(Y_par[:, :, -imp_n_b:], reduction=red_eq))@Y_par
 
-    # rearranging SEMM model to input numerical form od DOFs
-    # moved collumns
-    _all_exc_nodes_DoF = Y_SEMM[:, :, -len(uniq_exc_nodes_DoF):]
-    Y_SEMM = Y_SEMM[:, :, :-len(uniq_exc_nodes_DoF)]
-
-    for index, i in enumerate(uniq_exc_nodes_DoF):
-        Y_SEMM = np.insert(Y_SEMM, i, _all_exc_nodes_DoF[:, :, index], axis=2)
-
-    # moved rows
-    _all_resp_nodes_DoF = Y_SEMM[:, -len(uniq_resp_nodes_DoF):, :]
-    Y_SEMM = Y_SEMM[:, :-len(uniq_resp_nodes_DoF), :]
-
-    for index, i in enumerate(uniq_resp_nodes_DoF):
-        Y_SEMM = np.insert(Y_SEMM, i, _all_resp_nodes_DoF[:, index, :], axis=1)
-
-    return Y_SEMM
+    # reordering
+    chn_ind = np.argsort(np.hstack([chn_i_dof_ind_num,chn_b_dof_ind_num]))
+    imp_ind = np.argsort(np.hstack([imp_i_dof_ind_num,imp_b_dof_ind_num]))
+    
+    return Y_SEMM[:,chn_ind[:,np.newaxis],imp_ind]
 
 def identification_algorithm(Y_num, Y_exp, df_num_chn, df_num_imp, df_exp_chn, df_exp_imp, axis = 1,  SEMM_type='fully-extend', red_comp=0, red_eq=0, additional_columns = []):
     """
@@ -218,3 +188,52 @@ def identification_algorithm(Y_num, Y_exp, df_num_chn, df_num_imp, df_exp_chn, d
             
     coh = coh_frf(Y_exp, rconstructd_FRF)
     return rconstructd_FRF, coh
+
+def SEREP(eig_vec_num, eig_vec_exp, df_chn_num, df_chn_exp):
+    """
+    This function performs SEREP - and expanssion method in modal domain. 
+
+    :param eig_vec_num: Eigenvectors of the numerical model.
+    :type eig_vec_num: array(float)
+    :param eig_vec_exp: Eigenvectors of the experimental model.
+    :type eig_vec_exp: array(float)
+    :param df_chn_num: Response locations and directions for the numerical model.
+    :type df_chn_num: pandas.DataFrame
+    :param df_chn_exp: Response locations and directions for the experimental model.
+    :type df_chn_exp: pandas.DataFrame
+    
+    :return: hybrid eigenvectors
+    :rtype: array(float)
+    """
+
+    # Initialization data 
+    eig_vec_num = np.asarray(np.copy(eig_vec_num)).astype(float)
+    eig_vec_exp = np.asarray(np.copy(eig_vec_exp)).astype(float)
+
+    # Input data validation
+    if df_chn_num.shape[0] != eig_vec_num.shape[0]:
+        raise Exception('Numerical model - Incompatible channel data and eigenvector shape.')
+    if df_chn_exp.shape[0] != eig_vec_exp.shape[0]:
+        raise Exception('Experimental model - Incompatible channel data and eigenvector shape.')
+
+    # Internal and boundary DoF partition
+    maching_locations_chn = find_locations_in_data_frames(df_chn_num, df_chn_exp)
+    if maching_locations_chn.shape[0] != df_chn_exp.shape[0]:
+        raise Exception('Not all experimental channel locations have a matching location in the numerical channel dataframe.')
+
+    b_dof_ind_num = np.copy(maching_locations_chn[:,0])
+    b_dof_ind_exp = np.copy(maching_locations_chn[:,1])
+    i_dof_ind_num = np.setdiff1d(np.arange(eig_vec_num.shape[0]),b_dof_ind_num)
+
+    # T matrix generation    
+    psi_num_ir = np.copy(eig_vec_num)[i_dof_ind_num,:]
+    psi_num_br = np.copy(eig_vec_num)[b_dof_ind_num,:]
+    psi_exp_br = np.copy(eig_vec_exp)[b_dof_ind_exp,:]
+
+    print('Condition number:'+"%.2f" % np.linalg.cond(psi_num_br))
+    T = np.vstack([psi_num_ir @ np.linalg.pinv(psi_num_br), np.eye(psi_num_br.shape[0])])
+    eig_vec_serep = T @ psi_exp_br
+
+    # Reordering - input dof
+    reord_ind = np.argsort(np.hstack([i_dof_ind_num,b_dof_ind_num]))
+    return eig_vec_serep[reord_ind,:]

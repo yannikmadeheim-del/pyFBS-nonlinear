@@ -1,7 +1,7 @@
 from scipy.sparse import linalg,diags
 from ansys.mapdl import reader as pymapdl_reader
 from numpy.random import randn
-from pyFBS.VPT import VPT
+from .VPT import VPT
 
 import pandas as pd
 import scipy as sp
@@ -172,17 +172,19 @@ class MK_model(object):
             return selected_dense_mesh_node_index
 
     @staticmethod
-    def data_preparation(df):
+    def data_preparation(df, n_dim = 3):
         """
         Returns unique locations of all nodal coordinates in ``df`` and all directions for each node.
 
         :param df: data frame of locations and corresponding directions 
         :type df: pandas.DataFrame
+        :param n_dim: number of dimensions in FEM model 
+        :type n_dim: int
         :return: unique nodal coordinates and directions for each node
         :rtype: (array(float), array(int))
         """
         nodes = df[["Position_1", "Position_2", "Position_3"]].values.astype(float)
-        directions = df[["Direction_1", "Direction_2", "Direction_3"]].values.astype(float)
+        directions = df[["Direction_1", "Direction_2", "Direction_3"]].values.astype(float)[:,:n_dim]       
 
         unique_nodes = nodes[np.sort(np.unique(nodes, axis=0, return_index=True)[1])]
         direction_nodes = []
@@ -191,49 +193,17 @@ class MK_model(object):
             direction_nodes.append(directions[loc])
         return unique_nodes, np.asarray(direction_nodes)
 
-    @staticmethod
-    def loc_definition(response_point, response_direction, excitation_point, excitation_direction, rotation_included,
-                       all_at_once=False):
+    def loc_definition(self, node_index):
         """
-        Computation of DoF od specific node in specific direction to find location in modal matrix or global receptance matrix.
+        DoF index generation for the node index in the global model.
 
-        :param response_point: number of node where responce is observed
+        :param point_index: response/excitation node index in the global model (starting with 1)
         :type response_point: int or array(int)
-        :param response_direction: direction of observed responnce (0-x, 1-y, 2-z)
-        :type response_point: int or array(int)
-        :param excitation_point: number of node where excitation is performed
-        :type excitation_point: int or array(int)
-        :param excitation_direction: direction of performed excitation (0-x, 1-y, 2-z)
-        :type excitation_direction: int or array(int)
-        :param rotation_included: definition of roations inclusion in DoFs in system
-        :type rotation_included: bool
-        :param all_at_once: Compute response at all locations - ODS animation of the whole mesh,
-        :type all_at_once: bool
-        :return: sel1, sel2
-        :rtype: (int, int)
+        :return: DoF indices corresponding to the input point indices 
+        :rtype: int
         """
-        if rotation_included:
-            N_DOFs = 6
-        else:
-            N_DOFs = 3
-
-        if all_at_once == False:
-            sel1 = (response_point - 1) * N_DOFs + response_direction
-            sel2 = (excitation_point - 1) * N_DOFs + excitation_direction
-            # print(sel1,sel2)
-        elif all_at_once == True:
-            _sel1 = (response_point - 1) * N_DOFs
-            _sel2 = (excitation_point - 1) * N_DOFs
-            sel1 = []
-            sel2 = []
-            for i in response_direction:
-                sel1.append(_sel1 + i)
-            for i in excitation_direction:
-                sel2.append(_sel2 + i)
-            sel1 = np.ravel(sel1, 'F')  # combine all together in alternating way
-            sel2 = np.ravel(sel2, 'F')  # combine all together in alternating way
-
-        return sel1, sel2
+        node_index = np.asarray([node_index]).ravel()
+        return np.array([np.argwhere(self.dof_ref[:,0] == _)[:3] for _ in node_index]).ravel()
 
     def update_locations_df(self,df,scale = 1):
         """
@@ -290,7 +260,66 @@ class MK_model(object):
         return _modeshape
 
 
-    def FRF_synth(self,df_channel,df_impact,f_start = 1, f_end = 2000, f_resolution= 1, limit_modes = None, modal_damping = None, frf_type = "receptance",_all = False):
+    def transform_modal_parameters(self, df_channel, df_impact = None, limit_modes = None, modal_damping = None, _all = False, return_channel_only = False, n_dim = 3):
+        """
+        FEM model reduction to the defined input/output locations and directions.
+
+        :param df_channel: locations and directions of responses where FRFs will be generated
+        :type df_channel: pandas.DataFrame
+        :param df_impact: locations and directions of impacts where FRFs will be generated
+        :type df_impact: pandas.DataFrame
+        :param limit_modes: number of modes used for FRF synthesis
+        :type limit_modes: int
+        :param modal_damping: viscose modal damping ratio (constant for whole frequency range or ``None``)
+        :type modal_damping: float or None
+        """
+        # truncation
+        if limit_modes == None:
+            no_modes = self.no_modes
+        else:
+            no_modes = limit_modes
+
+        # eigenvalues
+        _eig_val2 = self.eig_freq[:no_modes] ** 2
+        # damping
+
+        if modal_damping == None:
+            damping = np.asarray([0] * no_modes)
+        elif type(modal_damping) == float:
+            damping = np.asarray([modal_damping] * no_modes)
+        else:
+            damping = modal_damping
+        
+        # response DoF
+        unique_nodes_chn, direction_nodes_chn = self.data_preparation(df_channel, n_dim)
+        index_chn = self.find_nearest_locations(self.nodes, unique_nodes_chn)
+        response_points = index_chn + 1
+        loc1 = self.loc_definition(response_points)
+
+        # response eigenvector reduction/transformation
+        if _all:
+            m_p_chan_all = self.eig_vec[:, :no_modes]
+            m_p_chan_sensors = block_diag(*direction_nodes_chn) @ self.eig_vec[loc1, :no_modes]
+            m_p_chan = np.vstack([m_p_chan_sensors,m_p_chan_all])
+
+        else:
+            m_p_chan = block_diag(*direction_nodes_chn) @ self.eig_vec[loc1, :no_modes]
+        
+        if return_channel_only == True:
+            return(_eig_val2, damping, m_p_chan)
+        else:    
+            # excitation DoF
+            unique_nodes_imp, direction_nodes_imp = self.data_preparation(df_impact, n_dim)
+            index_imp = self.find_nearest_locations(self.nodes, unique_nodes_imp)  
+            excitation_points = index_imp + 1
+            loc2 = self.loc_definition(excitation_points)
+            # excitation eigenvector reduction/transformation
+            m_p_imp = block_diag(*direction_nodes_imp) @ self.eig_vec[loc2, :no_modes]
+            m_p = np.einsum('ij,kj->jik', m_p_chan, m_p_imp)
+            return(no_modes, _eig_val2, damping, m_p)
+
+
+    def FRF_synth(self,df_channel,df_impact,f_start = 1, f_end = 2000, f_resolution= 1, limit_modes = None, modal_damping = None, frf_type = "receptance",_all = False, n_dim = 3):
         """
         Synthetisation of frequency response functions using the mode superposition method.
 
@@ -313,33 +342,9 @@ class MK_model(object):
         :param _all: synthetize response at all nodes - can be usefull ot animate FRFs
         :type _all, optional: boolean
         """
-        unique_nodes_chn, direction_nodes_chn = self.data_preparation(df_channel)
-        unique_nodes_imp, direction_nodes_imp = self.data_preparation(df_impact)
 
-        index_chn = self.find_nearest_locations(self.nodes, unique_nodes_chn)
-        index_imp = self.find_nearest_locations(self.nodes, unique_nodes_imp)
-            
-        response_points = index_chn + 1
-        response_directions = [0, 1, 2]
-        excitation_points = index_imp + 1
-        excitation_directions = [0, 1, 2]
-
-        if limit_modes == None:
-            no_modes = self.no_modes
-        else:
-            no_modes = limit_modes
-
-
-        if modal_damping == None:
-            damping = np.asarray([0] * no_modes)
-        elif type(modal_damping) == float:
-            damping = np.asarray([modal_damping] * no_modes)
-        else:
-            damping = modal_damping
-
-        loc1, loc2 = self.loc_definition(response_points, response_directions, excitation_points, excitation_directions, 
-                                         self.rotation_included, all_at_once=True)
-
+        no_modes, _eig_val2, damping, m_p = self.transform_modal_parameters(df_channel = df_channel, df_impact = df_impact, limit_modes = limit_modes, modal_damping = modal_damping, _all = _all, n_dim = n_dim)
+        
         if f_start == 0:
             # approximation at 0Hz
             _freq = np.arange(f_start+1e-3, f_end, f_resolution)
@@ -349,19 +354,7 @@ class MK_model(object):
         freq = np.arange(f_start, f_end, f_resolution)
 
         ome = 2 * np.pi * _freq
-        ome2 = ome ** 2
-        _eig_val2 = self.eig_freq ** 2
-
-        if _all:
-            m_p_chan_all = self.eig_vec[:, :no_modes]
-            m_p_chan_sensors = block_diag(*direction_nodes_chn) @ self.eig_vec[loc1, :no_modes]
-            m_p_chan = np.vstack([m_p_chan_sensors,m_p_chan_all])
-
-        else:
-            m_p_chan = block_diag(*direction_nodes_chn) @ self.eig_vec[loc1, :no_modes]
-
-        m_p_imp = block_diag(*direction_nodes_imp) @ self.eig_vec[loc2, :no_modes]
-        m_p = np.einsum('ij,kj->jik', m_p_chan, m_p_imp)
+        ome2 = ome ** 2        
         
         denominator = (_eig_val2[:no_modes, np.newaxis] - ome2) + np.einsum('ij,i->ij',(ome * self.eig_freq[:no_modes, np.newaxis]),(2 * 1j * damping[:no_modes]))
 
