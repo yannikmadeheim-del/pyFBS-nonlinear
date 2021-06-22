@@ -10,4 +10,3 @@ scooby>=0.5.1
 PyQt5==5.11.3
 nbconvert
 jupyterlab
-pywin32==225
