@@ -11,6 +11,8 @@ Development Lead
 
 * Francesco Trainotti
 
+* Miha Pogačar
+
 Contributors
 ------------
 
