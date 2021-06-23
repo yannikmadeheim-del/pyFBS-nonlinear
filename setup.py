@@ -44,7 +44,7 @@ extra_files = package_files('./data')
 
 
 setup(
-    author="Tomaž Bregar, Ahmed El Mahmoudi, Miha Kodrič, Domen Ocepek, Francesco Trainotti",
+    author="Tomaž Bregar, Ahmed El Mahmoudi, Miha Kodrič, Domen Ocepek, Francesco Trainotti, Miha Pogačar",
     author_email='info.pyfbs@gmail.com',
     python_requires='>=3.6',
     classifiers=[
