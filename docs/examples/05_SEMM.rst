@@ -31,7 +31,7 @@ The equivalent models, appearing in the SEMM method, are arranged by separating 
    \end{bmatrix}^{\text{rem}}.
    \end{equation}
 
-After fulfilling compatibility and equilibrium conditions between equivalent models, the basic form of the SEMM method is defined using the equation:
+After satisfying compatibility and equilibrium conditions between equivalent models, the basic form of the SEMM method is defined using the equation:
 
 .. math::
 
