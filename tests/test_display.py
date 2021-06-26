@@ -1,31 +1,21 @@
 import pytest
-
 import pyvista
 import pyvistaqt
-
 import pyFBS
-
 from pyvistaqt import BackgroundPlotter, MainWindow, QtInteractor
 
 
-def test1(qtbot):
-    plotter = BackgroundPlotter()
 
+@pytest.mark.parametrize("show_origin", [False, True])
+@pytest.mark.parametrize("show_axes", [False, True])
+def test_display(show_origin,show_axes):
+    view3D = pyFBS.view3D(show_origin = show_origin,show_axes = show_axes, title = "test")
+    assert(view3D.plot is not None)
+    view3D.plot.close()
 
-
-def test2(qtbot):
-    plotter = BackgroundPlotter(off_screen=False)
-
-
-
-def test3(qtbot):
-    plotter = BackgroundPlotter(show = True)
-
-def test4(qtbot):
-    plotter = pyFBS.view3D()
-    
-def test5(qtbot):
-    plotter = pyFBS.download_lab_testbench()
-    
-def test5(qtbot):
-    plotter = pyFBS.download_automotive_testbench()
+def test_add_stl():
+    view3D = pyFBS.view3D()
+    stl_file = "./" + pyFBS.IO.LAB_FOLDER + "/" + "STL" + "/" + pyFBS.IO.LAB_FILES["STL"][0]
+    mesh = view3D.add_stl(stl_file)
+    assert(mesh is not None)
+    view3D.plot.close()
