@@ -18,7 +18,7 @@ def test_automotive_testbench_download(automotive_testbench_file_names):
     for file in all_files:
         assert os.path.isfile(file) 
 
-# Tests the download of the automotive testbench
+# Tests the download of the lab testbench
 def test_lab_testbench_download(lab_testbench_file_names):
 
     pyFBS.download_lab_testbench()
@@ -27,3 +27,5 @@ def test_lab_testbench_download(lab_testbench_file_names):
 
     for file in all_files:
         assert os.path.isfile(file) 
+
+#TODO: add test for PAK function
