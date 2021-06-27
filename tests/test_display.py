@@ -27,7 +27,6 @@ def test_show_accelerometers():
     df_acc = pd.read_excel(path_to_xlsx, sheet_name='Sensors_AB')
     view3D.show_acc(df_acc)
     assert(view3D.global_acc)
-    assert(view3D.get_acc_data)
     view3D.plot.close()
 
 def test_show_impacts():
@@ -36,7 +35,15 @@ def test_show_impacts():
     df_imp = pd.read_excel(path_to_xlsx, sheet_name='Channels_AB')
     view3D.show_imp(df_imp)
     assert(view3D.global_imp)
-    assert(view3D.get_imp_data)
     view3D.plot.close()
 
+def test_show_channels():
+    view3D = pyFBS.view3D()
+    path_to_xlsx = "./" + pyFBS.IO.LAB_FOLDER + "/" + "Measurements" + "/" + "AM_measurements.xlsx"
+    df_acc = pd.read_excel(path_to_xlsx, sheet_name='Sensors_AB')
+    df_chn = pyFBS.generate_channels_from_sensors(df_acc)
+    assert(df_chn.empty is False)
+    view3D.show_chn(df_chn)
+    assert(view3D.global_chn)
+    view3D.plot.close()
 
