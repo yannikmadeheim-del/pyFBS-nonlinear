@@ -21,13 +21,22 @@ def test_add_stl():
     assert(mesh is not None)
     view3D.plot.close()
 
-def test_add_accelerometers():
+def test_show_accelerometers():
     view3D = pyFBS.view3D()
     path_to_xlsx = "./" + pyFBS.IO.LAB_FOLDER + "/" + "Measurements" + "/" + "AM_measurements.xlsx"
     df_acc = pd.read_excel(path_to_xlsx, sheet_name='Sensors_AB')
     view3D.show_acc(df_acc)
     assert(view3D.global_acc)
     assert(view3D.get_acc_data)
+    view3D.plot.close()
+
+def test_show_impacts():
+    view3D = pyFBS.view3D()
+    path_to_xlsx = "./" + pyFBS.IO.LAB_FOLDER + "/" + "Measurements" + "/" + "AM_measurements.xlsx"
+    df_imp = pd.read_excel(path_to_xlsx, sheet_name='Channels_AB')
+    view3D.show_imp(df_imp)
+    assert(view3D.global_imp)
+    assert(view3D.get_imp_data)
     view3D.plot.close()
 
 
