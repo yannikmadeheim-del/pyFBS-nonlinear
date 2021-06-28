@@ -16,6 +16,7 @@ def test_display(show_origin):
 
 def test_add_stl():
     view3D = pyFBS.view3D()
+    pyFBS.download_lab_testbench()
     stl_file = "./" + pyFBS.IO.LAB_FOLDER + "/" + "STL" + "/" + pyFBS.IO.LAB_FILES["STL"][0]
     mesh = view3D.add_stl(stl_file)
     assert(mesh is not None)
@@ -23,6 +24,7 @@ def test_add_stl():
 
 def test_show_accelerometers():
     view3D = pyFBS.view3D()
+    pyFBS.download_lab_testbench()
     path_to_xlsx = "./" + pyFBS.IO.LAB_FOLDER + "/" + "Measurements" + "/" + "AM_measurements.xlsx"
     df_acc = pd.read_excel(path_to_xlsx, sheet_name='Sensors_AB')
     view3D.show_acc(df_acc)
@@ -31,6 +33,7 @@ def test_show_accelerometers():
 
 def test_show_impacts():
     view3D = pyFBS.view3D()
+    pyFBS.download_lab_testbench()
     path_to_xlsx = "./" + pyFBS.IO.LAB_FOLDER + "/" + "Measurements" + "/" + "AM_measurements.xlsx"
     df_imp = pd.read_excel(path_to_xlsx, sheet_name='Channels_AB')
     view3D.show_imp(df_imp)
@@ -39,6 +42,7 @@ def test_show_impacts():
 
 def test_show_channels():
     view3D = pyFBS.view3D()
+    pyFBS.download_lab_testbench()
     path_to_xlsx = "./" + pyFBS.IO.LAB_FOLDER + "/" + "Measurements" + "/" + "AM_measurements.xlsx"
     df_acc = pd.read_excel(path_to_xlsx, sheet_name='Sensors_AB')
     df_chn = pyFBS.generate_channels_from_sensors(df_acc)
