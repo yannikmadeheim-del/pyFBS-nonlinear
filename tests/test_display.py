@@ -1,6 +1,7 @@
 import pytest
 import pyvista
 import pyvistaqt
+import numpy as np
 import pyFBS
 import pandas as pd
 from pyvistaqt import BackgroundPlotter, MainWindow, QtInteractor
@@ -24,27 +25,24 @@ def test_add_stl():
 
 def test_show_accelerometers():
     view3D = pyFBS.view3D()
-    pyFBS.download_lab_testbench()
-    path_to_xlsx = "./" + pyFBS.IO.LAB_FOLDER + "/" + "Measurements" + "/" + "AM_measurements.xlsx"
-    df_acc = pd.read_excel(path_to_xlsx, sheet_name='Sensors_AB')
+    data_acc = np.asarray([["T", None, None, None, 0,0,0,0,0,0]])
+    df_acc = pd.DataFrame(data=data_acc, columns=pyFBS.display.COLUMNS_ACC)
     view3D.show_acc(df_acc)
     assert(view3D.global_acc)
     view3D.plot.close()
 
 def test_show_impacts():
     view3D = pyFBS.view3D()
-    pyFBS.download_lab_testbench()
-    path_to_xlsx = "./" + pyFBS.IO.LAB_FOLDER + "/" + "Measurements" + "/" + "AM_measurements.xlsx"
-    df_imp = pd.read_excel(path_to_xlsx, sheet_name='Channels_AB')
+    data_imp = np.asarray([["T", None, None, None, 0,0,0,0,0,1]])
+    df_imp = pd.DataFrame(data=data_imp, columns=pyFBS.display.COLUMNS_CHN)
     view3D.show_imp(df_imp)
     assert(view3D.global_imp)
     view3D.plot.close()
 
 def test_show_channels():
     view3D = pyFBS.view3D()
-    pyFBS.download_lab_testbench()
-    path_to_xlsx = "./" + pyFBS.IO.LAB_FOLDER + "/" + "Measurements" + "/" + "AM_measurements.xlsx"
-    df_acc = pd.read_excel(path_to_xlsx, sheet_name='Sensors_AB')
+    data_acc = np.asarray([["T", None, None, None, 0,0,0,0,0,0]])
+    df_acc = pd.DataFrame(data=data_acc, columns=pyFBS.display.COLUMNS_ACC)
     df_chn = pyFBS.generate_channels_from_sensors(df_acc)
     assert(df_chn.empty is False)
     view3D.show_chn(df_chn)
