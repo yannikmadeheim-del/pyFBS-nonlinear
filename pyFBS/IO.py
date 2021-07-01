@@ -6,6 +6,19 @@ import requests
 import shutil
 from tqdm import tqdm
 
+LAB_FOLDER = "lab_testbench"
+LAB_FILES = {"FEM": ["A.full", "A.rst", "AB.full", "AB.rst", "B.full", "B.rst"],
+                 "STL": ["A.stl", "B.stl", "AB.stl"],
+                 "Measurements": ["AM_Measurements.xlsx","ammeasurements.xlsx", "coupling_example.xlsx", "decoupling_example.xlsx",
+                                  "TPA_synt.xlsx", "Y_A.p", "Y_B.p", "Y_AB.p"]}
+
+AUTOMOTIVE_FOLDER = "automotive_testbench"
+AUTOMOTIVE_FILES = {"FEM": ["EM.full", "EM.rst", "RM.full", "RM.rst", "TM.full", "TM.rst"],
+                 "STL": ["engine_mount.stl", "receiver.stl", "roll_mount.stl", "shaker_only.stl", "source.stl",
+                         "transmission_mount.stl", "ts.stl"],
+                 "Measurements": ["A.p", "A.xlsx", "AB_ref.p", "AB_ref.xlsx", "BTS.p", "BTS.xlsx", "B_ref.p",
+                                  "ODS.p", "ODS.xlsx", "TS.p", "TS.xlsx", "TS.xlsx", "frame_rubbermounts.p",
+                                  "frame_rubbermounts_sourceplate.p", "modal.xlsx"]}
 
 def load_uff_file_PAK(uff_file_data,uff_file_output,uff_file_input):
     """
@@ -114,16 +127,16 @@ def download_automotive_testbench(overwrite=False):
     """
 
     """
-    folder_name = "automotive_testbench"
+    folder_name = AUTOMOTIVE_FOLDER #"automotive_testbench"
 
     url_automotive = r'https://gitlab.com/pyFBS/pyFBS_data/-/raw/master/automotive_testbench/'
 
-    url_a_sub = {"FEM": ["EM.full", "EM.rst", "RM.full", "RM.rst", "TM.full", "TM.rst"],
-                 "STL": ["engine_mount.stl", "receiver.stl", "roll_mount.stl", "shaker_only.stl", "source.stl",
-                         "transmission_mount.stl", "ts.stl"],
-                 "Measurements": ["A.p", "A.xlsx", "AB_ref.p", "AB_ref.xlsx", "BTS.p", "BTS.xlsx", "B_ref.p",
-                                  "ODS.p", "ODS.xlsx", "TS.p", "TS.xlsx", "TS.xlsx", "frame_rubbermounts.p",
-                                  "frame_rubbermounts_sourceplate.p", "modal.xlsx"]}
+    url_a_sub = AUTOMOTIVE_FILES #{"FEM": ["EM.full", "EM.rst", "RM.full", "RM.rst", "TM.full", "TM.rst"],
+                # "STL": ["engine_mount.stl", "receiver.stl", "roll_mount.stl", "shaker_only.stl", "source.stl",
+                #         "transmission_mount.stl", "ts.stl"],
+                # "Measurements": ["A.p", "A.xlsx", "AB_ref.p", "AB_ref.xlsx", "BTS.p", "BTS.xlsx", "B_ref.p",
+                #                  "ODS.p", "ODS.xlsx", "TS.p", "TS.xlsx", "TS.xlsx", "frame_rubbermounts.p",
+                #                  "frame_rubbermounts_sourceplate.p", "modal.xlsx"]}
 
     # remove folder if overwrite
     if os.path.isdir(folder_name) and overwrite:
@@ -156,14 +169,14 @@ def download_lab_testbench(overwrite=False):
     Download laboratory testbench files
 
     """
-    folder_name = "lab_testbench"
+    folder_name = LAB_FOLDER #"lab_testbench"
 
     url_lab = r'https://gitlab.com/pyFBS/pyFBS_data/-/raw/master/lab_testbench/'
 
-    url_l_sub = {"FEM": ["A.full", "A.rst", "AB.full", "AB.rst", "B.full", "B.rst"],
-                 "STL": ["A.stl", "B.stl", "AB.stl"],
-                 "Measurements": ["AM_Measurements.xlsx","ammeasurements.xlsx", "coupling_example.xlsx", "decoupling_example.xlsx",
-                                  "TPA_synt.xlsx", "Y_A.p", "Y_B.p", "Y_AB.p"]}
+    url_l_sub = LAB_FILES #{"FEM": ["A.full", "A.rst", "AB.full", "AB.rst", "B.full", "B.rst"],
+                # "STL": ["A.stl", "B.stl", "AB.stl"],
+                # "Measurements": ["AM_Measurements.xlsx","ammeasurements.xlsx", "coupling_example.xlsx", "decoupling_example.xlsx",
+                #                  "TPA_synt.xlsx", "Y_A.p", "Y_B.p", "Y_AB.p"]}
 
     # remove folder if overwrite
     if os.path.isdir(folder_name) and overwrite:
