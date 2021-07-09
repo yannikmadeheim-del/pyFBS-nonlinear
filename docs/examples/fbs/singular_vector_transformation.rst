@@ -14,7 +14,7 @@ The SVT can tackle challenging scenarios with flexible behaving interfaces and l
 
 .. only:: html
 
-    .. figure:: ./data/pic_vpt.png 
+    .. figure:: ./../data/pic_vpt.png 
        :target: 12_SVT.html
 
        Singular Vector Transformation
@@ -38,7 +38,7 @@ The SVT can tackle challenging scenarios with flexible behaving interfaces and l
 
 .. only:: html
 
-    .. figure:: ./data/seven_three.png   
+    .. figure:: ./../data/seven_three.png   
        :target: 13_SVT_decoupling.html
 
        FBS Decoupling with SVT

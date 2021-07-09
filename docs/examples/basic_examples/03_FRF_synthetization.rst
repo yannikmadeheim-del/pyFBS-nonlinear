@@ -4,7 +4,7 @@ FRF synthetization
 The :mod:`pyFBS` package enables user-friendly modal analysis and FRFs synthesis based on the mass and stiffness matrices imported from the FEM software. Currently, only data import from Ansys is supported. 
 
 .. note:: 
-   Download example showing the basic use of the FRF synthetization: :download:`03_FRF_synthetization.ipynb <../../examples/03_FRF_synthetization.ipynb>`
+   Download example showing the basic use of the FRF synthetization: :download:`03_FRF_synthetization.ipynb <../../../examples/03_FRF_synthetization.ipynb>`
 
 Numerical analysis of continuous systems requires their discretization by division into finite elements [1]_. 
 The dynamic properties of the system are described by the equilibrium equation, where the external forces are equal to the internal forces resulting from inertia, damping and elasticity. 
@@ -133,7 +133,7 @@ Here you can set the frame rate (``fps``), the relative scale of deformation (``
 
 Animation is visible in the previously defined pop-up window. In the following figure is animated 7th mode shape. 
 
-.. figure:: ./data/mode_shape_animation3.gif
+.. figure:: ./../data/mode_shape_animation3.gif
    :width: 800px
    
 To show undeformed mesh you can simply click the button in the pop-up window or call a method :func:`clear_modeshape()`:
@@ -279,7 +279,7 @@ When visualizing FRFs, responses and excitation locations can be organized and d
 	
 Comparison of different FRFs.
 	
-.. figure:: ./data/FRF_syn-FRF-visualization.png
+.. figure:: ./../data/FRF_syn-FRF-visualization.png
    :width: 600px
 
 .. rubric:: References

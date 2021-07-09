@@ -5,18 +5,18 @@ Transmission simulator in FBS
 The method of Transmission Simulator (TS) is primarly used direclty in the modal domain. Nevertheless, the concept of attaching a transmission simulator at the interface can be used also in the frequency domain. In this example a frequency based subtructuring is performed on a complex structure. First a transmission simulator is decoupled from the receiver structure and aftewards a source structure is coupled to the receiver structure. At the interface the VPT is used to obtain collocated interface DoFs.
 
 .. note:: 
-   Download example showing a Transmission Simulator (TS) application: :download:`10_TS.ipynb <../../examples/10_FBS_transmission_simulator.ipynb>`.
+   Download example showing a Transmission Simulator (TS) application: :download:`10_TS.ipynb <../../../examples/10_FBS_transmission_simulator.ipynb>`.
 
 Example Datasests and 3D view
 *****************************
-As already shown in the `3D Display <../../html/examples/01_static_display.html>`_ one can load the predefined datasets from an example and add a structure from STL file to the 3D display. This allows both the acceleration sensors and excitation points to be visualized. Also for the transmission simulator application, a subplot representation, as already presented in `Coupling <../../html/examples/07_coupling.html>`_, can be used.
+As already shown in the `3D Display <../../../html/examples/basic_examples/01_static_display.html>`_ one can load the predefined datasets from an example and add a structure from STL file to the 3D display. This allows both the acceleration sensors and excitation points to be visualized. Also for the transmission simulator application, a subplot representation, as already presented in `Coupling <../../../html/examples/fbs/07_coupling.html>`_, can be used.
 	
-.. figure:: ./data/ten_display_four.png
+.. figure:: ./../data/ten_display_four.png
    :width: 500px
    
 Virtual point transformation
 ****************************
-The VPT can be performed on experimental data. See the :download:`04_VPT.ipynb <../../examples/04_VPT.ipynb>` example for more options and details.
+The VPT can be performed on experimental data. See the :download:`04_VPT.ipynb <../../../examples/04_VPT.ipynb>` example for more options and details.
 
 .. code-block:: python
 
@@ -67,7 +67,7 @@ First the compatibility and the equiliubrium condition has to be defined through
 	plt.figure()
 	plt.imshow(Bf);
 	
-.. figure:: ./data/ten_LBS.png
+.. figure:: ./../data/ten_LBS.png
    :width: 300px
    
 Apply the LM-FBS based on the defined coompatibility and equilibrium conditions.
@@ -91,5 +91,5 @@ First extract the FRFs at the reference DoFs:
 	
 Finnaly, the coupled and the reference results can be compared and evaluated:
 
-.. figure:: ./data/ten_result.png
+.. figure:: ./../data/ten_result.png
    :width: 500px

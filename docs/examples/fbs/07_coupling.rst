@@ -6,12 +6,12 @@ The frequency-based substructure coupling is embedded in `pyFBS`. In particular,
 This can also be performed analogously with experimentally acquired data.
 
 .. note:: 
-   Download example showing a substructure coupling application: :download:`07_coupling.ipynb <../../examples/07_FBS_coupling.ipynb>`
+   Download example showing a substructure coupling application: :download:`07_coupling.ipynb <../../../examples/07_FBS_coupling.ipynb>`
 
     
 Example Datasets and 3D view
 ****************************
-Load the required predefined datasets and open the 3D viewer in the background as already shown in `3D Display <../../html/examples/01_static_display.html>`_. 
+Load the required predefined datasets and open the 3D viewer in the background as already shown in `3D Display <../../../html/examples/basic_examples/01_static_display.html>`_. 
 Especially for the illustration of different substructures and the assembly, the 3D viewer subplot capabilities of `PyVista <https://docs.pyvista.org/index.html>`_ can be used.
 
 .. code-block:: python
@@ -31,7 +31,7 @@ Add an STL file of substructure A to the 1-1 subplot and show the corresponding 
     view3D.show_imp(df_imp_A)
     view3D.show_chn(df_chn_A)
     
-.. figure:: ./data/seven_one.png
+.. figure:: ./../data/seven_one.png
    :width: 500px
     
     
@@ -48,7 +48,7 @@ Add an STL file of substructure B to the 1-2 subplot and show the corresponding 
     view3D.show_imp(df_imp_B,overwrite = False)
     view3D.show_chn(df_chn_B,overwrite = False)
  
-.. figure:: ./data/seven_two.png
+.. figure:: ./../data/seven_two.png
    :width: 500px
    
     
@@ -65,7 +65,7 @@ Add an STL file of the assembly AB to the 1-2 subplot and show the corresponding
     view3D.show_imp(df_imp_AB,overwrite = False)
     view3D.show_chn(df_chn_AB,overwrite = False)
     
-.. figure:: ./data/seven_three.png
+.. figure:: ./../data/seven_three.png
    :width: 500px
         
 Each separate subplot view can also be linked or unlinked:
@@ -78,7 +78,7 @@ Each separate subplot view can also be linked or unlinked:
 
 Numerical model
 ***************
-Load the corresponding .full and .ress file from the example datasets. For more information on .full and .ress files refer to the :download:`03_FRF_synthetization.ipynb <../../examples/03_FRF_synthetization.ipynb>` example.
+Load the corresponding .full and .ress file from the example datasets. For more information on .full and .ress files refer to the :download:`03_FRF_synthetization.ipynb <../../../examples/03_FRF_synthetization.ipynb>` example.
 
 .. code-block:: python
 
@@ -123,7 +123,7 @@ Perform the FRF sythetization for each component based on the updated locations.
     
 Virtual point transformation
 ****************************
-The VPT can be performed directly on the generated data. See the :download:`04_VPT.ipynb <../../examples/04_VPT.ipynb>` example for more options and details.
+The VPT can be performed directly on the generated data. See the :download:`04_VPT.ipynb <../../../examples/04_VPT.ipynb>` example for more options and details.
 
 .. code-block:: python
 
@@ -174,7 +174,7 @@ First the compatibility and the equilibrium conditions has to be defined through
     plt.figure()
     plt.imshow(Bf)
 
-.. figure:: ./data/seven_four.png
+.. figure:: ./../data/seven_four.png
    :width: 300px
     
     
@@ -200,6 +200,6 @@ First extract the FRFs at the reference DoFs:
     
 The coupled and the reference results can then be compared and evaluated:
     
-.. figure:: ./data/seven_five.png
+.. figure:: ./../data/seven_five.png
    :width: 500px
     

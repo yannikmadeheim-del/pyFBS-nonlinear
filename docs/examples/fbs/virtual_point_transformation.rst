@@ -13,7 +13,7 @@ Based on interface deformation modes (IDMs) full-DoF virtual point's (VP's) admi
 
 .. only:: html
 
-    .. figure:: ./data/pic_vpt.png 
+    .. figure:: ./../data/pic_vpt.png 
        :target: 04_VPT.html
 
        Virtual Point Transformation
@@ -36,7 +36,7 @@ Based on interface deformation modes (IDMs) full-DoF virtual point's (VP's) admi
 
 .. only:: html
 
-    .. figure:: ./data/seven_three.png   
+    .. figure:: ./../data/seven_three.png   
        :target: 07_coupling.html
 
        FBS Coupling with VPT
@@ -59,7 +59,7 @@ Based on interface deformation modes (IDMs) full-DoF virtual point's (VP's) admi
 
 .. only:: html
 
-    .. figure:: ./data/seven_three.png   
+    .. figure:: ./../data/seven_three.png   
        :target: 08_decoupling.html
 
        FBS Decoupling with VPT

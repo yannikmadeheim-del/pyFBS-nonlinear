@@ -5,11 +5,11 @@ Virtual point transformation (VPT) projects measured dynamics (input and output 
 Current implementation of the :class:`pyFBS.VPT` enables only rigid IDMs in the transformation. But it additionaly supports the expansion where directly measured rotational response is included in the transformation [2]_. 
 
 .. note:: 
-   Download example showing the basic use of the VPT: :download:`04_VPT.ipynb <../../examples/04_VPT.ipynb>`
+   Download example showing the basic use of the VPT: :download:`04_VPT.ipynb <../../../examples/04_VPT.ipynb>`
    
 Consider an example for the VPT where 9 impacts and 9 channels (3 tri-axial accelerometers) are positioned around the interface:
    
-.. figure:: ./data/pic_vpt.png
+.. figure:: ./../data/pic_vpt.png
    :width: 800px
    
 ****************************

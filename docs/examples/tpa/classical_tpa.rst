@@ -7,14 +7,14 @@ It is mainly used to troubleshoot NVH problems in existing products.
    
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="in-situ TPA">
+    <div class="sphx-glr-thumbcontainer" tooltip="Matrix Inverse">
 
 .. only:: html
 
-    .. figure:: ./data/tpa.png   
-       :target: 11_insitu_TPA.html
+    .. figure:: ./../data/matrix_inverse.png   
+       :target: 14_matrix_inverse_TPA.html
 
-       in-situ TPA
+       Matrix Inverse
 
 .. raw:: html
 
@@ -23,4 +23,4 @@ It is mainly used to troubleshoot NVH problems in existing products.
 .. toctree::
    :hidden:
 
-   11_insitu_TPA
+   14_matrix_inverse_TPA

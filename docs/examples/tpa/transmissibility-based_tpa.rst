@@ -7,14 +7,14 @@ This approach is convinient when TPA is used solely to identify the dominant pat
    
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="in-situ TPA">
+    <div class="sphx-glr-thumbcontainer" tooltip="Operational TPA">
 
 .. only:: html
 
-    .. figure:: ./data/tpa.png   
-       :target: 11_insitu_TPA.html
+    .. figure:: ./../data/labels.png   
+       :target: 15_operational_TPA.html
 
-       in-situ TPA
+       Operational TPA
 
 .. raw:: html
 
@@ -23,4 +23,4 @@ This approach is convinient when TPA is used solely to identify the dominant pat
 .. toctree::
    :hidden:
 
-   11_insitu_TPA
+   15_operational_TPA

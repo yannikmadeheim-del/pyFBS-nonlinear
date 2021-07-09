@@ -6,20 +6,20 @@ The decoupling of susbtructures is performed in a similar fashion as the couplin
 This can also be performed analogously with experimentally acquired data.
 
 .. note:: 
-   Download example showing a substructure decoupling application: :download:`08_decoupling_VPT.ipynb <../../examples/08_FBS_decoupling_VPT.ipynb>`
+   Download example showing a substructure decoupling application: :download:`08_decoupling_VPT.ipynb <../../../examples/08_FBS_decoupling_VPT.ipynb>`
     
 Example Datasets and 3D view
 ****************************
 
-Load the required predefined datasets and open the 3D viewer in the background as already shown in `3D Display <../../html/examples/01_static_display.html>`_. Also for decoupling, a subplot representation, as already presented in `Coupling <../../html/examples/07_coupling.html>`_, can be used.
+Load the required predefined datasets and open the 3D viewer in the background as already shown in `3D Display <../../../html/examples/basic_examples/01_static_display.html>`_. Also for decoupling, a subplot representation, as already presented in `Coupling <../../../html/examples/fbs/07_coupling.html>`_, can be used.
     
-.. figure:: ./data/eight_three.png
+.. figure:: ./../data/eight_three.png
    :width: 500px
    
     
 Numerical model
 ***************
-Load the corresponding .full and .ress file from the example datasets. For more information on .full and .ress files refer to the :download:`03_FRF_synthetization.ipynb <../../examples/03_FRF_synthetization.ipynb>` example
+Load the corresponding .full and .ress file from the example datasets. For more information on .full and .ress files refer to the :download:`03_FRF_synthetization.ipynb <../../../examples/03_FRF_synthetization.ipynb>` example
 
 .. code-block:: python
 
@@ -63,7 +63,7 @@ Perform the FRF sythetization for each component based on the updated locations.
     
 Virtual point transformation
 ****************************
-The VPT can be performed directly on the generated data. See the 04_VPT.ipynb example for more options and details.
+The VPT can be performed directly on the generated data. See the :download:`04_VPT.ipynb <../../../examples/04_VPT.ipynb>` example for more options and details.
 
 .. code-block:: python
 
@@ -114,7 +114,7 @@ First the compatibility and the equilibrium conditions has to be defined through
     plt.figure()
     plt.imshow(Bf)
     
-.. figure:: ./data/eight_four.png
+.. figure:: ./../data/eight_four.png
    :width: 300px
     
 Apply the LM-FBS based on the defined compatibility and equilibrium conditions.
@@ -138,7 +138,7 @@ First extract the FRFs at the reference DoFs:
     
 The decoupled and the reference results can then be compared and evaluated:
    
-.. figure:: ./data/eight_last.png
+.. figure:: ./../data/eight_last.png
    :width: 500px
    
 

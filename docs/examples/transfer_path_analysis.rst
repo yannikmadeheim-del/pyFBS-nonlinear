@@ -11,7 +11,7 @@ TPA offers the ability to analyse the vibration transfer between the individual 
 .. only:: html
 
     .. figure:: ./data/classical_tpa.png   
-       :target: classical_tpa.html
+       :target: ./tpa/classical_tpa.html
 
        Clasiccal TPA
 
@@ -22,7 +22,7 @@ TPA offers the ability to analyse the vibration transfer between the individual 
 .. toctree::
    :hidden:
 
-   classical_tpa
+   ./tpa/classical_tpa
 
 
 
@@ -35,7 +35,7 @@ TPA offers the ability to analyse the vibration transfer between the individual 
 .. only:: html
 
     .. figure:: ./data/component-based_tpa.png   
-       :target: component-based_tpa.html
+       :target: ./tpa/component-based_tpa.html
 
        Component-based TPA
 
@@ -46,7 +46,7 @@ TPA offers the ability to analyse the vibration transfer between the individual 
 .. toctree::
    :hidden:
 
-   component-based_tpa
+   ./tpa/component-based_tpa
 
 
 
@@ -59,7 +59,7 @@ TPA offers the ability to analyse the vibration transfer between the individual 
 .. only:: html
 
     .. figure:: ./data/otpa.png   
-       :target: transmissibility-based_tpa.html
+       :target: ./tpa/transmissibility-based_tpa.html
 
        Transmissibility-based TPA
 
@@ -70,4 +70,4 @@ TPA offers the ability to analyse the vibration transfer between the individual 
 .. toctree::
    :hidden:
 
-   transmissibility-based_tpa
+   ./tpa/transmissibility-based_tpa

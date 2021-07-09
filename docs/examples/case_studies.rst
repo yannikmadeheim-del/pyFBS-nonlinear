@@ -10,7 +10,7 @@ These examples show applications of the pyFBS on more complex problems. Explore 
 .. only:: html
 
     .. figure:: ./data/ods.gif	   
-       :target: 06_ODS.html
+       :target: ./case_studies/06_ODS.html
 
        Operational Deflection Shapes
 
@@ -21,7 +21,7 @@ These examples show applications of the pyFBS on more complex problems. Explore 
 .. toctree::
    :hidden:
 
-   06_ODS
+   ./case_studies/06_ODS
 
 
   
@@ -33,7 +33,7 @@ These examples show applications of the pyFBS on more complex problems. Explore 
 .. only:: html
 
     .. figure:: ./data/modal_2_min.gif
-       :target: 09_EMA.html
+       :target: ./case_studies/09_EMA.html
 
        Experimental Modal Analysis
 
@@ -44,7 +44,7 @@ These examples show applications of the pyFBS on more complex problems. Explore 
 .. toctree::
    :hidden:
 
-   09_EMA
+   ./case_studies/09_EMA
    
 
   
@@ -56,7 +56,7 @@ These examples show applications of the pyFBS on more complex problems. Explore 
 .. only:: html
 
     .. figure:: ./data/ten_display_four.png   
-       :target: 10_TS.html
+       :target: ./case_studies/10_TS.html
 
        Transmission Simulator
 
@@ -67,4 +67,4 @@ These examples show applications of the pyFBS on more complex problems. Explore 
 .. toctree::
    :hidden:
 
-   10_TS
+   ./case_studies/10_TS

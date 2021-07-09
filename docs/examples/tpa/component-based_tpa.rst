@@ -11,7 +11,7 @@ These equivalent or blocked forces are valid for any assembly with a modified pa
 
 .. only:: html
 
-    .. figure:: ./data/tpa.png   
+    .. figure:: ./../data/tpa.png   
        :target: 11_insitu_TPA.html
 
        in-situ TPA

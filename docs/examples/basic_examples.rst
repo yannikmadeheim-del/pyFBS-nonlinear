@@ -10,7 +10,7 @@ This examples show how to use basic features of pyFBS. Explore this basic exampl
 .. only:: html
 
     .. figure:: ./data/interaction.gif	   
-       :target: 01_static_display.html
+       :target: ./basic_examples/01_static_display.html
 
        Static display
 
@@ -21,7 +21,7 @@ This examples show how to use basic features of pyFBS. Explore this basic exampl
 .. toctree::
    :hidden:
 
-   01_static_display
+   ./basic_examples/01_static_display
 
 
   
@@ -33,7 +33,7 @@ This examples show how to use basic features of pyFBS. Explore this basic exampl
 .. only:: html
 
     .. figure:: ./data/snapping.gif	   
-       :target: 02_interactive_display.html
+       :target: ./basic_examples/02_interactive_display.html
 
        Interactive positioning
 
@@ -44,7 +44,7 @@ This examples show how to use basic features of pyFBS. Explore this basic exampl
 .. toctree::
    :hidden:
 
-   02_interactive_display
+   ./basic_examples/02_interactive_display
    
 
 
@@ -56,7 +56,7 @@ This examples show how to use basic features of pyFBS. Explore this basic exampl
 .. only:: html
 
     .. figure:: ./data/FRF_syn-FRF-visualization.png 
-       :target: 03_FRF_synthetization.html
+       :target: ./basic_examples/03_FRF_synthetization.html
 
        FRF synthetization
 
@@ -67,4 +67,4 @@ This examples show how to use basic features of pyFBS. Explore this basic exampl
 .. toctree::
    :hidden:
 
-   03_FRF_synthetization
+   ./basic_examples/03_FRF_synthetization

@@ -4,7 +4,7 @@ Interactive positioning
 With the :mod:`pyFBS` accelerometers, impacts and virtual points can be added and positioned interactively within the 3D display. 
 
 .. note:: 
-   Example showing the interactive positioning: :download:`02_interactive_display.ipynb <../../examples/02_interactive_display.ipynb>`.
+   Example showing the interactive positioning: :download:`02_interactive_display.ipynb <../../../examples/02_interactive_display.ipynb>`.
 
 Dynamic interaction with objects in the :mod:`pyFBS` is achieved with the sphere widgets from PyVista. 
 Altogether four sphere widgets are used (one for translation and three for rotations).
@@ -14,7 +14,7 @@ Translation
 ***********
 Translation of an object in the 3D display can be performed by moving a black sphere widget. An example of translation in the 3D display is depicted on a GIF bellow.
 
-.. figure:: ./data/translation.gif
+.. figure:: ./../data/translation.gif
    :width: 800px
 
 
@@ -24,7 +24,7 @@ Rotation
 To rotate an object in the 3D display, three sphere widgets are available, for rotation around each axis. 
 Red sphere widget is used for rotation around `X`-axis, green for rotation around `Y`-axis and blue for rotation around `Z`-axis. An example of rotation in the 3D display is depicted on a GIF bellow.
 
-.. figure:: ./data/rotation.gif
+.. figure:: ./../data/rotation.gif
    :width: 800px
 
 
@@ -36,7 +36,7 @@ Furthermore, also the orientation of the object is alligned with the surface nor
 when moving the object in the 3D display.
 
 
-.. figure:: ./data/snapping.gif
+.. figure:: ./../data/snapping.gif
    :width: 800px
 
 

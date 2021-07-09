@@ -6,11 +6,11 @@ Singular Vector Transformation (SVT) consists in projecting the acquired data in
 modes of interest over a broad frequency range. The SVT can tackle challenging scenarios with flexible behaving interfaces and lightly damped systems. The method combines reduction with filtering and regularization. It shows an overall low sensitivity to measurement error and significantly reduces the condition number of the interface problem. [1]_
 
 .. note:: 
-   Download example showing the basic use of the SVT: :download:`18_SVT.ipynb <../../examples/18_SVT.ipynb>`
+   Download example showing the basic use of the SVT: :download:`18_SVT.ipynb <../../../examples/18_SVT.ipynb>`
    
 Consider an example for the SVT where 21 impacts and 21 sensor channels are shared between the subsystem B and the B part of system AB within a decoupling application:
    
-.. figure:: ./data/svt.png
+.. figure:: ./../data/svt.png
    :width: 800px
    
 ******************************

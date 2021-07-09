@@ -7,7 +7,7 @@ The overlay model provides the dynamic properties which are expanded to the DoFs
 Therefore the overlay model is usually represented by the experimental model and parent model with the numerical model.
 
 .. note:: 
-   Download example showing the basic use of SEMM: :download:`05_SEMM.ipynb <../../examples/05_SEMM.ipynb>`
+   Download example showing the basic use of SEMM: :download:`05_SEMM.ipynb <../../../examples/05_SEMM.ipynb>`
 
 DoF-set of parent model is contained from internal (i) and boundary (b) DoFs. 
 Boundary DoFs must overlap with the overlay model so the dynamic coupling can be performed, while the internal DoFs of the parent model can be unique to its own. 
@@ -169,7 +169,7 @@ Finally, the results of the hybrid model can be compared with the reference expe
    plt.xlabel("f [Hz]")
    plt.ylabel("Angle [rad]")
    
-.. figure:: ./data/SEMM_result.png
+.. figure:: ./../data/SEMM_result.png
    :width: 600px
    
 .. rubric:: References

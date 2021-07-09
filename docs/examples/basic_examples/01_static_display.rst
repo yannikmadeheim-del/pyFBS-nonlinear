@@ -6,7 +6,7 @@ The :mod:`pyFBS` can be used for 3D visualization. The 3D display enables depict
 Furthermore, the 3D display supports motion animation, where objects or mode shapes can be animated with ease. For the 3D visualization a python package `PyVista <https://docs.pyvista.org/index.html>`_ is used.
 
 .. note:: 
-   Download example showing the basic use of the 3D display: :download:`01_static_display.ipynb <../../examples/01_static_display.ipynb>`
+   Download example showing the basic use of the 3D display: :download:`01_static_display.ipynb <../../../examples/01_static_display.ipynb>`
 
 
 To open a blank 3D display simply make an instance of the :class:`pyFBS.view3D`.
@@ -30,7 +30,7 @@ can be used for the geometry generation. For displaying a more complex geometric
 
 After the code execution the geometric object will apear in the rendering window.
 
-.. figure:: ./data/3D_view.png
+.. figure:: ./../data/3D_view.png
    :width: 800px
 
 
@@ -55,7 +55,7 @@ Accelerometers can be added to 3D display directly from the :mod:`pd.DataFrame`.
 
 After the code execution accelerometers will be shown in the 3D display.
 
-.. figure:: ./data/acc.png
+.. figure:: ./../data/acc.png
    :width: 800px
 
 
@@ -70,7 +70,7 @@ Channels associated with accelerometers can be added to the 3D display directly 
 
 After the code execution channels will be shown in the 3D display.	
 
-.. figure:: ./data/chn.png
+.. figure:: ./../data/chn.png
    :width: 800px
 
 
@@ -86,7 +86,7 @@ Impacts can be added to the 3D display directly from the :mod:`pd.DataFrame`.
 After the code execution impacts will be shown in the 3D display.	
 
 
-.. figure:: ./data/imp.png
+.. figure:: ./../data/imp.png
    :width: 800px
 
 
@@ -102,7 +102,7 @@ Virtual points can also be added to the 3D display directly from the :mod:`pd.Da
 
 After the code execution virtual points will be shown in the 3D display.	
 	
-.. figure:: ./data/VP.png
+.. figure:: ./../data/VP.png
    :width: 800px
 
 
@@ -119,7 +119,7 @@ Accelerometer, channels, impacts and virtual points can also be labeled or enume
 
 Corresponding labels will appear in the 3D display after the code execution.
 
-.. figure:: ./data/labels.png
+.. figure:: ./../data/labels.png
    :width: 800px
 
    
@@ -129,5 +129,5 @@ Interaction with the 3D display
 Basic interaction with the 3D display is relatively simple. Mouse ``left-click`` can be used to rotate the rendering scene and ``middle-click`` to pan the rendering scene. 
 For more information refer to the `PyVista plotting shortcuts <https://docs.pyvista.org/plotting/plotting.html>`_.
 
-.. figure:: ./data/interaction.gif
+.. figure:: ./../data/interaction.gif
    :width: 800px

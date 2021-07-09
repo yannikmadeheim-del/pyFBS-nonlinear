@@ -15,7 +15,7 @@ These examples show state-of-the-art techniques to successfully couple or decoup
 .. only:: html
 
     .. figure:: ./data/vpt_scheme.png   
-       :target: virtual_point_transformation.html
+       :target: ./fbs/virtual_point_transformation.html
 
        Virtual Point Transformation
 
@@ -26,7 +26,7 @@ These examples show state-of-the-art techniques to successfully couple or decoup
 .. toctree::
    :hidden:
 
-   virtual_point_transformation
+   ./fbs/virtual_point_transformation
 
    
 
@@ -37,8 +37,8 @@ These examples show state-of-the-art techniques to successfully couple or decoup
 
 .. only:: html
 
-    .. figure:: ./data/pic_vpt.png   
-       :target: singular_vector_transformation.html
+    .. figure:: ./data/SVT.png   
+       :target: ./fbs/singular_vector_transformation.html
 
        Singular Vector Transformation
 
@@ -49,7 +49,7 @@ These examples show state-of-the-art techniques to successfully couple or decoup
 .. toctree::
    :hidden:
 
-   singular_vector_transformation
+   ./fbs/singular_vector_transformation
 
 
 
@@ -63,7 +63,7 @@ These examples show state-of-the-art techniques to successfully couple or decoup
 .. only:: html
 
     .. figure:: ./data/semm_scheme.png   
-       :target: system_equivalent_model_mixing.html
+       :target: ./fbs/system_equivalent_model_mixing.html
 
        System Equivalent Model Mixing
 
@@ -74,4 +74,4 @@ These examples show state-of-the-art techniques to successfully couple or decoup
 .. toctree::
    :hidden:
 
-   system_equivalent_model_mixing
+   ./fbs/system_equivalent_model_mixing

@@ -6,7 +6,7 @@ The in-situ Transfer Path Analysis is a method that utilizes equivalent forces t
 With the possibility to perform operational measurements on the target assembly, dismounting of any part can be avoided.
 
 .. note:: 
-   Download example showing a numerical example of the in-situ TPA: :download:`11_insitu_TPA.ipynb <../../examples/11_TPA_in-situ.ipynb>`
+   Download example showing a numerical example of the in-situ TPA: :download:`11_insitu_TPA.ipynb <../../../examples/11_TPA_in-situ.ipynb>`
 
 What is in-situ TPA?
 ********************
@@ -16,7 +16,7 @@ Substructure A is treated as an active component with operational excitation act
 Meanwhile, no excitation force is acting on passive substructure B. 
 Responses in :math:`\boldsymbol{u}_3`, :math:`\boldsymbol{u}_4`, and also in interface DoFs :math:`\boldsymbol{u}_2` are hence a consequence of active force :math:`\boldsymbol{f}_1` only. 
 
-.. figure:: ./data/in_situ.png
+.. figure:: ./../data/in_situ.png
    :width: 250px
    :align: center
 
@@ -24,7 +24,7 @@ Source internal structure-borne excitations :math:`\boldsymbol{f}_1` are often u
 In-situ TPA introduces the set of equivalent forces, acting on interface DoFs, that cause the same displacements on B as :math:`\boldsymbol{f}_1`.
 Therefore, application of forces :math:`\boldsymbol{f}_1` and reaction forces :math:`-\boldsymbol{f}_2^{\mathrm{eq}}` should annul any response on the passive side, e.q. for :math:`\boldsymbol{u}_4`:
 
-.. figure:: ./data/in_situ_2.png
+.. figure:: ./../data/in_situ_2.png
    :width: 250px
    :align: center
 
@@ -42,7 +42,7 @@ or a set of equivalent forces, that are valid source descriptions for any receiv
 TPA methods offer a useful tool to assess the completeness of the interface description in a form of on-board validation [2]_.
 Response in :math:`\boldsymbol{u}_3` can be predicted based on :math:`\boldsymbol{f}_2^{\mathrm{eq}}`:
 
-.. figure:: ./data/in_situ_3.png
+.. figure:: ./../data/in_situ_3.png
    :width: 250px
    :align: center
 
@@ -104,10 +104,10 @@ Consistency of the VPT can be additionally evaluated using specific and overall 
 
 .. raw:: html
 
-   <iframe src="../_static/specific_impact_consistency.html" height="300px" width="295px" frameborder="0"></iframe>
-   <iframe src="../_static/overall_impact_consistency.html" height="300px" width="595px" frameborder="0"></iframe>
+   <iframe src="../../_static/specific_impact_consistency.html" height="300px" width="295px" frameborder="0"></iframe>
+   <iframe src="../../_static/overall_impact_consistency.html" height="300px" width="595px" frameborder="0"></iframe>
 
-For more options and details about :mod:`pyFBS.VPT` see the :download:`04_VPT.ipynb <../../examples/04_VPT.ipynb>` example.
+For more options and details about :mod:`pyFBS.VPT` see the :download:`04_VPT.ipynb <../../../examples/04_VPT.ipynb>` example.
 
 Calculation of equivalent forces
 ================================
@@ -133,7 +133,7 @@ Finally, equivalent forces are evaluated through on-board validation:
 
 .. raw:: html
 
-   <iframe src="../_static/u3_comparison.html" height="460px" width="100%" frameborder="0"></iframe>
+   <iframe src="../../_static/u3_comparison.html" height="460px" width="100%" frameborder="0"></iframe>
 
 Additionally, a coherence criterion can be used to objectively evaluate interface completeness:
 
@@ -144,7 +144,7 @@ Additionally, a coherence criterion can be used to objectively evaluate interfac
 
 .. raw:: html
 
-   <iframe src="../_static/on_board_coherence.html" height="330px" width="1500px" frameborder="0"></iframe>
+   <iframe src="../../_static/on_board_coherence.html" height="330px" width="1500px" frameborder="0"></iframe>
 
 See also cross-validation for further evaluation of the equivalent forces completeness [3]_.
 
@@ -176,7 +176,7 @@ The partial responses can then be displayed as a heatmap:
 
 .. raw:: html
 
-   <iframe src="../_static/TP_contribution.html" height="250px" width="100%" frameborder="0"></iframe>
+   <iframe src="../../_static/TP_contribution.html" height="250px" width="100%" frameborder="0"></iframe>
 
 Using the graphical presentation above, the most dominant transfer path can be pinpointed.
 
