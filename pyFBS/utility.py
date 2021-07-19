@@ -138,7 +138,7 @@ def mode_animation(mode_shape, scale, no_points=60, no_of_repetitions = 2, abs_s
     Secondary mode shape could be rotational mode shape or strain mode shape, 
     any other parameter, which can be displayed on nodes.
 
-    :param mode_shape: mode shape
+    :param mode_shape: mode shape, must be 2D matrix
     :type mode_shape: array(float)
     :param scale: mode shape
     :type scale: float
@@ -148,19 +148,33 @@ def mode_animation(mode_shape, scale, no_points=60, no_of_repetitions = 2, abs_s
     :type no_of_repetitions: int, optional
     :param abs_scale: Apply scaling on normalized mode
     :type abs_scale: bool, optional
-    :param secondary_mode_shape: secondary mode shape
+    :param secondary_mode_shape: secondary mode shape, must be vector
     :type secondary_mode_shape: array(float), optional
     :param animate_secondary_mode_shape: If ``True``, secondary mode shape will be animated, if ``False`` still only initial mode shape will be animated
     :type animate_secondary_mode_shape: bool, optional
     :return: Animation sequence
     """
-    ann = np.zeros((mode_shape.shape[0], mode_shape.shape[1], int(no_points)))
-    ann_secondary = np.zeros((mode_shape.shape[0], int(no_points)))
+    if isinstance(mode_shape, np.ndarray):
+        if mode_shape.ndim==2:
+            ann = np.zeros((mode_shape.shape[0], mode_shape.shape[1], int(no_points)))
+            ann_secondary = np.zeros((mode_shape.shape[0], int(no_points)))
+        else:
+            raise ValueError("Parameter mode_shape must be a 2D vector, where the first dimension presents all nodes and the second dimension 3 coordinates (x, y, z).")
+    else:
+        raise ValueError("To animate mode shape, a parameter mode_shape must be defined in form of 2D numpy array.")
+
 
     for g, _t in enumerate(np.linspace(0, int(no_of_repetitions), int(no_points))):
         ann[:, :, g] = (np.real(mode_shape) * np.cos(2 * np.pi * _t) - np.imag(mode_shape) * np.sin(2 * np.pi * _t))
         if animate_secondary_mode_shape:
-            ann_secondary[:, g] = (np.real(secondary_mode_shape) * np.cos(2 * np.pi * _t) - np.imag(secondary_mode_shape) * np.sin(2 * np.pi * _t))
+            if isinstance(secondary_mode_shape, np.ndarray):
+                if secondary_mode_shape.ndim==1:
+                    ann_secondary[:, g] = (np.real(secondary_mode_shape) * np.cos(2 * np.pi * _t) - np.imag(secondary_mode_shape) * np.sin(2 * np.pi * _t))
+                else:
+                    raise ValueError("Parameter secondary_mode_shape must be 1D vector.")
+            else:
+                raise ValueError("To animate secondary mode shape, a parameter secondary_mode_shape must be defined in form of 1D numpy array.")
+
     if abs_scale:
         ann = ann / np.max(ann) * scale
     else:

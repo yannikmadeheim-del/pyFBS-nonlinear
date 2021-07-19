@@ -35,9 +35,8 @@ def test_model_initialization(file_names_B, allow_pickle, recalculate):
         ])
 def test_FRF_synt(files_data_frames, MK_model, limit_modes, modal_damping, frf_type, _all):
     df_acc, df_chn, df_imp = files_data_frames
-    MK = MK_model
-    MK.FRF_synth(df_chn, df_imp, f_start = 0, f_end = 2, f_resolution = 1, limit_modes=limit_modes, modal_damping=modal_damping, frf_type=frf_type, _all=_all)
+    MK_model.FRF_synth(df_chn, df_imp, f_start = 0, f_end = 2, f_resolution = 1, limit_modes=limit_modes, modal_damping=modal_damping, frf_type=frf_type, _all=_all)
 
-    assert isinstance(MK.FRF, np.ndarray)
+    assert isinstance(MK_model.FRF, np.ndarray)
 
 
