@@ -21,7 +21,7 @@ AUTOMOTIVE_FILES = {"FEM": ["EM.full", "EM.rst", "RM.full", "RM.rst", "TM.full",
                                   "ODS.p", "ODS.xlsx", "TS.p", "TS.xlsx", "TS.xlsx", "frame_rubbermounts.p",
                                   "frame_rubbermounts_sourceplate.p", "modal.xlsx"]}
 
-def load_uff_file_PAK(uff_file_data,uff_file_output,uff_file_input):
+def load_uff_file_PAK(uff_file_data,uff_file_output,uff_file_input,chn_input = False):
     """
     Loads an Universal File Format .uff file from PAK system and parses the data in arrays and DataFrames
 
@@ -43,7 +43,14 @@ def load_uff_file_PAK(uff_file_data,uff_file_output,uff_file_input):
     uff_file = pyuff.UFF(uff_file_data)
     data = uff_file.read_sets()
 
-    chn_dof = len(data_output["x"]) # * 3  # triax acc
+    chn_dof = len(data_output["x"]) 
+    
+    # assuming tri-axial accelerometers
+    if chn_input:
+        _value = 1
+        chn_dof *= 3
+    else:
+        _value = 3
     imp_dof = len(data_input["x"])
 
     Directions = {0: "None", 1: "+X", 2: "+Y", 3: "+Z", -1: "-X", -2: "-Y", -3: "-Z"}
@@ -63,8 +70,8 @@ def load_uff_file_PAK(uff_file_data,uff_file_output,uff_file_input):
     for _out in range(chn_dof):
         for _in in range(imp_dof):
             Node_Number = data[i]['rsp_node']
-            Name = 'S' + str(math.ceil(Node_Number / 3)) + " " + Directions[data[i]['rsp_dir']]
-
+            Name = 'S' + str(math.ceil(Node_Number / _value)) + " " + Directions[data[i]['rsp_dir']]
+            
             out_resp[_out, :] = Directions_array[data[i]['rsp_dir']]
             in_resp[_in, :] = Directions_array[data[i]['ref_dir']]
 
@@ -89,7 +96,6 @@ def load_uff_file_PAK(uff_file_data,uff_file_output,uff_file_input):
         for i in range(3):
             out_dir = out_resp[_out * 3 + i]
             out_pos = [data_output["x"][_out], data_output["y"][_out], data_output["z"][_out]]
-
             data_chn = np.asarray([[out_N[_out * 3 + i], None, None, out_N[_out * 3 + i].split(" ")[1], None, None,
                                     None, None, None, out_pos[0],
                                     out_pos[1], out_pos[2], out_dir[0], out_dir[1], out_dir[2]]])
@@ -97,7 +103,15 @@ def load_uff_file_PAK(uff_file_data,uff_file_output,uff_file_input):
             df_row = pd.DataFrame(data=data_chn, columns=columns_chann)
             df = df.append(df_row, ignore_index=True)
 
-    df_chn = df
+    if chn_input:
+        df_chn = df
+        df_acc = generate_sensors_from_channels(df_chn)
+    else:
+        df_chn = df
+        df_acc = None
+        
+        
+
 
     # parse impact data
     columns_chann = ["Name", "Description", "Type", "DirectionLabel", "Quantity", "Unit", "Component", "NodeNumber",
@@ -119,7 +133,6 @@ def load_uff_file_PAK(uff_file_data,uff_file_output,uff_file_input):
 
     df_imp = df
 
-    df_acc = generate_sensors_from_channels(df_chn)
 
     return freq,FRF,df_chn,df_imp,df_acc
 
