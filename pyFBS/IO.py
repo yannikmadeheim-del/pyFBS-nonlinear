@@ -4,6 +4,7 @@ from pyFBS.utility import *
 import os
 import requests
 import shutil
+import h5py    
 from tqdm import tqdm
 
 LAB_FOLDER = "lab_testbench"
@@ -205,3 +206,75 @@ def download_lab_testbench(overwrite=False):
                 with open(folder_name + os.sep + sub_dir + os.sep + '%s' % filename, 'wb') as fout:
                     fout.write(r._content)
 
+def load_hdf_Math(file_name,group_name = "Math"):
+    """
+    Loads HDF file format - Math (FRFs from Modal test), when exported from Dewesoft software.
+
+    :param uff_file_data: A filename of the .hdf file containing information of FRFs
+    :type uff_file_data: str
+    """
+
+    f = h5py.File(file_name,'r+')
+
+    group = f["Math"]
+    keys = []
+    for key in group.keys():
+        keys.append(key)
+
+    arr_out = []
+    arr_in = []
+
+    for key in keys[::2]:
+        _file = key.split("_")
+        name_real = key
+        name_imag = key + "_2"
+        
+        ch_out = _file[2][:-2]
+        ch_in = _file[3][:-2]
+        
+        arr_out.append(int(ch_out))
+        arr_in.append(int(ch_in))
+        
+    _out = np.max(arr_out) - np.min(arr_out) + 1
+    _in = np.max(arr_in) - np.min(arr_in) + 1
+    _f = len(group[keys[0]][()][0])
+
+    Y = np.zeros((_f,_out,_in),dtype = complex)
+    for key in keys[::2]:
+        
+        _file = key.split("_")
+        name_real = key
+        name_imag = key + "_2"
+        
+        ch_out = _file[2][:-2]
+        ch_in = _file[3][:-2]
+        
+        resp = (group[name_real][()]+group[name_imag][()]*1j).T
+        Y[:,int(ch_out)-1,int(ch_in)-1] = resp[:,0]
+    
+    return Y, keys 
+    
+def load_hdf_AI(file_name,group_name = "AI"):
+    """
+    Loads HDF file format - Analog Input, when exported from Dewesoft software.
+
+    :param uff_file_data: A filename of the .hdf file containing information of FRFs
+    :type uff_file_data: str
+    """
+    
+    f = h5py.File(file_name,'r+')
+
+    group = f[group_name]
+
+    keys = []
+    for key in group.keys():
+        keys.append(key)
+    
+    acc = []
+    for i,chn in enumerate(group.keys()): 
+        group[chn][()]
+        acc.append(group[chn][()])
+        
+    acc = np.asarray(acc)
+    
+    return acc, keys
