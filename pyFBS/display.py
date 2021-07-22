@@ -88,6 +88,37 @@ class view3D():
         self.animate_toolbar = self.plot.app_window.addToolBar('Animate Modeshape')
         self.animate_clear_toolbar = self.plot.app_window.addToolBar('Clear Modeshape')
 
+        # Temp
+        self._points = []
+        self._directions = []
+        self.scale = 10
+
+    @property
+    def points(self):
+        """To access all the points when done."""
+        return self._points
+    
+    @property
+    def directions(self):
+        """To access all the directions when done."""
+        return self._directions
+        
+    def __call__(self, *args):
+        picked_pt = np.array(self.plot.pick_mouse_position())
+        direction = picked_pt - self.plot.camera_position[0]
+        direction = direction / np.linalg.norm(direction)
+        start = picked_pt - 1000 * direction
+        end = picked_pt + 10000 * direction
+        point, ix = self.mesh.ray_trace(start, end, first_point=True)
+        if len(point) > 0:
+            sel_sur = self.mesh.find_closest_cell(point)
+            normal = self.mesh.cell_normals[sel_sur]
+            self._points.append(point)
+            self._directions.append(np.array(-normal))
+
+            self.imp_callback(point,np.array(-normal))
+            print(point,normal)
+
 
     def add_modeshape(self,dict_animation,run_animation = False,add_note = False):
         """
@@ -478,7 +509,7 @@ class view3D():
 
         i = int(len(self.all_accs_dynamic)+len(self.all_imps_dynamic)+len(self.all_vps_dynamic))
         size = 10
-        if direction == None:
+        if direction.all() == None:
             imp, _ = self.add_impact([size/2, size/2, size/2], [0, 0, 1], size=10)
             rot = np.diag([1]*3)
         else:
