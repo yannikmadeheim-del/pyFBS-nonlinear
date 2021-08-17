@@ -138,11 +138,9 @@ class MK_model(object):
         :return:
         :rtype: (array(float), array(float), array(float))
         """
-        # tolerances and sigma may significantly affect the output!
-        eigen_val, eigen_vec = sp.sparse.linalg.eigsh(stiff_mat, k=no_modes, M=mass_mat, sigma=10000, tol=1e-3)
-
-        eigen_val = np.clip(eigen_val, 0, np.max(eigen_val))  # avoiding negative values
-        eigen_freq = np.sqrt(eigen_val)  #/(2*np.pi)
+        eigen_val, eigen_vec = sp.sparse.linalg.eigsh(stiff_mat, k=no_modes, M=mass_mat, which='LM', sigma=-1)
+        eigen_val.sort()
+        eigen_freq = np.sqrt(np.abs(np.real(eigen_val)))  #/(2*np.pi)
         return (eigen_freq, eigen_val, eigen_vec)
 
 
