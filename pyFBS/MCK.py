@@ -283,7 +283,7 @@ class MK_model(object):
 
         if modal_damping == None:
             damping = np.asarray([0] * no_modes)
-        elif type(modal_damping) == float:
+        elif isinstance(modal_damping, float):
             damping = np.asarray([modal_damping] * no_modes)
         else:
             damping = modal_damping
