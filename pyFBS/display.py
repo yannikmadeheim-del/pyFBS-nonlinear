@@ -173,9 +173,9 @@ class view3D():
         Clear mode shape from the 3D display.
         """
 
-        self.plot.update_coordinates(self.modeshape_animation["or_pts"], mesh=self.modeshape_animation["mesh"],render = True)
-        self.plot.update_scalars(np.zeros(self.modeshape_animation["or_pts"].shape[0]), mesh=self.modeshape_animation["mesh"] ,render = False)
-        self.plot.update_scalar_bar_range(clim=[0,100])
+        self.plot.update_coordinates(self.modeshape_animation["or_pts"], mesh=self.modeshape_animation["mesh"], render=True)
+        self.plot.update_scalars(np.zeros(self.modeshape_animation["or_pts"].shape[0]), mesh=self.modeshape_animation["mesh"], render=False)
+        self.plot.update_scalar_bar_range(clim=[-100,100])
 
 
     def add_objects_animation(self,dict_animation,run_animation = False,add_note = False):
@@ -424,7 +424,7 @@ class view3D():
         i = int(len(self.all_accs_dynamic)+len(self.all_imps_dynamic)+len(self.all_vps_dynamic))
         size = 10
 
-        if orientation == None:
+        if np.asarray(orientation).all() == None:
             acc = self.create_accelerometer([size/2, size/2, size/2], [0, 0, 0], size=size)
             rot = np.diag([1]*3)
         else:
@@ -480,7 +480,7 @@ class view3D():
 
         i = int(len(self.all_accs_dynamic)+len(self.all_imps_dynamic)+len(self.all_vps_dynamic))
         size = 10
-        if direction == None:
+        if np.asarray(direction).all() == None:
             imp, _ = self.add_impact([size/2, size/2, size/2], [0, 0, 1], size=10)
             rot = np.diag([1]*3)
         else:
