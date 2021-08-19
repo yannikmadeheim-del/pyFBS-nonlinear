@@ -34,65 +34,117 @@ class MK_model(object):
     :type read_rst: bool
     """
 
-    def __init__(self, rst_file, full_file, no_modes = 100, allow_pickle = True, recalculate = False,scale = 1000,read_rst = False):
-        rst = pymapdl_reader.read_binary(rst_file)
+    def __init__(self, rst_file=None, full_file=None, manual_mass_matrix=None, manual_stifenss_matrix=None, no_modes=100, allow_pickle=True, recalculate=False, scale=1000, read_rst=False):
+        
+        if rst_file and full_file: # check if rest and full files are defined, that mass and stifenss matrices will be importd from there
 
-        # new version of pyansys
-        self.nodes = rst.mesh.nodes*scale  # only translational dofs
-        self.mesh = rst.grid
-        self.mesh.points *= scale
-        self.pts = self.mesh.points.copy()
+            rst = pymapdl_reader.read_binary(rst_file)
 
-        self.no_modes = no_modes
+            # new version of pyansys
+            self.nodes = rst.mesh.nodes*scale  # only translational dofs
+            self.mesh = rst.grid
+            self.mesh.points *= scale
+            self.pts = self.mesh.points.copy()
 
-        self._all = False
+            if no_modes > len(self.nodes):
+                self.no_modes = len(self.nodes)
+            else:
+                self.no_modes = no_modes
 
-        full = pymapdl_reader.read_binary(full_file)
-        self.dof_ref, self.K, self.M = full.load_km(sort=True)  # dof_ref: 0-x 1-y 2-z
-        if self.dof_ref[0, 0] != 1:
-            self.dof_ref[:, 0] = self.dof_ref[:, 0] - (self.dof_ref[0, 0] - 1)
+            self._all = False
 
-        if np.max(self.dof_ref[:, 1]) == 5:
-            self.rotation_included = True
-        elif np.max(self.dof_ref[:, 1]) == 2:
+            full = pymapdl_reader.read_binary(full_file)
+            self.dof_ref, self.K, self.M = full.load_km(sort=True)  # dof_ref: 0-x 1-y 2-z
+            if self.dof_ref[0, 0] != 1:
+                self.dof_ref[:, 0] = self.dof_ref[:, 0] - (self.dof_ref[0, 0] - 1)
+
+            if np.max(self.dof_ref[:, 1]) == 5:
+                self.rotation_included = True
+            elif np.max(self.dof_ref[:, 1]) == 2:
+                self.rotation_included = False
+
+            # an option to read directly the .rst file
+            if read_rst == False:
+                #print("evaluating M and K matrices")
+                self._K = self.K + diags(np.random.random(self.K.shape[0]) / 1e20, shape=self.K.shape) # avoid error
+
+                self.M += sp.sparse.triu(self.M, 1).T
+                self._K += sp.sparse.triu(self._K, 1).T
+
+                p_file = '{}.pkl'.format(full_file)
+                # check if there is a .pkl file
+                same = False
+                if allow_pickle and path.exists(p_file):
+                
+                    same = self.piclke_check(p_file, no_modes)
+                    if same:
+                        self.M, self.K, self.eig_freq, self.eig_val, self.eig_vec, no_modes = pickle.load(open(p_file, "rb"))
+                    # solve the problem
+                else:
+                    self.eig_freq, self.eig_val, self.eig_vec = self.eig_solve(self.M, self._K, no_modes)
+
+                if same == False or recalculate == True:
+                    self.eig_freq, self.eig_val, self.eig_vec = self.eig_solve(self.M, self._K, no_modes)
+
+                    if allow_pickle:
+                        pickle.dump([self.M, self.K, self.eig_freq, self.eig_val, self.eig_vec, no_modes],open(p_file, "wb"))
+            else:
+                # read from pyansys - from rst file
+                #print("Reading RST file")
+                self.eig_freq, self.eig_val, self.eig_vec, self.eig_vec_strain = self.get_values_from_rst(rst)
+        else: # if mass and stifenss matrices are manualy defined
+            self.K, self.M  = manual_stifenss_matrix, manual_mass_matrix
+            self._K = self.K + diags(np.random.random(self.K.shape[0]) / 1e20, shape=self.K.shape) # avoid error
+            if no_modes > len(self.K):
+                self.no_modes = len(self.K)
+            else:
+                self.no_modes = no_modes
+            self._all = False
             self.rotation_included = False
 
-        # an option to read directly the .rst file
-        if read_rst == False:
-            #print("evaluating M and K matrices")
-            self._K = self.K + diags(np.random.random(self.K.shape[0]) / 1e20, shape=self.K.shape) # avoid error
-
-            self.M += sp.sparse.triu(self.M, 1).T
-            self._K += sp.sparse.triu(self._K, 1).T
-
-            p_file = '{}.pkl'.format(full_file)
-            # check if there is a .pkl file
+            p_file = '{}.pkl'.format("mass_stifenss_matrices")
             same = False
             if allow_pickle and path.exists(p_file):
-                # load the pickle file
-                _M,_K,_eig_freq,_eig_val,_eig_vec,_no_modes = pickle.load( open(p_file, "rb" ))
-                # check if the solution is the same
-                if _K.shape == self.K.shape and _M.shape == self.M.shape:
-                    check_mas  = (_K != self.K).nnz == 0
-                    check_stif = (_M != self.M).nnz == 0
-                else:
-                    check_mas = False
-                    check_stif = False
-                check_no_modes = _no_modes == no_modes
-                same = np.all([check_mas,check_stif,check_no_modes])
+                same = self.piclke_check(p_file, no_modes)
                 if same:
-                    self.M, self.K, self.eig_freq, self.eig_val, self.eig_vec, no_modes = pickle.load(open(p_file, "rb"))
-                # solve the problem
-            if same == False or recalculate == True:
+                        self.M, self.K, self.eig_freq, self.eig_val, self.eig_vec, no_modes = pickle.load(open(p_file, "rb"))
+                    # solve the problem
+                if same == False or recalculate == True:
+                    self.eig_freq, self.eig_val, self.eig_vec = self.eig_solve(self.M, self._K, no_modes)
+
+                    if allow_pickle:
+                        pickle.dump([self.M, self.K, self.eig_freq, self.eig_val, self.eig_vec, no_modes],open(p_file, "wb"))
+            else:
                 self.eig_freq, self.eig_val, self.eig_vec = self.eig_solve(self.M, self._K, no_modes)
 
-                if allow_pickle:
-                    pickle.dump([self.M, self.K, self.eig_freq, self.eig_val, self.eig_vec, no_modes],open(p_file, "wb"))
+    def piclke_check(self, p_file, no_modes):
+        _M,_K,_eig_freq,_eig_val,_eig_vec,_no_modes = pickle.load( open(p_file, "rb" ))
+        # check if the solution is the same
+        if _K.shape == self.K.shape and _M.shape == self.M.shape:
+            check_mas  = (_K != self.K).nnz == 0
+            check_stif = (_M != self.M).nnz == 0
         else:
-            # read from pyansys - from rst file
-            #print("Reading RST file")
-            self.eig_freq, self.eig_val, self.eig_vec, self.eig_vec_strain = self.get_values_from_rst(rst)
+            check_mas = False
+            check_stif = False
+        check_no_modes = _no_modes == no_modes
+        same = np.all([check_mas,check_stif,check_no_modes])
+        return same
+    
+    
+    def manual_mesh_definition(self, grid, dof_ref):
+        """
+        Definition of mesh and DoFs for manually inputed mass and stiffness matrices.
 
+        :param grid: grid definition in form of pyvista.PolyData
+        :type grid: pyvista
+        :param dof_ref: definition of DoFs inside ``MK_model`` in form of 2D matrix, dimensions nx2, where n is the dimension of square mass or stiffness matrix. 
+        The first column represents the index of node location, starting with 1, the second column represents direction of this DoF: 0-x, 1-y, 2-z.
+        :type dof_ref: array
+        """
+        self.mesh = grid
+        self.nodes = grid.points
+        self.pts = grid.points.copy()
+        self.dof_ref = dof_ref
 
     @staticmethod
     def get_values_from_rst(rst):
@@ -138,11 +190,9 @@ class MK_model(object):
         :return:
         :rtype: (array(float), array(float), array(float))
         """
-        # tolerances and sigma may significantly affect the output!
-        eigen_val, eigen_vec = sp.sparse.linalg.eigsh(stiff_mat, k=no_modes, M=mass_mat, sigma=10000, tol=1e-3)
-
-        eigen_val = np.clip(eigen_val, 0, np.max(eigen_val))  # avoiding negative values
-        eigen_freq = np.sqrt(eigen_val)  #/(2*np.pi)
+        eigen_val, eigen_vec = sp.sparse.linalg.eigsh(stiff_mat, k=no_modes, M=mass_mat, which='LM', sigma=-1)
+        eigen_val.sort()
+        eigen_freq = np.sqrt(np.abs(np.real(eigen_val)))  #/(2*np.pi)
         return (eigen_freq, eigen_val, eigen_vec)
 
 
@@ -277,7 +327,10 @@ class MK_model(object):
         if limit_modes == None:
             no_modes = self.no_modes
         else:
-            no_modes = limit_modes
+            if limit_modes > len(self.nodes):
+                no_modes = len(self.nodes)
+            else:
+                no_modes = limit_modes
 
         # eigenvalues
         _eig_val2 = self.eig_freq[:no_modes] ** 2
@@ -285,7 +338,7 @@ class MK_model(object):
 
         if modal_damping == None:
             damping = np.asarray([0] * no_modes)
-        elif type(modal_damping) == float:
+        elif isinstance(modal_damping, float):
             damping = np.asarray([modal_damping] * no_modes)
         else:
             damping = modal_damping
@@ -318,6 +371,34 @@ class MK_model(object):
             m_p = np.einsum('ij,kj->jik', m_p_chan, m_p_imp)
             return(no_modes, _eig_val2, damping, m_p)
 
+    def FRF_synth_full(self, f_start = 1, f_end = 2000,  f_resolution= 1, frf_type = "receptance"):
+        
+        if f_start == 0:
+            # approximation at 0Hz
+            _freq = np.arange(f_start+1e-3, f_end, f_resolution)
+        else:
+            _freq = np.arange(f_start, f_end, f_resolution)
+        
+        freq = np.arange(f_start, f_end, f_resolution)
+
+        omega = 2 * np.pi * _freq
+
+        K_temp = np.array(self._K[np.newaxis]).repeat(len(_freq), axis=0)
+        M_temp = np.array(self.M[np.newaxis]).repeat(len(_freq), axis=0)
+        FRF_matrix = np.linalg.inv(K_temp - np.einsum("i,ijk->ijk", omega**2, M_temp))
+
+        if frf_type == "receptance":
+            _temp = FRF_matrix
+
+        elif frf_type == "mobility":
+            _temp = np.einsum('ijk,i->ijk', FRF_matrix, (1j*2*np.pi*_freq))
+
+        elif frf_type == "accelerance":
+            _temp = np.einsum('ijk,i->ijk', FRF_matrix, -(2*np.pi*_freq)**2)
+
+        self.FRF = _temp
+        self.freq = freq
+
 
     def FRF_synth(self,df_channel,df_impact,f_start = 1, f_end = 2000, f_resolution= 1, limit_modes = None, modal_damping = None, frf_type = "receptance",_all = False, n_dim = 3):
         """
@@ -341,6 +422,8 @@ class MK_model(object):
         :type frf_type: str
         :param _all: synthetize response at all nodes - can be usefull ot animate FRFs
         :type _all, optional: boolean
+        :param n_dim: number of DoFs per one node in MK model (default is 3)
+        :type n_dim, optional: boolean
         """
 
         no_modes, _eig_val2, damping, m_p = self.transform_modal_parameters(df_channel = df_channel, df_impact = df_impact, limit_modes = limit_modes, modal_damping = modal_damping, _all = _all, n_dim = n_dim)
@@ -470,7 +553,7 @@ class MK_model(object):
 
 
     @staticmethod
-    def coustum_FRF_synth(eig_freq, eig_vec_chn, eig_vec_imp ,f_start = 1, f_end = 2000, f_resolution= 1, limit_modes = None, modal_damping = None, frf_type = "receptance"):
+    def custom_FRF_synth(eig_freq, eig_vec_chn, eig_vec_imp ,f_start = 1, f_end = 2000, f_resolution= 1, limit_modes = None, modal_damping = None, frf_type = "receptance"):
         """
         Synthetisation of frequency response functions using the mode superposition method.
 
