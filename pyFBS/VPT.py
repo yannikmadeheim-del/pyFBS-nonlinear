@@ -72,7 +72,7 @@ class VPT(object):
                 _dir = np.asarray(self.Channels.iloc[ch][["Direction_1","Direction_2","Direction_3"]].to_numpy()).astype(float)
                 _group = self.Channels.iloc[ch]["Grouping"]
                 _type = self.Channels.iloc[ch]["Quantity"]
-                r[j, :] = (_dirVP @ _dir) @ self.R_matrix_U(_posVP - _pos, _desc, type=_type)
+                r[j, :] = (_dirVP @ _dir) @ self.R_matrix_U(_pos - _posVP, _desc, type=_type)
                 _Warray.append(self.W_rotational(_pos, _dir, type=_type))
             R_all.append(r)
 
@@ -140,7 +140,7 @@ class VPT(object):
                 _dir = np.asarray(self.RefChannels.iloc[ch][["Direction_1", "Direction_2", "Direction_3"]].to_numpy()).astype(float)
                 _group = self.RefChannels.iloc[ch]["Grouping"]
                 _type = self.RefChannels.iloc[ch]["Quantity"]
-                r[j, :] = (self.R_matrix_F(_posVP - _pos, _desc) @ (_dirVP @ _dir).T).reshape(-1)
+                r[j, :] = (self.R_matrix_F(_pos - _posVP, _desc) @ (_dirVP @ _dir).T).reshape(-1)
             R_all.append(r)
 
         # position the transformation matrix based on location it the .xlsx file
