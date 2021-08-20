@@ -97,12 +97,10 @@ class VPT(object):
 
 
         # definition of weighting matrix
-        if self.Wu_p == None:
-            Wu = block_diag(*_Warray)
-            Wu = block_diag(Wu, np.eye(len(np.where(mask_u != 0)[0])))
+        if self.Wu_p is None:
+            Wu = np.eye(np.max(Ru.shape))
         else:
-            Wu = block_diag(*self.Wu_p)
-            Wu = block_diag(Wu, np.eye(len(np.where(mask_u != 0)[0])))
+            Wu = self.Wu_p
 
 
         # calculate the Tu, Fu matrices
@@ -164,7 +162,7 @@ class VPT(object):
             Rf = R_n
 
         # definition of weighting matrix
-        if self.Wf_p == None:
+        if self.Wf_p is None:
             Wf = np.eye(np.max(Rf.shape))
         else:
             Wf = self.Wf_p
