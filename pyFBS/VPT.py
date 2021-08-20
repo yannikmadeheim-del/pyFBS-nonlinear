@@ -338,9 +338,15 @@ class VPT(object):
         ind_ch = self.find_group(grouping, _ch_all)
         ind_Rch = self.find_group(ref_grouping, _Rch_all)
 
+        ind_NotRemovedChannels = np.nonzero(np.diag(self.Wu))[0]
+        ind_NotRemovedImpacts = np.nonzero(np.diag(self.Wf))[0]
+        
+        ind_NotRemovedChannels_Grouping = sorted(np.intersect1d(ind_NotRemovedChannels,ind_ch))
+        ind_NotRemovedImpacts_Grouping = sorted(np.intersect1d(ind_NotRemovedImpacts,ind_Rch))
+        
         # Calculate sensor consistency
-        sub_Y = np.transpose(self.FRF,(1,2,0))[ind_ch, :, :][:, ind_Rch, :]
-        sub_Fu = self.Fu[ind_ch, :][:, ind_ch]
+        sub_Y = np.transpose(self.FRF,(1,2,0))[ind_NotRemovedChannels_Grouping, :, :][:, ind_NotRemovedImpacts_Grouping, :]
+        sub_Fu = self.Fu[ind_NotRemovedChannels_Grouping, :][:, ind_NotRemovedChannels_Grouping]
 
         u_f = np.zeros((sub_Y.shape[0], 1, sub_Y.shape[2]), dtype=complex)
         u = np.zeros((sub_Y.shape[0], 1, sub_Y.shape[2]), dtype=complex)
@@ -367,8 +373,8 @@ class VPT(object):
 
 
         # Calculate impact consistency
-        sub_Y = np.transpose(self.FRF,(1,2,0))[ind_ch, :, :][:, ind_Rch, :]
-        sub_Ff = self.Ff[ind_Rch, :][:, ind_Rch]
+        sub_Y = np.transpose(self.FRF,(1,2,0))[ind_NotRemovedChannels_Grouping, :, :][:, ind_NotRemovedImpacts_Grouping, :]
+        sub_Ff = self.Ff[ind_NotRemovedImpacts_Grouping, :][:, ind_NotRemovedImpacts_Grouping]
 
         y_f = np.zeros((sub_Y.shape[1], 1, sub_Y.shape[2]), dtype=complex)
         y = np.zeros((sub_Y.shape[1], 1, sub_Y.shape[2]), dtype=complex)
