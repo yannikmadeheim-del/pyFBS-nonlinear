@@ -137,7 +137,7 @@ class view3D():
 
                 local_orientation = (rot @ (local_orientation))
                 r = R.from_matrix(local_orientation)
-                orientation = r.as_euler('xyz', degrees=True)
+                orientation = np.asarray(r.as_euler('xyz', degrees=True))
 
                 self.acc_callback(point,orientation=orientation)
 
@@ -511,8 +511,8 @@ class view3D():
 
         if isinstance(predefined, pd.DataFrame):
             for i, row in predefined.iterrows():
-                point = [row["Position_1"] * scale, row["Position_2"] * scale, row["Position_3"] * scale]
-                orientation = [row["Orientation_1"], row["Orientation_2"], row["Orientation_3"]]
+                point = np.asarray([row["Position_1"] * scale, row["Position_2"] * scale, row["Position_3"] * scale])
+                orientation = np.asarray([row["Orientation_1"], row["Orientation_2"], row["Orientation_3"]])
                 self.acc_callback(point, orientation=orientation,fixed_rotation = fixed_rotation)
 
         self.plot.track_click_position(self, side='right')
@@ -572,8 +572,8 @@ class view3D():
         
         if isinstance(predefined, pd.DataFrame):
             for i, row in predefined.iterrows():
-                point = [row["Position_1"] * scale, row["Position_2"] * scale, row["Position_3"] * scale]
-                direction = [row["Direction_1"], row["Direction_2"], row["Direction_3"]]
+                point = np.asarray([row["Position_1"] * scale, row["Position_2"] * scale, row["Position_3"] * scale])
+                direction = np.asarray([row["Direction_1"], row["Direction_2"], row["Direction_3"]])
                 self.imp_callback(point, direction=direction,fixed_rotation = fixed_rotation)
 
         self.plot.track_click_position(self, side='right')
@@ -1168,59 +1168,34 @@ class DynamicPosition():
         :type snap: bool, optional
         """
 
-        # definest rays to find intersection with the supplied mesh
-        point1x = point + self.local_rays[:, 0]
-        point2x = point + self.local_rays[:, 3]
-
-        point1y = point + self.local_rays[:, 1]
-        point2y = point + self.local_rays[:, 4]
-
-        point1z = point + self.local_rays[:, 2]
-        point2z = point + self.local_rays[:, 5]
-
-        # performs ray trace in three direction
-        points_x, ind_x = self.mesh.ray_trace(point1x, point2x)
-        points_y, ind_y = self.mesh.ray_trace(point1y, point2y)
-        points_z, ind_z = self.mesh.ray_trace(point1z, point2z)
-
-        # stacks all the ray intersections
-        points = np.vstack([points_x, points_y, points_z])
-        ind = np.hstack([ind_x, ind_y, ind_z])
+		# option B
+        direction = np.asarray(point) - np.asarray(self.p.camera_position[0])
+        direction = direction / np.linalg.norm(direction)
+        start = point - 1000 * direction
+        end = point + 10000 * direction
+        points, ind = self.mesh.ray_trace(start, end, first_point=True)
 
         # default option - no rotation
         rot = np.diag([1, 1, 1])
 
         # if there is an intersection and if "t" is not pressed go forward
         if points.size != 0 and not (kb.is_pressed('t')):
-            list_ind = []
-            # go through all the intersections
-            for i in range(len(points)):
-                _point = points[i]
-                p1 = _point
-                p2 = point
-                gg = np.sqrt(((p1[0] - p2[0]) ** 2) + ((p1[1] - p2[1]) ** 2) + ((p1[2] - p2[2]) ** 2))
-
-                list_ind.append(gg)
-
-            # find the closest to the box center
-            _sel = np.argmin(list_ind)
-
             # find the nearest normal
-            v2 = self.mesh.cell_normals[int(ind[_sel])]
+            v2 = self.mesh.cell_normals[int(ind)]
             th = []
             for _loc in self.local_normals.T:
                 th.append(angle_between(_loc, v2))
             closest_orient = self.local_normals.T[np.argmin(th)]
 
             # find orientation between box orientation and cell normal
-            f = self.mesh.cell_normals[int(ind[_sel])]
+            f = self.mesh.cell_normals[int(ind)]
             t = closest_orient + np.random.random(3) / 1e20
 
             # push box 0.5 away from the normal
             if self.snap_outward:
-                point = points[_sel] + f / 2 * self.size
+                point = points + f / 2 * self.size
             else:
-                point = points[_sel]
+                point = points
 
             # define rotational matrix to allign with the surface normal
             rot = rotation_matrix_from_vectors(t, f)
