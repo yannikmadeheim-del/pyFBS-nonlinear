@@ -51,6 +51,9 @@ class view3D():
         if show_axes:
             self.plot.add_axes(labels_off=True)
 
+        self.plot.enable_parallel_projection()
+
+
         # Static global variables
         self.global_acc = []
         self.acc_visible = False
@@ -138,7 +141,8 @@ class view3D():
                 local_orientation = (rot @ (local_orientation))
                 r = R.from_matrix(local_orientation)
                 orientation = np.asarray(r.as_euler('xyz', degrees=True))
-
+                # just added static size of the accelerometer
+                point +=  np.array(+normal) / 2 * 10
                 self.acc_callback(point,orientation=orientation)
 
 
@@ -485,7 +489,7 @@ class view3D():
             rot = r.as_matrix()
 
         self.add_accelerometer(acc)
-        _gg = DynamicPosition(acc, self.plot, i, mesh=self.mesh, size=10,rot = rot,fixed_rotation = fixed_rotation)
+        _gg = DynamicPosition(acc, self.plot, i, mesh=self.mesh, size=10,rot = rot,fixed_rotation = fixed_rotation,snap_outward = True)
         self.plot.add_sphere_widget(_gg.callback, center=_gg.points, color=["k", "r", "g", "b"], radius=10 / 15)
         _gg.translate(point)
         _gg.turn_on = True
@@ -546,7 +550,7 @@ class view3D():
             rot = rotation_matrix_from_vectors(direction,[0, 0, 1]).T
 
         
-        _gg = DynamicPosition([imp], self.plot, i, mesh=self.mesh, size=10,rot = rot,snap_outward = False, fixed_rotation = fixed_rotation)
+        _gg = DynamicPosition([imp], self.plot, i, mesh=self.mesh, size=10,rot = rot,snap_outward = False, fixed_rotation = fixed_rotation, toggle = "impact")
         self.plot.add_sphere_widget(_gg.callback, center=_gg.points, color=["k", "r", "g", "b"], radius=10 / 15)
         _gg.translate(point)
         _gg.turn_on = True
@@ -1054,7 +1058,7 @@ class DynamicPosition():
     :type fixed_rotation: float
     """
 
-    def __init__(self, objects, p, N, mesh=None, snap_outward=True, size=1, rot = np.diag([1]*3), fixed_rotation = None):
+    def __init__(self, objects, p, N, mesh=None, snap_outward=True, size=1, rot = np.diag([1]*3), fixed_rotation = None,toggle = "acc"):
         # set size and static points
         self.size = size
         self.points = np.array([[size / 2, size / 2, size / 2],
@@ -1121,6 +1125,7 @@ class DynamicPosition():
 
         # define display
         self.p = p
+        self.toggle = toggle
 
     def get_pos_orient(self, euler_angles=False, one_dir=None, eps=1e-10,scale = 1):
         """
@@ -1169,27 +1174,44 @@ class DynamicPosition():
         """
 
 		# option B
-        direction = np.asarray(point) - np.asarray(self.p.camera_position[0])
-        direction = direction / np.linalg.norm(direction)
-        start = point - 1000 * direction
-        end = point + 10000 * direction
-        points, ind = self.mesh.ray_trace(start, end, first_point=True)
+        if snap:
+            direction = np.asarray(point) - np.asarray(self.p.camera_position[0])
+            direction = direction / np.linalg.norm(direction)
+            start = point - 1000 * direction
+            end = point + 10000 * direction
+            points, ind = self.mesh.ray_trace(start, end, first_point=True)
 
-        # default option - no rotation
-        rot = np.diag([1, 1, 1])
+            # fast upgrade to option B
+            if self.snap_outward:
+                f = self.mesh.cell_normals[int(ind)]
+                point = points - f / 2 * self.size
+                direction = np.asarray(point) - np.asarray(self.p.camera_position[0])
+                direction = direction / np.linalg.norm(direction)
+                start = point - 1000 * direction
+                end = point + 10000 * direction
+                points, ind = self.mesh.ray_trace(start, end, first_point=True)
 
-        # if there is an intersection and if "t" is not pressed go forward
-        if points.size != 0 and not (kb.is_pressed('t')):
-            # find the nearest normal
-            v2 = self.mesh.cell_normals[int(ind)]
-            th = []
-            for _loc in self.local_normals.T:
-                th.append(angle_between(_loc, v2))
-            closest_orient = self.local_normals.T[np.argmin(th)]
+            # default option - no rotation
+            rot = np.diag([1, 1, 1])
 
-            # find orientation between box orientation and cell normal
-            f = self.mesh.cell_normals[int(ind)]
-            t = closest_orient + np.random.random(3) / 1e20
+            # if there is an intersection and if "t" is not pressed go forward
+            if points.size != 0 and not (kb.is_pressed('t')):
+                # find the nearest normal
+                v2 = self.mesh.cell_normals[int(ind)]
+                th = []
+                for _loc in self.local_normals.T:
+                    th.append(angle_between(_loc, v2))
+                closest_orient = self.local_normals.T[np.argmin(th)]
+
+                # find orientation between box orientation and cell normal
+                f = self.mesh.cell_normals[int(ind)]
+                t = closest_orient + np.random.random(3) / 1e20
+                if self.toggle == "impact":
+                    closest_orient = self.local_normals.T[2] # always Z axis
+                    t = closest_orient + np.random.random(3) / 1e20
+                    f = -1*self.mesh.cell_normals[int(ind)]
+
+
 
             # push box 0.5 away from the normal
             if self.snap_outward:
@@ -1265,7 +1287,7 @@ class DynamicPosition():
                 for item in self.objects:
                     item.points = (rot @ (item.points - _new).T).T + _new
 
-                    # orient the local csys of accelerometer with the new rotation
+                # orient the local csys of accelerometer with the new rotation
                 self.local_orientation = (rot @ (self.local_orientation))
                 self.local_normals = rot @ self.local_normals
                 self.local_rays = rot @ self.local_rays
