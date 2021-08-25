@@ -52,7 +52,7 @@ class view3D():
             self.plot.add_axes(labels_off=True)
 
         self.plot.enable_parallel_projection()
-
+        self.plot.track_click_position(self, side='right')
 
         # Static global variables
         self.global_acc = []
@@ -95,7 +95,7 @@ class view3D():
         self._points = []
         self._directions = []
         self.scale = 10
-        self.toggle = "impact"
+        self.toggle = None
 
     @property
     def points(self):
@@ -125,7 +125,6 @@ class view3D():
             #normal = self.mesh.cell_normals[sel_sur]
             normal = self.mesh.cell_normals[int(ix)]
 
-
             # append points
             self._points.append(point)
             self._directions.append(np.array(-normal))
@@ -146,6 +145,8 @@ class view3D():
                 # just added static size of the accelerometer
                 point +=  np.array(+normal) / 2 * 10
                 self.acc_callback(point,orientation=orientation)
+            else:
+                pass
 
 
 
@@ -522,8 +523,9 @@ class view3D():
                 point = np.asarray([row["Position_1"] * scale, row["Position_2"] * scale, row["Position_3"] * scale])
                 orientation = np.asarray([row["Orientation_1"], row["Orientation_2"], row["Orientation_3"]])
                 self.acc_callback(point, orientation=orientation,fixed_rotation = fixed_rotation)
-
-        self.plot.track_click_position(self, side='right')
+        
+        #self.plot.untrack_click_position()
+        #self.plot.track_click_position(self, side='right')
         self.plot.add_text('Use right mouse click to add an accelerometer', color="k", font="times", name="Mode",font_size = 10)
 
         #self.plot.enable_point_picking(callback=self.acc_callback, color="r", show_message="", show_point=False)
@@ -586,7 +588,8 @@ class view3D():
                 direction = np.asarray([row["Direction_1"], row["Direction_2"], row["Direction_3"]])
                 self.imp_callback(point, direction=direction,fixed_rotation = fixed_rotation)
 
-        self.plot.track_click_position(self, side='right')
+        #self.plot.untrack_click_position()
+        #self.plot.track_click_position(self, side='right')
         self.plot.add_text('Use right mouse click to add an impact', color="k", font="times", name="Mode",font_size = 10)
 
         #self.plot.enable_point_picking(callback=self.imp_callback, color="r", show_message="", show_point=False)
