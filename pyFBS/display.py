@@ -113,7 +113,7 @@ class view3D():
         picked_pt = np.array(self.plot.pick_mouse_position())
         direction = picked_pt - self.plot.camera_position[0]
         direction = direction / np.linalg.norm(direction)
-        
+
         # define ray 
         start = picked_pt - 1000 * direction
         end = picked_pt + 10000 * direction
@@ -121,13 +121,15 @@ class view3D():
         point, ix = self.mesh.ray_trace(start, end, first_point=True)
         if len(point) > 0:
             # 
-            sel_sur = self.mesh.find_closest_cell(point)
-            normal = self.mesh.cell_normals[sel_sur]
+            #sel_sur = self.mesh.find_closest_cell(point)
+            #normal = self.mesh.cell_normals[sel_sur]
+            normal = self.mesh.cell_normals[int(ix)]
+
 
             # append points
             self._points.append(point)
             self._directions.append(np.array(-normal))
-
+            print(normal,point)
             # Define callback function
             if self.toggle == "impact":
                 self.imp_callback(point,np.array(-normal))
@@ -511,6 +513,8 @@ class view3D():
         """
 
         self.mesh = mesh
+        self.mesh.compute_normals(auto_orient_normals=True, inplace=True)
+
         self.toggle = "acc"
 
         if isinstance(predefined, pd.DataFrame):
@@ -572,6 +576,8 @@ class view3D():
         """
 
         self.mesh = mesh
+        self.mesh.compute_normals(auto_orient_normals=True, inplace=True)
+
         self.toggle = "impact"
         
         if isinstance(predefined, pd.DataFrame):
@@ -1205,10 +1211,10 @@ class DynamicPosition():
 
                 # find orientation between box orientation and cell normal
                 f = self.mesh.cell_normals[int(ind)]
-                t = closest_orient + np.random.random(3) / 1e20
+                t = closest_orient #+ np.random.random(3) / 1e20
                 if self.toggle == "impact":
                     closest_orient = self.local_normals.T[2] # always Z axis
-                    t = closest_orient + np.random.random(3) / 1e20
+                    t = closest_orient #+ np.random.random(3) / 1e20
                     f = -1*self.mesh.cell_normals[int(ind)]
 
 
