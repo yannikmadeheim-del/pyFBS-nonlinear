@@ -88,10 +88,22 @@ class MK_model(object):
 
                     if allow_pickle:
                         pickle.dump([self.M, self.K, self.eig_freq, self.eig_val, self.eig_vec, no_modes],open(p_file, "wb"))
-            else:
-                # read from pyansys - from rst file
-                #print("Reading RST file")
+            else: # read from pyansys - from rst file
+                # print("Reading RST file")
                 self.eig_freq, self.eig_val, self.eig_vec, self.eig_vec_strain = self.get_values_from_rst(rst)
+                if len(self.eig_freq)>=self.no_modes: # truncation of results in .rst file to match the desired number of modes in ``no_modes`` parameter
+                    self.eig_freq = self.eig_freq[:self.no_modes]
+                    self.eig_val = self.eig_val[:self.no_modes]
+                    self.eig_vec = self.eig_vec[:, :self.no_modes]
+                    try:
+                        self.eig_vec_strain = self.eig_vec_strain[:, :self.no_modes]
+                    except: # if the strain is not included in the .rst file, then the ``self.eig_vec_strain`` is just left as an empty array
+                        pass
+                else:
+                    print(f"Parameter ``no_modes`` is set to {self.no_modes}, but the .rst file from Ansys includes {len(self.eig_freq)} natural frequencies and mode shapes. \n \
+                        Therefore value of parameter ``no_modes`` is changed to {len(self.eig_freq)}.")
+                    self.no_modes = len(self.eig_freq)
+
         else: # if mass and stifenss matrices are manualy defined
             self.K, self.M  = manual_stifenss_matrix, manual_mass_matrix
             self._K = self.K + diags(np.random.random(self.K.shape[0]) / 1e20, shape=self.K.shape) # avoid error
@@ -190,7 +202,12 @@ class MK_model(object):
         :return:
         :rtype: (array(float), array(float), array(float))
         """
-        eigen_val, eigen_vec = sp.sparse.linalg.eigsh(stiff_mat, k=no_modes, M=mass_mat, which='LM', sigma=-1)
+        try:
+            eigen_val, eigen_vec = sp.sparse.linalg.eigsh(stiff_mat, k=no_modes, M=mass_mat, which='LM', sigma=-1)
+        except np.linalg.LinAlgError:
+            # sometimes eigenvalue problems can not be solved using sparse configuration, especially for small analytical systems
+            eigen_val, eigen_vec = sp.linalg.eig(stiff_mat, mass_mat)
+
         eigen_val.sort()
         eigen_freq = np.sqrt(np.abs(np.real(eigen_val)))  #/(2*np.pi)
         return (eigen_freq, eigen_val, eigen_vec)
