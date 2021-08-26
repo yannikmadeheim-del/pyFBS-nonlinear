@@ -1,13 +1,5 @@
 dist: xenial
 
-env:
-  global:
-    - CODECOV_TOKEN='d42ca8f1-72be-4a3f-8fd1-2d9b3a75bd20'
-
-branches:
-  except:
-  - experimental_ui
-
 os:
   - linux
 
@@ -38,13 +30,3 @@ jobs:
         - pytest -v --cov-report term --cov=app/test/
         - pytest -v ./tests/build_examples.py
         
-#    - stage: "Documentation" 
-#      name: "Documentation"     
-#      script: echo Documentation
-
-#    - stage: "Deploy to PyPi"
-#      name: "Deploy"
-#      script: echo Deploy
- 
-after_success:
-  - bash <(curl -s https://codecov.io/bash) -t <TOKEN>
