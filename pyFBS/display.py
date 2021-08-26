@@ -52,7 +52,6 @@ class view3D():
             self.plot.add_axes(labels_off=True)
 
         self.plot.enable_parallel_projection()
-        self.plot.track_click_position(self, side='right')
 
         # Static global variables
         self.global_acc = []
@@ -106,6 +105,11 @@ class view3D():
     def directions(self):
         """To access all the directions when done."""
         return self._directions
+
+    def toggle_fun(self):
+        if self.toggle == None:
+            self.plot.track_click_position(self, side='right')
+
         
     def __call__(self, *args):
         """Callback function to access the location."""
@@ -513,7 +517,9 @@ class view3D():
         self.mesh = mesh
         self.mesh.compute_normals(auto_orient_normals=True, inplace=True)
 
+        self.toggle_fun()
         self.toggle = "acc"
+
 
         if isinstance(predefined, pd.DataFrame):
             for i, row in predefined.iterrows():
@@ -570,8 +576,10 @@ class view3D():
         self.mesh = mesh
         self.mesh.compute_normals(auto_orient_normals=True, inplace=True)
 
+        self.toggle_fun()
         self.toggle = "impact"
-        
+
+
         if isinstance(predefined, pd.DataFrame):
             for i, row in predefined.iterrows():
                 point = np.asarray([row["Position_1"] * scale, row["Position_2"] * scale, row["Position_3"] * scale])
