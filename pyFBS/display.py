@@ -120,15 +120,12 @@ class view3D():
         # ray tracing 
         point, ix = self.mesh.ray_trace(start, end, first_point=True)
         if len(point) > 0:
-            # 
-            #sel_sur = self.mesh.find_closest_cell(point)
-            #normal = self.mesh.cell_normals[sel_sur]
             normal = self.mesh.cell_normals[int(ix)]
 
             # append points
             self._points.append(point)
             self._directions.append(np.array(-normal))
-            print(normal,point)
+            
             # Define callback function
             if self.toggle == "impact":
                 self.imp_callback(point,np.array(-normal))
@@ -524,13 +521,8 @@ class view3D():
                 orientation = np.asarray([row["Orientation_1"], row["Orientation_2"], row["Orientation_3"]])
                 self.acc_callback(point, orientation=orientation,fixed_rotation = fixed_rotation)
         
-        #self.plot.untrack_click_position()
-        #self.plot.track_click_position(self, side='right')
-        self.plot.add_text('Use right mouse click to add an accelerometer', color="k", font="times", name="Mode",font_size = 10)
+        self.plot.add_text('Use right mouse click to add an accelerometer', color="k", font="times",font_size = 10, name="text")
 
-        #self.plot.enable_point_picking(callback=self.acc_callback, color="r", show_message="", show_point=False)
-        #self.plot.add_text("Press P too add an accelerometer (hold down letter T to disable snapping to mesh).",
-        #                   font_size=10, color="k", font="times", name="text")
 
     def imp_callback(self,point, direction = None,fixed_rotation = None):
         """
@@ -551,8 +543,6 @@ class view3D():
             rot = np.diag([1]*3)
         else:
             imp, _ = self.add_impact([size/2, size/2, size/2],direction, size=10)
-
-            #rot = np.diag([1]*3)
             rot = rotation_matrix_from_vectors(direction,[0, 0, 1]).T
 
         
@@ -588,12 +578,8 @@ class view3D():
                 direction = np.asarray([row["Direction_1"], row["Direction_2"], row["Direction_3"]])
                 self.imp_callback(point, direction=direction,fixed_rotation = fixed_rotation)
 
-        #self.plot.untrack_click_position()
-        #self.plot.track_click_position(self, side='right')
-        self.plot.add_text('Use right mouse click to add an impact', color="k", font="times", name="Mode",font_size = 10)
+        self.plot.add_text('Use right mouse click to add an impact', color="k", font="times",font_size = 10, name="text")
 
-        #self.plot.enable_point_picking(callback=self.imp_callback, color="r", show_message="", show_point=False)
-        #self.plot.add_text("Press P too add an impact (hold down letter T to disable snapping to mesh).", font_size = 10,color = "k",font  = "times",name = "text")
 
     def vp_callback(self,point,fixed_rotation = None):
         """
@@ -1201,7 +1187,7 @@ class DynamicPosition():
                 points, ind = self.mesh.ray_trace(start, end, first_point=True)
 
             # default option - no rotation
-            rot = np.diag([1, 1, 1])
+            rot = np.diag([1., 1., 1.])
 
             # if there is an intersection and if "t" is not pressed go forward
             if points.size != 0 and not (kb.is_pressed('t')):
@@ -1220,16 +1206,17 @@ class DynamicPosition():
                     t = closest_orient #+ np.random.random(3) / 1e20
                     f = -1*self.mesh.cell_normals[int(ind)]
 
+                # push box 0.5 away from the normal
+                if self.snap_outward:
+                    point = points + f / 2 * self.size
+                else:
+                    point = points
 
-
-            # push box 0.5 away from the normal
-            if self.snap_outward:
-                point = points + f / 2 * self.size
-            else:
-                point = points
-
-            # define rotational matrix to allign with the surface normal
-            rot = rotation_matrix_from_vectors(t, f)
+                # define rotational matrix to allign with the surface normal
+                #if 't' not in vars() or  'f' not in vars():
+                #    rot = rotation_matrix_from_vectors(np.asarray([0.,0.,1.]).T, np.asarray([0.,0.,1.]).T)
+                #else:
+                rot = rotation_matrix_from_vectors(t, f)
 
         # move everything to a new location
         _new = point - self.box.center_of_mass()
