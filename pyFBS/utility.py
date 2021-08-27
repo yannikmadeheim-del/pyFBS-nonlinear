@@ -80,7 +80,7 @@ def flatten_FRFs(Y):
 
     return new
 
-def unflatten_modes(_modes_acc,Y):
+def unflatten_modes(_modes_acc, Y):
     """
     Unflattens mode shapes based on the shape of the input FRF matrix [out x in] in [out, in]
 
@@ -96,7 +96,7 @@ def unflatten_modes(_modes_acc,Y):
         new_mode[i,:,:] = _modes_acc[i*_len:(i+1)*_len,:]
     return new_mode
 
-def complex_plot(mode_shape,color = "k"):
+def complex_plot(mode_shape, color = "k"):
     """
     Plots a mode shape on a radial plot.
 
@@ -130,30 +130,56 @@ def complex_plot_3D(mode_shape):
 
     plt.yticks([])
 
-def mode_animation(mode_shape, scale, no_points=60,abs_scale = True):
+def mode_animation(mode_shape, scale, no_points=60, no_of_repetitions = 2, abs_scale = True, secondary_mode_shape = None, animate_secondary_mode_shape = False):
     """
     Creates an animation sequence from the mode shape and scales the displacemetns.
+    It is also possible to add a secondary mode shape, which is displayed on a deformed 
+    structure using colours based on values of secondary mode shape.
+    Secondary mode shape could be rotational mode shape or strain mode shape, 
+    any other parameter, which can be displayed on nodes.
 
-    :param mode_shape: mode shape
+    :param mode_shape: mode shape, must be 2D matrix
     :type mode_shape: array(float)
     :param scale: mode shape
     :type scale: float
     :param no_points: Number of points in the animation sequence
     :type no_points: int, optional
+    :param no_of_repetitions: Number of repetitions of animated mode
+    :type no_of_repetitions: int, optional
+    :param abs_scale: Apply scaling on normalized mode
+    :type abs_scale: bool, optional
+    :param secondary_mode_shape: secondary mode shape, must be vector
+    :type secondary_mode_shape: array(float), optional
+    :param animate_secondary_mode_shape: If ``True``, secondary mode shape will be animated, if ``False`` still only initial mode shape will be animated
+    :type animate_secondary_mode_shape: bool, optional
     :return: Animation sequence
     """
-    ann = np.zeros((mode_shape.shape[0], mode_shape.shape[1], no_points))
+    if isinstance(mode_shape, np.ndarray):
+        if mode_shape.ndim==2:
+            ann = np.zeros((mode_shape.shape[0], mode_shape.shape[1], int(no_points)))
+            ann_secondary = np.zeros((mode_shape.shape[0], int(no_points)))
+        else:
+            raise ValueError("Parameter mode_shape must be a 2D vector, where the first dimension presents all nodes and the second dimension 3 coordinates (x, y, z).")
+    else:
+        raise ValueError("To animate mode shape, a parameter mode_shape must be defined in form of 2D numpy array.")
 
-    for g, _t in enumerate(np.linspace(0, 2, no_points)):
-        ann[:, :, g] = (np.real(mode_shape) * np.cos(2 * np.pi * _t) - np.imag(mode_shape) * np.sin(
-            2 * np.pi * _t))
+
+    for g, _t in enumerate(np.linspace(0, int(no_of_repetitions), int(no_points))):
+        ann[:, :, g] = (np.real(mode_shape) * np.cos(2 * np.pi * _t) - np.imag(mode_shape) * np.sin(2 * np.pi * _t))
+        if animate_secondary_mode_shape:
+            if isinstance(secondary_mode_shape, np.ndarray):
+                if secondary_mode_shape.ndim==1:
+                    ann_secondary[:, g] = (np.real(secondary_mode_shape) * np.cos(2 * np.pi * _t) - np.imag(secondary_mode_shape) * np.sin(2 * np.pi * _t))
+                else:
+                    raise ValueError("Parameter secondary_mode_shape must be 1D vector.")
+            else:
+                raise ValueError("To animate secondary mode shape, a parameter secondary_mode_shape must be defined in form of 1D numpy array.")
+
     if abs_scale:
         ann = ann / np.max(ann) * scale
     else:
         ann = ann * scale
-
-
-    return ann
+    return ann, ann_secondary
 
 
 def MAC(phi_1, phi_2, output_type = 'matrix'):
@@ -218,7 +244,7 @@ def coh_frf(Y_1, Y_2, return_average = True):
         print("Wrong matrix shape")
         return None
 
-def dict_animation(_modeshape,a_type,mesh= None,pts = None,fps = 30,r_scale = 10,no_points = 60, object_list = None,abs_scale = True):
+def dict_animation(_modeshape, a_type, mesh= None, pts = None, fps = 30, r_scale = 10, no_points=60, no_of_repetitions = 2, object_list = None, abs_scale = True, secondary_mode_shape=None, animate_secondary_mode_shape = False):
     """
     Creates a predefined dictionary for animation sequency in the 3D display.
 
@@ -236,13 +262,24 @@ def dict_animation(_modeshape,a_type,mesh= None,pts = None,fps = 30,r_scale = 10
     :type r_scale: float, optional
     :param no_points: Number of points in the animation sequence
     :type no_points: int, optional
+    :param no_of_repetitions: Number of repetitions of animated mode
+    :type no_of_repetitions: int, optional
     :param object_list: A list containing objects to be animated
     :type object_list: list, optional
-    :return:
+    :param abs_scale: Apply scaling on normalized mode
+    :type abs_scale: bool, optional
+    :param secondary_mode_shape: secondary mode shape
+    :type secondary_mode_shape: array(float), optional
+    :param animate_secondary_mode_shape: If ``True``, secondary mode shape will be animated, if ``False`` still only initial mode shape will be animated
+    :type animate_secondary_mode_shape: bool, optional
+    :return: Dictionary of parameters for mode shape animation
     """
     mode_dict = dict()
-
-    mode_dict["animation_pts"] = mode_animation(_modeshape, r_scale, no_points=no_points,abs_scale = abs_scale)
+    
+    mode_animation_frames = mode_animation(_modeshape, r_scale, no_points = no_points, no_of_repetitions = no_of_repetitions, abs_scale = abs_scale, secondary_mode_shape = secondary_mode_shape, animate_secondary_mode_shape = animate_secondary_mode_shape)
+    mode_dict["animation_pts"] = mode_animation_frames[0]
+    mode_dict["animation_pts_secondary"] = mode_animation_frames[1]
+    mode_dict["animate_secondary_mode_shape"] = animate_secondary_mode_shape
     mode_dict["fps"] = fps
 
     if a_type == "modeshape":

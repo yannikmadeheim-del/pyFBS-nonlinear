@@ -24,6 +24,28 @@ def file_names_AB():
     return full_file, rst_file, stl_file
 
 @pytest.fixture()
+def automotive_testbench_file_names():
+    folder = pyFBS.IO.AUTOMOTIVE_FOLDER
+    all_files = pyFBS.IO.AUTOMOTIVE_FILES
+    
+    file_names = []
+    for sub_dir in all_files:
+        for sub_file in all_files[sub_dir]:
+            file_names.append("./" + folder + "/" + sub_dir + "/" + sub_file)
+    return file_names
+
+@pytest.fixture()
+def lab_testbench_file_names():
+    folder = pyFBS.IO.LAB_FOLDER
+    all_files = pyFBS.IO.LAB_FILES
+    
+    file_names = []
+    for sub_dir in all_files:
+        for sub_file in all_files[sub_dir]:
+            file_names.append("./" + folder + "/" + sub_dir + "/" + sub_file)
+    return file_names
+
+@pytest.fixture()
 def file_names_xlsx():
     xlsx = r"./lab_testbench/Measurements/AM_Measurements.xlsx"
     return xlsx
