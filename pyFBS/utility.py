@@ -400,8 +400,8 @@ def rotation_matrix_from_vectors(vec1, vec2):
     :return: Rotational matrix which when applied to vec1, aligns it with vec2.
     """
 
-    vec1 += np.random.random(3) / 1e10
-    vec2 += np.random.random(3) / 1e10
+    vec1 += np.random.random(3) / 1e20
+    vec2 += np.random.random(3) / 1e20
 
     a, b = (vec1 / np.linalg.norm(vec1)).reshape(3), (vec2 / np.linalg.norm(vec2)).reshape(3)
 
