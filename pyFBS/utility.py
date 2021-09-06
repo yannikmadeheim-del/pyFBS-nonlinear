@@ -616,11 +616,10 @@ def auralization(freq,FRF, load_case = None):
     """
 
     s = np.fft.irfft(FRF).real
-    fs = 1 / (freq[1] - freq[0])
-    xt = np.linspace(0, fs, len(s), endpoint=False)
+    dt = 1 / (freq[1] - freq[0]) / 2 # Nyquist
+    xt = np.linspace(0, dt, len(load_case), endpoint=False)
 
-    if type(load_case) == type(np.asarray([])):
-        s = (np.convolve(load_case, s, 'full').real)[:len(s)]
+    s = (np.convolve(load_case, s, 'full').real)[:len(load_case)]
 
     return xt,s
 
