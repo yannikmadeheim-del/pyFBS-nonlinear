@@ -602,7 +602,7 @@ def MPC(mod, sel=0):
     MPC = ((cii - crr) ** 2 + 4 * cri ** 2) / (crr + cii) ** 2
     return MPC
 
-def auralization(freq,FRF, load_case):
+def auralization(freq,FRF, load_case = None):
     """
     Auralization of FRFs, performs an IFFT and if the load case is supplied a convolution to obtain time response.
 
@@ -615,11 +615,12 @@ def auralization(freq,FRF, load_case):
     :return: time vector, time response
     """
 
-    s = np.fft.irfft(FRF).real
+    s = np.fft.irfft(FRF)
     dt = 1 / (freq[1] - freq[0])  
-    xt = np.linspace(0, dt, len(load_case), endpoint=False)
-
-    s = (np.convolve(load_case, s, 'full').real)[:len(load_case)]
+    xt = np.linspace(0, dt, len(s), endpoint=True)
+    if type(load_case) == type(np.asarray([])):
+        s = (np.convolve(load_case, s, 'full').real)[:len(load_case)]
+        xt = np.linspace(0, dt, len(load_case), endpoint=False)
 
     return xt,s
 
