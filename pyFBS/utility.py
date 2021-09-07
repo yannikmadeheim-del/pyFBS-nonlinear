@@ -615,12 +615,12 @@ def auralization(freq,FRF, load_case = None):
     :return: time vector, time response
     """
 
-    s = np.fft.irfft(FRF).real
-    fs = 1 / (freq[1] - freq[0])
-    xt = np.linspace(0, fs, len(s), endpoint=False)
-
+    s = np.fft.irfft(FRF)
+    dt = 1 / (freq[1] - freq[0])  
+    xt = np.linspace(0, dt, len(s), endpoint=True)
     if type(load_case) == type(np.asarray([])):
-        s = (np.convolve(load_case, s, 'full').real)[:len(s)]
+        s = (np.convolve(load_case, s, 'full').real)[:len(load_case)]
+        xt = np.linspace(0, dt, len(load_case), endpoint=False)
 
     return xt,s
 
