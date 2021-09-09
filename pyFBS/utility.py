@@ -821,7 +821,7 @@ def plot_FRF(freq, FRF_data, width=500, height=400, circle_size=4E3):
 
     return points + text | AP
 
-def plot_frequency_response(freq, FR_data, width=500, height=400, labels=None):
+def plot_frequency_response(freq, FR_data, width=500, height=400, labels=None, amplitude_only =False):
     """
     Wrapper function for plotting frequency responses (magnitude and phase) using Altair.
     :param freq: Frequency vector for x axis.
@@ -834,6 +834,8 @@ def plot_frequency_response(freq, FR_data, width=500, height=400, labels=None):
     :type height: int, optional
     :param labels: Labels of the responses to be displayed in legend.
     :type labels: dict, optional
+    :param labels: An option to show only the amplitude part, without the phase.
+    :type labels: bool, optional
     """
 
     if labels==None:
@@ -882,7 +884,10 @@ def plot_frequency_response(freq, FR_data, width=500, height=400, labels=None):
             selection
         )
 
-    AP = alt.vconcat(A,P)
+    if amplitude_only == False:
+        AP = alt.vconcat(A,P)
+    else:
+        AP = A
 
     return AP
 
@@ -943,6 +948,60 @@ def comparison_plot(x, y, width=500, height=250, labels=None, title='', x_label=
         )
         
     return A
+
+def plot_comparison_multiple(freq,master_Y, labels):
+
+    df = pd.DataFrame()
+    _f = master_Y[0].shape[0]
+
+    for i_master,FRF_data in enumerate(master_Y):
+        for i in range(FRF_data.shape[1]):
+            for j in range(FRF_data.shape[2]):
+
+                df_temp = pd.DataFrame({"f" : freq, "A" : np.abs(FRF_data[:,i,j]),"ph" : np.angle(FRF_data[:,i,j]),"out" : [str(i)]*_f,\
+                                        "in" : [str(j)]*_f,"out_in" : ['o'+str(i)+', i'+str(j)]*_f, "master" : str(i_master), "ID" : [''+str(i)+','+str(j)+' '+str(labels[i_master])]*_f})
+                df = df.append(df_temp)
+
+    width = 500
+    height = 300
+    circle_size = 1e3
+
+    selector = alt.selection_multi(empty='all', fields=['out_in'])
+    resize = alt.selection_interval(bind='scales')
+
+    base = alt.Chart(df).properties(
+        width=width,
+        height=height
+    ).add_selection(selector)
+
+    points = base.mark_circle(size=circle_size).encode(
+        alt.X('in', axis=alt.Axis(title='Output DoF')),
+        alt.Y('out', axis=alt.Axis(title='Input DoF')),
+        color=alt.condition(selector, 'out_in', alt.value('lightgray'),legend = None)
+    )
+
+
+    A = alt.Chart(df).mark_line().encode(
+        alt.X("f", axis=alt.Axis(title='Frequency [Hz]')),
+        alt.Y('A', axis=alt.Axis(title='Amplitude(Y)'), scale=alt.Scale(type='log',base=10)),
+        color=alt.Color('ID', legend=alt.Legend())).properties(width=width,height=1/2*height).add_selection(
+        resize
+    ).transform_filter(
+        selector
+    )
+
+    P = alt.Chart(df).mark_line().encode(
+        alt.X("f", axis=alt.Axis(title='Frequency [Hz]')),
+        alt.Y('ph', axis=alt.Axis(title='Phase(Y)')),
+        color='ID').properties(width=width,height=1/3*height).add_selection(
+        resize
+    ).transform_filter(
+        selector
+    )
+
+    AP = alt.vconcat(A,P)
+
+    return (points| AP).resolve_scale(color='independent')
 
 def plot_coh(freq, coh_data, width=500, height=200, opacity=0.2, color='blue', title=''):
     """
