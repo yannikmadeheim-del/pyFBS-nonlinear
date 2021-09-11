@@ -219,9 +219,9 @@ def download_lab_testbench(overwrite=False):
                 with open(folder_name + os.sep + sub_dir + os.sep + '%s' % filename, 'wb') as fout:
                     fout.write(r._content)
 
-def load_hdf_Math(file_name,group_name = "Math"):
+def load_hdf_FRFs(file_name):
     """
-    Loads HDF file format - Math (FRFs from Modal test), when exported from Dewesoft software.
+    Loads HDF file format - Math (FRFs from Modal test), when exported from Dewesoft 2021.4 software.
 
     :param uff_file_data: A filename of the .hdf file containing information of FRFs
     :type uff_file_data: str
@@ -229,9 +229,8 @@ def load_hdf_Math(file_name,group_name = "Math"):
 
     f = h5py.File(file_name,'r+')
 
-    group = f["Math"]
     keys = []
-    for key in group.keys():
+    for key in f.keys():
         keys.append(key)
 
     arr_out = []
@@ -250,19 +249,23 @@ def load_hdf_Math(file_name,group_name = "Math"):
         
     _out = np.max(arr_out) - np.min(arr_out) + 1
     _in = np.max(arr_in) - np.min(arr_in) + 1
-    _f = len(group[keys[0]][()][0])
+    _f = len(f[keys[0]][()][0])
 
     Y = np.zeros((_f,_out,_in),dtype = complex)
-    for key in keys[::2]:
+    for i,key in enumerate(keys[::2]):
         
         _file = key.split("_")
-        name_real = key
-        name_imag = key + "_2"
+        name_real = keys[2*i+0]
+        name_imag = keys[2*i+1] 
+        
+        print(name_real)
+        print(name_imag)
+        
         
         ch_out = _file[2][:-2]
         ch_in = _file[3][:-2]
         
-        resp = (group[name_real][()]+group[name_imag][()]*1j).T
+        resp = (f[name_real][()]+f[name_imag][()]*1j).T
         Y[:,int(ch_out)-1,int(ch_in)-1] = resp[:,0]
     
     return Y, keys 
