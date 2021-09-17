@@ -130,6 +130,15 @@ class MK_model(object):
                 self.eig_freq, self.eig_val, self.eig_vec = self.eig_solve(self.M, self._K, no_modes)
 
     def piclke_check(self, p_file, no_modes):
+        """The function checks if the defined mass and stiffness matrices are the same as were defined in the saved pickle file.
+
+        :param p_file: name of pickle file
+        :type p_file: array
+        :param no_modes: number of modes to be included in output of the eigenvalue computation
+        :type no_modes: int
+
+        :rtype: bool
+        """
         _M,_K,_eig_freq,_eig_val,_eig_vec,_no_modes = pickle.load( open(p_file, "rb" ))
         # check if the solution is the same
         if _K.shape == self.K.shape and _M.shape == self.M.shape:
@@ -389,6 +398,18 @@ class MK_model(object):
             return(no_modes, _eig_val2, damping, m_p)
 
     def FRF_synth_full(self, f_start = 1, f_end = 2000,  f_resolution= 1, frf_type = "receptance"):
+        """
+        Synthetisation of frequency response functions using the full harmonic method.
+
+        :param f_start: starting point of the frequency range
+        :type f_start: int or float
+        :param f_end: endpoint of the frequency range
+        :type f_end: int or float
+        :param f_resolution: resolution of frequency range
+        :type f_resolution: int or float
+        :param frf_type: define calculated FRF type (``receptance``, ``mobility`` or ``accelerance``)
+        :type frf_type: str
+        """
         
         if f_start == 0:
             # approximation at 0Hz
@@ -437,7 +458,7 @@ class MK_model(object):
         :type modal_damping: float or None
         :param frf_type: define calculated FRF type (``receptance``, ``mobility`` or ``accelerance``)
         :type frf_type: str
-        :param _all: synthetize response at all nodes - can be usefull ot animate FRFs
+        :param _all: synthetize response at all nodes - can be usefull to animate FRFs
         :type _all, optional: boolean
         :param n_dim: number of DoFs per one node in MK model (default is 3)
         :type n_dim, optional: boolean
@@ -473,8 +494,33 @@ class MK_model(object):
         self.freq = freq
 
 
-    def full_DoF_FRF_synth(self, df_imp, df_sen,f_start = 1, f_end = 2000, f_resolution= 1, limit_modes = None, modal_damping = None, frf_type = "receptance", _all = False):
-    
+    def full_DoF_FRF_synth(self, df_imp, df_sen, f_start = 1, f_end = 2000, f_resolution= 1, limit_modes = None, modal_damping = None, frf_type = "receptance", _all = False):
+        """
+        Generate FRFs on exact location of impacts and sensors by projecting FRFs from three closest nodes in numercial model.
+        Modal superpostition method is used for FRF generation.  Gereated are all 3 translations and three rotations for every DoFs.
+
+        :param df_imp: locations and directions of impacts where FRFs will be generated
+        :type df_imp: pandas.DataFrame
+        :param df_sen: locations and directions of sensors where FRFs will be generated
+        :type df_sen: pandas.DataFrame
+        :param f_start: starting point of the frequency range
+        :type f_start: int or float
+        :param f_end: endpoint of the frequency range
+        :type f_end: int or float
+        :param f_resolution: resolution of frequency range
+        :type f_resolution: int or float
+        :param limit_modes: number of modes used for FRF synthesis
+        :type limit_modes: int
+        :param modal_damping: viscose modal damping ratio (constant for whole frequency range or ``None``)
+        :type modal_damping: float or None
+        :param frf_type: define calculated FRF type (``receptance``, ``mobility`` or ``accelerance``)
+        :type frf_type: str
+        :param _all: synthetize response at all nodes - can be usefull to animate FRFs
+        :type _all, optional: boolean
+        :param n_dim: number of DoFs per one node in MK model (default is 3)
+        :type n_dim, optional: boolean
+        """
+
         imp_coord = np.asarray([df_imp['Position_1'], df_imp['Position_2'], df_imp['Position_3']]).T
         sen_coord = np.asarray([df_sen['Position_1'], df_sen['Position_2'], df_sen['Position_3']]).T
         
@@ -573,6 +619,7 @@ class MK_model(object):
     def custom_FRF_synth(eig_freq, eig_vec_chn, eig_vec_imp ,f_start = 1, f_end = 2000, f_resolution= 1, limit_modes = None, modal_damping = None, frf_type = "receptance"):
         """
         Synthetisation of frequency response functions using the mode superposition method.
+        FRFs are generated for all combinations of inputed eigen vectors.
 
         :param eig_freq: eigen frequencies of cinsidered system in unit: rad/s
         :type eig_freq: numpy.array
