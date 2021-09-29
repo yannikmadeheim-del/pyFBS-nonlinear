@@ -769,13 +769,18 @@ class view3D():
         else:
             self.add_action(self.show_hide_toolbar, "VPs", self.show_hide_vps)
 
-        x = df["Position_1"].unique()
-        y = df["Position_2"].unique()
-        z = df["Position_3"].unique()
+        ind = np.unique(df["Grouping"], return_index=True)[1]
+
+        x = df.iloc[ind]["Position_1"]
+        y = df.iloc[ind]["Position_2"]
+        z = df.iloc[ind]["Position_3"]
         position = np.asarray([x, y, z]).T
         position *= scale
-        vp_mesh,vp_actor = self.add_vp(position,color = color,size = size,**kwargs)
-        self.global_vps.append([vp_mesh, vp_actor])
+
+        for position_ in position:
+            vp_mesh,vp_actor = self.add_vp(position_,color = color,size = size,**kwargs)
+            self.global_vps.append([vp_mesh, vp_actor])
+
         self.vps_visible = True
 
 
