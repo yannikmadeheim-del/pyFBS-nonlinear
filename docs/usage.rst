@@ -100,11 +100,21 @@ One of the models provides the dynamic properties (overlay model) and the second
 A numerical model is commonly used as a parent model and an experimental model is used as an overlay model. 
 
 
+Singular Vector Transformation
+==============================
+Singular Vector Transformation (SVT) consists in projecting the acquired data into subspaces composed by dominant singular vectors, 
+which are extracted directly from the available FRF datasets [5]_. 
+No geometrical and/or analytical model is required. 
+If some basic requirements are met, the reduced orthonormal frequency dependent basis would be able to control and 
+observe most of the rigid and flexible vibration modes of interest over a broad frequency range. 
+The SVT can tackle challenging scenarios with flexible behaving interfaces and lightly damped systems.
+
 .. rubric:: References
 
-.. [1] C. Bane Sullivan and Alexander Kaszynski. PyVista: 3d plotting and mesh analysis through a streamlined interface for the visualization toolkit (VTK). Journal of Open Source Software, 4(37):1450, may 2019.
-.. [2] D. de Klerk, D. J. Rixen, S. N. Voormeeren, and F. Pasteuning. Solving the RDoF Problem in Experimental Dynamic Substructuring. in: Proceedings of the 26th International Modal Analysis Conference, A Conference on Structural Dynamics, (2010), pages, 2008.
+.. [1] Sullivan C, Kaszynski A. PyVista: 3D plotting and mesh analysis through a streamlined interface for the Visualization Toolkit (VTK). Journal of Open Source Software. 2019 May 19;4(37):1450.
+.. [2] de Klerk D, Rixen DJ, Voormeeren SN, Pasteuning P. Solving the RDoF problem in experimental dynamic sybstructuring. InInternational modal analysis conference IMAC-XXVI 2008 (pp. 1-9).
 .. [3] Tomaž Bregar, Nikola Holeček, Gregor Čepon, Daniel J. Rixen, and Miha Boltežar. Including directly measured rotations in the virtual point transformation. Mechanical Systems and Signal Processing, 141:106440, July 2020.
 .. [4] Steven WB Klaassen, Maarten V. van der Seijs, and Dennis de Klerk. System equivalent model mixing. Mechanical Systems and Signal Processing, 105:90–112, 2018.
+.. [5] Trainotti F, Bregar T, Klaassen SW, Rixen DJ. Experimental decoupling of substructures by singular vector transformation. Mechanical Systems and Signal Processing. 2022 Jan 15;163:108092.
 
 

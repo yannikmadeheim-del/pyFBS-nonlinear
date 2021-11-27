@@ -180,8 +180,8 @@ The partial responses can then be displayed as a heatmap:
 
 Using the graphical presentation above, the most dominant transfer path can be pinpointed.
 
-.. [1] Moorhouse, A. T., A. S. Elliott, and T. A. Evans. "In situ measurement of the blocked force of structure-borne sound sources." Journal of Sound and Vibration 325.4-5 (2009): 679-685.
+.. [1] Moorhouse, A. T., A. S. Elliott, and T. A. Evans. In situ measurement of the blocked force of structure-borne sound sources. Journal of Sound and Vibration 325.4-5 (2009): 679-685.
 
-.. [2] Van der Seijs, M. V. "Experimental dynamic substructuring: Analysis and design strategies for vehicle development." (2016).
+.. [2] van der Seijs MV. Experimental dynamic substructuring: Analysis and design strategies for vehicle development (Doctoral dissertation, Delft University of Technology).
 
-.. [3] El Mahmoudi, A., et al. "In-situ TPA for NVH analysis of powertrains: an evaluation on an experimental test setup." AAC 2019: Aachen acoustics colloquium/aachener akustik kolloquium. 2019.
+.. [3] El Mahmoudi, A., et al. In-situ TPA for NVH analysis of powertrains: an evaluation on an experimental test setup. AAC 2019: Aachen acoustics colloquium/aachener akustik kolloquium. 2019.
