@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    .error {
+        color: red;
+    }
+  </style>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm//vega@5"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm//vega-lite@4.8.1"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm//vega-embed@6"></script>
+</head>
+<body>
+  <div id="vis"></div>
+  <script>
+    (function(vegaEmbed) {
+      var spec = {"config": {"view": {"continuousWidth": 400, "continuousHeight": 300}}, "data": {"name": "data-c00595fc36396f6f552cf93edc12b5f9"}, "mark": "rect", "encoding": {"color": {"type": "quantitative", "field": "rec", "legend": {"title": "Value"}, "scale": {"scheme": "turbo"}}, "tooltip": [{"type": "quantitative", "field": "rec", "format": ".3f", "title": "Value"}], "x": {"type": "ordinal", "axis": {"title": "Output DoFs"}, "field": "x"}, "y": {"type": "ordinal", "axis": {"title": "Input DoFs"}, "field": "y"}}, "height": 200, "title": "", "width": 200, "$schema": "https://vega.github.io/schema/vega-lite/v4.8.1.json", "datasets": {"data-c00595fc36396f6f552cf93edc12b5f9": [{"x": 0, "y": 0, "rec": 1.0}, {"x": 1, "y": 0, "rec": 0.9973713682217649}, {"x": 2, "y": 0, "rec": 0.9826769187535567}, {"x": 3, "y": 0, "rec": 0.98645172593278}, {"x": 4, "y": 0, "rec": 0.9212221678972797}, {"x": 5, "y": 0, "rec": 0.9922778351496402}, {"x": 0, "y": 1, "rec": 0.9973713682217649}, {"x": 1, "y": 1, "rec": 1.0}, {"x": 2, "y": 1, "rec": 0.6967246640717356}, {"x": 3, "y": 1, "rec": 0.5630651272800559}, {"x": 4, "y": 1, "rec": 0.6128738540813723}, {"x": 5, "y": 1, "rec": 0.9895508750391094}, {"x": 0, "y": 2, "rec": 0.9826769187535567}, {"x": 1, "y": 2, "rec": 0.6967246640717356}, {"x": 2, "y": 2, "rec": 1.0}, {"x": 3, "y": 2, "rec": 0.9776423470099003}, {"x": 4, "y": 2, "rec": 0.987601533037219}, {"x": 5, "y": 2, "rec": 0.9019269805901462}, {"x": 0, "y": 3, "rec": 0.98645172593278}, {"x": 1, "y": 3, "rec": 0.5630651272800559}, {"x": 2, "y": 3, "rec": 0.9776423470099003}, {"x": 3, "y": 3, "rec": 1.0}, {"x": 4, "y": 3, "rec": 0.9730274220084312}, {"x": 5, "y": 3, "rec": 0.5420656748516103}, {"x": 0, "y": 4, "rec": 0.9212221678972797}, {"x": 1, "y": 4, "rec": 0.6128738540813723}, {"x": 2, "y": 4, "rec": 0.987601533037219}, {"x": 3, "y": 4, "rec": 0.9730274220084312}, {"x": 4, "y": 4, "rec": 1.0}, {"x": 5, "y": 4, "rec": 0.559192297404562}, {"x": 0, "y": 5, "rec": 0.9922778351496402}, {"x": 1, "y": 5, "rec": 0.9895508750391094}, {"x": 2, "y": 5, "rec": 0.9019269805901462}, {"x": 3, "y": 5, "rec": 0.5420656748516103}, {"x": 4, "y": 5, "rec": 0.559192297404562}, {"x": 5, "y": 5, "rec": 1.0}]}};
+      var embedOpt = {"mode": "vega-lite"};
+
+      function showError(el, error){
+          el.innerHTML = ('<div class="error" style="color:red;">'
+                          + '<p>JavaScript Error: ' + error.message + '</p>'
+                          + "<p>This usually means there's a typo in your chart specification. "
+                          + "See the javascript console for the full traceback.</p>"
+                          + '</div>');
+          throw error;
+      }
+      const el = document.getElementById('vis');
+      vegaEmbed("#vis", spec, embedOpt)
+        .catch(error => showError(el, error));
+    })(vegaEmbed);
+
+  </script>
+</body>
+</html>
