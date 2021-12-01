@@ -133,7 +133,7 @@ Finally, equivalent forces are evaluated through on-board validation:
 
 .. raw:: html
 
-   <iframe src="../../_static/u3_comparison.html" height="460px" width="100%" frameborder="0"></iframe>
+   <iframe src="../../_static/u3_comparison.html" height="460px" width="750px" frameborder="0"></iframe>
 
 Additionally, a coherence criterion can be used to objectively evaluate interface completeness:
 
@@ -144,7 +144,7 @@ Additionally, a coherence criterion can be used to objectively evaluate interfac
 
 .. raw:: html
 
-   <iframe src="../../_static/on_board_coherence.html" height="330px" width="1500px" frameborder="0"></iframe>
+   <iframe src="../../_static/on_board_coherence.html" height="330px" width="750px" frameborder="0"></iframe>
 
 See also cross-validation for further evaluation of the equivalent forces completeness [3]_.
 

@@ -22,7 +22,8 @@ Translation of an object in the 3D display can be performed by moving a black sp
 Rotation
 ********
 To rotate an object in the 3D display, three sphere widgets are available, for rotation around each axis. 
-Red sphere widget is used for rotation around `X`-axis, green for rotation around `Y`-axis and blue for rotation around `Z`-axis. An example of rotation in the 3D display is depicted on a GIF bellow.
+Red sphere widget is used for rotation around `X`-axis, green for rotation around `Y`-axis and blue for rotation around `Z`-axis. 
+An example of rotation in the 3D display is depicted on a GIF bellow.
 
 .. figure:: ./../data/rotation.gif
    :width: 800px
@@ -31,9 +32,9 @@ Red sphere widget is used for rotation around `X`-axis, green for rotation aroun
 ********
 Snapping
 ********
-If a mesh from an STL file is available there is possible to snapp the position of the object to the surface of the geometric object.
-Furthermore, also the orientation of the object is alligned with the surface normal in the snapping point. The snapping option can be disabled by holding down the letter ``T`` 
-when moving the object in the 3D display.
+If a mesh from an STL file is available there is possible to snap the position of the object to the surface of the geometric object.
+Furthermore, the orientation of the object is also aligned with the surface normal at the snapping point. 
+The snapping option can be disabled by holding down the letter ``T`` when moving the object in the 3D display.
 
 
 .. figure:: ./../data/snapping.gif
@@ -43,7 +44,8 @@ when moving the object in the 3D display.
 ***********
 I/O Objects
 ***********
-If a predefined dataset :mod:`pandas.DataFrame` is available for accelerometers, impacts and virtual points it can be used to place interactive objects already on the predefined positions.
+If a predefined dataset :mod:`pandas.DataFrame` is available for accelerometers, 
+impacts and virtual points, it can be used to place interactive objects already on the predefined positions.
 
 Accelerometers
 ==============   
@@ -109,6 +111,13 @@ The updated positions and orientations can be obtained directly.
 .. code-block:: python
 
 	df_vp_updated = view3D.get_vp_data()
+
+Virtual point channels and forces can be defined based on the positions and orientations of the added VP. 
+In this manner, 6-DoF VP for rigid IDMs is obtained.
+
+.. code-block:: python
+
+	df_vp, df_vp_ref = pyFBS.generate_VP_from_position(df_vp_updated)
 
 
 ************************
