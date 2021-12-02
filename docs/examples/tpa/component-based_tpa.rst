@@ -24,3 +24,50 @@ These equivalent or blocked forces are valid for any assembly with a modified pa
    :hidden:
 
    11_insitu_TPA
+
+
+
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Free velocity">
+
+.. only:: html
+
+    .. figure:: ./../data/free_velocity.png   
+       :target: 16_free_velocity.html
+
+       Free velocity
+
+.. raw:: html
+
+    </div>
+
+.. toctree::
+   :hidden:
+
+   16_free_velocity
+
+
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Pseudo-forces">
+
+.. only:: html
+
+    .. figure:: ./../data/pseudo_forces.png   
+       :target: 17_pseudo_forces.html
+
+       Pseudo-forces
+
+.. raw:: html
+
+    </div>
+
+.. toctree::
+   :hidden:
+
+   17_pseudo_forces

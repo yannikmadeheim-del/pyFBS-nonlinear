@@ -38,9 +38,14 @@ Expressing :math:`\boldsymbol{f}_2^{\mathrm{eq}}` yields:
 
    \boldsymbol{f}_2^{\text{eq}} = \Big( \textbf{Y}_{42}^{\text{AB}} \Big)^+ \boldsymbol{u}_4
 
-or a set of equivalent forces, that are valid source descriptions for any receiver B.
+or a set of equivalent forces, that are valid source descriptions for any receiver B [2]_.
+
+.. tip::
+   Equivalent forces from in-situ TPA are property of the active component and are transferable to any assembly with modified passive side.
+
 TPA methods offer a useful tool to assess the completeness of the interface description in a form of on-board validation [2]_.
-Response in :math:`\boldsymbol{u}_3` can be predicted based on :math:`\boldsymbol{f}_2^{\mathrm{eq}}`:
+The responses :math:`\boldsymbol{u}_3` remain independent of :math:`\boldsymbol{f}_2^{\mathrm{eq}}`, as they are not considered in the calculation of the latter.
+Therefore, response in :math:`\boldsymbol{u}_3` can be predicted based on :math:`\boldsymbol{f}_2^{\mathrm{eq}}`:
 
 .. figure:: ./../data/in_situ_3.png
    :width: 250px
@@ -50,7 +55,12 @@ Response in :math:`\boldsymbol{u}_3` can be predicted based on :math:`\boldsymbo
 
    \boldsymbol{u}_3^{\text{TPA}} = \textbf{Y}_{32}^{\text{AB}} \boldsymbol{f}_2^{\text{eq}}.
 
-By comparing predicted :math:`\boldsymbol{u}_3^{\mathrm{TPA}}` and measured :math:`\boldsymbol{u}_3` it is possible to evaluate if transfer paths through the interface are sufficiently described by :math:`\boldsymbol{f}_2^{\mathrm{eq}}`.
+By comparing predicted :math:`\boldsymbol{u}_3^{\mathrm{TPA}}` and measured :math:`\boldsymbol{u}_3` 
+it is possible to evaluate if transfer paths through the interface are sufficiently described by :math:`\boldsymbol{f}_2^{\mathrm{eq}}`.
+
+.. tip ::
+   This approach can be useful for an on-board validation, when the prediction is performed on the assembly AB, 
+   or a cross validation, when applied to the assembly with an modified passive side.
 
 How to calculate equivalent forces?
 ***********************************
@@ -58,18 +68,40 @@ How to calculate equivalent forces?
 In order to determine equivalent forces, the following steps should be performed:
 
 1. Measurement of admittance matrices :math:`\textbf{Y}_{42}^{\text{AB}}` and :math:`\textbf{Y}_{32}^{\text{AB}}`.
+   Often, measurement campaign is carried out using impact hammer due to rapid FRF aquisition for each impact location.
 2. Measurement of operational responses :math:`\boldsymbol{u}_4`.
+
+.. warning::
+   To ensure that the equivalent forces are independent of the receiver structure, the operating excitation must originate solely from the source structure.
+
+.. tip::
+   Number of indicator responses :math:`\boldsymbol{u}_4` should preferably exceed the number of equivalent forces :math:`\boldsymbol{f}_2^{\mathrm{eq}}`.
+   An over-determination of at least a factor of 1.5 improves the results of the inverse force identification. If the amount of channels is not a limitation, a factor of 2 is suggested.
+   Positions of the :math:`\boldsymbol{u}_4` should be located in the proximity of the interface and must be carefully considered to maximize the observability of the equivalent forces. 
+   If all recommendations are met, sufficient rank and low condition number of :math:`\textbf{Y}_{42}^{\text{AB}}` matrix prevents amplification of measurement errors in the inversion.
+
+.. warning::
+   One should keep in mind that we assume considered systems are linear. Especially with respect to systems with nonlinear interface properties, 
+   the limitations of the method should be kept in mind. Because the FRF determination through impact hammer or shaker is done during non-operation, operation FRFs might differ as 
+   non-linear components are changing their dynamic behaviour depending on the operational speed. 
+   Consequently, errors arise in equivalent forces and their transferabillity is limited.
 
 Virtual Point Transformation
 ============================
+
+.. tip::
+   The virtual point [3]_, typically used in frequency based substructuring (FBS) applications, has the advantage of taking into account moments in the transfer paths that are otherwise not measurable with
+   conventional force transducers. Hence the description of the interface is more complete [4]_.
 
 To simplify the measurement of the :math:`\textbf{Y}_{42}^{\text{AB}}` and :math:`\textbf{Y}_{32}^{\text{AB}}` the VPT can be applied on the interface excitation to transform forces at the interface into virtual DoFs (from :math:`\textbf{Y}_{\mathrm{uf}}` to :math:`\textbf{Y}_{\mathrm{um}}`): 
 
 .. math::
 
-   \textbf{Y}_{\text{um}} = \textbf{Y}_{\text{uf}} \, \textbf{T}_{\text{f}}.
+   \textbf{Y}_{\text{um}} = \textbf{Y}_{\text{uf}} \, \textbf{T}_{\text{f}}^\text{T}.
 
-For the VPT, positional data is required for channels (``df_chn_up``), impacts (``df_imp_up``) and for virtual points  (``df_vp`` and ``df_vpref``):
+For the VPT, positional data is required for channels (``df_chn_up``), impacts (``df_imp_up``) and for virtual points  (``df_vp`` and ``df_vpref``). 
+Note that only transformation of forces is required for succesful identification of equivalent forces using in-situ TPA, 
+but in order to define the VPT object in pyFBS, VP for displacements must also be defined (but neglected latter in the trasnformation):
 
 .. code-block:: python
 
@@ -118,6 +150,12 @@ Equivalent forces at the interface are calculated in the following manner:
 
    f_eq = np.linalg.pinv(Y_42) @ u4_op
 
+.. tip::
+
+   In cases when the excitation source exhibits tonal excitation behavior, responses outside the excitation orders may fall below the noise floor of the measurement equipment [5]_. 
+   The use of regularisation techniques is advisable in such cases to prevent the measurement noise from building up the equivalent forces 
+   (Singular Value Truncation or Tikhonov regularisation, for more info see [6]_ [7]_ [8]_).
+
 On-board validation
 ===================
 
@@ -146,20 +184,23 @@ Additionally, a coherence criterion can be used to objectively evaluate interfac
 
    <iframe src="../../_static/on_board_coherence.html" height="330px" width="750px" frameborder="0"></iframe>
 
-See also cross-validation for further evaluation of the equivalent forces completeness [3]_.
+See also cross-validation for further evaluation of the equivalent forces completeness [9]_.
 
 Partial response contribution
 =============================
 
-With the equivalent forces known a partial response contribution can be evaluated for each separate component of excitation:
+If we now focus on only one response at the passive side at :math:`\boldsymbol{u}_3`, 
+we can build this responses solely by the equivalent forces. 
+Partial response is calculated for each equivalent force using equation:
 
 .. math::
 
-   u_i(\omega) = \sum_{j} Y_{ij}^{\text{AB}}(\omega) f_j^{\text{eq}}(\omega) \quad
-      \begin{cases}
-         & u_i \in \boldsymbol{u}_3 \\
-         & f_j^{\text{eq}} \in \boldsymbol{f}_2^{\text{eq}}
-      \end{cases}.
+   u_{i,j} = Y_{ij}^\mathrm{AB} f_j^\text{eq}
+
+Then if we sum all partial :math:`u_{i,j}` we obtain total response of the passive side [2]_. 
+But it is also interesting to examine all partial responses individually. 
+Based on them, we can determine, which equivalent force contributes the most to the passive side responses, 
+or in other words, which transfer path is most critical on our product.
 
 .. code-block:: python
 
@@ -178,10 +219,17 @@ The partial responses can then be displayed as a heatmap:
 
    <iframe src="../../_static/TP_contribution.html" height="250px" width="100%" frameborder="0"></iframe>
 
-Using the graphical presentation above, the most dominant transfer path can be pinpointed.
+.. tip::
+   Using the graphical presentation above, the most dominant transfer path can be pinpointed.
 
-.. [1] Moorhouse, A. T., A. S. Elliott, and T. A. Evans. In situ measurement of the blocked force of structure-borne sound sources. Journal of Sound and Vibration 325.4-5 (2009): 679-685.
+.. rubric:: References
 
+.. [1] Moorhouse AT. On the characteristic power of structure-borne sound sources. Journal of sound and vibration. 2001 Nov 29;248(3):441-59.
 .. [2] van der Seijs MV. Experimental dynamic substructuring: Analysis and design strategies for vehicle development (Doctoral dissertation, Delft University of Technology).
-
-.. [3] El Mahmoudi, A., et al. In-situ TPA for NVH analysis of powertrains: an evaluation on an experimental test setup. AAC 2019: Aachen acoustics colloquium/aachener akustik kolloquium. 2019.
+.. [3] van der Seijs MV, van den Bosch DD, Rixen DJ, de Klerk D. An improved methodology for the virtual point transformation of measured frequency response functions in dynamic substructuring. In4th ECCOMAS thematic conference on computational methods in structural dynamics and earthquake engineering 2013 Jun (No. 4).
+.. [4] Haeussler, M., Mueller, T., Pasma, E. A., Freund, J., Westphal, O., Voehringer, T., & AG, Z. F. (2020). Component TPA: benefit of including rotational degrees of freedom and over-determination. In ISMA 2020-International Conference on Noise and Vibration Engineering (pp. 1135-1148).
+.. [5] Haeussler, M., Kobus, D. C., & Rixen, D. J. (2021). Parametric design optimization of e-compressor NVH using blocked forces and substructuring. Mechanical Systems and Signal Processing, 150, 107217.
+.. [6] Wernsen, M. W. F., van der Seijs, M. V., & de Klerk, D. (2017). An indicator sensor criterion for in-situ characterisation of source vibrations. In Sensors and Instrumentation, Volume 5 (pp. 55-69). Springer, Cham.
+.. [7] Haeussler, M. (2021). Modular sound & vibration engineering by substructuring. Technische Universität München.
+.. [8] Wernsen MW. Observability and transferability of in-situ blocked force characterisation.
+.. [9] El Mahmoudi, A., Trainotti, F., Park, K., & Rixen, D. J. (2019). In-situ TPA for NVH analysis of powertrains: an evaluation on an experimental test setup. In AAC 2019: Aachen acoustics colloquium/aachener akustik kolloquium.

@@ -45,7 +45,7 @@ The ``Description`` tells which DoFs you would like to reconstruct using VPT.
 ``Grouping`` number organizes which impacts and sensors belong to which virtual point. 
 Arbitrary number of VPs can be reconstructed at once if grouping numbers are properly defined.
 
-.. figure:: ./../data/df_vp.png
+.. figure:: ./../data/df_vp.PNG
    :width: 750px
 
 After the positions are defined a class instance of :class:`pyFBS.VPT` can be created.

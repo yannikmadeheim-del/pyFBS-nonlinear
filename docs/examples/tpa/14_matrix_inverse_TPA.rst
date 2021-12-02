@@ -60,7 +60,7 @@ Virtual Point Transformation
 ============================
 
 .. tip::
-   The virtual point, typically used in frequency based substructuring (FBS) applications, has the advantage of taking into account moments in the transfer paths that are otherwise not measurable with
+   The virtual point [2]_, typically used in frequency based substructuring (FBS) applications, has the advantage of taking into account moments in the transfer paths that are otherwise not measurable with
    conventional force transducers. Hence the description of the interface is more complete.
 
 To simplify the measurement of the :math:`\textbf{Y}_{42}^{\text{B}}` and :math:`\textbf{Y}_{32}^{\text{B}}` the VPT can be applied on the interface excitation to transform forces at the interface into virtual DoFs (from :math:`\textbf{Y}_{\mathrm{uf}}` to :math:`\textbf{Y}_{\mathrm{um}}`): 
@@ -124,6 +124,12 @@ Completeness of the interface forces is then evaluated via comparison of predict
 .. tip::
 
    In cases when the excitation source exhibits tonal excitation behavior, responses outside the excitation orders may fall below the noise floor of the measurement equipment. 
-   The use of regularisation techniques is advisable in such cases to prevent the measurement noise from building up the interface forces (see Singular Value Truncation or Tikhonov regularisation).
+   The use of regularisation techniques is advisable in such cases to prevent the measurement noise from building up the interface forces 
+   (Singular Value Truncation or Tikhonov regularisation, for more info see [3]_ [4]_).
+
+.. rubric:: References
 
 .. [1] van der Seijs MV. Experimental dynamic substructuring: Analysis and design strategies for vehicle development (Doctoral dissertation, Delft University of Technology).
+.. [2] van der Seijs MV, van den Bosch DD, Rixen DJ, de Klerk D. An improved methodology for the virtual point transformation of measured frequency response functions in dynamic substructuring. In4th ECCOMAS thematic conference on computational methods in structural dynamics and earthquake engineering 2013 Jun (No. 4).
+.. [3] Thite AN, Thompson DJ. The quantification of structure-borne transmission paths by inverse methods. Part 1: Improved singular value rejection methods. Journal of Sound and Vibration. 2003 Jul 3;264(2):411-31.
+.. [4] Thite AN, Thompson DJ. The quantification of structure-borne transmission paths by inverse methods. Part 2: Use of regularization techniques. Journal of Sound and Vibration. 2003 Jul 3;264(2):433-51.

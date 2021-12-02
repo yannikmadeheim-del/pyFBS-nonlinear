@@ -1,7 +1,7 @@
 ======================
 Transfer Path Analysis
 ======================
-Transfer-path analysis (TPA) is a reliable and effective diagnostic tool for the characterization of actively vibrating components and the propagation of noise and vibrations to the connected passive substructures. 
+Transfer-path analysis (TPA) is a reliable and effective diagnostic tool for the characterization of actively vibrating components and the propagation of noise and vibrations to the connected passive substructures [1]_. 
 TPA offers the ability to analyse the vibration transfer between the individual components of the assembly, distinguish the partial transfer-path contribution and predict the receiver's response.
 
 .. raw:: html
@@ -71,3 +71,8 @@ TPA offers the ability to analyse the vibration transfer between the individual 
    :hidden:
 
    ./tpa/transmissibility-based_tpa
+
+
+.. rubric:: References
+
+.. [1] Maarten V. van der Seijs, Dennis de Klerk, and Daniel J. Rixen. General framework for transfer path analysis: history, theory and classification of techniques. Mechanical Systems and Signal Processing, 68-69:217–244, February 2016.
