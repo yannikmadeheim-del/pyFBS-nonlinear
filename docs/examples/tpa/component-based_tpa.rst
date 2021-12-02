@@ -35,7 +35,7 @@ These equivalent or blocked forces are valid for any assembly with a modified pa
 
 .. only:: html
 
-    .. figure:: ./../data/free_velocity.png   
+    .. figure:: ./../data/free_velocity.PNG   
        :target: 16_free_velocity.html
 
        Free velocity
@@ -58,7 +58,7 @@ These equivalent or blocked forces are valid for any assembly with a modified pa
 
 .. only:: html
 
-    .. figure:: ./../data/pseudo_forces.png   
+    .. figure:: ./../data/pseudo_forces.PNG   
        :target: 17_pseudo_forces.html
 
        Pseudo-forces

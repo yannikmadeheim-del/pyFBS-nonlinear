@@ -16,7 +16,7 @@ Substructure A is treated as an active component with operational excitation act
 Meanwhile, no excitation force is acting on passive substructure B. 
 Responses in :math:`\boldsymbol{u}_3`, :math:`\boldsymbol{u}_4`, and also in interface DoFs :math:`\boldsymbol{u}_2` are hence a consequence of active force :math:`\boldsymbol{f}_1` only. 
 
-.. figure:: ./../data/in_situ.png
+.. figure:: ./../data/in-situ.svg
    :width: 250px
    :align: center
 
@@ -24,7 +24,7 @@ Source internal structure-borne excitations :math:`\boldsymbol{f}_1` are often u
 In-situ TPA introduces the set of equivalent forces, acting on interface DoFs, that cause the same displacements on B as :math:`\boldsymbol{f}_1`.
 Therefore, application of forces :math:`\boldsymbol{f}_1` and reaction forces :math:`-\boldsymbol{f}_2^{\mathrm{eq}}` should annul any response on the passive side, e.q. for :math:`\boldsymbol{u}_4`:
 
-.. figure:: ./../data/in_situ_2.png
+.. figure:: ./../data/in-situ_blocked.svg
    :width: 250px
    :align: center
 
@@ -47,7 +47,7 @@ TPA methods offer a useful tool to assess the completeness of the interface desc
 The responses :math:`\boldsymbol{u}_3` remain independent of :math:`\boldsymbol{f}_2^{\mathrm{eq}}`, as they are not considered in the calculation of the latter.
 Therefore, response in :math:`\boldsymbol{u}_3` can be predicted based on :math:`\boldsymbol{f}_2^{\mathrm{eq}}`:
 
-.. figure:: ./../data/in_situ_3.png
+.. figure:: ./../data/in-situ_eq_source.svg
    :width: 250px
    :align: center
 
@@ -68,8 +68,10 @@ How to calculate equivalent forces?
 In order to determine equivalent forces, the following steps should be performed:
 
 1. Measurement of admittance matrices :math:`\textbf{Y}_{42}^{\text{AB}}` and :math:`\textbf{Y}_{32}^{\text{AB}}`.
-   Often, measurement campaign is carried out using impact hammer due to rapid FRF aquisition for each impact location.
-2. Measurement of operational responses :math:`\boldsymbol{u}_4`.
+   Often, measurement campaign is carried out on non-operating system 
+   using impact hammer due to rapid FRF aquisition for each impact location.
+2. Measurement of operational responses :math:`\boldsymbol{u}_4` while the assembly 
+   is subjected to the operational excitation.
 
 .. warning::
    To ensure that the equivalent forces are independent of the receiver structure, the operating excitation must originate solely from the source structure.

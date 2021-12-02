@@ -2,100 +2,142 @@
 Free velocity
 #############
 
-Free velocity coming soon!
+Using free velocity concept equivalent forces can be expressed from the interface motion of the source component 
+while operating in free-free conditions.
 
 .. note:: 
    Download example showing a numerical example of the free velocity: :download:`16_free_velocity.ipynb <../../../examples/15_TPA_free_velocity.ipynb>`
 
-..
-   What is OPTA?
-   ******************************
+Free velocity concept
+*********************
 
-   Consider a system of substructures A and B, coupled at the interface, as depicted below.
-   Substructure A is treated as an active component with operational excitation acting in :math:`\boldsymbol{u}_1`. 
-   Meanwhile, no excitation force is acting on passive substructure B. 
-   Responses in :math:`\boldsymbol{u}_3`, :math:`\boldsymbol{u}_4`, and also in interface DoFs :math:`\boldsymbol{u}_2` are hence a consequence of active force :math:`\boldsymbol{f}_1` only. 
+When the interface of the source structure is left free, vibrations at the interface DoFs can be treated as a 
+free displacements :math:`\boldsymbol{u}_2^{\mathrm{free}}`.
 
-   .. figure:: ./../data/in_situ.png
-      :width: 250px
-      :align: center
+.. figure:: ./../data/free_velocity.svg
+   :width: 160px
+   :align: center
 
-   Using LM-FBS notation, responses at the indicator sensors :math:`\boldsymbol{u}_4` can be expressed in terms of subsystem admittances [1]_:
+By definition [1]_, equivalent forces, applied in the opposite direction must cancel out responses at the interface 
+caused by the source in operation:
 
-   .. math::
+.. math::
+   \mathbf{0} = \underbrace{\mathbf{Y}_{21}^\text{A} \boldsymbol{f}_1}_{\boldsymbol{u}_2^\text{free}} + \mathbf{Y}_{22}^\text{A} (- \boldsymbol{f}_2^\text{eq})
 
-      \boldsymbol{u}_4 = \textbf{Y}_{41}^{\text{AB}} \boldsymbol{f}_1 = \textbf{Y}_{42}^{\text{B}} \underbrace{ \Big(\textbf{Y}_{22}^{\text{A}} + \textbf{Y}_{22}^{\text{B}}\Big)^{-1} \textbf{Y}_{21}^{\text{A}} \boldsymbol{f}_1 }_{\boldsymbol{g}_2^{\text{B}}}.
+To derive the equivalent forces :math:`\boldsymbol{f}_2^{\mathrm{eq}}` from the free velocities the 
+free admittance matrix of the uncoupled source component :math:`\mathbf{Y}_{22}^{\text{A}}` is needed:
 
-   Expressing :math:`\boldsymbol{g}_2^{\mathrm{B}}` yields:
+.. math::
 
-   .. math::
+   \boldsymbol{f}_2^{\mathrm{eq}} = \left( \mathbf{Y}_{22}^\text{A} \right)^{-1} \boldsymbol{u}_2^\text{free}
 
-      \boldsymbol{g}_2^{\text{B}} = \Big( \textbf{Y}_{42}^{\text{B}} \Big)^+ \boldsymbol{u}_4.
+.. tip::
+   Equivalent forces are property of the active component and are transferable to any assembly with modified passive side [1]_.
 
-   Number of indicator responses :math:`\boldsymbol{u}_4` should preferably exceed number of interface forces :math:`\boldsymbol{g}_2^{\mathrm{B}}` (or be at least equal).
+How to calculate equivalent forces?
+***********************************
 
-   How to calculate equivalent forces?
-   ***********************************
+In order to determine equivalent forces, the following steps should be performed:
 
-   In order to determine equivalent forces, the following steps should be performed:
+1. Measurement of admittance matrix :math:`\textbf{Y}_{22}^{\text{A}}`.
+   Often, measurement campaign is carried out on non-operating system
+   using impact hammer due to rapid FRF aquisition for each impact location.
+2. Measurement of free velocities :math:`\boldsymbol{u}_2^\text{free}` while the source structure 
+   is subjected to the operational excitation.
 
-   1. Measurement of admittance matrices :math:`\textbf{Y}_{42}^{\text{B}}` and :math:`\textbf{Y}_{32}^{\text{B}}` (note that for this assembly must be taken apart and only passive side is considered).
-   2. Measurement of responses :math:`\boldsymbol{u}_4` on an assembly subjected to the operational excitation.
+.. tip::
+   At first glance measurement campaign looks fairly simple. Both required measurements have to be performed on a sorce structure only,
+   so the experimental effort is quite low. However...
 
-   Virtual Point Transformation
-   ============================
+.. warning::
+   ...running source objects at free-free conditions is often challenging as some of them require some sort of support to be able to run in 
+   operation. The active components often needs to be connected to a certain load or mount for operating.
 
-   To simplify the measurement of the :math:`\textbf{Y}_{42}^{\text{B}}` and :math:`\textbf{Y}_{32}^{\text{B}}` the VPT can be applied on the interface excitation to transform forces at the interface into virtual DoFs (from :math:`\textbf{Y}_{\mathrm{uf}}` to :math:`\textbf{Y}_{\mathrm{um}}`): 
+.. tip::
+   In practice, source description using free velocities is limited for lower frequency range due to 
+   unreal running conditions if the interface is left free. 
+   Hence free velocity concept is more suited for frequency range well above rigid body modes of the source. 
+   The method is expected to perform best when differences between operational and free accelerations are small. 
+   See [2]_ for some practical considerations.
 
-   .. math::
+Virtual Point Transformation
+============================
 
-      \textbf{Y}_{\text{um}} = \textbf{Y}_{\text{uf}} \, \textbf{T}_{\text{f}}.
+.. tip::
+   The virtual point [3]_, typically used in frequency based substructuring (FBS) applications, has the advantage of taking into account moments in the transfer paths that are otherwise not measurable with
+   conventional force transducers. Hence the description of the interface is more complete.
 
-   For the VPT, positional data is required for channels (``df_chn_up``), impacts (``df_imp_up``) and for virtual points  (``df_vp`` and ``df_vpref``):
+To simplify the measurement of the :math:`\textbf{Y}_{22}^{\text{A}}` the VPT can be applied on the interface excitation to 
+transform displacements and forces at the interface into virtual DoF: 
 
-   .. code-block:: python
+.. math::
 
-      df_imp_B = pd.read_excel(xlsx_pos, sheet_name='Impacts_B')
-      df_chn_B = pd.read_excel(xlsx_pos, sheet_name='Channels_B')
-      df_vp = pd.read_excel(xlsx_pos, sheet_name='VP_Channels')
-      df_vpref = pd.read_excel(xlsx_pos, sheet_name='VP_RefChannels')
+   \textbf{Y}_{\text{qm}} = \textbf{T}_{\text{u}} \, \textbf{Y}_{\text{uf}} \, \textbf{T}_{\text{f}}^\text{T}.
 
-      vpt_B = pyFBS.VPT(df_chn_B, df_imp_B, df_vp, df_vpref)
+For the VPT, positional data is required for channels (``df_chn_up``), impacts (``df_imp_up``) and for virtual points  (``df_vp`` and ``df_vpref``):
 
-   Defined force transformation is then applied on the FRFs and requried admittance matrices :math:`\textbf{Y}_{42}^{\text{B}}` and :math:`\textbf{Y}_{32}^{\text{B}}` are extracted as follows:
+.. code-block:: python
 
-   .. code-block:: python
+   df_acc_A = pd.read_excel(xlsx_pos, sheet_name='Sensors_A')
+   df_chn_A = pd.read_excel(xlsx_pos, sheet_name='Channels_A')
+   df_imp_A = pd.read_excel(xlsx_pos, sheet_name='Impacts_A')
 
-      Y42_B = MK_B.FRF[:,:9,:9] @ vpt_B.Tf
-      Y32_B = MK_B.FRF[:,9:12,:9] @ vpt_B.Tf
+   df_vp = pd.read_excel(xlsx_pos, sheet_name='VP_Channels')
+   df_vpref = pd.read_excel(xlsx_pos, sheet_name='VP_RefChannels')
 
-   For more options and details about :mod:`pyFBS.VPT` see the :download:`04_VPT.ipynb <../../../examples/04_VPT.ipynb>` example.
+After the reduction matrices are defined the VPT can be applied directly on an FRF matrix:
 
-   Calculation of interface forces
-   ================================
+.. code-block:: python
 
-   Interface forces are calculated in the following manner:
+   vpt = pyFBS.VPT(df_chn_A_up, df_imp_A_up, df_vp, df_vpref)
+   vpt.apply_VPT(MK_A.freq, MK_A.FRF)
 
-   .. code-block:: python
+For more options and details about :mod:`pyFBS.VPT` see the :download:`04_VPT.ipynb <../../../examples/04_VPT.ipynb>` example.
 
-      g2_B = np.linalg.pinv(Y42_B) @ u4
+Calculation of equivalent forces
+================================
 
-   On-board validation
-   ===================
+Equivalent forces at the interface are calculated in the following manner:
 
-   Finally, interface forces are applied to build up predicted response at 
-   Completeness of the interface forces is then evaluated via comparison of predicted and actual response using on-board validation:
+.. code-block:: python
 
-   .. code-block:: python
+   f_eq = np.linalg.pinv(Y_42) @ u2_free
 
-      u3_tpa = Y32_B @ g2_B
+.. tip::
 
-      o = 0
+   In cases when the excitation source exhibits tonal excitation behavior, responses outside the excitation orders may fall below the noise floor of the measurement equipment. 
+   The use of regularisation techniques is advisable in such cases to prevent the measurement noise from building up the equivalent forces 
+   (Singular Value Truncation or Tikhonov regularisation, for more info see [1]_ [4]_).
 
-      u3 = plot_frequency_response(freq, np.hstack((u3_tpa[:,o:o+1], u3_op[:,o:o+1])))
+Cross validation
+================
 
-   .. raw:: html
+.. tip::
 
-      <iframe src="../../_static/on_board_matrix_inverse.html" height="460px" width="100%" frameborder="0"></iframe>
+   TPA methods offer a useful tool to assess the completeness of the source description in a form of cross validation. 
+   
+As stated previously, equivalent forces are a property of the source only and are thus transferable to any assembly with modified passive side. 
+Response of the new assembly when subjected to the operational excitation of the source (:math:`\boldsymbol{u}_3`) 
+can be predicted based on :math:`\boldsymbol{f}_2^{\mathrm{eq}}` identified from source in free conditions
+and admittance of the new assembly (:math:`\mathbf{Y}_{32}^{\mathrm{AB}}`):   
 
-   .. [1] Van der Seijs, M. V. "Experimental dynamic substructuring: Analysis and design strategies for vehicle development." (2016).
+.. math::
+   \boldsymbol{u}_3 = \mathbf{Y}_{32}^{\mathrm{AB}}\, \boldsymbol{f}_2^{\mathrm{eq}}
+
+.. code-block:: python
+
+   u3 = Y32_AB @ f2_eq
+
+.. raw:: html
+
+   <iframe src="../../_static/free_velocity_cross.html" height="460px" width="750px" frameborder="0"></iframe>
+
+.. tip::
+   We can see that equivalent forces are indeed independent of the passive substructure.
+
+.. rubric:: References
+
+.. [1] Van der Seijs, M. V. "Experimental dynamic substructuring: Analysis and design strategies for vehicle development." (2016).
+.. [2] Wagner P, Bianciardi F, Corbeels P, Hülsmann A. High frequency source characterization of an e-motor using component-based TPA.
+.. [3] van der Seijs MV, van den Bosch DD, Rixen DJ, de Klerk D. An improved methodology for the virtual point transformation of measured frequency response functions in dynamic substructuring. In4th ECCOMAS thematic conference on computational methods in structural dynamics and earthquake engineering 2013 Jun (No. 4).
+.. [4] Haeussler, M. (2021). Modular sound & vibration engineering by substructuring. Technische Universität München.

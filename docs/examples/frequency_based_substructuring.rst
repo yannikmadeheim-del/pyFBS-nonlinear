@@ -94,7 +94,7 @@ One can distinguish between coupling and decoupling of dynamic systems as follow
 * **Decoupling** aims at identifying a standalone sub-system from the assembly by removing the influence of the other subsystem exerted through the interface connection.
 
 In any case, the dynamic interaction between sub-systems (or substructures) is confined to a set of interface DoFs.
-Let's consider the linearized equations of motion of a system composed by :math:`n` substructures in the frequency domain:
+Let's consider the linearized equations of motion of a system composed by :math:`n` substructures in the frequency domain [1]_:
 
 .. math::
     \mathbf{Z}(\omega)\,\boldsymbol{u}(\omega)=\boldsymbol{f}(\omega)+\boldsymbol{g}(\omega)
@@ -340,8 +340,8 @@ A dual formulation
 Dual assembly
 ===============
 
-Starting from the general formulation of the substructuring problem (see Frequency based substructuring), 
-the dual approach chooses Lagrange multipliers :math:`\boldsymbol{\lambda}` as set of coupling forces according to the relation :math:`\boldsymbol{g} = - \mathbf{B}^\text{T} \boldsymbol{\lambda}`. 
+Starting from the general formulation of the substructuring problem, 
+the dual approach chooses Lagrange multipliers :math:`\boldsymbol{\lambda}` as set of coupling forces according to the relation :math:`\boldsymbol{g} = - \mathbf{B}^\text{T} \boldsymbol{\lambda}` [2]_. 
 The equilibrium is thus satisfied a priori. The equations of motion of the substructuring problem become:
 
 .. math::
@@ -377,7 +377,7 @@ By substituting the first line in the second line (compatibility constraint) and
     \boldsymbol{\lambda}=\left(\mathbf{B}\mathbf{Y}^\mathrm{A|B}\mathbf{B}^\mathrm{T}\right)^{-1}\mathbf{B}\mathbf{Y}^\mathrm{A|B}\boldsymbol{f}
 
 .. note::
-    Interpretation:
+    Interpretation [3]_ [4]_:
 
     * A displacement gap :math:`\boldsymbol{\Delta{u}}=\mathbf{B}\mathbf{Y}^\mathrm{A|B}\boldsymbol{f}` is formed between the still uncoupled subsystems' interface as a result of the applied excitation :math:`\boldsymbol{f}`.         
     * The interface forces :math:`\boldsymbol{\lambda}`, defined by the Lagrange multipliers, are applied in order to close the gap and keep the subsystems together.         
@@ -425,7 +425,7 @@ where :math:`(\star)^+` denotes a pseudo-inversion.
 Dual disassembly
 ================
 
-The dual decoupling problem consists of finding the interface forces that suppress the influence of A on AB, thus isolating the uncoupled response of subsystem B.
+The dual decoupling problem consists of finding the interface forces that suppress the influence of A on AB, thus isolating the uncoupled response of subsystem B [5]_.
 Following the definition of decoupling, the equilibrium condition states that the interface forces that ensure the compatibility act in opposite direction on the assembled system AB.
 The decoupling can finally be formulated as a standard coupling procedure with a negative admittance for the system to be disassembled:
 
@@ -463,7 +463,7 @@ By solving according to the LM-FBS:
 
 .. tip::
     By extending the decoupling interface from interface DoFs to the internal DoFs, the interface observability and controllability is
-    improved, which is beneficial for the efficiency of the decoupling procedure.
+    improved, which is beneficial for the efficiency of the decoupling procedure [6]_ [7]_.
 
 Decoupling offers a broader amount of potentially matching DoFs with respect to coupling. 
 However, while the interface measurements play the core role in the substructuring process, the internal DoFs, theoretically, do not bring anything new to the game. 
@@ -484,9 +484,9 @@ and :math:`(\star)^+` denotes a pseudo-inversion.
 .. rubric:: References
 
 .. [1] de Klerk, D., Rixen, D. J., Voormeeren,S. (2008). General Framework for Dynamic Substructuring: History, Review and Classification of Techniques. In: AIAA Journal 46.5.
-.. [2] van der Seijs, M. V. (2016) Experimental dynamic substructuring: Analysis and design strategies for vehicle development. Delft University of Technology.
+.. [2] De Klerk, D., Rixen, D. J., De Jong, J. (2006) The frequency based substructuring (FBS) method reformulated according to the dual domain decomposition method. In: 24th International Modal Analysis Conference. St.Louis, MO .
 .. [3] Tiso, P., Allen, M. S., Rixen, D., Abrahamsson, T., Van der Seijs, M., Mayes, R. L. (2020) Substructuring in Engineering Dynamics - Emerging Numerical and Experimental Techniques. Springer .
-.. [4] De Klerk, D., Rixen, D. J., De Jong, J. (2006) The frequency based substructuring (FBS) method reformulated according to the dual domain decomposition method. In: 24th International Modal Analysis Conference. St.Louis, MO .
-.. [5] Rixen, D., Godeby, T., Pagnacco, E. (2006) Dual Assembly of substructures and the FBS Method: Application to the Dynamic Testing of a Guitar. In: International Conference on Noise and Vibration Engineering, ISMA. KUL. Leuven, Belgium, Sept.
+.. [4] Rixen, D., Godeby, T., Pagnacco, E. (2006) Dual Assembly of substructures and the FBS Method: Application to the Dynamic Testing of a Guitar. In: International Conference on Noise and Vibration Engineering, ISMA. KUL. Leuven, Belgium, Sept.
+.. [5] van der Seijs, M. V. (2016) Experimental dynamic substructuring: Analysis and design strategies for vehicle development. Delft University of Technology.
 .. [6] Voormeeren, S., Rixen, D. (2012) A family of substructure decoupling techniques based on a dual assembly approach. In: Mechanical Systems and Signal Processing 27, pp. 379– 396 .
 .. [7] D’Ambrogio, W. and Fregolent, A. (2011) Direct decoupling of substructures using primal and dual formulation. In: Proceedings of 29th IMAC, a Conference on Structural Dynamics, pp. 47–76 .
