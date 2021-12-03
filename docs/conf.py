@@ -123,6 +123,10 @@ html_theme = "pydata_sphinx_theme"
 #
 # html_theme_options = {}
 
+# sphinx-panels shouldn't add bootstrap css since the pydata-sphinx-theme
+# already loads it
+panels_add_bootstrap_css = False
+
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
@@ -200,7 +204,7 @@ html_favicon = './logo/logo-small.png'
 
 html_theme_options = {
     'logo_only': True,
-    'body_max_width': '30%'
+    'body_max_width': '50%'
 }
 
 html_logo = "./logo/logo-big.png"
