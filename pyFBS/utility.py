@@ -435,7 +435,7 @@ def generate_channels_from_sensors(df):
 
 def generate_sensors_from_channels(df):
     """
-    Generates a set of sensors based on the supplied channel data. Current implementation assumes that each sensor has
+    Generates a set of sensors based on the supplied channel data. CUrrent implementation assumes that each sensor has
     three channels (i.e. tri-axial sensors).
 
     :param df: A DataFrame containing information on channels
@@ -463,49 +463,6 @@ def generate_sensors_from_channels(df):
         df_sen = df_sen.append(df_row,ignore_index = True)
 
     return df_sen
-
-def generate_VP_from_position(df):
-    """
-    Generates a DataFrame for full-DoF VP based on VP position determined using interactive positioning.
-    VP is orientated in the direction of the global coordinate system.
-    
-    :param df: A DataFrame containing VPs positions
-    :type df: pd.DataFrame
-    :return df_vp: A Dataframe containg full DoF VPs channels
-    :return df_vpref: A DataFrame containing full DoF VPs reference channels
-    """
-    
-    columns_vp = ["Name", "Description", "Quantity", "Grouping",
-                   "Position_1", "Position_2", "Position_3", "Direction_1", "Direction_2", "Direction_3"]
-
-    desc_u = ['ux', 'uy', 'uz', 'tx', 'ty', 'tz']
-    desc_f = ['fx', 'fy', 'fz', 'mx', 'my', 'mz']
-
-    quantity_u = np.tile(np.repeat(['Acceleration', 'Rotational Acceleration'], 3), 1)
-    quantity_f = np.tile(np.repeat(['Force', 'Moment'], 3), 1)
-
-    orientation = np.vstack((np.eye(3),np.eye(3)))
-
-    df_vp = pd.DataFrame(columns=columns_vp)
-    df_vpref = pd.DataFrame(columns=columns_vp)
-
-    for i in range(df.shape[0]):
-
-        for j in range(6):
-            data_vp = np.asarray([[df.iloc[i]['Name'], desc_u[j], quantity_u[j], i+1,
-                                  df.iloc[i]['Position_1'], df.iloc[i]['Position_2'], df.iloc[i]['Position_3'],
-                                  orientation[j][0], orientation[j][1], orientation[j][2]]])
-            data_vpref = np.asarray([[df.iloc[i]['Name'], desc_f[j], quantity_f[j], i+1,
-                                  df.iloc[i]['Position_1'], df.iloc[i]['Position_2'], df.iloc[i]['Position_3'],
-                                  orientation[j][0], orientation[j][1], orientation[j][2]]])
-
-            df_row_vp = pd.DataFrame(data=data_vp, columns=columns_vp)
-            df_row_vpref = pd.DataFrame(data=data_vpref, columns=columns_vp)
-
-            df_vp = df_vp.append(df_row_vp, ignore_index=True).apply(pd.to_numeric, errors='ignore')
-            df_vpref = df_vpref.append(df_row_vpref, ignore_index=True).apply(pd.to_numeric, errors='ignore')
-        
-    return df_vp, df_vpref
 
 def coh_on_FRF(FRF_matrix):
     """
