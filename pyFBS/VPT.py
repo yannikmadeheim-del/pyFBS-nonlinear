@@ -168,7 +168,7 @@ class VPT(object):
             Wf = self.Wf_p
 
         # calculate the Tf, Ff matrices
-        Tf = Wf @ Rf @ np.linalg.pinv(Rf.T @ Wf @ Rf)
+        Tf = np.linalg.pinv(Wf) @ Rf @ np.linalg.pinv(Rf.T @ np.linalg.pinv(Wf) @ Rf)
         Ff = Rf @ Tf.T
 
         self.Rf = Rf
