@@ -21,6 +21,7 @@ BACKGROUND = "#FFFFFF"
 COLUMNS_ACC = ["Name", "Description", "Quantity","Grouping", "Position_1", "Position_2", "Position_3", "Orientation_1", "Orientation_2", "Orientation_3"]
 COLUMNS_CHN = ["Name", "Description","Quantity","Grouping","Position_1", "Position_2", "Position_3", "Direction_1", "Direction_2","Direction_3"]
 
+
 class view3D():
     """
     A 3D display where structure, impacts, accelerometer and channels can be quickly displayed. Additionaly, all objects
@@ -54,6 +55,8 @@ class view3D():
 
         if show_axes:
             self.plot.add_axes(labels_off=True)
+
+        self.plot.enable_parallel_projection()
 
         # Static global variables
         self.global_acc = []
@@ -92,6 +95,66 @@ class view3D():
         self.animate_toolbar = self.plot.app_window.addToolBar('Animate Modeshape')
         self.animate_clear_toolbar = self.plot.app_window.addToolBar('Clear Modeshape')
 
+        # Temp
+        self._points = []
+        self._directions = []
+        self.scale = 10
+        self.toggle = None
+
+    @property
+    def points(self):
+        """To access all the points when done."""
+        return self._points
+    
+    @property
+    def directions(self):
+        """To access all the directions when done."""
+        return self._directions
+
+    def toggle_fun(self):
+        if self.toggle == None:
+            self.plot.track_click_position(self, side='right')
+
+        
+    def __call__(self, *args):
+        """Callback function to access the location."""
+        # picked point
+        picked_pt = np.array(self.plot.pick_mouse_position())
+        direction = picked_pt - self.plot.camera_position[0]
+        direction = direction / np.linalg.norm(direction)
+
+        # define ray 
+        start = picked_pt - 1000 * direction
+        end = picked_pt + 10000 * direction
+        # ray tracing 
+        point, ix = self.mesh.ray_trace(start, end, first_point=True)
+        if len(point) > 0:
+            normal = self.mesh.cell_normals[int(ix)]
+
+            # append points
+            self._points.append(point)
+            self._directions.append(np.array(-normal))
+            
+            # Define callback function
+            if self.toggle == "impact":
+                self.imp_callback(point,np.array(-normal))
+            elif self.toggle == "acc":
+                rot = rotation_matrix_from_vectors(np.array(-normal), np.array([0.,0.,1.]))
+
+                local_orientation = np.asarray([[1, 0, 0],
+                                             [0, 1, 0],
+                                             [0, 0, 1]])
+
+                local_orientation = (rot @ (local_orientation))
+                r = R.from_matrix(local_orientation)
+                orientation = np.asarray(r.as_euler('xyz', degrees=True))
+                # just added static size of the accelerometer
+                point +=  np.array(+normal) / 2 * 10
+                self.acc_callback(point,orientation=orientation)
+            else:
+                pass
+
+
 
     def add_modeshape(self,dict_animation,run_animation = False,add_note = False):
         """
@@ -126,14 +189,14 @@ class view3D():
         """
         Animate a mode shape in the 3D display.
         """
-        #TODO: Check why ann secondary returns error.
+
         frameperiod = 1.0 / self.modeshape_animation["fps"]
 
         now = time()
         nextframe = now + frameperiod
 
         ann = self.modeshape_animation["animation_pts"]
-        #ann_secondary = self.modeshape_animation["animation_pts_secondary"]
+        ann_secondary = self.modeshape_animation["animation_pts_secondary"]
 
         if self.take_gif:
             self.plot.open_gif(self.gif_dir)
@@ -141,21 +204,25 @@ class view3D():
         if self.modeshape_animation["scalars"]:
             set_lim = np.sqrt(np.mean(ann ** 2, axis=0))
             self.plot.update_scalar_bar_range(clim=[np.min(set_lim), np.max(set_lim)])
-            #if self.modeshape_animation["animate_secondary_mode_shape"]==True:
-            #    self.plot.update_scalar_bar_range(clim=[np.min(ann_secondary), np.max(ann_secondary)])
-
-
+            if self.modeshape_animation["animate_secondary_mode_shape"]==True:
+                self.plot.update_scalar_bar_range(clim=[np.min(ann_secondary), np.max(ann_secondary)])
 
         for i in range(ann.shape[2]):
             add_val = ann[:, :, i]
-            #add_val_secondary = ann_secondary[:, i]
+            add_val_secondary = ann_secondary[:, i]
 
-            self.plot.update_coordinates(self.modeshape_animation["or_pts"] + add_val, mesh=self.modeshape_animation["mesh"],render = False)
-            if self.modeshape_animation["scalars"]:
-                #if self.modeshape_animation["animate_secondary_mode_shape"]==True:
-                #    self.plot.update_scalars(add_val_secondary, mesh=self.modeshape_animation["mesh"] ,render = False) # for color changing
-                #else:
-                self.plot.update_scalars(np.sqrt(np.mean(add_val ** 2, axis=1)).reshape(self.modeshape_animation["or_pts"].shape[0]), mesh=self.modeshape_animation["mesh"] ,render = False) # for color changing
+            if type(self.modeshape_animation["mesh"]) is not list:
+                self.modeshape_animation["mesh"] = [self.modeshape_animation["mesh"]]
+
+            for mesh in self.modeshape_animation["mesh"]:
+
+                self.plot.update_coordinates(self.modeshape_animation["or_pts"] + add_val, mesh=mesh,render = False)
+                if self.modeshape_animation["scalars"]:
+                    if self.modeshape_animation["animate_secondary_mode_shape"]==True:
+
+                        self.plot.update_scalars(add_val_secondary, mesh=mesh ,render = False) # for color changing
+                    else: 
+                        self.plot.update_scalars(np.sqrt(np.mean(add_val ** 2, axis=1)).reshape(self.modeshape_animation["or_pts"].shape[0]), mesh=mesh ,render = False) # for color changing
 
             self.plot.render()
             if self.take_gif:
@@ -175,9 +242,10 @@ class view3D():
         Clear mode shape from the 3D display.
         """
 
-        self.plot.update_coordinates(self.modeshape_animation["or_pts"], mesh=self.modeshape_animation["mesh"],render = True)
-        self.plot.update_scalars(np.zeros(self.modeshape_animation["or_pts"].shape[0]), mesh=self.modeshape_animation["mesh"] ,render = False)
-        self.plot.update_scalar_bar_range(clim=[0,100])
+        for mesh in self.modeshape_animation["mesh"]:
+            self.plot.update_coordinates(self.modeshape_animation["or_pts"], mesh=mesh, render=True)
+            self.plot.update_scalars(np.zeros(self.modeshape_animation["or_pts"].shape[0]), mesh=mesh, render=False)
+        self.plot.update_scalar_bar_range(clim=[-100,100])
 
 
     def add_objects_animation(self,dict_animation,run_animation = False,add_note = False):
@@ -426,7 +494,7 @@ class view3D():
         i = int(len(self.all_accs_dynamic)+len(self.all_imps_dynamic)+len(self.all_vps_dynamic))
         size = 10
 
-        if orientation == None:
+        if np.asarray(orientation).all() == None:
             acc = self.create_accelerometer([size/2, size/2, size/2], [0, 0, 0], size=size)
             rot = np.diag([1]*3)
         else:
@@ -435,7 +503,7 @@ class view3D():
             rot = r.as_matrix()
 
         self.add_accelerometer(acc)
-        _gg = DynamicPosition(acc, self.plot, i, mesh=self.mesh, size=10,rot = rot,fixed_rotation = fixed_rotation)
+        _gg = DynamicPosition(acc, self.plot, i, mesh=self.mesh, size=10,rot = rot,fixed_rotation = fixed_rotation,snap_outward = True)
         self.plot.add_sphere_widget(_gg.callback, center=_gg.points, color=["k", "r", "g", "b"], radius=10 / 15)
         _gg.translate(point)
         _gg.turn_on = True
@@ -457,16 +525,20 @@ class view3D():
         """
 
         self.mesh = mesh
+        self.mesh.compute_normals(auto_orient_normals=True, inplace=True)
+
+        self.toggle_fun()
+        self.toggle = "acc"
+
 
         if isinstance(predefined, pd.DataFrame):
             for i, row in predefined.iterrows():
-                point = [row["Position_1"] * scale, row["Position_2"] * scale, row["Position_3"] * scale]
-                orientation = [row["Orientation_1"], row["Orientation_2"], row["Orientation_3"]]
+                point = np.asarray([row["Position_1"] * scale, row["Position_2"] * scale, row["Position_3"] * scale])
+                orientation = np.asarray([row["Orientation_1"], row["Orientation_2"], row["Orientation_3"]])
                 self.acc_callback(point, orientation=orientation,fixed_rotation = fixed_rotation)
+        
+        self.plot.add_text('Use right mouse click to add an accelerometer', color="k", font="times",font_size = 10, name="text")
 
-        self.plot.enable_point_picking(callback=self.acc_callback, color="r", show_message="", show_point=False)
-        self.plot.add_text("Press P too add an accelerometer (hold down letter T to disable snapping to mesh).",
-                           font_size=10, color="k", font="times", name="text")
 
     def imp_callback(self,point, direction = None,fixed_rotation = None):
         """
@@ -482,16 +554,15 @@ class view3D():
 
         i = int(len(self.all_accs_dynamic)+len(self.all_imps_dynamic)+len(self.all_vps_dynamic))
         size = 10
-        if direction == None:
+        if np.asarray(direction).all() == None:
             imp, _ = self.add_impact([size/2, size/2, size/2], [0, 0, 1], size=10)
             rot = np.diag([1]*3)
         else:
             imp, _ = self.add_impact([size/2, size/2, size/2],direction, size=10)
-
-            #rot = np.diag([1]*3)
             rot = rotation_matrix_from_vectors(direction,[0, 0, 1]).T
 
-        _gg = DynamicPosition([imp], self.plot, i, mesh=self.mesh, size=10,rot = rot,snap_outward = False, fixed_rotation = fixed_rotation)
+        
+        _gg = DynamicPosition([imp], self.plot, i, mesh=self.mesh, size=10,rot = rot,snap_outward = False, fixed_rotation = fixed_rotation, toggle = "impact")
         self.plot.add_sphere_widget(_gg.callback, center=_gg.points, color=["k", "r", "g", "b"], radius=10 / 15)
         _gg.translate(point)
         _gg.turn_on = True
@@ -513,15 +584,20 @@ class view3D():
         """
 
         self.mesh = mesh
+        self.mesh.compute_normals(auto_orient_normals=True, inplace=True)
+
+        self.toggle_fun()
+        self.toggle = "impact"
+
 
         if isinstance(predefined, pd.DataFrame):
             for i, row in predefined.iterrows():
-                point = [row["Position_1"] * scale, row["Position_2"] * scale, row["Position_3"] * scale]
-                direction = [row["Direction_1"], row["Direction_2"], row["Direction_3"]]
+                point = np.asarray([row["Position_1"] * scale, row["Position_2"] * scale, row["Position_3"] * scale])
+                direction = np.asarray([row["Direction_1"], row["Direction_2"], row["Direction_3"]])
                 self.imp_callback(point, direction=direction,fixed_rotation = fixed_rotation)
 
-        self.plot.enable_point_picking(callback=self.imp_callback, color="r", show_message="", show_point=False)
-        self.plot.add_text("Press P too add an impact (hold down letter T to disable snapping to mesh).", font_size = 10,color = "k",font  = "times",name = "text")
+        self.plot.add_text('Use right mouse click to add an impact', color="k", font="times",font_size = 10, name="text")
+
 
     def vp_callback(self,point,fixed_rotation = None):
         """
@@ -995,7 +1071,7 @@ class DynamicPosition():
     :type fixed_rotation: float
     """
 
-    def __init__(self, objects, p, N, mesh=None, snap_outward=True, size=1, rot = np.diag([1]*3), fixed_rotation = None):
+    def __init__(self, objects, p, N, mesh=None, snap_outward=True, size=1, rot = np.diag([1]*3), fixed_rotation = None,toggle = "acc"):
         # set size and static points
         self.size = size
         self.points = np.array([[size / 2, size / 2, size / 2],
@@ -1062,6 +1138,7 @@ class DynamicPosition():
 
         # define display
         self.p = p
+        self.toggle = toggle
 
     def get_pos_orient(self, euler_angles=False, one_dir=None, eps=1e-10,scale = 1):
         """
@@ -1109,62 +1186,55 @@ class DynamicPosition():
         :type snap: bool, optional
         """
 
-        # definest rays to find intersection with the supplied mesh
-        point1x = point + self.local_rays[:, 0]
-        point2x = point + self.local_rays[:, 3]
+		# option B
+        if snap:
+            direction = np.asarray(point) - np.asarray(self.p.camera_position[0])
+            direction = direction / np.linalg.norm(direction)
+            start = point - 1000 * direction
+            end = point + 10000 * direction
+            points, ind = self.mesh.ray_trace(start, end, first_point=True)
 
-        point1y = point + self.local_rays[:, 1]
-        point2y = point + self.local_rays[:, 4]
-
-        point1z = point + self.local_rays[:, 2]
-        point2z = point + self.local_rays[:, 5]
-
-        # performs ray trace in three direction
-        points_x, ind_x = self.mesh.ray_trace(point1x, point2x)
-        points_y, ind_y = self.mesh.ray_trace(point1y, point2y)
-        points_z, ind_z = self.mesh.ray_trace(point1z, point2z)
-
-        # stacks all the ray intersections
-        points = np.vstack([points_x, points_y, points_z])
-        ind = np.hstack([ind_x, ind_y, ind_z])
-
-        # default option - no rotation
-        rot = np.diag([1, 1, 1])
-
-        # if there is an intersection and if "t" is not pressed go forward
-        if points.size != 0 and not (kb.is_pressed('t')):
-            list_ind = []
-            # go through all the intersections
-            for i in range(len(points)):
-                _point = points[i]
-                p1 = _point
-                p2 = point
-                gg = np.sqrt(((p1[0] - p2[0]) ** 2) + ((p1[1] - p2[1]) ** 2) + ((p1[2] - p2[2]) ** 2))
-
-                list_ind.append(gg)
-
-            # find the closest to the box center
-            _sel = np.argmin(list_ind)
-
-            # find the nearest normal
-            v2 = self.mesh.cell_normals[int(ind[_sel])]
-            th = []
-            for _loc in self.local_normals.T:
-                th.append(angle_between(_loc, v2))
-            closest_orient = self.local_normals.T[np.argmin(th)]
-
-            # find orientation between box orientation and cell normal
-            f = self.mesh.cell_normals[int(ind[_sel])]
-            t = closest_orient + np.random.random(3) / 1e20
-
-            # push box 0.5 away from the normal
+            # fast upgrade to option B
             if self.snap_outward:
-                point = points[_sel] + f / 2 * self.size
-            else:
-                point = points[_sel]
+                f = self.mesh.cell_normals[int(ind)]
+                point = points - f / 2 * self.size
+                direction = np.asarray(point) - np.asarray(self.p.camera_position[0])
+                direction = direction / np.linalg.norm(direction)
+                start = point - 1000 * direction
+                end = point + 10000 * direction
+                points, ind = self.mesh.ray_trace(start, end, first_point=True)
 
-            # define rotational matrix to allign with the surface normal
-            rot = rotation_matrix_from_vectors(t, f)
+            # default option - no rotation
+            rot = np.diag([1., 1., 1.])
+
+            # if there is an intersection and if "t" is not pressed go forward
+            if points.size != 0 and not (kb.is_pressed('t')):
+                # find the nearest normal
+                v2 = self.mesh.cell_normals[int(ind)]
+                th = []
+                for _loc in self.local_normals.T:
+                    th.append(angle_between(_loc, v2))
+                closest_orient = self.local_normals.T[np.argmin(th)]
+
+                # find orientation between box orientation and cell normal
+                f = self.mesh.cell_normals[int(ind)]
+                t = closest_orient #+ np.random.random(3) / 1e20
+                if self.toggle == "impact":
+                    closest_orient = self.local_normals.T[2] # always Z axis
+                    t = closest_orient #+ np.random.random(3) / 1e20
+                    f = -1*self.mesh.cell_normals[int(ind)]
+
+                # push box 0.5 away from the normal
+                if self.snap_outward:
+                    point = points + f / 2 * self.size
+                else:
+                    point = points
+
+                # define rotational matrix to allign with the surface normal
+                #if 't' not in vars() or  'f' not in vars():
+                #    rot = rotation_matrix_from_vectors(np.asarray([0.,0.,1.]).T, np.asarray([0.,0.,1.]).T)
+                #else:
+                rot = rotation_matrix_from_vectors(t, f)
 
         # move everything to a new location
         _new = point - self.box.center_of_mass()
@@ -1231,7 +1301,7 @@ class DynamicPosition():
                 for item in self.objects:
                     item.points = (rot @ (item.points - _new).T).T + _new
 
-                    # orient the local csys of accelerometer with the new rotation
+                # orient the local csys of accelerometer with the new rotation
                 self.local_orientation = (rot @ (self.local_orientation))
                 self.local_normals = rot @ self.local_normals
                 self.local_rays = rot @ self.local_rays

@@ -165,28 +165,36 @@ def identification_algorithm(Y_num, Y_exp, df_num_chn, df_num_imp, df_exp_chn, d
     
     sel_freq = np.arange(0, np.min([Y_num.shape[0], Y_exp.shape[0]]), 1)
     
-    rconstructd_FRF = np.zeros_like(Y_exp)
+    rconstructd_FRF = np.zeros_like(Y_exp, dtype = 'complex')
     
     if axis == 0:
         for i in tqdm(all_exp_chn):
             sel_chn = np.delete(all_exp_chn, i, axis=0)
             sel_imp = all_exp_imp
             
-            analsyed_chn = find_locations_in_data_frames(df_num_chn, df_exp_chn.iloc[[i]])[:, 0]
-            analsyed_imp = find_locations_in_data_frames(df_num_imp, df_exp_imp.iloc[sel_imp])[:, 0]
-            
-            rconstructd_FRF[:, analsyed_chn, analsyed_imp] = pyFBS.SEMM(Y_num, Y_exp[np.ix_(sel_freq, sel_chn, sel_imp)], df_num_chn, df_num_imp, df_exp_chn.iloc[sel_chn], df_exp_imp.iloc[sel_imp], SEMM_type, red_comp, red_eq, additional_columns)[:, analsyed_chn, analsyed_imp]
+            chn_index = find_locations_in_data_frames(df_num_chn, df_exp_chn.iloc[[i]])
+            analsyed_chn = chn_index[:, 0]
+            recast_chn = chn_index[:, 1]
+            imp_index = find_locations_in_data_frames(df_num_imp, df_exp_imp.iloc[sel_imp])
+            analsyed_imp = imp_index[:, 0]
+            recast_imp = imp_index[:, 1]
+
+            rconstructd_FRF[:, i, recast_imp] = SEMM(Y_num, Y_exp[np.ix_(sel_freq, sel_chn, sel_imp)], df_num_chn, df_num_imp, df_exp_chn.iloc[sel_chn], df_exp_imp.iloc[sel_imp], SEMM_type, red_comp, red_eq, additional_columns)[:, analsyed_chn, analsyed_imp]
     elif axis == 1:
         for i in tqdm(all_exp_imp):
             sel_chn = all_exp_chn
             sel_imp = np.delete(all_exp_imp, i, axis=0)
             
-            analsyed_chn = find_locations_in_data_frames(df_num_chn, df_exp_chn.iloc[sel_chn])[:, 0]
-            analsyed_imp = find_locations_in_data_frames(df_num_imp, df_exp_imp.iloc[[i]])[:, 0]
+            chn_index = find_locations_in_data_frames(df_num_chn, df_exp_chn.iloc[sel_chn])
+            analsyed_chn = chn_index[:, 0]
+            recast_chn = chn_index[:, 1]
+            imp_index = find_locations_in_data_frames(df_num_imp, df_exp_imp.iloc[[i]])
+            analsyed_imp = imp_index[:, 0]
+            recast_imp = imp_index[:, 1]
             
-            rconstructd_FRF[:, analsyed_chn, analsyed_imp] = SEMM(Y_num[sel_freq, :, :], Y_exp[np.ix_(sel_freq, sel_chn, sel_imp)], df_num_chn, df_num_imp, df_exp_chn.iloc[sel_chn], df_exp_imp.iloc[sel_imp], SEMM_type, red_comp, red_eq, additional_columns)[:, analsyed_chn, analsyed_imp]
+            rconstructd_FRF[:, recast_chn, i] = SEMM(Y_num[sel_freq, :, :], Y_exp[np.ix_(sel_freq, sel_chn, sel_imp)], df_num_chn, df_num_imp, df_exp_chn.iloc[sel_chn], df_exp_imp.iloc[sel_imp], SEMM_type, red_comp, red_eq, additional_columns)[:, analsyed_chn, analsyed_imp]
             
-    coh = coh_frf(Y_exp, rconstructd_FRF)
+    coh = coh_frf(Y_exp, rconstructd_FRF, return_average=False)
     return rconstructd_FRF, coh
 
 def SEREP(eig_vec_num, eig_vec_exp, df_chn_num, df_chn_exp):

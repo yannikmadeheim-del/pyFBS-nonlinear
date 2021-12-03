@@ -49,6 +49,7 @@ This research can help on the path to a sustainable future by providing tools an
    intro
    credits
    license
+   contribute
 
 
 .. toctree::
