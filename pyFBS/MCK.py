@@ -158,8 +158,7 @@ class MK_model(object):
 
         :param grid: grid definition in form of pyvista.PolyData
         :type grid: pyvista
-        :param dof_ref: definition of DoFs inside ``MK_model`` in form of 2D matrix, dimensions nx2, where n is the dimension of square mass or stiffness matrix. 
-        The first column represents the index of node location, starting with 1, the second column represents direction of this DoF: 0-x, 1-y, 2-z.
+        :param dof_ref: definition of DoFs inside ``MK_model`` in form of 2D matrix, dimensions nx2, where n is the dimension of square mass or stiffness matrix. The first column represents the index of node location, starting with 1, the second column represents direction of this DoF: 0-x, 1-y, 2-z.
         :type dof_ref: array
         """
         self.mesh = grid

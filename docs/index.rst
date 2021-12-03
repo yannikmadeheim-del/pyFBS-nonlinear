@@ -41,15 +41,17 @@ These research fields are divided into three areas: Experimental Dynamics, Numer
 This research can help on the path to a sustainable future by providing tools and technologies for a more advanced product design, that reduces the amount of prototypes and, thus, saves development costs and minimizes material consumption.
 
 
+.. toctree::
+   :maxdepth: 2
+   :caption: Why pyFBS?
+
+   intro
 
 .. toctree::
    :maxdepth: 2
    :caption: About
 
-   intro
-   credits
-   license
-   contribute
+   about
 
 
 .. toctree::

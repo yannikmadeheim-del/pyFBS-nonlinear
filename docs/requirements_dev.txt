@@ -3,3 +3,4 @@ sphinxcontrib-bibtex==1.0.0
 sphinx-gallery == 0.7.0
 sphinx >= 3.1.2
 pydata_sphinx_theme
+sphinx-panels
