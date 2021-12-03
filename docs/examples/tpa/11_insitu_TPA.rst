@@ -184,7 +184,7 @@ Additionally, a coherence criterion can be used to objectively evaluate interfac
 
 .. raw:: html
 
-   <iframe src="../../_static/on_board_coherence.html" height="330px" width="750px" frameborder="0"></iframe>
+   <iframe src="../../_static/on_board_coherence.html" height="340px" width="750px" frameborder="0"></iframe>
 
 See also cross-validation for further evaluation of the equivalent forces completeness [9]_.
 
@@ -219,7 +219,7 @@ The partial responses can then be displayed as a heatmap:
 
 .. raw:: html
 
-   <iframe src="../../_static/TP_contribution.html" height="250px" width="100%" frameborder="0"></iframe>
+   <iframe src="../../_static/TP_contribution.html" height="230px" width="750px" frameborder="0"></iframe>
 
 .. tip::
    Using the graphical presentation above, the most dominant transfer path can be pinpointed.
