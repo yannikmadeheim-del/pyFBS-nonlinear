@@ -9,68 +9,69 @@ Therefore the overlay model is usually represented by the experimental model and
 .. note:: 
    Download example showing the basic use of SEMM: :download:`05_SEMM.ipynb <../../../examples/05_SEMM.ipynb>`
 
-DoF-set of parent model is contained from internal (i) and boundary (b) DoFs. 
-Boundary DoFs must overlap with the overlay model so the dynamic coupling can be performed, while the internal DoFs of the parent model can be unique to its own. 
-The equivalent models, appearing in the SEMM method, are arranged by separating internal and boundary DoFs in the admittance matrices:
+..
+   DoF-set of parent model is contained from internal (i) and boundary (b) DoFs. 
+   Boundary DoFs must overlap with the overlay model so the dynamic coupling can be performed, while the internal DoFs of the parent model can be unique to its own. 
+   The equivalent models, appearing in the SEMM method, are arranged by separating internal and boundary DoFs in the admittance matrices:
 
-.. math::
+   .. math::
 
-   \begin{equation}\label{parent_overlay}
-   \mathbf{Y}^{\text{par}}=
-   \begin{bmatrix}
-   \mathbf{Y}_{\text{ii}}&\mathbf{Y}_{\text{ib}}\\
-   \mathbf{Y}_{\text{bi}}&\mathbf{Y}_{\text{bb}}
-   \end{bmatrix}^{\text{par}},\quad
-   \mathbf{Y}^{\text{ov}}=
-   \begin{bmatrix}
-   \mathbf{Y}_{\text{bb}}
-   \end{bmatrix}^{\text{ov}},\quad
-   \mathbf{Y}^{\text{rem}}=
-   \begin{bmatrix}
-   \mathbf{Y}_{\text{bb}}
-   \end{bmatrix}^{\text{rem}}.
-   \end{equation}
+      \begin{equation}\label{parent_overlay}
+      \mathbf{Y}^{\text{par}}=
+      \begin{bmatrix}
+      \mathbf{Y}_{\text{ii}}&\mathbf{Y}_{\text{ib}}\\
+      \mathbf{Y}_{\text{bi}}&\mathbf{Y}_{\text{bb}}
+      \end{bmatrix}^{\text{par}},\quad
+      \mathbf{Y}^{\text{ov}}=
+      \begin{bmatrix}
+      \mathbf{Y}_{\text{bb}}
+      \end{bmatrix}^{\text{ov}},\quad
+      \mathbf{Y}^{\text{rem}}=
+      \begin{bmatrix}
+      \mathbf{Y}_{\text{bb}}
+      \end{bmatrix}^{\text{rem}}.
+      \end{equation}
 
-After satisfying compatibility and equilibrium conditions between equivalent models, the basic form of the SEMM method is defined using the equation:
+   After satisfying compatibility and equilibrium conditions between equivalent models, the basic form of the SEMM method is defined using the equation:
 
-.. math::
+   .. math::
 
-   \mathbf{Y}^{\text{SEMM}}=
-   \begin{bmatrix}
-   \mathbf{Y}
-   \end{bmatrix}^{\text{par}}
-   -
-   \begin{bmatrix}
-   \mathbf{Y}_{\text{ib}}\\
-   \mathbf{Y}_{\text{bb}}
-   \end{bmatrix}^{\text{par}}
-   %\,
-   \left( \mathbf{Y}^{\text{rem}}\right) ^{-1}
-   %\,
-   \left( \mathbf{Y}^{\text{rem}}-\mathbf{Y}^{\text{ov}}\right)
-   %\,
-   \left( \mathbf{Y}^{\text{rem}}\right)^{-1}
-   %\,
-   \begin{bmatrix}
-   \mathbf{Y}_{\text{bi}}&\mathbf{Y}_{\text{bb}}
-   \end{bmatrix}^{\text{par}}
+      \mathbf{Y}^{\text{SEMM}}=
+      \begin{bmatrix}
+      \mathbf{Y}
+      \end{bmatrix}^{\text{par}}
+      -
+      \begin{bmatrix}
+      \mathbf{Y}_{\text{ib}}\\
+      \mathbf{Y}_{\text{bb}}
+      \end{bmatrix}^{\text{par}}
+      %\,
+      \left( \mathbf{Y}^{\text{rem}}\right) ^{-1}
+      %\,
+      \left( \mathbf{Y}^{\text{rem}}-\mathbf{Y}^{\text{ov}}\right)
+      %\,
+      \left( \mathbf{Y}^{\text{rem}}\right)^{-1}
+      %\,
+      \begin{bmatrix}
+      \mathbf{Y}_{\text{bi}}&\mathbf{Y}_{\text{bb}}
+      \end{bmatrix}^{\text{par}}
 
-By extending the removed model to all DoFs of numerical model, the fully extend formulation of SEMM method follows equation:
+   By extending the removed model to all DoFs of numerical model, the fully extend formulation of SEMM method follows equation:
 
-.. math::
+   .. math::
 
-   \mathbf{Y}^{\text{SEMM}}=
-   \mathbf{Y}^{\text{par}}
-   -
-   \mathbf{Y}^{\text{par}}
-   %\,
-   \left( \begin{bmatrix} \mathbf{Y}_{\text{bi}}&\mathbf{Y}_{\text{bb}}\end{bmatrix}^{\text{rem}}\right ) ^{+}
-   %\,
-   \left( \mathbf{Y}^{\text{rem}}_{\text{bb}}-\mathbf{Y}^{\text{ov}}\right)
-   %\,
-   \left( \begin{bmatrix} \mathbf{Y}_{\text{ib}}\\ \mathbf{Y}_{\text{bb}}\end{bmatrix}^{\text{rem}}\right ) ^{+}
-   %\,
-   \mathbf{Y}^{\text{par}}
+      \mathbf{Y}^{\text{SEMM}}=
+      \mathbf{Y}^{\text{par}}
+      -
+      \mathbf{Y}^{\text{par}}
+      %\,
+      \left( \begin{bmatrix} \mathbf{Y}_{\text{bi}}&\mathbf{Y}_{\text{bb}}\end{bmatrix}^{\text{rem}}\right ) ^{+}
+      %\,
+      \left( \mathbf{Y}^{\text{rem}}_{\text{bb}}-\mathbf{Y}^{\text{ov}}\right)
+      %\,
+      \left( \begin{bmatrix} \mathbf{Y}_{\text{ib}}\\ \mathbf{Y}_{\text{bb}}\end{bmatrix}^{\text{rem}}\right ) ^{+}
+      %\,
+      \mathbf{Y}^{\text{par}}
 
 Example data import
 *******************
@@ -145,32 +146,34 @@ Function :mod:`pyFBS.SEMM` will automatically match corresponding DoFs.
 
 Finally, the results of the hybrid model can be compared with the reference experimental and the numerical model.
 
-.. code-block:: python
+..
+   .. code-block:: python
 
-   s1 = 24
-   s2 = 24
+      s1 = 24
+      s2 = 24
 
-   display(df_chn.iloc[[s1]])
-   display(df_imp.iloc[[s2]])
+      display(df_chn.iloc[[s1]])
+      display(df_imp.iloc[[s2]])
 
-   plt.figure(figsize = (12,8))
+      plt.figure(figsize = (12,8))
 
-   plt.subplot(211)
-   plt.semilogy(MK.freq,np.abs(MK.FRF[:,s1,s2]), label = "Num.")
-   plt.semilogy(freq,np.abs(Y_exp[:, s1,s2]), label = "Exp.")
-   plt.semilogy(freq,np.abs(Y_AB_SEMM[:, s1,s2]), label = "SEMM")
-   plt.ylabel("Accelerance [m/s$^2$/N]")
-   plt.legend()
+      plt.subplot(211)
+      plt.semilogy(MK.freq,np.abs(MK.FRF[:,s1,s2]), label = "Num.")
+      plt.semilogy(freq,np.abs(Y_exp[:, s1,s2]), label = "Exp.")
+      plt.semilogy(freq,np.abs(Y_AB_SEMM[:, s1,s2]), label = "SEMM")
+      plt.ylabel("Accelerance [m/s$^2$/N]")
+      plt.legend()
 
-   plt.subplot(413)
-   plt.plot(MK.freq,np.angle(MK.FRF[:,s1,s2]))
-   plt.plot(freq,np.angle(Y_exp[:, s1,s2]))
-   plt.plot(MK.freq,np.angle(Y_AB_SEMM[:,s1,s2]))
-   plt.xlabel("f [Hz]")
-   plt.ylabel("Angle [rad]")
+      plt.subplot(413)
+      plt.plot(MK.freq,np.angle(MK.FRF[:,s1,s2]))
+      plt.plot(freq,np.angle(Y_exp[:, s1,s2]))
+      plt.plot(MK.freq,np.angle(Y_AB_SEMM[:,s1,s2]))
+      plt.xlabel("f [Hz]")
+      plt.ylabel("Angle [rad]")
    
-.. figure:: ./../data/SEMM_result.png
-   :width: 600px
+.. raw:: html
+
+   <iframe src="../../_static/SEMM_plot.html" height="500px" width="750px" frameborder="0"></iframe>
    
 .. rubric:: References
 

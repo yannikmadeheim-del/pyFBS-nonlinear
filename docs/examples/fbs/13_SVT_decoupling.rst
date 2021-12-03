@@ -55,7 +55,8 @@ Apply the defined SVT to systems B and AB:
 
 LM-FBS Decoupling
 *****************
-The uncoupled global admittance is constructed using the transformed FRF datasets and imposing the decoupling operation through the minus sign. The compatibility and the equilibrium conditions are defined via the signed Boolean matrices.
+The uncoupled global admittance is constructed using the transformed FRF datasets and imposing the decoupling operation 
+through the minus sign. 
 
 .. code-block:: python
 
@@ -64,35 +65,32 @@ The uncoupled global admittance is constructed using the transformed FRF dataset
 	Y_AB_un[:,0:2*k,0:2*k] = FRF_AB_sv
 	Y_AB_un[:,2*k:,2*k:] = -1*FRF_B_sv
 
-	plt.spy(np.abs(Y_AB_un[100]))
+	plt.spy(np.abs(Y_AB_un[100])) # display at arbitrary frequency to check for shape
+
+.. figure:: ./../data/Y_SVT.png
+   :width: 300px
+
+The compatibility and the equilibrium conditions are defined via the signed Boolean matrices.
+
+.. code-block:: python
 
 	Bu = np.zeros((k,2*k+6))
 	Bu[:k,0:k] = 1*np.eye(k)
 	Bu[:k,2*k:2*k+6] = -1*np.eye(k)
 
-	plt.figure()
-	plt.imshow(Bu)
-
 	Bf = Bu
-
-	plt.figure()
-	plt.imshow(Bf)
     
-.. figure:: ./../data/SVT_dec_1.png
-   :width: 300px
-.. figure:: ./../data/SVT_dec_2.png
-   :width: 300px
-.. figure:: ./../data/SVT_dec_3.png
-   :width: 300px
+.. figure:: ./../data/Bu_SVT.png
+   :width: 400px
+.. figure:: ./../data/Bf_SVT.png
+   :width: 400px
    
 Apply the LM-FBS based on the defined compatibility and equilibrium conditions.
 
 .. code-block:: python
 
-	Y_A_dec = np.zeros_like(Y_AB_un,dtype = complex)
-
-	Y_int = Bu@Y_AB_un@Bf.T
-	Y_A_dec  = Y_AB_un - Y_AB_un@Bf.T@np.linalg.pinv(Y_int)@Bu@Y_AB_un
+	Y_int = Bu @ Y_AB_un @ Bf.T
+	Y_A_dec  = Y_AB_un - Y_AB_un @ Bf.T @ np.linalg.pinv(Y_int) @ Bu @ Y_AB_un
 
 Results
 *******
@@ -107,7 +105,8 @@ First extract the FRFs at the reference DoFs:
     
 The decoupled and the reference results for A can be compared:
    
-.. figure:: ./../data/SVT_dec_4.png
-   :width: 500px
+.. raw:: html
+
+   <iframe src="../../_static/decoupling_SVT.html" height="500px" width="750px" frameborder="0"></iframe>
    
 
