@@ -15,7 +15,7 @@ Substructure A is treated as an active component with operational excitation act
 Meanwhile, no excitation force is acting on passive substructure B. 
 Responses in :math:`\boldsymbol{u}_3`, :math:`\boldsymbol{u}_4`, and also in interface DoFs :math:`\boldsymbol{u}_2` are hence a consequence of active force :math:`\boldsymbol{f}_1` only. 
 
-.. figure:: ./../data/in_situ.png
+.. figure:: ./../data/in-situ.svg
    :width: 250px
    :align: center
 

@@ -12,7 +12,7 @@ The :mod:`pyFBS` was developed as a part of collaboration between the Laboratory
 .. raw:: html
 
 	<a href="http://ladisk.si/">
-		<img src="https://moj.ladisk.si/static/images/ladisk_logo_navbar_line.49a0c873b5aa.png" alt="LADISK logo" title="LADISK" align="right" width=90 height=90 />
+		<img src="./_static/ladisk_logo.svg" alt="LADISK logo" title="LADISK" align="right" width=200 />
 	</a>
 
 	
@@ -29,7 +29,7 @@ In recent years the group has been actively involved in the research of substruc
 .. raw:: html
 
 	<a href="https://www.mw.tum.de/">
-		<img src="https://www.mw.tum.de/typo3/ext/tumtheme/Resources/Public/Icons/Org/tum-logo.png" alt="LADISK logo" title="LADISK" align="right" width=80 height=80 />
+		<img src="./_static/tum_logo.svg" alt="TUM logo" title="TUM" align="right" width=200 />
 	</a>
 
 
@@ -42,7 +42,7 @@ This research can help on the path to a sustainable future by providing tools an
 
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Why pyFBS?
 
    intro
@@ -63,7 +63,7 @@ This research can help on the path to a sustainable future by providing tools an
 
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Examples
    
    ./examples/basic_examples

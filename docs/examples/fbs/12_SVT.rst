@@ -10,7 +10,7 @@ modes of interest over a broad frequency range. The SVT can tackle challenging s
    
 Consider an example for the SVT where 21 impacts and 21 sensor channels are shared between the subsystem B and the B part of system AB within a decoupling application:
    
-.. figure:: ./../data/svt.png
+.. figure:: ./../data/SVT.png
    :width: 800px
    
 ******************************

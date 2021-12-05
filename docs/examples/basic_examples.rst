@@ -55,7 +55,7 @@ This examples show how to use basic features of pyFBS. Explore this basic exampl
 
 .. only:: html
 
-    .. figure:: ./data/FRF_syn-FRF-visualization.png 
+    .. figure:: ./data/FRF_syn-FRF-visualization.svg 
        :target: ./basic_examples/03_FRF_synthetization.html
 
        FRF synthetization

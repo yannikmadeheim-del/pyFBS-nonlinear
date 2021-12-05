@@ -14,7 +14,7 @@ The SVT can tackle challenging scenarios with flexible behaving interfaces and l
 
 .. only:: html
 
-    .. figure:: ./../data/pic_vpt.png 
+    .. figure:: ./../data/SVT.png 
        :target: 12_SVT.html
 
        Singular Vector Transformation

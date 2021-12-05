@@ -113,7 +113,7 @@ The updated positions and orientations can be obtained directly.
 	df_vp_updated = view3D.get_vp_data()
 
 Virtual point channels and forces can be defined based on the positions and orientations of the added VP. 
-In this manner, 6-DoF VP for rigid IDMs is obtained.
+In this manner, 6-DoF VP for rigid IDMs is obtained. Additional DoFs can be added to the dataframe manually.
 
 .. code-block:: python
 

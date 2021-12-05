@@ -15,7 +15,7 @@ These examples show state-of-the-art techniques to successfully couple or decoup
 
 .. only:: html
 
-    .. figure:: ./data/vpt_scheme.png   
+    .. figure:: ./data/vpt_scheme.svg   
        :target: ./fbs/virtual_point_transformation.html
 
        Virtual Point Transformation
@@ -63,7 +63,7 @@ These examples show state-of-the-art techniques to successfully couple or decoup
 
 .. only:: html
 
-    .. figure:: ./data/semm_scheme.png   
+    .. figure:: ./data/semm_scheme.svg   
        :target: ./fbs/system_equivalent_model_mixing.html
 
        System Equivalent Model Mixing
