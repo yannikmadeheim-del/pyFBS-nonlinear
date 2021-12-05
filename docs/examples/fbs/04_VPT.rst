@@ -12,12 +12,12 @@ Current implementation of the :class:`pyFBS.VPT` additionaly supports the expans
 Consider an example for the VPT where 9 impacts and 9 channels (3 tri-axial accelerometers) are positioned around the interface:
 
 .. figure:: ./../data/pic_vpt.png
-   :width: 500px
+   :width: 700px
 
 .. tip::
 	For the VP with 6 DoFs it is common practice to use 9 impacts and 9 channels around the interface. 
 	Larger number of impacts/channels is encouraged but the required experimental effort is increased.
-	By increasing the number of measurement over the VP DoFs the benefits are two-hand: 
+	By increasing the number of measurements over the VP DoFs the benefits are two-hand: 
 	observability and controlability of the interface is better, and the measurement errors 
 	(bias errors due to sensor misalignement and uncorrelated measurement noise) are filtered our from the VP to some extend. 
 

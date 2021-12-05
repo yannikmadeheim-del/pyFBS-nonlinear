@@ -40,17 +40,18 @@ The Chair of Applied Mechanics (Technical University of Munich) covers a wide ra
 These research fields are divided into three areas: Experimental Dynamics, Numerical Methods, and Robotics. They range from fundamental research, such as development of new numerical methods, to applied research in cooperation with industry. 
 This research can help on the path to a sustainable future by providing tools and technologies for a more advanced product design, that reduces the amount of prototypes and, thus, saves development costs and minimizes material consumption.
 
+..
+   .. toctree::
+      :maxdepth: 1
+      :caption: Why pyFBS?
 
-.. toctree::
-   :maxdepth: 1
-   :caption: Why pyFBS?
-
-   intro
+      intro
 
 .. toctree::
    :maxdepth: 2
    :caption: About
 
+   intro
    about
 
 
