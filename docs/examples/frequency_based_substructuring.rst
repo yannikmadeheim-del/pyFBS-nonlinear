@@ -462,8 +462,8 @@ By solving according to the LM-FBS:
     \mathbf{\hat{Y}}^\mathrm{B}=\left[\mathbf{I}-\mathbf{Y}^\mathrm{AB|A}\mathbf{B}^\mathrm{T}\left(\mathbf{B}\mathbf{Y}^\mathrm{AB|A}\mathbf{B}^\mathrm{T}\right)^{-1}\mathbf{B}\right]\mathbf{Y}^\mathrm{AB|A}
 
 .. tip::
-    By extending the decoupling interface from interface DoFs to the internal DoFs, the interface observability and controllability is
-    improved, which is beneficial for the efficiency of the decoupling procedure [6]_ [7]_.
+    By extending the decoupling interface from :math:`n_2` interface DoFs to the :math:`n_1` internal DoFs, the interface observability and controllability is
+    improved, which is beneficial for the efficiency of the decoupling procedure.
 
 Decoupling offers a broader amount of potentially matching DoFs with respect to coupling. 
 However, while the interface measurements play the core role in the substructuring process, the internal DoFs, theoretically, do not bring anything new to the game. 
@@ -471,8 +471,12 @@ Afterall, the interface decoupling problem to be solved remained :math:`\mathbf{
 
 In real life, however, erroneous modeling of the interface dynamics and measurement errors are the daily bread for experimentalists. 
 The use of additional (internal) information between AB and A can help improving the observability, controllability and conditioning of the interface problem.
+The interface strategies commonly used are [6]_ [7]_:
 
-Different decoupling strategies can be adopted in terms of the choice of DoFs (collocated or non-collocated) for which compatibility and equilibrium conditions are imposed.
+- Standard interface: :math:`n_c=n_e=n_2`. The interface matrix is square and full rank. Compatibility and equilibrium are enforced at the interface only,
+- Extended interface: :math:`n_c=n_e=n_2+n_1`. The interface matrix is square and (without measurement errors) singular. In practice, modeling and measurement errors affect the measurements. The interface matrix is ill-conditioned and a singular value truncation is often performed. The additional internal compatibility and equilibrium constraints contributes to increase the observability and controllability of the interface dynamics.
+- Non-collocated overdetermined: :math:`n_c=n_2+n_1,\,n_e=n_2`. The compatibility condition is extended to the internal DoFs and the linear problem :math:`\mathbf{Y}_\text{int}\boldsymbol{\lambda}=\boldsymbol{u}_\text{int}` is overdetermined. Since measurements are not perfect, there is no exact solution for the unknown multipliers :math:`\boldsymbol{\lambda}`. The optimal solution is found via pseudo-inverse in a least squares sense.
+
 Following these considerations, a generalized version of the LM-FBS is written as follows:
 
 .. math::
