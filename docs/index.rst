@@ -56,14 +56,6 @@ This research can help on the path to a sustainable future by providing tools an
 
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Getting Started
-
-   installation
-   usage
-
-
-.. toctree::
    :maxdepth: 1
    :caption: Examples
    
@@ -79,4 +71,3 @@ This research can help on the path to a sustainable future by providing tools an
    :caption: Code Documentation
 
    ./code_documentation/core
-   ./code_documentation/util

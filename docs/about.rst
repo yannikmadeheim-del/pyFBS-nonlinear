@@ -8,9 +8,11 @@ About
     ./credits.rst 
     ./license.rst 
     ./contribute.rst
+    ./installation.rst 
+    ./usage.rst 
 
 .. panels::
-    :column: col-12 p-3
+    :column: col-lg-6 col-md-6 col-sm-12 col-xs-12 p-3
 
     Credits
     ^^^^^^^^^^^^
@@ -44,3 +46,23 @@ About
         :text: Contribute
         :classes: btn-outline-primary btn-block stretched-link
  
+    ---
+    Installation
+    ^^^^^^^^^^^^
+
+    Installation process for Python version 3.8.
+
+    .. link-button:: installation
+        :type: ref
+        :text: Installation
+        :classes: btn-outline-primary btn-block stretched-link
+    ---
+    Usage
+    ^^^^^^^^^^^^
+
+    Get familiar with the example data and features that pyFBS offers.
+
+    .. link-button:: usage
+        :type: ref
+        :text: Usage
+        :classes: btn-outline-primary btn-block stretched-link
