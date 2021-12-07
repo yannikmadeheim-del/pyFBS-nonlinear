@@ -147,6 +147,12 @@ The code testing is fully automated. To test the code, you have to install the `
 
     pip install tox
 
+In addition, it is necessary to install requirements for developers, listed in ``requirements_dev.txt``, using the command:
+
+.. code-block:: 
+
+    pip install -r requirements_dev.txt 
+
 Testing code
 ************
 Once the ``tox`` is installed, you just have to run the ``tox.ini`` script using the command:
@@ -160,11 +166,18 @@ The ``tox`` script will create a virtual environment and will test all notebook 
 
 Testing documentation
 *********************
-Documentation is tested separately by running commands:
+
+Before building the documentation, execute the following command:
 
 .. code-block:: 
 
     cd doc
+    pip install -r requirements_dev.txt 
+
+Documentation is tested separately by running commands:
+
+.. code-block:: 
+
     make clean
     make html
 
