@@ -17,10 +17,10 @@ class VPT(object):
     :type vp_ch: pd.DataFrame
     :param vp_refch: A DataFrame containing information on reference virtual point channels
     :type vp_refch: pd.DataFrame
-    :param Wu: Displacement weigting matrix
-    :type Wu: array(float), optional
-    :param Wf: Force weighting matrix
-    :type Wf: array(float), optional
+    :param Wu: Displacement weigting matrix for the interface channels
+    :type Wu: 2D matrix (float), optional
+    :param Wf: Force weighting matrix for the interface impact points
+    :type Wf: 2D matrix (float), optional
     :param sort_matrix: Sort transformation matrixes
     :type sort_matrix: bool, optional
     """
@@ -97,10 +97,10 @@ class VPT(object):
 
 
         # definition of weighting matrix
-        if self.Wu_p is None:
-            Wu = np.eye(np.max(Ru.shape))
-        else:
-            Wu = self.Wu_p
+        Wu = np.eye(np.max(Ru.shape))
+        if self.Wu_p is not None:
+            interfaceDOFs_u = np.where(mask_u == 0)[0]
+            Wu[np.ix_(interfaceDOFs_u,interfaceDOFs_u)] = self.Wu_p
 
 
         # calculate the Tu, Fu matrices
@@ -161,11 +161,13 @@ class VPT(object):
                         trig = False
             Rf = R_n
 
-        # definition of weighting matrix
-        if self.Wf_p is None:
-            Wf = np.eye(np.max(Rf.shape))
-        else:
-            Wf = self.Wf_p
+
+        # definition of weighting matrix            
+        Wf = np.eye(np.max(Rf.shape))
+        if self.Wf_p is not None:
+            interfaceDOFs_f = np.where(mask_f == 0)[0]
+            Wf[np.ix_(interfaceDOFs_f,interfaceDOFs_f)] = self.Wf_p
+
 
         # calculate the Tf, Ff matrices
         Tf = np.linalg.pinv(Wf) @ Rf @ np.linalg.pinv(Rf.T @ np.linalg.pinv(Wf) @ Rf)
