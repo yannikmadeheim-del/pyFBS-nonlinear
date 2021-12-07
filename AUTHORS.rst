@@ -13,6 +13,8 @@ Development Lead
 
 * Miha Pogačar
 
+* Mert Göldeli
+
 Contributors
 ------------
 
