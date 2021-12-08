@@ -37,7 +37,7 @@ The VPT can be performed on experimental data. See the :download:`04_VPT.ipynb <
 	
 LM-FBS coupling and decoupling
 ==============================
-First the compatibility and the equiliubrium condition has to be defined through the signed Boolean matrices. For this example the 6 VP DoFs at the interface are coupled.
+First, construct an admittance matrix for the uncoupled system, containing substructure admittances:
 
 .. code-block:: python
 
@@ -46,6 +46,11 @@ First the compatibility and the equiliubrium condition has to be defined through
 	Y_AnB[:,0:36,0:36] = Y_BTS_tran
 	Y_AnB[:,36:36+30,36:36+30] = -1*Y_TS_tran
 	Y_AnB[:,30+36:,30+36:] = Y_A_tran
+
+
+Next the compatibility and the equilibrium conditions has to be defined through the signed Boolean matrices ``Bu`` and ``Bf``. 
+
+.. code-block:: python
 
 	k = 18
 	Bu = np.zeros((2*k,36+30+18))
@@ -61,14 +66,12 @@ First the compatibility and the equiliubrium condition has to be defined through
 
 	Bf[k:,0:k] = 1*np.eye(k)
 	Bf[k:,36+30:36+30+k] = -1*np.eye(k)
-
-	plt.figure()
-	plt.imshow(Bu)
-	plt.figure()
-	plt.imshow(Bf);
 	
-.. figure:: ./../data/ten_LBS.png
-   :width: 300px
+.. figure:: ./../data/Bu_TS.png
+   :width: 500px
+
+.. figure:: ./../data/Bf_TS.png
+   :width: 500px
    
 Apply the LM-FBS based on the defined coompatibility and equilibrium conditions.
 
@@ -76,8 +79,8 @@ Apply the LM-FBS based on the defined coompatibility and equilibrium conditions.
 
 	Y_ABn = np.zeros_like(Y_AnB,dtype = complex)
 
-	Y_int = Bu@Y_AnB@Bf.T
-	Y_ABn = Y_AnB - Y_AnB@Bf.T@np.linalg.pinv(pyFBS.TSVD(Y_int,reduction = 22))@Bu@Y_AnB
+	Y_int = Bu @ Y_AnB @ Bf.T
+	Y_ABn = Y_AnB - Y_AnB @ Bf.T @ np.linalg.pinv(pyFBS.TSVD(Y_int,reduction = 22)) @ Bu @ Y_AnB
 	
 First extract the FRFs at the reference DoFs:
 
@@ -91,5 +94,6 @@ First extract the FRFs at the reference DoFs:
 	
 Finnaly, the coupled and the reference results can be compared and evaluated:
 
-.. figure:: ./../data/ten_result.png
-   :width: 500px
+.. raw:: html
+
+   <iframe src="../../_static/FRF_TS.html" height="500px" width="750px" frameborder="0"></iframe>

@@ -34,19 +34,12 @@ Checkout a single FRF:
 	select_out = 5
 	select_in = 1
 
-	display(df_chn.iloc[[select_out]])
-	display(df_imp.iloc[[select_in]])
-
-	plt.figure(figsize = (8,6))
-	plt.subplot(211)
-	plt.semilogy(freq,np.abs(Y_ODS[:,select_out,select_in]))
-
-	plt.subplot(413)
-	plt.plot(freq,np.angle(Y_ODS[:,select_out,select_in]))
+	Y_ODS = pyFBS.plot_frequency_response(freq, Y_ODS[:,select_out:select_out+1,select_in:select_in+1])
 
 	
-.. figure:: ./../data/six_two.png
-   :width: 500px
+.. raw:: html
+
+   <iframe src="../../_static/Y_ODS.html" height="500px" width="750px" frameborder="0"></iframe>
 	
 Accelerometer animation and GIF export
 --------------------------------------

@@ -38,9 +38,12 @@ Perform the LSCF/LSFD experimental identification of modal parameters:
     H_acc, modes_1 = modal_1.get_constants(whose_poles=modal_1,least_squares_type="old")
     pd.DataFrame({"Nat. freq [Hz]": modal_1.nat_freq,"Damping [/]": modal_1.nat_xi},index = np.arange(len(modal_1.nat_freq))+1)
 
+Stable poles are selected using stability chart:
+
 .. figure:: ./../data/nine_two.png
    :width: 800px
    
+The following eigenfrequencies and corresponding damping ratios are obtained:
    
 .. figure:: ./../data/nine_three.png
    :width: 200px
@@ -115,9 +118,12 @@ Perform the LSCF/LSFD experimental identification of modal parameters:
     H_acc, modes_2 = modal_2.get_constants(whose_poles=modal_2,least_squares_type="old")
     pd.DataFrame({"Nat. freq [Hz]": modal_2.nat_freq,"Damping [/]": modal_2.nat_xi},index = np.arange(len(modal_2.nat_freq))+1)
 
+Stable poles are selected using stability chart:
 
 .. figure:: ./../data/nine_four.png
    :width: 800px
+
+The following eigenfrequencies and corresponding damping ratios are obtained:
    
 .. figure:: ./../data/nine_five.png
    :width: 200px
