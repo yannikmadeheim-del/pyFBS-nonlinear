@@ -135,6 +135,9 @@ and admittance of the new assembly (:math:`\mathbf{Y}_{32}^{\mathrm{AB}}`):
 .. tip::
    We can see that equivalent forces are indeed independent of the passive substructure.
 
+.. tip::
+	That's a wrap! Want to know more, see a potential application? Contact us at info.pyfbs@gmail.com!
+
 .. rubric:: References
 
 .. [1] Van der Seijs, M. V. "Experimental dynamic substructuring: Analysis and design strategies for vehicle development." (2016).

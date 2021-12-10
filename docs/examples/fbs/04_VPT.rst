@@ -115,6 +115,9 @@ Both channel/sensor (``vpt.specific_sensor`` and ``vpt.overall_sensor``) and imp
 .. tip::
 	Take A LOT of pictures of your experiment in case you need to correct some sensor positions or orientations later.
 
+.. tip::
+	That's a wrap! Want to know more, see a potential application? Contact us at info.pyfbs@gmail.com!
+
 .. rubric:: References
 
 .. [1] de Klerk D, Rixen DJ, Voormeeren SN, Pasteuning P. Solving the RDoF problem in experimental dynamic sybstructuring. InInternational modal analysis conference IMAC-XXVI 2008 (pp. 1-9).

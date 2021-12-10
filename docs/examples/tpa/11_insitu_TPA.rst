@@ -224,6 +224,9 @@ The partial responses can then be displayed as a heatmap:
 .. tip::
    Using the graphical presentation above, the most dominant transfer path can be pinpointed.
 
+.. tip::
+	That's a wrap! Want to know more, see a potential application? Contact us at info.pyfbs@gmail.com!
+
 .. rubric:: References
 
 .. [1] Moorhouse AT. On the characteristic power of structure-borne sound sources. Journal of sound and vibration. 2001 Nov 29;248(3):441-59.

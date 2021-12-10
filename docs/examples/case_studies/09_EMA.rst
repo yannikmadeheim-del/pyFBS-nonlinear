@@ -158,3 +158,6 @@ The second set of identified mode shapes can be animated directly in the 3D view
     
 .. figure:: ./../data/modal_2_min.gif
    :width: 800px
+
+.. tip::
+	That's a wrap! Want to know more, see a potential application? Contact us at info.pyfbs@gmail.com!

@@ -351,6 +351,9 @@ Comparison of different FRFs can be performed visually:
 
    <iframe src="../../_static/FRF_synth.html" height="460px" width="100%" frameborder="0"></iframe>
 
+.. tip::
+	That's a wrap! Want to know more, see a potential application? Contact us at info.pyfbs@gmail.com!
+
 .. rubric:: References
 
 .. [1] e Silva, Júlio M. Montalvão, and Nuno MM Maia, eds. Modal analysis and testing. Vol. 363. Springer Science & Business Media, 2012.

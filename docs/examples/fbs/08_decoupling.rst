@@ -188,6 +188,8 @@ The decoupled and the reference results can then be compared and evaluated:
 
    <iframe src="../../_static/VP_decoupling.html" height="500px" width="750px" frameborder="0"></iframe>
    
+.. tip::
+	That's a wrap! Want to know more, see a potential application? Contact us at info.pyfbs@gmail.com!
 
 .. rubric:: References
 

@@ -114,6 +114,8 @@ Finally, pseudo-forces are evaluated through on-board validation:
 
    <iframe src="../../_static/u3_comparison_ps.html" height="460px" width="750px" frameborder="0"></iframe>
 
+.. tip::
+	That's a wrap! Want to know more, see a potential application? Contact us at info.pyfbs@gmail.com!
 
 .. rubric:: References
 

@@ -131,3 +131,6 @@ For more information refer to the `PyVista plotting shortcuts <https://docs.pyvi
 
 .. figure:: ./../data/interaction.gif
    :width: 800px
+
+.. tip::
+	That's a wrap! Want to know more, see a potential application? Contact us at info.pyfbs@gmail.com!

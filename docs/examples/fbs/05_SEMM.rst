@@ -174,6 +174,9 @@ Finally, the results of the hybrid model can be compared with the reference expe
 .. raw:: html
 
    <iframe src="../../_static/SEMM_plot.html" height="500px" width="750px" frameborder="0"></iframe>
+
+.. tip::
+	That's a wrap! Want to know more, see a potential application? Contact us at info.pyfbs@gmail.com!
    
 .. rubric:: References
 
