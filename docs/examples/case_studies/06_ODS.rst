@@ -68,5 +68,10 @@ When the GIF is exporting the animation can lag within the 3D display.
 .. figure:: ./../data/ods.gif
    :width: 400px
 
-.. tip::
-	That's a wrap! Want to know more, see a potential application? Contact us at info.pyfbs@gmail.com!
+.. panels::
+    :column: col-12 p-3
+
+    **That's a wrap!**
+    ^^^^^^^^^^^^
+
+    Want to know more, see a potential application? Contact us at info.pyfbs@gmail.com!

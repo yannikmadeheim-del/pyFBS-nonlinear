@@ -127,8 +127,13 @@ Completeness of the interface forces is then evaluated via comparison of predict
    The use of regularisation techniques is advisable in such cases to prevent the measurement noise from building up the interface forces 
    (Singular Value Truncation or Tikhonov regularisation, for more info see [3]_ [4]_).
 
-.. tip::
-	That's a wrap! Want to know more, see a potential application? Contact us at info.pyfbs@gmail.com!
+.. panels::
+    :column: col-12 p-3
+
+    **That's a wrap!**
+    ^^^^^^^^^^^^
+
+    Want to know more, see a potential application? Contact us at info.pyfbs@gmail.com!
 
 .. rubric:: References
 

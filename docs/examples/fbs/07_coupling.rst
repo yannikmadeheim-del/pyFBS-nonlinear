@@ -247,8 +247,13 @@ The coupled and the reference results can then be compared and evaluated:
 
    <iframe src="../../_static/VPT_coupling.html" height="500px" width="750px" frameborder="0"></iframe>
 
-.. tip::
-	That's a wrap! Want to know more, see a potential application? Contact us at info.pyfbs@gmail.com!
+.. panels::
+    :column: col-12 p-3
+
+    **That's a wrap!**
+    ^^^^^^^^^^^^
+
+    Want to know more, see a potential application? Contact us at info.pyfbs@gmail.com!
 
 .. rubric:: References
 

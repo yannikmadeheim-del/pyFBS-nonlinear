@@ -55,8 +55,13 @@ The filtered FRFs can be obtained by using the class variables ``svt.Fu`` and ``
         FRF_B_filt[i,:,:]=svt.Fu[i,:,:] @ FRF_B[i,:,:]@ svt.Ff[i,:,:]
         FRF_AB_filt[i,:,:]=svt.Fu[i,:,:] @ FRF_AB[i,:,:]@ svt.Ff[i,:,:]
 
-.. tip::
-	That's a wrap! Want to know more, see a potential application? Contact us at info.pyfbs@gmail.com!
+.. panels::
+    :column: col-12 p-3
+
+    **That's a wrap!**
+    ^^^^^^^^^^^^
+
+    Want to know more, see a potential application? Contact us at info.pyfbs@gmail.com!
 
 .. rubric:: References
 

@@ -351,8 +351,13 @@ Comparison of different FRFs can be performed visually:
 
    <iframe src="../../_static/FRF_synth.html" height="460px" width="100%" frameborder="0"></iframe>
 
-.. tip::
-	That's a wrap! Want to know more, see a potential application? Contact us at info.pyfbs@gmail.com!
+.. panels::
+    :column: col-12 p-3
+
+    **That's a wrap!**
+    ^^^^^^^^^^^^
+
+    Want to know more, see a potential application? Contact us at info.pyfbs@gmail.com!
 
 .. rubric:: References
 
