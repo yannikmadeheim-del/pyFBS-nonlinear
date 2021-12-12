@@ -167,9 +167,14 @@ In this step also the eigenfrequencies and eigenvectors of the system are simult
    In the case of models with a huge number of DoFs, the process of solving the eigenproblem can take quite some time (depending on the complexity of the model and the computational power of the computer).
    By setting ``read_rst = True`` in :class:`pyFBS.MK_model` initialization modal parameters will be imported directly from the ``.rst`` file and not calculated again inside Python.
 
+.. warning::
+    The current version uses pickle module to store the modal parameters. The pickle module is not secure. Only unpickle data you trust.
+	
 .. tip::
     The imported model will only contain as many eigenvalues and eigenforms as there were calculated in Ansys. 
     If you want to use more, you need to re-solve the problem in Python (by setting: ``allow_pickle = True, read_rst == False``) or Ansys.
+
+
 
 Mode shape visualization
 ************************
@@ -350,6 +355,9 @@ Comparison of different FRFs can be performed visually:
 .. raw:: html
 
    <iframe src="../../_static/FRF_synth.html" height="460px" width="100%" frameborder="0"></iframe>
+
+
+
 
 .. panels::
     :column: col-12 p-3
