@@ -72,7 +72,7 @@ Currently implemented features are listed below.
 
 ## 3D display
 
-Structures and positions of impacts, sensors and channels can be visualized in 3D autoref{fig:3D}. 
+Structures and positions of impacts, sensors and channels can be visualized in 3D \autoref{fig:3D}. 
 The 3D display is built on top of PyVista [@sullivan2019pyvista] and enables an intuitive way to display relevant data. 
 Sensors and impacts can be interactively positioned on structures and the updated positions can be directly used within the pyFBS.
 With this feature the experimental setup can be prepared in advance, to avoid possible mistakes in experimental modelling.

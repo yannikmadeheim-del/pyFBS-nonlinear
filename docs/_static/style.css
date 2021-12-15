@@ -17,5 +17,6 @@
 
 .sphx-glr-thumbcontainer {
     min-height: 210px !important;
-    margin: 20px !important;
+    width: 210px;
+    margin: 10px !important;
 }

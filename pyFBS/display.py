@@ -211,12 +211,18 @@ class view3D():
             add_val = ann[:, :, i]
             add_val_secondary = ann_secondary[:, i]
 
-            self.plot.update_coordinates(self.modeshape_animation["or_pts"] + add_val, mesh=self.modeshape_animation["mesh"],render = False)
-            if self.modeshape_animation["scalars"]:
-                if self.modeshape_animation["animate_secondary_mode_shape"]==True:
-                    self.plot.update_scalars(add_val_secondary, mesh=self.modeshape_animation["mesh"] ,render = False) # for color changing
-                else: 
-                    self.plot.update_scalars(np.sqrt(np.mean(add_val ** 2, axis=1)).reshape(self.modeshape_animation["or_pts"].shape[0]), mesh=self.modeshape_animation["mesh"] ,render = False) # for color changing
+            if type(self.modeshape_animation["mesh"]) is not list:
+                self.modeshape_animation["mesh"] = [self.modeshape_animation["mesh"]]
+
+            for mesh in self.modeshape_animation["mesh"]:
+
+                self.plot.update_coordinates(self.modeshape_animation["or_pts"] + add_val, mesh=mesh,render = False)
+                if self.modeshape_animation["scalars"]:
+                    if self.modeshape_animation["animate_secondary_mode_shape"]==True:
+
+                        self.plot.update_scalars(add_val_secondary, mesh=mesh ,render = False) # for color changing
+                    else: 
+                        self.plot.update_scalars(np.sqrt(np.mean(add_val ** 2, axis=1)).reshape(self.modeshape_animation["or_pts"].shape[0]), mesh=mesh ,render = False) # for color changing
 
             self.plot.render()
             if self.take_gif:
@@ -236,8 +242,9 @@ class view3D():
         Clear mode shape from the 3D display.
         """
 
-        self.plot.update_coordinates(self.modeshape_animation["or_pts"], mesh=self.modeshape_animation["mesh"], render=True)
-        self.plot.update_scalars(np.zeros(self.modeshape_animation["or_pts"].shape[0]), mesh=self.modeshape_animation["mesh"], render=False)
+        for mesh in self.modeshape_animation["mesh"]:
+            self.plot.update_coordinates(self.modeshape_animation["or_pts"], mesh=mesh, render=True)
+            self.plot.update_scalars(np.zeros(self.modeshape_animation["or_pts"].shape[0]), mesh=mesh, render=False)
         self.plot.update_scalar_bar_range(clim=[-100,100])
 
 

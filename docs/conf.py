@@ -56,7 +56,7 @@ extensions = ['sphinx.ext.autodoc', 'sphinx.ext.intersphinx', 'sphinx.ext.todo',
               'sphinx.ext.doctest', 'sphinx.ext.ifconfig', 'sphinx.ext.mathjax',
               'sphinx.ext.napoleon','sphinxcontrib.bibtex','sphinx.ext.autodoc',
               'sphinx.ext.doctest','sphinx.ext.autosummary','sphinx.ext.extlinks',
-              'sphinx.ext.coverage','sphinx_gallery.gen_gallery',
+              'sphinx.ext.coverage','sphinx_gallery.gen_gallery',"sphinx_panels",
               ]
 			  
 bibtex_bibfiles = ['paper.bib']
@@ -111,14 +111,21 @@ todo_include_todos = False
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'sphinx_rtd_theme'
+#html_theme = 'sphinx_rtd_theme'
 #html_theme = 'alabaster'
+
+import pydata_sphinx_theme
+html_theme = "pydata_sphinx_theme"
 
 # Theme options are theme-specific and customize the look and feel of a
 # theme further.  For a list of options available for each theme, see the
 # documentation.
 #
 # html_theme_options = {}
+
+# sphinx-panels shouldn't add bootstrap css since the pydata-sphinx-theme
+# already loads it
+panels_add_bootstrap_css = False
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -153,8 +160,8 @@ latex_elements = {
 }
 
 
-import sphinx_rtd_theme
-html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
+#import sphinx_rtd_theme
+#html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 
 html_context = {
     # Enable the "Edit in GitHub link within the header of each page.
@@ -197,7 +204,7 @@ html_favicon = './logo/logo-small.png'
 
 html_theme_options = {
     'logo_only': True,
-    'body_max_width': '30%'
+    'body_max_width': '50%'
 }
 
 html_logo = "./logo/logo-big.png"

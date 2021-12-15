@@ -36,5 +36,5 @@ With this approach, it is also possible to build hybrid models in which experime
 .. [4] Bjorn Jetmundsen, Richard L. Bielawa, and William G. Flannelly. Generalized frequency domain substructure synthesis. Jnl. American Helicopter Society, 33(1):55–64, 1988.
 .. [5] Antonio Paulo Vale Urgueira. Dynamic analysis of coupled structures using experimental data. PhD thesis, Imperial College, London, 1989.
 .. [6] D.J. Rixen, T. Godeby, and E. Pagnacco. Dual assembly of substructures and the fbs method: application to the dynamic testing of a guitar. International Conference on Noise and Vibration Engineering, ISMA, September 18-20 2006.
-.. [7] D. de Klerk, D. J. Rixen, and S. N. Voormeeren. General framework for dynamic substructuring: history, review and classification of techniques. AIAA Journal, 46(5):1169–1181, May 2008.
+.. [7] de Klerk D, Rixen DJ, Voormeeren SN. General framework for dynamic substructuring: history, review and classification of techniques. AIAA journal. 2008 May;46(5):1169-81.
 .. [8] Maarten V. van der Seijs, Dennis de Klerk, and Daniel J. Rixen. General framework for transfer path analysis: history, theory and classification of techniques. Mechanical Systems and Signal Processing, 68-69:217–244, February 2016.

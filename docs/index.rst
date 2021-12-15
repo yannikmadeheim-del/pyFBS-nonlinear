@@ -12,7 +12,7 @@ The :mod:`pyFBS` was developed as a part of collaboration between the Laboratory
 .. raw:: html
 
 	<a href="http://ladisk.si/">
-		<img src="https://moj.ladisk.si/static/images/ladisk_logo_navbar_line.49a0c873b5aa.png" alt="LADISK logo" title="LADISK" align="right" width=90 height=90 />
+		<img src="./_static/ladisk_logo.svg" alt="LADISK logo" title="LADISK" align="right" width=200 />
 	</a>
 
 	
@@ -29,7 +29,7 @@ In recent years the group has been actively involved in the research of substruc
 .. raw:: html
 
 	<a href="https://www.mw.tum.de/">
-		<img src="https://www.mw.tum.de/typo3/ext/tumtheme/Resources/Public/Icons/Org/tum-logo.png" alt="LADISK logo" title="LADISK" align="right" width=80 height=80 />
+		<img src="./_static/tum_logo.svg" alt="TUM logo" title="TUM" align="right" width=200 />
 	</a>
 
 
@@ -40,31 +40,29 @@ The Chair of Applied Mechanics (Technical University of Munich) covers a wide ra
 These research fields are divided into three areas: Experimental Dynamics, Numerical Methods, and Robotics. They range from fundamental research, such as development of new numerical methods, to applied research in cooperation with industry. 
 This research can help on the path to a sustainable future by providing tools and technologies for a more advanced product design, that reduces the amount of prototypes and, thus, saves development costs and minimizes material consumption.
 
+..
+   .. toctree::
+      :maxdepth: 1
+      :caption: Why pyFBS?
 
+      intro
 
 .. toctree::
    :maxdepth: 2
    :caption: About
 
    intro
-   credits
-   license
+   about
 
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Getting Started
-
-   installation
-   usage
-
-
-.. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Examples
    
    ./examples/basic_examples
-   ./examples/application_examples
+   ./examples/frequency_based_substructuring
+   ./examples/transfer_path_analysis
+   ./examples/case_studies
    
 
 
@@ -73,4 +71,3 @@ This research can help on the path to a sustainable future by providing tools an
    :caption: Code Documentation
 
    ./code_documentation/core
-   ./code_documentation/util
