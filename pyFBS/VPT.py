@@ -7,7 +7,7 @@ class VPT(object):
     """
     Virtual Point Transformation (VPT) - enables the transformation of measured responses and loads to virtual DoFs. 
     Current implementation enables the use of rigid and simple flexible interface deformation modes. DoFs supported 
-    are 3 translations + 3 rotations + 3 extensions + 3 torsions. DoFs can be arbitrarily selected. 
+    are 3 translations + 3 rotations + 3 extensions + 3 torsions + 6 skewing. DoFs can be arbitrarily selected. 
     
     The following DoF labels should be used in VP dataframes to include them in the transformation:
     * Translational response/load:
