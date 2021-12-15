@@ -18,6 +18,8 @@ class VPT(object):
         ex, ey, ez / ex, ey, ez
     * Torsional response/load
         tx, ty, tz / tx, ty, tz
+    * Skewing response/load:
+        sxy, sxz, syz, syx, szx, szy / sxy, sxz, syz, syx, szx, szy
 
     :param ch: A DataFrame containing information on channels (i.e. outputs)
     :type ch: pd.DataFrame
@@ -194,16 +196,17 @@ class VPT(object):
         rx, ry, rz = pos
 
         if type == "Angular Acceleration":
-            _R = np.asarray([[0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
-                             [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
-                             [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0]])
+            _R = np.asarray([[0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                             [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                             [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]])
         else:
-            _R = np.asarray([[1, 0, 0, 0, rz, -ry, rx, 0, 0, 0, ry*rz, -rz*ry],
-                             [0, 1, 0, -rz, 0, rx, 0, ry, 0, -rx*rz, 0, rz*rx],
-                             [0, 0, 1, ry, -rx, 0, 0, 0, rz, rx*ry, -ry*rx, 0]])
+            _R = np.asarray([[1, 0, 0, 0, rz, -ry, rx, 0, 0, 0, ry * rz, -rz * ry, rx * ry, rx * rz, 0, 0, 0, 0],
+                             [0, 1, 0, -rz, 0, rx, 0, ry, 0, -rx * rz, 0, rz * rx, 0, 0, ry * rz, ry * rx, 0, 0],
+                             [0, 0, 1, ry, -rx, 0, 0, 0, rz, rx * ry, -ry * rx, 0, 0, 0, 0, 0, rz * rx, rz * ry]])
 
         # isolating desired DoF
-        columns_ = ['ux','uy','uz','rx','ry','rz','ex','ey','ez','tx','ty','tz']
+        columns_ = ['ux', 'uy', 'uz', 'rx', 'ry', 'rz', 'ex', 'ey', 'ez', 'tx', 'ty', 'tz', 'sxy', 'sxz', 'syz', 'syx',
+                    'szx', 'szy']
         _R = np.asarray(pd.DataFrame(_R, columns=columns_)[desc])
 
         return _R
@@ -260,12 +263,18 @@ class VPT(object):
                          [rx, 0, 0],
                          [0, ry, 0],
                          [0, 0, rz],
-                         [0, -rx*rz, rx*ry],
-                         [ry*rz, 0, -ry*rx],
-                         [-rz*ry, rz*rx, 0]])
+                         [0, -rx * rz, rx * ry],
+                         [ry * rz, 0, -ry * rx],
+                         [-rz * ry, rz * rx, 0],
+                         [rx * ry, 0, 0],
+                         [rx * rz, 0, 0],
+                         [0, ry * rz, 0],
+                         [0, ry * rx, 0],
+                         [0, 0, rz * rx],
+                         [0, 0, rz * ry]])
 
         # isolating desired DoF
-        columns_ = ['fx','fy','fz','mx','my','mz','ex','ey','ez','tx','ty','tz']
+        columns_ = ['fx','fy','fz','mx','my','mz','ex','ey','ez','tx','ty','tz','sxy','sxz','syz','syx','szx','szy']
         _R = np.asarray(pd.DataFrame(_R.T, columns=columns_)[desc]).T
         
         return _R
