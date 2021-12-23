@@ -889,18 +889,19 @@ class view3D():
         if self.global_labels == []:
             self.add_action(self.show_hide_toolbar, "Clear Labels", self.clear_labels)
 
-        x = df["Position_1"].unique()
-        y = df["Position_2"].unique()
-        z = df["Position_3"].unique()
+        ind = np.unique(df["Grouping"], return_index=True)[1]
+
+        x = df.iloc[ind]["Position_1"]
+        y = df.iloc[ind]["Position_2"]
+        z = df.iloc[ind]["Position_3"]
         position = np.asarray([x, y, z]).T
         position *= scale
 
-        L = df["Grouping"].unique()
+        L = df.iloc[ind]["Grouping"]
 
         self.plot.add_point_labels(position, L, font_size=font_size,name = name,font_family = "times",shape_opacity=0.5,shape_color = GREEN,show_points=False,**kwargs)
         self.global_labels.append([[position, L], name])
         self.labels_visible = True
-
 
     def show_hide_accelerometers(self):
         """
