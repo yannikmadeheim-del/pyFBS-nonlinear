@@ -14,6 +14,14 @@ authors:
     affiliation: 2
   - name: Miha Kodrič
     affiliation: 3
+  - name: Domen Ocepek
+    affiliation: 3
+  - name: Francesco Trainotti
+    affiliation: 2
+  - name: Miha Pogačar
+    affiliation: 3
+  - name: Mert Göldeli
+    affiliation: 2	
   - name: Gregor Čepon
     affiliation: 3
   - name: Miha Boltežar

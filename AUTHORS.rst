@@ -18,6 +18,12 @@ Development Lead
 Contributors
 ------------
 
+* Gregor Čepon
+
+* Miha Boltežar
+
+* Daniel J. Rixen
+
 For a full list of `contributors`_ check the repository.
 
 .. _contributors: https://gitlab.com/pyFBS/pyFBS/-/graphs/master
