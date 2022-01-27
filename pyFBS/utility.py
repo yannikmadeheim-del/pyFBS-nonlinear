@@ -478,7 +478,7 @@ def generate_VP_from_position(df):
     columns_vp = ["Name", "Description", "Quantity", "Grouping",
                    "Position_1", "Position_2", "Position_3", "Direction_1", "Direction_2", "Direction_3"]
 
-    desc_u = ['ux', 'uy', 'uz', 'tx', 'ty', 'tz']
+    desc_u = ['ux', 'uy', 'uz', 'rx', 'ry', 'rz']
     desc_f = ['fx', 'fy', 'fz', 'mx', 'my', 'mz']
 
     quantity_u = np.tile(np.repeat(['Acceleration', 'Rotational Acceleration'], 3), 1)
