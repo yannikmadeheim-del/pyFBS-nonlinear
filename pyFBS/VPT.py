@@ -80,8 +80,8 @@ class VPT(object):
             ov_c = ov_u[i]
 
             # iterates through all channels corresponding to unique virtual point
-            r = np.zeros((len(ov_c[0]), len(_desc)))
-            for j, ch in enumerate(ov_c[0]):
+            r = np.zeros((len(ov_c), len(_desc)))
+            for j, ch in enumerate(ov_c):
                 # gets position of the single channel
                 _pos = self.Channels.iloc[ch][["Position_1","Position_2","Position_3"]].to_numpy()
                 # gets orientation of the single channel
@@ -100,7 +100,7 @@ class VPT(object):
         # sorting of the Ru matrix
         if self.sort_matrix == True:
             # sort on channels
-            _ov_u = np.concatenate((np.array(ov_u).flatten(), np.where(mask_u == 1)[0]))
+            _ov_u = np.concatenate((np.concatenate(ov_u), np.where(mask_u == 1)[0]))
             Ru = Ru[np.argsort(_ov_u, kind='stable'),:]
             # sort on VPs
             ind_vp = self.Virtual_Channels['Grouping'].to_numpy()
@@ -142,8 +142,8 @@ class VPT(object):
             ov_c = ov_f[i]
 
             # iterates through all impacts corresponding to unique virtual point
-            r = np.zeros((len(ov_c[0]), len(_desc)))
-            for j, im in enumerate(ov_c[0]):
+            r = np.zeros((len(ov_c), len(_desc)))
+            for j, im in enumerate(ov_c):
                 # gets position of the single impact
                 _pos = self.RefChannels.iloc[im][["Position_1", "Position_2", "Position_3"]].to_numpy()
                 # gets orientation of the single impact
@@ -159,7 +159,7 @@ class VPT(object):
         # sorting of the Rf matrix
         if self.sort_matrix == True:
             # sort on impacts
-            _ov_f = np.concatenate((np.array(ov_f).flatten(), np.where(mask_f == 1)[0]))
+            _ov_f = np.concatenate((np.concatenate(ov_f), np.where(mask_f == 1)[0]))
             Rf = Rf[np.argsort(_ov_f),:]
             # sort on VPs
             ind_vpref = self.Virtual_RefChannels['Grouping'].to_numpy()
@@ -298,7 +298,7 @@ class VPT(object):
         # Find overlap between the two datasets
         _overlap = []
         for a in np.unique(_group_B):
-            _overlap.append(np.where(_group_A == a))
+            _overlap.append(np.where(_group_A == a)[0])
 
         # Sort channels not included in the transformation
         mask = np.in1d(_group_A, np.unique(_group_B), invert=True).astype(int)
