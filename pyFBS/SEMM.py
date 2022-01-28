@@ -1,4 +1,4 @@
-from pyFBS.utility import *
+from .utility import *
 from tqdm import tqdm
 
 

@@ -5,7 +5,7 @@ from time import time,sleep
 from PyQt5.QtWidgets import QAction
 from PyQt5 import  QtGui
 import imageio
-from pyFBS.utility import *
+from .utility import *
 import keyboard as kb
 from scipy.spatial.transform import Rotation as R
 from pathlib import Path
