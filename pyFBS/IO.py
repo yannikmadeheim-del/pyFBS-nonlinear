@@ -1,6 +1,6 @@
 import pyuff
 import math
-from pyFBS.utility import *
+from .utility import *
 import os
 import requests
 import shutil
