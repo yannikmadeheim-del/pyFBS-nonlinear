@@ -11,7 +11,7 @@ LAB_FOLDER = "lab_testbench"
 LAB_FILES = {"FEM": ["A.full", "A.rst", "AB.full", "AB.rst", "B.full", "B.rst"],
                  "STL": ["A.stl", "B.stl", "AB.stl"],
                  "Measurements": ["AM_Measurements.xlsx","ammeasurements.xlsx", "coupling_example.xlsx", "decoupling_example.xlsx",
-                                  "TPA_synt.xlsx", "Y_A.p", "Y_B.p", "Y_AB.p"]}
+                                  "decoupling_example_SVT.xlsx", "TPA_synt.xlsx", "Y_A.p", "Y_B.p", "Y_AB.p"]}
 
 AUTOMOTIVE_FOLDER = "automotive_testbench"
 AUTOMOTIVE_FILES = {"FEM": ["EM.full", "EM.rst", "RM.full", "RM.rst", "TM.full", "TM.rst"],
