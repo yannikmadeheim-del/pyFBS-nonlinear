@@ -98,8 +98,9 @@ class view3D():
         # Temp
         self._points = []
         self._directions = []
-        self.scale = 10
+        self.scale = 1
         self.toggle = None
+        self.size = 10
 
     @property
     def points(self):
@@ -149,7 +150,7 @@ class view3D():
                 r = R.from_matrix(local_orientation)
                 orientation = np.asarray(r.as_euler('xyz', degrees=True))
                 # just added static size of the accelerometer
-                point +=  np.array(+normal) / 2 * 10
+                point +=  np.array(+normal) / 2 * self.size
                 self.acc_callback(point,orientation=orientation)
             else:
                 pass
@@ -491,7 +492,7 @@ class view3D():
         :type fixed_rotation: float
         """
         i = int(len(self.all_accs_dynamic)+len(self.all_imps_dynamic)+len(self.all_vps_dynamic))
-        size = 10
+        size = self.size
 
         if np.asarray(orientation).all() == None:
             acc = self.create_accelerometer([size/2, size/2, size/2], [0, 0, 0], size=size)
@@ -502,13 +503,13 @@ class view3D():
             rot = r.as_matrix()
 
         self.add_accelerometer(acc)
-        _gg = DynamicPosition(acc, self.plot, i, mesh=self.mesh, size=10,rot = rot,fixed_rotation = self.fixed_rotation,snap_outward = True)
-        self.plot.add_sphere_widget(_gg.callback, center=_gg.points, color=["k", "r", "g", "b"], radius=10 / 15)
+        _gg = DynamicPosition(acc, self.plot, i, mesh=self.mesh, size=size,rot = rot,fixed_rotation = self.fixed_rotation,snap_outward = True)
+        self.plot.add_sphere_widget(_gg.callback, center=_gg.points, color=["k", "r", "g", "b"], radius=size / 15)
         _gg.translate(point)
         _gg.turn_on = True
         self.all_accs_dynamic.append(_gg)
 
-    def add_acc_dynamic(self, mesh, predefined=None,scale = 1,fixed_rotation = None):
+    def add_acc_dynamic(self, mesh, predefined=None,scale = 1,fixed_rotation = None, size = 10):
         """
         Add a set of predefined accelerometers to the 3D display and toggle the possibility to add
         additional accelerometers.
@@ -522,6 +523,7 @@ class view3D():
         :param fixed_rotation: fixed rotation angle
         :type fixed_rotation: float
         """
+        self.size = size
         self.fixed_rotation = fixed_rotation
         self.mesh = mesh
         self.mesh.compute_normals(auto_orient_normals=True, inplace=True)
@@ -536,7 +538,7 @@ class view3D():
                 orientation = np.asarray([row["Orientation_1"], row["Orientation_2"], row["Orientation_3"]])
                 self.acc_callback(point, orientation=orientation,fixed_rotation = self.fixed_rotation)
         
-        self.plot.add_text('Use right mouse click to add an accelerometer', color="k", font="times",font_size = 10, name="text")
+        self.plot.add_text('Use right mouse click to add an accelerometer, hold the letter T to not snap to mesh.', color="k", font="times",font_size = 10, name="text")
 
 
     def imp_callback(self,point, direction = None):
@@ -552,22 +554,22 @@ class view3D():
         """
 
         i = int(len(self.all_accs_dynamic)+len(self.all_imps_dynamic)+len(self.all_vps_dynamic))
-        size = 10
+        size = self.size
         if np.asarray(direction).all() == None:
-            imp, _ = self.add_impact([size/2, size/2, size/2], [0, 0, 1], size=10)
+            imp, _ = self.add_impact([size/2, size/2, size/2], [0, 0, 1], size=self.size)
             rot = np.diag([1]*3)
         else:
-            imp, _ = self.add_impact([size/2, size/2, size/2],direction, size=10)
+            imp, _ = self.add_impact([size/2, size/2, size/2],direction, size=self.size)
             rot = rotation_matrix_from_vectors(direction,[0, 0, 1]).T
 
         
-        _gg = DynamicPosition([imp], self.plot, i, mesh=self.mesh, size=10,rot = rot,snap_outward = False, fixed_rotation = self.fixed_rotation, toggle = "impact")
-        self.plot.add_sphere_widget(_gg.callback, center=_gg.points, color=["k", "r", "g", "b"], radius=10 / 15)
+        _gg = DynamicPosition([imp], self.plot, i, mesh=self.mesh, size=self.size,rot = rot,snap_outward = False, fixed_rotation = self.fixed_rotation, toggle = "impact")
+        self.plot.add_sphere_widget(_gg.callback, center=_gg.points, color=["k", "r", "g", "b"], radius=self.size / 15)
         _gg.translate(point)
         _gg.turn_on = True
         self.all_imps_dynamic.append(_gg)
 
-    def add_imp_dynamic(self, mesh, predefined=None,scale = 1,fixed_rotation = None):
+    def add_imp_dynamic(self, mesh, predefined=None,scale = 1,fixed_rotation = None,size = 10):
         """
         Add a set of predefined impacts to the 3D display and toggle the possibility to add
         additional impacts.
@@ -581,6 +583,7 @@ class view3D():
         :param fixed_rotation: fixed rotation angle
         :type fixed_rotation: float
         """
+        self.size = size
 
         self.mesh = mesh
         self.mesh.compute_normals(auto_orient_normals=True, inplace=True)
@@ -596,7 +599,7 @@ class view3D():
                 direction = np.asarray([row["Direction_1"], row["Direction_2"], row["Direction_3"]])
                 self.imp_callback(point, direction=direction,fixed_rotation = self.fixed_rotation)
 
-        self.plot.add_text('Use right mouse click to add an impact', color="k", font="times",font_size = 10, name="text")
+        self.plot.add_text('Use right mouse click to add an impact, hold the letter T to not snap to mesh.', color="k", font="times",font_size = 10, name="text")
 
 
     def vp_callback(self,point,fixed_rotation = None):
@@ -1196,7 +1199,7 @@ class DynamicPosition():
 
         # default option - no rotation
         rot = np.diag([1., 1., 1.])
-        
+
         if snap and not (kb.is_pressed('t')):
             direction = np.asarray(point) - np.asarray(self.p.camera_position[0])
             direction = direction / np.linalg.norm(direction)
@@ -1205,7 +1208,6 @@ class DynamicPosition():
             points, ind = self.mesh.ray_trace(start, end, first_point=True)
 
             # fast upgrade to option B
-            print(points)
             if self.snap_outward and points.size != 0:
                 f = self.mesh.cell_normals[int(ind)]
                 point = points - f / 2 * self.size
@@ -1214,8 +1216,6 @@ class DynamicPosition():
                 start = point - 1000 * direction
                 end = point + 10000 * direction
                 points, ind = self.mesh.ray_trace(start, end, first_point=True)
-
-            
 
             # if there is an intersection and if "t" is not pressed go forward
             if points.size != 0 and not (kb.is_pressed('t')):
