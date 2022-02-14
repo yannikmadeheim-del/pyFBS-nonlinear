@@ -480,7 +480,7 @@ class view3D():
         return sphere,vp_actor
 
 
-    def acc_callback(self,point, orientation = None):
+    def acc_callback(self,point, orientation = None,fixed_rotation = None):
         """
         Interactive accelerometer callback function.
 
@@ -541,7 +541,7 @@ class view3D():
         self.plot.add_text('Use right mouse click to add an accelerometer, hold the letter T to not snap to mesh.', color="k", font="times",font_size = 10, name="text")
 
 
-    def imp_callback(self,point, direction = None):
+    def imp_callback(self,point, direction = None,fixed_rotation = None):
         """
         Interactive impact callback function.
 
