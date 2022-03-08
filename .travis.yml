@@ -6,6 +6,7 @@ os:
 language: python
 python:
   - "3.8.5"
+  - "3.9.7"
   
 before_install:
   - set -x
