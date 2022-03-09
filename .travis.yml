@@ -12,7 +12,7 @@ before_install:
   - source ./gl-ci-helpers/travis/setup_headless_display.sh
   - set -x
   - sudo apt update && sudo apt install python-qt4 libgl1-mesa-glx
-  - sudo apt-get install libxcb-xinerama0
+  - sudo apt-get install libxcb-xinerama0 pyqt5-dev-tools
   - sudo apt-get install -y xvfb
   - export DISPLAY=:99.0
   - export PYVISTA_OFF_SCREEN=True
@@ -21,11 +21,12 @@ before_install:
   - sleep 3
   - set +x
   - exec "$@"
+  - python3 -m pip install pyqt5
   
 install:
-  - pip install -r requirements.txt --use-feature=2020-resolver
-  - pip install .
-  - pip install -r requirements_dev.txt
+  - python3 -m pip install -r requirements.txt --use-feature=2020-resolver
+  - python3 -m pip install .
+  - python3 -m pip install -r requirements_dev.txt
 
 jobs:
   include:
