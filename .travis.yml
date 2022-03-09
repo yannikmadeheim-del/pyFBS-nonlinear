@@ -5,6 +5,7 @@ os:
 
 language: python
 python:
+  - "3.8.10"
   - "3.9.7"
   
 before_install:
