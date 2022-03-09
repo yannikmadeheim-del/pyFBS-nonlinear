@@ -9,8 +9,11 @@ python:
   - "3.9.7"
   
 before_install:
+  - git clone --depth 1 git://github.com/pyvista/gl-ci-helpers.git
+  - source ./gl-ci-helpers/travis/setup_headless_display.sh
   - set -x
   - sudo apt update && sudo apt install python-qt4 libgl1-mesa-glx
+  - sudo apt-get install libxcb-xinerama0
   - sudo apt-get install -y xvfb
   - export DISPLAY=:99.0
   - export PYVISTA_OFF_SCREEN=True
@@ -18,7 +21,7 @@ before_install:
   - Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
   - sleep 3
   - set +x
-  - python -m pip install --upgrade pip
+  - exec "$@"
   
 install:
   - pip install -r requirements.txt --use-feature=2020-resolver

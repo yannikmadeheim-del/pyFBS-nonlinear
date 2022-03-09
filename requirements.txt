@@ -1,19 +1,19 @@
-numpy==1.21.5 #>=1.20.2, <1.22.0
+numpy>=1.20.2, <1.22.0
 ansys-mapdl-reader>=0.50.8, <=0.51.8
-pyuff>=1.23
-pyvista>=0.29.1
-pyvistaqt>=0.3.0
-pandas>=1.2.4
-scipy>=1.6.2
-tqdm>=4.60.0
-keyboard>=0.13.5
-requests>=2.25.1
-openpyxl>=3.0.7
-pyts>=0.11.0
-altair>=4.1.0
-matplotlib>=3.4.1
-pyEMA>=0.23
-h5py>=3.3.0
+pyuff
+pyvista
+pyvistaqt
+pandas
+scipy
+tqdm
+keyboard
+requests
+openpyxl
+pyts
+altair
+matplotlib
+pyEMA
+h5py
 PyQt5
 
 #pyqtwebengine==5.12
