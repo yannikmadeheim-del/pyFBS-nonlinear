@@ -22,7 +22,6 @@ before_install:
   - python3 -m pip install pyqt5
   
 install:
-  - python3 -m pip install -r requirements.txt --use-feature=2020-resolver
   - python3 -m pip install .
   - python3 -m pip install -r requirements_dev.txt
 
