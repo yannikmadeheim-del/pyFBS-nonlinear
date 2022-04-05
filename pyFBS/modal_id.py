@@ -109,6 +109,78 @@ class modal_id(object):
         self.stab_plot = stab_plot[1:]
         self.poles = p[1:]
         self.mpf = L[1:]
+
+    def pLSFD(self, reconstruction = True, lower_residuals = True, upper_residuals = True):
+        """
+        With poles are available, the residues can be estimated with a Least-Squares Frequency Domain (LSFD)
+        method.
+
+        :param reconstruction: Reconstruct FRF from estimated modal parameters.
+        :type reconstruction: bool, optional
+        :param lower_residuals: Compute lower residuals.
+        :type lower_residuals: bool, optional
+        :param upper_residuals: Compute upper residuals.
+        :type upper_residuals: bool, optional
+        """
+
+        # prepare input data
+        s = self.selected_poles[np.newaxis]
+        L = self.selected_mpf[np.newaxis]
+        w = 2*np.pi*self.freq[:,np.newaxis,np.newaxis]
+
+        # generate P
+        p11 = (-s.real*L.real+(w-s.imag)*L.imag) / (s.real**2+(w-s.imag)**2)+\
+              (-s.real*L.real+(w+s.imag)*L.imag) / (s.real**2+(w+s.imag)**2)
+
+        p12 = ( s.real*L.imag+(w-s.imag)*L.real) / (s.real**2+(w-s.imag)**2)+\
+              (-s.real*L.imag-(w+s.imag)*L.real) / (s.real**2+(w+s.imag)**2)
+
+        p21 = (-s.real*L.imag-(w-s.imag)*L.real) / (s.real**2+(w-s.imag)**2)+\
+              (-s.real*L.imag-(w+s.imag)*L.real) / (s.real**2+(w+s.imag)**2)
+
+        p22 = (-s.real*L.real+(w-s.imag)*L.imag) / (s.real**2+(w-s.imag)**2)+\
+              ( s.real*L.real-(w+s.imag)*L.imag) / (s.real**2+(w+s.imag)**2)
+
+        P = np.block([[[p11,p12]],[[p21,p22]]])
+        
+        # lower and upper residuals
+        if lower_residuals == True:
+            p13_L = np.kron(np.kron(np.eye(self.Ni),np.array([1,0]))[::-1] , -1/w**2)
+            p23_L = np.kron(np.kron(np.eye(self.Ni),np.array([0,1]))[::-1] , -1/w**2)
+        if upper_residuals == True:
+            p13_U = np.kron(np.kron(np.eye(self.Ni),np.array([1,0]))[::-1] ,
+                            np.ones(self.freq.shape[0])[:,np.newaxis,np.newaxis])
+            p23_U = np.kron(np.kron(np.eye(self.Ni),np.array([0,1]))[::-1] ,
+                            np.ones(self.freq.shape[0])[:,np.newaxis,np.newaxis]) 
+
+        if lower_residuals == True and upper_residuals == False:
+            P = np.block([[[p11,p12,p13_L]],[[p21,p22,p23_L]]])
+
+        elif lower_residuals == False and upper_residuals == True:
+            P = np.block([[[p11,p12,p13_U]],[[p21,p22,p23_U]]])
+
+        elif lower_residuals == True and upper_residuals == True:
+            P = np.block([[[p11,p12,p13_L,p13_U]],[[p21,p22,p23_L,p23_U]]])
+
+        else: 
+            P = np.block([[[p11,p12]],[[p21,p22]]])
+
+        # get A
+        Y_ = np.block([[[self.FRF.real]],[[self.FRF.imag]]])
+        A_ = np.linalg.pinv(P.transpose(1,0,2).reshape(-1, P.shape[-1]))@\
+             Y_.transpose(2,0,1).reshape(-1, Y_.shape[-2])
+        Ar, Ai = np.split(A_, 2)
+        A = (Ar + 1.j*Ai).T
+
+        if reconstruction == False:
+            self.A = A
+        else:
+            # frf reconstruction
+            Y_rec_ = np.einsum("fip,op->foi", P , A_.T)
+            Y_rec_r, Y_rec_i = np.split(Y_rec_, 2)
+            Y_rec = (Y_rec_r + 1.j*Y_rec_i)
+            self.A = A
+            self.FRF_rec = Y_rec
         
     @staticmethod
     def transform_poles(poles, mpf, Ni):
