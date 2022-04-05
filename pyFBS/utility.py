@@ -707,6 +707,48 @@ def PRF(H1_main, n_sel):
 
     return prfs, H1_rec
 
+def ODS_FRF(roving_responses, reference):
+    '''
+    roving_responses: roving responses not phase matched shaped in a form of (frequency X no. of responses)
+    
+    reference: refernce measurement in a form of (frequency)
+    
+
+    return ODS_FRFs: responses phase matched in a form of (frequency X no. of responses)
+    '''
+    
+    Gxx = np.einsum('ij,ij->ij', roving_responses, np.conj(roving_responses))
+    Gxy = np.einsum('ij,j->ij', roving_responses, np.conj(reference))
+    
+    ODS_FRFs = np.einsum('ij,ij->ij', np.sqrt(Gxx), Gxy/np.abs(Gxy))
+    
+    return ODS_FRFs
+
+def ODS_FRF_averaging(roving_responses, reference, no_of_avg):
+    '''
+    roving_responses: roving responses not phase matched shaped in a form of (samples X no. of responses)
+    
+    reference: refernce measurement in a form of (samples)
+    
+    
+    return ODS_FRFs: responses phase matched in a form of (frequency X no. of responses)
+    '''
+    N = reference.shape[0]
+    n = int(N/no_of_avg)
+    Gxx = np.zeros((int(n/2)+1,roving_responses.shape[1]),dtype=complex)
+    Gxy = np.zeros((int(n/2)+1,roving_responses.shape[1]),dtype=complex)
+    
+    for i in range(no_of_avg):
+        roving_responses_ = np.fft.rfft(roving_responses[i*n:(i+1)*n,:],axis=0)
+        reference_ = np.fft.rfft(reference[i*n:(i+1)*n])
+        
+        Gxx += np.einsum('ij,ij->ij', roving_responses_, np.conj(roving_responses_))/no_of_avg
+        Gxy += np.einsum('ij,i->ij', roving_responses_, np.conj(reference_))/no_of_avg
+    
+    ODS_FRFs = np.einsum('ij,ij->ij', np.sqrt(Gxx), Gxy/np.abs(Gxy))
+    
+    return ODS_FRFs
+
 #if necessary, font properties can be changed
 #def font():
 #    font = "Sans Serif"
