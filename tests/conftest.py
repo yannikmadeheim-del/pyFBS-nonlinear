@@ -1,5 +1,6 @@
 import pytest
 import pandas as pd
+import numpy as np
 import pyFBS
 
 @pytest.fixture()
@@ -63,3 +64,11 @@ def MK_model(file_names_B):
     full_file, rst_file, xlsx = file_names_B
     MK = pyFBS.MK_model(rst_file, full_file, no_modes = 10, allow_pickle = True, recalculate = False)
     return MK
+
+@pytest.fixture()
+def modal_id_():
+    exp_file = r"./lab_testbench/Measurements/Y_A.p"
+    freq, Y_AB_exp = np.load(exp_file, allow_pickle = True)
+    Y_AB_exp = np.transpose(Y_AB_exp, (2, 0, 1))    
+    _id = pyFBS.modal_id(freq,Y_AB_exp)
+    return _id
