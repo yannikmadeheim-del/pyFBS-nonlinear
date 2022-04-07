@@ -462,7 +462,7 @@ def generate_channels_from_sensors(df):
         r = R.from_euler('xyz', angle, degrees=True)
         rot = r.as_matrix().T
         for i in range(3):
-            data_chn = np.asarray([[df["Name"][s] + axes[i], df["Description"][s],
+            data_chn = np.asarray([[str(df["Name"][s]) + axes[i], df["Description"][s],
                                     None, df["Grouping"][s], df["Position_1"][s], df["Position_2"][s],
                                     df["Position_3"][s], rot[i][0], rot[i][1], rot[i][2]]])
             df_row = pd.DataFrame(data=data_chn, columns=columns_chann)
