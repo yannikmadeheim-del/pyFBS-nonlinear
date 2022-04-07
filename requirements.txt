@@ -12,7 +12,6 @@ openpyxl
 pyts
 altair
 matplotlib
-pyEMA
 h5py
 PyQt5
 
