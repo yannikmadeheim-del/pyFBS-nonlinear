@@ -361,12 +361,15 @@ class MK_model(object):
         _eig_val2 = self.eig_freq[:no_modes] ** 2
         # damping
 
-        if modal_damping == None:
-            damping = np.asarray([0] * no_modes)
-        elif isinstance(modal_damping, float):
-            damping = np.asarray([modal_damping] * no_modes)
-        else:
+        modal_damping = np.asarray(modal_damping).ravel()
+        if modal_damping.all() == None:
+            damping = np.zeros(no_modes)
+        elif len(modal_damping) == 1:
+            damping = np.repeat(modal_damping, no_modes)
+        elif len(modal_damping) == no_modes:
             damping = modal_damping
+        else: 
+            raise Exception('Input for "modal damping" not valid.')
         
         # response DoF
         unique_nodes_chn, direction_nodes_chn = self.data_preparation(df_channel, n_dim)
@@ -645,12 +648,15 @@ class MK_model(object):
             no_modes = limit_modes
 
 
-        if modal_damping == None:
-            damping = np.asarray([0] * no_modes)
-        elif type(modal_damping) == float:
-            damping = np.asarray([modal_damping] * no_modes)
-        else:
+        modal_damping = np.asarray(modal_damping).ravel()
+        if modal_damping.all() == None:
+            damping = np.zeros(no_modes)
+        elif len(modal_damping) == 1:
+            damping = np.repeat(modal_damping, no_modes)
+        elif len(modal_damping) == no_modes:
             damping = modal_damping
+        else: 
+            raise Exception('Input for "modal damping" not valid.')
 
         if f_start == 0:
             # approximation at 0Hz

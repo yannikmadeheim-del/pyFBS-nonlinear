@@ -8,7 +8,7 @@ In this example an integration of the two packages is shown on a frame of the au
 Real experimental data is used in this example and it is also available directly within the pyFBS.
 
 .. note:: 
-   Download example showing an Experimental Modal Analysis (EMA) application: :download:`09_EMA.ipynb <../../../examples/09_experimental_modal_analysis_EMA.ipynb>`
+   Download example showing an Experimental Modal Analysis (EMA) application: :download:`09_EMA.ipynb <../../../examples/20_modal_id.ipynb>`
 
 Example Datasests and 3D display
 ********************************

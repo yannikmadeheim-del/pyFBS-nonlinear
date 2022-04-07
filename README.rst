@@ -24,6 +24,8 @@ Features
 
 * Singular Vector Transformation
 
+* Experimental Modal Analysis
+
 For more information on features, basic and application examples check out the `documentation`_. 
 
 Citation
