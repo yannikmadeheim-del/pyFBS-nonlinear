@@ -15,8 +15,8 @@ These examples show state-of-the-art techniques to successfully couple or decoup
 
 .. only:: html
 
-    .. figure:: ./data/vpt_scheme.svg   
-       :target: ./fbs/virtual_point_transformation.html
+    .. figure:: ./../data/vpt_scheme.svg   
+       :target: ./virtual_point_transformation.html
 
        Virtual Point Transformation
 
@@ -27,7 +27,7 @@ These examples show state-of-the-art techniques to successfully couple or decoup
 .. toctree::
    :hidden:
 
-   ./fbs/virtual_point_transformation
+   ./virtual_point_transformation
 
    
 
@@ -38,8 +38,8 @@ These examples show state-of-the-art techniques to successfully couple or decoup
 
 .. only:: html
 
-    .. figure:: ./data/SVT.png   
-       :target: ./fbs/singular_vector_transformation.html
+    .. figure:: ./../data/SVT.png   
+       :target: ./singular_vector_transformation.html
 
        Singular Vector Transformation
 
@@ -50,32 +50,14 @@ These examples show state-of-the-art techniques to successfully couple or decoup
 .. toctree::
    :hidden:
 
-   ./fbs/singular_vector_transformation
+   ./singular_vector_transformation
 
 
 
 
 
 
-.. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="System Equivalent Model Mixing">
-
-.. only:: html
-
-    .. figure:: ./data/semm_scheme.svg   
-       :target: ./fbs/system_equivalent_model_mixing.html
-
-       System Equivalent Model Mixing
-
-.. raw:: html
-
-    </div>
-
-.. toctree::
-   :hidden:
-
-   ./fbs/system_equivalent_model_mixing
 
 
 |
@@ -112,7 +94,7 @@ between the substructures:
 
 Let's now assume two interacting subsystems to be assembled:
 
-.. figure:: ./data/assembly.svg
+.. figure:: ./../data/assembly.svg
    :width: 300px
    :align: center
 
@@ -256,7 +238,7 @@ Here, the subsystems act like the super-elements and their dynamic properties ar
 
 Consider the simple system depicted bellow. The primally assembled impedance can be written as follows:
 
-.. figure:: ./data/assembly.svg
+.. figure:: ./../data/assembly.svg
    :width: 300px
    :align: center
 
@@ -287,7 +269,7 @@ A substructure decoupling procedure consists in the removal of the dynamic influ
 In that sense, it can be considered as the 'reverse' operation of substructure coupling.
 The reference representation of a disassembly procedure with corresponding DoFs is depicted:
 
-.. figure:: ./data/disassembly.svg
+.. figure:: ./../data/disassembly.svg
    :width: 400px
    :align: center
 
