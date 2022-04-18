@@ -1,7 +1,7 @@
 ============
 Installation
 ============
-:mod:`pyFBS` is supported on Python versions 3.5+. You can install the pyFBS with following the instructions.
+:mod:`pyFBS` is supported on Python versions 3.8+. You can install the pyFBS with following the instructions.
 
 
 ****

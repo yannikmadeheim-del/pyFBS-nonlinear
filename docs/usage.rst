@@ -109,6 +109,13 @@ If some basic requirements are met, the reduced orthonormal frequency dependent 
 observe most of the rigid and flexible vibration modes of interest over a broad frequency range. 
 The SVT can tackle challenging scenarios with flexible behaving interfaces and lightly damped systems.
 
+Modal Identification
+==============================
+The response of a system can often be represented by much fewer variables in the modal domain. 
+A feature of pyFBS, multi-reference modal identification method, enables you to perform experimental or operational modal analysis and identify modal parameters 
+from experimental dynamic models. Current implementation includes frequency domain identification for modal parameter estimation as a combination of poly-reference 
+Least-Squares Complex Frequency (pLSCF) and Least-Squares Frequency Domain (LSFD) methods [6]_.
+
 .. rubric:: References
 
 .. [1] Sullivan C, Kaszynski A. PyVista: 3D plotting and mesh analysis through a streamlined interface for the Visualization Toolkit (VTK). Journal of Open Source Software. 2019 May 19;4(37):1450.
@@ -116,5 +123,6 @@ The SVT can tackle challenging scenarios with flexible behaving interfaces and l
 .. [3] Tomaž Bregar, Nikola Holeček, Gregor Čepon, Daniel J. Rixen, and Miha Boltežar. Including directly measured rotations in the virtual point transformation. Mechanical Systems and Signal Processing, 141:106440, July 2020.
 .. [4] Steven WB Klaassen, Maarten V. van der Seijs, and Dennis de Klerk. System equivalent model mixing. Mechanical Systems and Signal Processing, 105:90–112, 2018.
 .. [5] Trainotti F, Bregar T, Klaassen SW, Rixen DJ. Experimental decoupling of substructures by singular vector transformation. Mechanical Systems and Signal Processing. 2022 Jan 15;163:108092.
+.. [6] Guillaume, Patrick, et al. "A poly-reference implementation of the least-squares complex frequency-domain estimator." Proceedings of IMAC. Vol. 21. Kissimmee, FL: A Conference & Exposition on Structural Dynamics, Society for Experimental Mechanics, 2003.
 
 

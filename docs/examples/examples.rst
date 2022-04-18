@@ -1,7 +1,7 @@
 Methods and examples
 ====================
 
-Here is a gallery of examples demonstrating the capabilities of pyFBS. 
+Here you can find a gallery of examples demonstrating the capabilities of pyFBS. 
 Besides the functionalities, already incorporated in pyFBS, you can also find basic theoretical principles of the methods used for these examples. 
 If any of the topics interests you, all methods are accompanied with several references, that lead you to more detailed theoretical backgrounds or more advanced applications. 
 Have fun exploring FBS field!
@@ -273,7 +273,8 @@ Measurements involving a limited number of points on the structure can be expand
 Modal identification
 ********************
 The response of a system can often be represented by much fewer variables in the modal domain. 
-A feature of pyFBS, multi-reference modal identification methods, enables you to perform experimental or operational modal analysis.
+A feature of pyFBS, multi-reference modal identification method, enables you to perform experimental or operational modal analysis 
+and identify modal parameters from experimental dynamic models.
 
 
 
