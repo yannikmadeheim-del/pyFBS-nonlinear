@@ -9,14 +9,14 @@ Application of SEMM comprises the expansion of the experimental dynamics to the 
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="System Equivalent Model Mixing">
+    <div class="sphx-glr-thumbcontainer" tooltip="SEMM example">
 
 .. only:: html
 
     .. figure:: ./../data/SEMM_result.png 
        :target: 05_SEMM.html
 
-       System Equivalent Model Mixing
+       SEMM example
 
 .. raw:: html
 

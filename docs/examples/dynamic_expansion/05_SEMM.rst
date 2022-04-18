@@ -1,4 +1,4 @@
-System Equivalent Model Mixing
+SEMM example
 ==============================
 
 System Equivalent Model Mixing (SEMM) [1]_ enables the mixing of equivalent models into a hybrid model in the frequency domain. 

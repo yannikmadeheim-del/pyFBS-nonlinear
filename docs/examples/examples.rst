@@ -3,7 +3,7 @@ Methods and examples
 
 Here is a gallery of examples demonstrating the capabilities of pyFBS. 
 Besides the functionalities, already incorporated in pyFBS, you can also find basic theoretical principles of the methods used for these examples. 
-If any of the topics interests you, all methods are accompanied with several references, that lead you to more detailed descriptions or more advanced applications. 
+If any of the topics interests you, all methods are accompanied with several references, that lead you to more detailed theoretical backgrounds or more advanced applications. 
 Have fun exploring FBS field!
 
 Basic examples
@@ -93,7 +93,7 @@ These examples show state-of-the-art techniques to successfully couple or decoup
 
 .. only:: html
 
-    .. figure:: ./data/assembly.svg  
+    .. figure:: ./data/assembly_tn.svg  
        :target: ./fbs/frequency_based_substructuring.html
 
        General theory
@@ -283,8 +283,8 @@ A feature of pyFBS, multi-reference modal identification methods, enables you to
 
 .. only:: html
 
-    .. figure:: ./data/modal_2_min.gif  
-       :target: ./modal_id/09_EMA.html
+    .. figure:: ./data/modal_id_tn.jpg 
+       :target: ./modal_id/20_EMA.html
 
        Experimental Modal Analysis
 
@@ -295,7 +295,7 @@ A feature of pyFBS, multi-reference modal identification methods, enables you to
 .. toctree::
    :hidden:
 
-   ./modal_id/09_EMA
+   ./modal_id/20_EMA
 
 
 |

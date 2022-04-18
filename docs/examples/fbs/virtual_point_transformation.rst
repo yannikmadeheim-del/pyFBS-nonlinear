@@ -7,14 +7,14 @@ And what about the rotational degrees of freedom?
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Virtual Point Transformation">
+    <div class="sphx-glr-thumbcontainer" tooltip="VPT example">
 
 .. only:: html
 
     .. figure:: ./../data/pic_vpt.png 
        :target: 04_VPT.html
 
-       Virtual Point Transformation
+       VPT example
 
 .. raw:: html
 

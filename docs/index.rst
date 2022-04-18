@@ -57,7 +57,7 @@ This research can help on the path to a sustainable future by providing tools an
 
 .. toctree::
    :maxdepth: 2
-   :caption: Methods and examples
+   :caption: Theoretical backgrounds with examples
    
    ./examples/examples
    

@@ -10,14 +10,14 @@ The SVT can tackle challenging scenarios with flexible behaving interfaces and l
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Singular Vector Transformation">
+    <div class="sphx-glr-thumbcontainer" tooltip="SVT example">
 
 .. only:: html
 
     .. figure:: ./../data/SVT.png 
        :target: 12_SVT.html
 
-       Singular Vector Transformation
+       SVT example
 
 .. raw:: html
 

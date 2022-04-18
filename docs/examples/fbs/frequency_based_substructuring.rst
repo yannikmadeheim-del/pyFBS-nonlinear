@@ -5,70 +5,69 @@ The methodology to divide large and complex systems into several subsystems is a
 Structural dynamic analyses can be carried out more efficiently if complex systems are divided into smaller subsystems, analysed separately, and later coupled using dynamic substructuring (DS) methods.
 In terms of the modeling domain, a frequency-based substructuring (FBS) is often preferred by experimentalists due to its ease of use and implementation with directly measured Frequency Response Functions (FRFs). 
 In this context, datasets of measured transfer functions constitute the dynamic models of the substructures involved in the assembly/disassembly process.
-These examples show state-of-the-art techniques to successfully couple or decouple substructures using FBS framework.
 
 
+..
+    .. raw:: html
 
-.. raw:: html
+        <div class="sphx-glr-thumbcontainer" tooltip="Virtual Point Transformation">
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Virtual Point Transformation">
+    .. only:: html
 
-.. only:: html
+        .. figure:: ./../data/vpt_scheme.svg   
+        :target: ./virtual_point_transformation.html
 
-    .. figure:: ./../data/vpt_scheme.svg   
-       :target: ./virtual_point_transformation.html
+        Virtual Point Transformation
 
-       Virtual Point Transformation
+    .. raw:: html
 
-.. raw:: html
+        </div>
 
-    </div>
+    .. toctree::
+    :hidden:
 
-.. toctree::
-   :hidden:
+    ./virtual_point_transformation
 
-   ./virtual_point_transformation
-
-   
-
-
-.. raw:: html
-
-    <div class="sphx-glr-thumbcontainer" tooltip="Singular Vector Transformation">
-
-.. only:: html
-
-    .. figure:: ./../data/SVT.png   
-       :target: ./singular_vector_transformation.html
-
-       Singular Vector Transformation
-
-.. raw:: html
-
-    </div>
-
-.. toctree::
-   :hidden:
-
-   ./singular_vector_transformation
+    
 
 
+    .. raw:: html
 
+        <div class="sphx-glr-thumbcontainer" tooltip="Singular Vector Transformation">
+
+    .. only:: html
+
+        .. figure:: ./../data/SVT.png   
+        :target: ./singular_vector_transformation.html
+
+        Singular Vector Transformation
+
+    .. raw:: html
+
+        </div>
+
+    .. toctree::
+    :hidden:
+
+    ./singular_vector_transformation
 
 
 
 
 
 
-|
-|
-|
-|
-|
-|
-|
-|
-|
+
+
+
+    |
+    |
+    |
+    |
+    |
+    |
+    |
+    |
+    |
 
 One can distinguish between coupling and decoupling of dynamic systems as follows:
 
