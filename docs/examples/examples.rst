@@ -259,6 +259,31 @@ Measurements involving a limited number of points on the structure can be expand
 
    ./dynamic_expansion/system_equivalent_model_mixing
 
+
+
+
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="System Equivalent Reduction Expansion Process">
+
+.. only:: html
+
+    .. figure:: ./data/serep.png   
+       :target: ./dynamic_expansion/21_SEREP.html
+
+       System Equivalent Reduction Expansion Process
+
+.. raw:: html
+
+    </div>
+
+.. toctree::
+   :hidden:
+
+   ./dynamic_expansion/21_SEREP
+
 |
 |
 |
