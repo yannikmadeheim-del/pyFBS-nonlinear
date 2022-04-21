@@ -187,11 +187,11 @@ def download_lab_testbench(overwrite=False):
     Download laboratory testbench files
 
     """
-    folder_name = RM_FOLDER #"lab_testbench"
+    folder_name = LAB_FOLDER #"lab_testbench"
 
     url_lab = r'https://gitlab.com/pyFBS/pyFBS_data/-/raw/master/lab_testbench/'
 
-    url_l_sub = RM_FILES #{"FEM": ["A.full", "A.rst", "AB.full", "AB.rst", "B.full", "B.rst"],
+    url_l_sub = LAB_FILES #{"FEM": ["A.full", "A.rst", "AB.full", "AB.rst", "B.full", "B.rst"],
                 # "STL": ["A.stl", "B.stl", "AB.stl"],
                 # "Measurements": ["AM_Measurements.xlsx","ammeasurements.xlsx", "coupling_example.xlsx", "decoupling_example.xlsx",
                 #                  "TPA_synt.xlsx", "Y_A.p", "Y_B.p", "Y_AB.p"]}
@@ -228,14 +228,11 @@ def download_rubber_mount(overwrite=False):
     Download rubber mount files
 
     """
-    folder_name = LAB_FOLDER #"lab_testbench"
+    folder_name = RM_FOLDER #"rubber_mount"
 
     url_lab = r'https://gitlab.com/pyFBS/pyFBS_data/-/raw/master/rubber_mount/'
 
-    url_l_sub = LAB_FILES #{"FEM": ["A.full", "A.rst", "AB.full", "AB.rst", "B.full", "B.rst"],
-                # "STL": ["A.stl", "B.stl", "AB.stl"],
-                # "Measurements": ["AM_Measurements.xlsx","ammeasurements.xlsx", "coupling_example.xlsx", "decoupling_example.xlsx",
-                #                  "TPA_synt.xlsx", "Y_A.p", "Y_B.p", "Y_AB.p"]}
+    url_l_sub = RM_FILES 
 
     # remove folder if overwrite
     if os.path.isdir(folder_name) and overwrite:
