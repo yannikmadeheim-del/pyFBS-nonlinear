@@ -383,12 +383,25 @@ These examples show applications of the pyFBS on more complex problems. Explore 
 
    ./case_studies/10_TS
 
-|
-|
-|
-|
-|
-|
-|
-|
-|
+
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Rubber Mount Characterization">
+
+.. only:: html
+
+    .. figure:: ./data/AJB_.png   
+       :target: ./case_studies/23_rubber_mount.html
+
+       Rubber Mount Characterization
+
+.. raw:: html
+
+    </div>
+
+.. toctree::
+   :hidden:
+
+   ./case_studies/23_rubber_mount
