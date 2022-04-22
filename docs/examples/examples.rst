@@ -270,7 +270,7 @@ Measurements involving a limited number of points on the structure can be expand
 
 .. only:: html
 
-    .. figure:: ./data/serep.png   
+    .. figure:: ./data/serep_scheme.svg   
        :target: ./dynamic_expansion/21_SEREP.html
 
        System Equivalent Reduction Expansion Process
@@ -284,6 +284,7 @@ Measurements involving a limited number of points on the structure can be expand
 
    ./dynamic_expansion/21_SEREP
 
+|
 |
 |
 |

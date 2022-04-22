@@ -132,9 +132,9 @@ For FRF generation mode superposition method can be used, where contributions of
 
 .. math::
 
-   \alpha_{i, j} = \sum_{r=1}^{m}\frac{\boldsymbol{\phi}_{i,r}\,\boldsymbol{\phi}_{j,r}}{\omega_r^2-\omega+i\eta_r\,\omega_r^2}
+   \alpha_{i, j} = \sum_{r=1}^{m}\frac{\boldsymbol{\phi}_{i,r}\,\boldsymbol{\phi}_{j,r}}{\omega_r^2-\omega^2+2\,\mathrm{i}\,\xi_r\,\omega_r\,\omega}
 
-where :math:`\eta_r` represents modal damping at :math:`r`-th natural frequency and can be neglected for lightly damped systems. 
+where :math:`\xi_r` represents modal damping at :math:`r`-th natural frequency and can be neglected for lightly damped systems. 
 Index :math:`i` represents the location of response and index :math:`j` stands for the location of excitation.
 The number of modes used for reconstruction is equal to :math:`m` and is usually much lower than the number of DoFs (:math:`m \ll n`). 
 Therefore, modal truncation occurs.
