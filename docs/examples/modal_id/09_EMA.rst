@@ -1,14 +1,13 @@
 #################################
 Experimental modal analysis (EMA)
 #################################
-
-The pyFBS can be also used with other Python packages for structural dynamics. 
-One of those packages is `pyEMA <https://pypi.org/project/pyEMA/>`_ which can be used to perform an Experimental Modal Analysis (EMA). 
-In this example an integration of the two packages is shown on a frame of the automotive testbench example. 
-Real experimental data is used in this example and it is also available directly within the pyFBS.
+A latest edition to pyFBS is also a functionality to perform multi-reference experimental modal analyis. 
+:mod:`modal_id` object enables frequency domain identification for modal parameter estimation as a combination 
+of poly-reference Least-Squares Complex Frequency (pLSCF) and Least-Squares Frequency Domain (LSFD) methods [1]_.
+The applicability of the function is depicted in this example using real experimental data, also available directly within the pyFBS.
 
 .. note:: 
-   Download example showing an Experimental Modal Analysis (EMA) application: :download:`09_EMA.ipynb <../../../examples/20_modal_id.ipynb>`
+   Download example showing an Experimental Modal Analysis (EMA) application: :download:`20_modal_id.ipynb <../../../examples/20_modal_id.ipynb>`
 
 Example Datasests and 3D display
 ********************************
@@ -166,3 +165,7 @@ The second set of identified mode shapes can be animated directly in the 3D view
     ^^^^^^^^^^^^
 
     Want to know more, see a potential application? Contact us at info.pyfbs@gmail.com!
+
+.. rubric:: References
+
+.. [1] Guillaume, Patrick, et al. "A poly-reference implementation of the least-squares complex frequency-domain estimator." Proceedings of IMAC. Vol. 21. Kissimmee, FL: A Conference & Exposition on Structural Dynamics, Society for Experimental Mechanics, 2003.

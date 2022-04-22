@@ -1,5 +1,5 @@
 ***************
-About
+Getting started
 ***************
 
 .. toctree::
@@ -39,7 +39,7 @@ About
     Contribute
     ^^^^^^^^^^^^
 
-    Everyone can contribute to the pyFBS library, take a look at you can you do it.
+    Everyone can contribute to the pyFBS library, take a look at how can you do that.
 
     .. link-button:: contribute
         :type: ref
@@ -50,7 +50,7 @@ About
     Installation
     ^^^^^^^^^^^^
 
-    Installation process for Python version 3.8.
+    Installation process for Python version 3.8+.
 
     .. link-button:: installation
         :type: ref

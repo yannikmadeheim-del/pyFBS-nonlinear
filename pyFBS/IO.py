@@ -21,6 +21,10 @@ AUTOMOTIVE_FILES = {"FEM": ["EM.full", "EM.rst", "RM.full", "RM.rst", "TM.full",
                                   "ODS.p", "ODS.xlsx", "TS.p", "TS.xlsx", "TS.xlsx", "frame_rubbermounts.p",
                                   "frame_rubbermounts_sourceplate.p", "modal.xlsx"]}
 
+RM_FOLDER = "rubber_mount"
+RM_FILES = {"STL": ["model.stl"],
+                 "Measurements": ["data.xlsx", "freq.npy", "Y_A_B.npy", "Y_AJB.npy"]}
+
 def load_uff_file_PAK(uff_file_data,uff_file_output,uff_file_input,chn_input = False):
     """
     Loads an Universal File Format .uff file from PAK system and parses the data in arrays and DataFrames
@@ -191,6 +195,44 @@ def download_lab_testbench(overwrite=False):
                 # "STL": ["A.stl", "B.stl", "AB.stl"],
                 # "Measurements": ["AM_Measurements.xlsx","ammeasurements.xlsx", "coupling_example.xlsx", "decoupling_example.xlsx",
                 #                  "TPA_synt.xlsx", "Y_A.p", "Y_B.p", "Y_AB.p"]}
+
+    # remove folder if overwrite
+    if os.path.isdir(folder_name) and overwrite:
+        shutil.rmtree(folder_name)
+
+    # create folder
+    if not (os.path.isdir(folder_name)):
+        os.mkdir(folder_name)
+
+    for sub_dir in url_l_sub:
+        print("Downloading %s files" % sub_dir)
+
+        # create a subdirectory
+        if not (os.path.isdir(folder_name + os.sep + sub_dir)):
+            os.mkdir(folder_name + os.sep + sub_dir)
+
+        for filename in tqdm(url_l_sub[sub_dir]):
+            # check if it is file
+            if not (os.path.isfile(folder_name + os.sep + sub_dir + os.sep + '%s' % filename)):
+                # download each file
+                url = url_lab + sub_dir + "/" + filename
+                r = requests.get(url)
+                #print(url)
+
+                # write to local directory
+                with open(folder_name + os.sep + sub_dir + os.sep + '%s' % filename, 'wb') as fout:
+                    fout.write(r._content)
+
+def download_rubber_mount(overwrite=False):
+    """
+    Download rubber mount files
+
+    """
+    folder_name = RM_FOLDER #"rubber_mount"
+
+    url_lab = r'https://gitlab.com/pyFBS/pyFBS_data/-/raw/master/rubber_mount/'
+
+    url_l_sub = RM_FILES 
 
     # remove folder if overwrite
     if os.path.isdir(folder_name) and overwrite:

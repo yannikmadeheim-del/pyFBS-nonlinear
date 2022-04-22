@@ -56,13 +56,10 @@ This research can help on the path to a sustainable future by providing tools an
 
 
 .. toctree::
-   :maxdepth: 1
-   :caption: Examples
+   :maxdepth: 2
+   :caption: Theoretical backgrounds with examples
    
-   ./examples/basic_examples
-   ./examples/frequency_based_substructuring
-   ./examples/transfer_path_analysis
-   ./examples/case_studies
+   ./examples/examples
    
 
 

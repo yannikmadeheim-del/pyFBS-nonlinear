@@ -1,5 +1,5 @@
 ==============================
-Singular Vector Transformation
+SVT example
 ==============================
 
 Singular Vector Transformation (SVT) consists in projecting the acquired data into subspaces composed by dominant singular vectors, which are extracted directly from the available FRF datasets. No geometrical and/or analytical model is required. If some basic requirements are met, the reduced orthonormal frequency dependent basis would be able to control and observe most of the rigid and flexible vibration

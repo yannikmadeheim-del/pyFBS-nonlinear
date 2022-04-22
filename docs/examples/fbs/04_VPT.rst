@@ -1,5 +1,5 @@
 ============================
-Virtual Point Transformation
+VPT example
 ============================
 Virtual point transformation (VPT) projects measured dynamics (input and output signals) into a subspace composed by the predefined interface deformation modes (IDMs) [1]_. 
 By default, only 6 rigid IDMs are used in the transformation, thus retaining only the dynamics loading the surrounded interface in a purely rigid manner. 
