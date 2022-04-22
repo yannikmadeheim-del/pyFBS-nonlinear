@@ -7,8 +7,8 @@ This example demonstrates Joint Identification with Frequency Based Substructuri
 .. note:: 
    Download example showing a Rubber Mount Characterization: :download:`23_rubber_mount_characterization.ipynb <../../../examples/23_rubber_mount_characterization.ipynb>`.
 
-Joint identification (dynamic)
-******************************
+Joint identification
+********************
 
 Let's start with the features of a substructuring-based characterization:
 
@@ -148,16 +148,16 @@ Primal decoupling removes the dynamics of the crosses from the assembled dynamic
 
 .. code-block:: python
 
-	Z_A_B = np.zeros_like(Z_ABC)
+	Z_A_B = np.zeros_like(Z_AJB)
 	Z_A_B[:,:6,:6] = Z_A
 	Z_A_B[:,6:,6:] = Z_B
 
-	Z_J = Z_ABC - ZA_ZB
+	Z_J = Z_AJB - Z_A_B
 
 
 .. code-block:: python
 
-	pyFBS.plot_FRF(freq, Z_C[:,0:6,0:6])
+	pyFBS.plot_FRF(freq, Z_J[:,:6,:6])
 
 .. raw:: html
 
