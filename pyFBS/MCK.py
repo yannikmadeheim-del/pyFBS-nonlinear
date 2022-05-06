@@ -220,7 +220,7 @@ class MK_model(object):
         eigen_freq = np.sqrt(np.abs(np.real(eigen_val)))  #/(2*np.pi)
         return (eigen_freq, eigen_val, eigen_vec)
 
-    def find_nearest_locations(self, points, n=1):
+    def find_nearest_locations(self, points, **kwargs):
         """
         This function finds the nearest coordinate locations of defined points array in the corresponding MK model mesh.
 
@@ -232,7 +232,7 @@ class MK_model(object):
         """
         _index = []
         for i, _loc_i in enumerate(points):
-            _index.append(self.mesh.find_closest_point(_loc_i, n))
+            _index.append(self.mesh.find_closest_point(_loc_i, **kwargs))
         return np.array(_index)
 
     @staticmethod
