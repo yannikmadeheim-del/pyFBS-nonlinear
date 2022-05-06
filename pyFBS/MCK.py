@@ -283,7 +283,7 @@ class MK_model(object):
         _loc = _df[["Position_1", "Position_2", "Position_3"]].to_numpy()*scale
         _index = self.find_nearest_locations(_loc)
         for i, _indedex_i in enumerate(_index):
-            _df.loc[i, ["Position_1", "Position_2", "Position_3"]] = self.nodes[_index]
+            _df.loc[i, ["Position_1", "Position_2", "Position_3"]] = self.nodes[_indedex_i]
         return _df
 
     def get_modeshape(self,select_mode):
