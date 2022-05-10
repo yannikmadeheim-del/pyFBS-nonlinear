@@ -80,6 +80,46 @@ This examples show how to use basic features of pyFBS. Explore this basic exampl
 
 
 
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Plotting">
+
+.. only:: html
+
+    .. figure:: ./data/plot_tn.PNG 
+       :target: ./basic_examples/plotting.html
+
+       Plotting with wrapper functions
+
+.. raw:: html
+
+    </div>
+
+.. toctree::
+   :hidden:
+
+   ./basic_examples/plotting
+
+
+
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+
 Frequency Based Substructuring
 ******************************
 Structural dynamic analyses can be carried out more efficiently if complex systems are divided into smaller subsystems, analysed separately, and later coupled using dynamic substructuring (DS) methods.
