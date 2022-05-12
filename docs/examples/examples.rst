@@ -86,7 +86,7 @@ This examples show how to use basic features of pyFBS. Explore this basic exampl
 
 .. only:: html
 
-    .. figure:: ./data/plot_tn.PNG 
+    .. figure:: ./data/plot.png
        :target: ./basic_examples/plotting.html
 
        Plotting with wrapper functions
