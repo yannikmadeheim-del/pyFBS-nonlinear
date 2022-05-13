@@ -231,7 +231,7 @@ class MK_model(object):
 
         """
         _index = []
-        for i, _loc_i in enumerate(points):
+        for _loc_i in points:
             _index.append(self.mesh.find_closest_point(_loc_i, **kwargs))
         return np.array(_index)
 
@@ -379,7 +379,7 @@ class MK_model(object):
         else:    
             # excitation DoF
             unique_nodes_imp, direction_nodes_imp = self.data_preparation(df_impact, n_dim)
-            index_imp = self.find_nearest_locations(unique_nodes_imp)  
+            index_imp = self.find_nearest_locations(unique_nodes_imp)
             excitation_points = index_imp + 1
             loc2 = self.loc_definition(excitation_points)
             # excitation eigenvector reduction/transformation
