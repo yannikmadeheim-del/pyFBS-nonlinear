@@ -220,31 +220,20 @@ class MK_model(object):
         eigen_freq = np.sqrt(np.abs(np.real(eigen_val)))  #/(2*np.pi)
         return (eigen_freq, eigen_val, eigen_vec)
 
-
-    @staticmethod
-    def find_nearest_locations(dense_mesh_points, sparse_mesh_points, dense_mesh_node_id=None):
+    def find_nearest_locations(self, points, **kwargs):
         """
-        This function finds the nearest coordinate locations of sparse mesh in the corresponding dense mesh.
+        This function finds the nearest coordinate locations of defined points array in the corresponding MK model mesh.
 
-        :param dense_mesh_points: nodal coordinates of dense mesh in 3D space
-        :type dense_mesh_points: array(float)
-        :param sparse_mesh_points: nodal coordinates of sparse mesh in 3D space
-        :type sparse_mesh_points: array(float)
-        :param dense_mesh_node_id: nodal coordinates id of sparse mesh
-        :type dense_mesh_node_id: array(int)
+        :param points: nodal coordinates of points in 3D space
+        :type points: array(float)
         :return: Selected nodes by index and by id regarding the dense mesh
         :rtype: (array(int), array(int))
 
         """
-        tree = spatial.KDTree(list(zip(dense_mesh_points[:, 0].ravel(), dense_mesh_points[:, 1].ravel(), dense_mesh_points[:, 2].ravel())))
-        selected_dense_mesh_node_index = (tree.query(sparse_mesh_points))[1]
-
-        if not (dense_mesh_node_id is None):
-            selected_dense_mesh_node_id = dense_mesh_node_id[selected_dense_mesh_node_index]
-            selected_dense_mesh_node_id = list(map(int, selected_dense_mesh_node_id))
-            return selected_dense_mesh_node_index, selected_dense_mesh_node_id
-        else:
-            return selected_dense_mesh_node_index
+        _index = []
+        for _loc_i in points:
+            _index.append(self.mesh.find_closest_point(_loc_i, **kwargs))
+        return np.array(_index)
 
     @staticmethod
     def data_preparation(df, n_dim = 3):
@@ -290,12 +279,11 @@ class MK_model(object):
         :return: updated data frame
         :rtype: pandas.DataFrame
         """
-        _df = df.copy(deep = True)
+        _df = df.copy(deep = True).reset_index()
         _loc = _df[["Position_1", "Position_2", "Position_3"]].to_numpy()*scale
-        _index = self.find_nearest_locations(self.nodes,_loc)
-        for i,_ind in enumerate(_index):
-            _df.loc[i, ["Position_1", "Position_2", "Position_3"]] = self.nodes[_ind]
-
+        _index = self.find_nearest_locations(_loc)
+        for i, _indedex_i in enumerate(_index):
+            _df.loc[i, ["Position_1", "Position_2", "Position_3"]] = self.nodes[_indedex_i]
         return _df
 
     def get_modeshape(self,select_mode):
@@ -373,7 +361,7 @@ class MK_model(object):
         
         # response DoF
         unique_nodes_chn, direction_nodes_chn = self.data_preparation(df_channel, n_dim)
-        index_chn = self.find_nearest_locations(self.nodes, unique_nodes_chn)
+        index_chn = self.find_nearest_locations(unique_nodes_chn)
         response_points = index_chn + 1
         loc1 = self.loc_definition(response_points)
 
@@ -391,7 +379,7 @@ class MK_model(object):
         else:    
             # excitation DoF
             unique_nodes_imp, direction_nodes_imp = self.data_preparation(df_impact, n_dim)
-            index_imp = self.find_nearest_locations(self.nodes, unique_nodes_imp)  
+            index_imp = self.find_nearest_locations(unique_nodes_imp)
             excitation_points = index_imp + 1
             loc2 = self.loc_definition(excitation_points)
             # excitation eigenvector reduction/transformation
@@ -527,18 +515,8 @@ class MK_model(object):
         sen_coord = np.asarray([df_sen['Position_1'], df_sen['Position_2'], df_sen['Position_3']]).T
         
         # finding three nearest nodes
-        ind_imp = np.zeros_like(imp_coord,dtype=int)
-        nodes_copy = np.copy(self.nodes)
-
-        for i in range(ind_imp.shape[1]):
-            ind_imp[:,i] = self.find_nearest_locations(nodes_copy, imp_coord)
-            nodes_copy[ind_imp[:,i]] = 0 # change nearest node to 0 not to be selected in next loops
-        ind_sen = np.zeros_like(sen_coord,dtype=int)
-
-        nodes_copy = np.copy(self.nodes)
-        for j in range(ind_sen.shape[1]):
-            ind_sen[:,j] = self.find_nearest_locations(nodes_copy, sen_coord)
-            nodes_copy[ind_sen[:,j]] = 0 # change nearest node to 0 not to be selected in next loops
+        ind_imp= self.find_nearest_locations(imp_coord, n=imp_coord.shape[1])
+        ind_sen = self.find_nearest_locations(sen_coord, n=sen_coord.shape[1])
             
         #generating data frame for impacts
         df_imp_ = np.zeros((int(3*3*ind_imp.shape[0]),3)) # assume nine nearest impacts for VPT
