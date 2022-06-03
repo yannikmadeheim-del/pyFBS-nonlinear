@@ -130,16 +130,16 @@ class modal_id(object):
 
             # generate P
             p11 = (-s.real*L.real+(w-s.imag)*L.imag) / (s.real**2+(w-s.imag)**2)+\
-                (-s.real*L.real+(w+s.imag)*L.imag) / (s.real**2+(w+s.imag)**2)
+                (-s.real*L.real-(w+s.imag)*L.imag) / (s.real**2+(w+s.imag)**2)
 
             p12 = ( s.real*L.imag+(w-s.imag)*L.real) / (s.real**2+(w-s.imag)**2)+\
-                (-s.real*L.imag-(w+s.imag)*L.real) / (s.real**2+(w+s.imag)**2)
+                ( s.real*L.imag-(w+s.imag)*L.real) / (s.real**2+(w+s.imag)**2)
 
             p21 = (-s.real*L.imag-(w-s.imag)*L.real) / (s.real**2+(w-s.imag)**2)+\
-                (-s.real*L.imag-(w+s.imag)*L.real) / (s.real**2+(w+s.imag)**2)
+                ( s.real*L.imag-(w+s.imag)*L.real) / (s.real**2+(w+s.imag)**2)
 
             p22 = (-s.real*L.real+(w-s.imag)*L.imag) / (s.real**2+(w-s.imag)**2)+\
-                ( s.real*L.real-(w+s.imag)*L.imag) / (s.real**2+(w+s.imag)**2)
+                ( s.real*L.real+(w+s.imag)*L.imag) / (s.real**2+(w+s.imag)**2)
 
             P = np.block([[[p11,p12]],[[p21,p22]]])
             
@@ -169,7 +169,7 @@ class modal_id(object):
             Y_ = np.block([[[self.FRF.real]],[[self.FRF.imag]]])
             A_ = np.linalg.pinv(P.transpose(1,0,2).reshape(-1, P.shape[-1]))@\
                 Y_.transpose(2,0,1).reshape(-1, Y_.shape[-2])
-            Ar, Ai = np.split(A_, 2)
+            Ar, Ai = np.split(A_[:2*poles.shape[0]], 2) 
             A = (Ar + 1.j*Ai).T
 
             if reconstruction == False:
