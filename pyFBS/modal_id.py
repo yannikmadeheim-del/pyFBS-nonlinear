@@ -167,20 +167,22 @@ class modal_id(object):
 
             # get A
             Y_ = np.block([[[self.FRF.real]],[[self.FRF.imag]]])
-            A_ = np.linalg.pinv(P.transpose(1,0,2).reshape(-1, P.shape[-1]))@\
-                Y_.transpose(2,0,1).reshape(-1, Y_.shape[-2])
-            Ar, Ai = np.split(A_[:2*poles.shape[0]], 2) 
+            A_ = np.linalg.lstsq(P.transpose(1,0,2).reshape(-1, P.shape[-1]),
+                                 Y_.transpose(2,0,1).reshape(-1, Y_.shape[-2]))
+            Ar, Ai = np.split(A_[:2*s.shape[0]], 2) 
             A = (Ar + 1.j*Ai).T
 
-            if reconstruction == False:
-                self.A = A
-            else:
+            self.A = A
+
+            if reconstruction:
                 # frf reconstruction
                 Y_rec_ = np.einsum("fip,op->foi", P , A_.T)
                 Y_rec_r, Y_rec_i = np.split(Y_rec_, 2)
                 Y_rec = (Y_rec_r + 1.j*Y_rec_i)
-                self.A = A
                 self.FRF_rec = Y_rec
+
+            self.residues = np.einsum("om, im -> moi", A, L.squeeze(axis = 0))
+            
         else:
             raise Exception("No pole is selected. Select at least one pole on stability chart.")
         
