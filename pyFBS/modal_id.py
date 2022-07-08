@@ -168,7 +168,7 @@ class modal_id(object):
             # get A
             Y_ = np.block([[[self.FRF.real]],[[self.FRF.imag]]])
             A_ = np.linalg.lstsq(P.transpose(1,0,2).reshape(-1, P.shape[-1]),
-                                 Y_.transpose(2,0,1).reshape(-1, Y_.shape[-2]))
+                                 Y_.transpose(2,0,1).reshape(-1, Y_.shape[-2]))[0]
             Ar, Ai = np.split(A_[:2*s.shape[1]], 2) 
             A = (Ar + 1.j*Ai).T
 
