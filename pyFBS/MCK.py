@@ -34,7 +34,7 @@ class MK_model(object):
     :type read_rst: bool
     """
 
-    def __init__(self, rst_file=None, full_file=None, manual_mass_matrix=None, manual_stifenss_matrix=None, no_modes=100, allow_pickle=True, recalculate=False, scale=1000, read_rst=False):
+    def __init__(self, rst_file=None, full_file=None, manual_mass_matrix=None, manual_stifenss_matrix=None, no_modes=100, allow_pickle=True, recalculate=False, scale=1, read_rst=False):
         
         if rst_file and full_file: # check if rest and full files are defined, that mass and stifenss matrices will be importd from there
 
@@ -66,10 +66,11 @@ class MK_model(object):
             # an option to read directly the .rst file
             if read_rst == False:
                 #print("evaluating M and K matrices")
-                self._K = self.K + diags(np.random.random(self.K.shape[0]) / 1e20, shape=self.K.shape) # avoid error
 
                 self.M += sp.sparse.triu(self.M, 1).T
-                self._K += sp.sparse.triu(self._K, 1).T
+                self.K += sp.sparse.triu(self.K, 1).T
+
+                self._K = self.K + diags(np.random.random(self.K.shape[0]) / 1e20, shape=self.K.shape) # avoid error
 
                 p_file = '{}.pkl'.format(full_file)
                 # check if there is a .pkl file
@@ -90,6 +91,12 @@ class MK_model(object):
                         pickle.dump([self.M, self.K, self.eig_freq, self.eig_val, self.eig_vec, no_modes],open(p_file, "wb"))
             else: # read from pyansys - from rst file
                 # print("Reading RST file")
+
+                self.M += sp.sparse.triu(self.M, 1).T
+                self.K += sp.sparse.triu(self.K, 1).T
+
+                self._K = self.K + diags(np.random.random(self.K.shape[0]) / 1e20, shape=self.K.shape) # avoid error
+
                 self.eig_freq, self.eig_val, self.eig_vec, self.eig_vec_strain = self.get_values_from_rst(rst)
                 if len(self.eig_freq)>=self.no_modes: # truncation of results in .rst file to match the desired number of modes in ``no_modes`` parameter
                     self.eig_freq = self.eig_freq[:self.no_modes]
@@ -211,7 +218,7 @@ class MK_model(object):
         :rtype: (array(float), array(float), array(float))
         """
         try:
-            eigen_val, eigen_vec = sp.sparse.linalg.eigsh(stiff_mat, k=no_modes, M=mass_mat, which='LM', sigma=-1)
+            eigen_val, eigen_vec = sp.sparse.linalg.eigsh(stiff_mat, k=no_modes, M=mass_mat, sigma=0)
         except np.linalg.LinAlgError:
             # sometimes eigenvalue problems can not be solved using sparse configuration, especially for small analytical systems
             eigen_val, eigen_vec = sp.linalg.eig(stiff_mat, mass_mat)
