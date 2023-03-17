@@ -110,7 +110,7 @@ class modal_id(object):
         self.poles = p[1:]
         self.mpf = L[1:]
 
-    def pLSFD(self, reconstruction = True, lower_residuals = True, upper_residuals = True):
+    def pLSFD(self, frf_type='receptance', reconstruction = True, lower_residuals = True, upper_residuals = True):
         """
         With poles are available, the residues can be estimated with a Least-Squares Frequency Domain (LSFD)
         method.
@@ -128,30 +128,65 @@ class modal_id(object):
             L = self.selected_mpf[np.newaxis]
             w = 2*np.pi*self.freq[:,np.newaxis,np.newaxis]
 
-            # generate P
-            p11 = (-s.real*L.real+(w-s.imag)*L.imag) / (s.real**2+(w-s.imag)**2)+\
-                (-s.real*L.real-(w+s.imag)*L.imag) / (s.real**2+(w+s.imag)**2)
+            if frf_type=='receptance':
 
-            p12 = ( s.real*L.imag+(w-s.imag)*L.real) / (s.real**2+(w-s.imag)**2)+\
-                ( s.real*L.imag-(w+s.imag)*L.real) / (s.real**2+(w+s.imag)**2)
+                # generate P
+                p11 = (-s.real*L.real+(w-s.imag)*L.imag) / (s.real**2+(w-s.imag)**2)+\
+                    (-s.real*L.real-(w+s.imag)*L.imag) / (s.real**2+(w+s.imag)**2)
 
-            p21 = (-s.real*L.imag-(w-s.imag)*L.real) / (s.real**2+(w-s.imag)**2)+\
-                ( s.real*L.imag-(w+s.imag)*L.real) / (s.real**2+(w+s.imag)**2)
+                p12 = ( s.real*L.imag+(w-s.imag)*L.real) / (s.real**2+(w-s.imag)**2)+\
+                    ( s.real*L.imag-(w+s.imag)*L.real) / (s.real**2+(w+s.imag)**2)
 
-            p22 = (-s.real*L.real+(w-s.imag)*L.imag) / (s.real**2+(w-s.imag)**2)+\
-                ( s.real*L.real+(w+s.imag)*L.imag) / (s.real**2+(w+s.imag)**2)
+                p21 = (-s.real*L.imag-(w-s.imag)*L.real) / (s.real**2+(w-s.imag)**2)+\
+                    ( s.real*L.imag-(w+s.imag)*L.real) / (s.real**2+(w+s.imag)**2)
 
-            P = np.block([[[p11,p12]],[[p21,p22]]])
-            
-            # lower and upper residuals
-            if lower_residuals == True:
-                p13_L = np.kron(np.kron(np.eye(self.Ni),np.array([1,0]))[::-1] , -1/w**2)
-                p23_L = np.kron(np.kron(np.eye(self.Ni),np.array([0,1]))[::-1] , -1/w**2)
-            if upper_residuals == True:
-                p13_U = np.kron(np.kron(np.eye(self.Ni),np.array([1,0]))[::-1] ,
-                                np.ones(self.freq.shape[0])[:,np.newaxis,np.newaxis])
-                p23_U = np.kron(np.kron(np.eye(self.Ni),np.array([0,1]))[::-1] ,
-                                np.ones(self.freq.shape[0])[:,np.newaxis,np.newaxis]) 
+                p22 = (-s.real*L.real+(w-s.imag)*L.imag) / (s.real**2+(w-s.imag)**2)+\
+                    ( s.real*L.real+(w+s.imag)*L.imag) / (s.real**2+(w+s.imag)**2)
+
+                P = np.block([[[p11,p12]],[[p21,p22]]])
+                
+                # lower and upper residuals
+                if lower_residuals == True:
+                    p13_L = np.kron(np.kron(np.eye(self.Ni),np.array([1,0]))[::-1] , -1/w**2)
+                    p23_L = np.kron(np.kron(np.eye(self.Ni),np.array([0,1]))[::-1] , -1/w**2)
+                if upper_residuals == True:
+                    p13_U = np.kron(np.kron(np.eye(self.Ni),np.array([1,0]))[::-1] ,
+                                    np.ones(self.freq.shape[0])[:,np.newaxis,np.newaxis])
+                    p23_U = np.kron(np.kron(np.eye(self.Ni),np.array([0,1]))[::-1] ,
+                                    np.ones(self.freq.shape[0])[:,np.newaxis,np.newaxis]) 
+                    
+            elif frf_type=='accelerance':
+
+                # generate P
+                p11 = (-s.real*L.real+(w-s.imag)*L.imag) / (s.real**2+(w-s.imag)**2) * -1*w**2+\
+                    (-s.real*L.real-(w+s.imag)*L.imag) / (s.real**2+(w+s.imag)**2) * -1*w**2
+
+                p12 = ( s.real*L.imag+(w-s.imag)*L.real) / (s.real**2+(w-s.imag)**2) * -1*w**2+\
+                    ( s.real*L.imag-(w+s.imag)*L.real) / (s.real**2+(w+s.imag)**2) * -1*w**2
+
+                p21 = (-s.real*L.imag-(w-s.imag)*L.real) / (s.real**2+(w-s.imag)**2) * -1*w**2+\
+                    ( s.real*L.imag-(w+s.imag)*L.real) / (s.real**2+(w+s.imag)**2) * -1*w**2
+
+                p22 = (-s.real*L.real+(w-s.imag)*L.imag) / (s.real**2+(w-s.imag)**2) * -1*w**2+\
+                    ( s.real*L.real+(w+s.imag)*L.imag) / (s.real**2+(w+s.imag)**2) * -1*w**2
+
+                P = np.block([[[p11,p12]],[[p21,p22]]])
+
+                # lower and upper residuals
+                if lower_residuals == True:
+                    p13_L = np.kron(np.kron(np.eye(self.Ni),np.array([1,0]))[::-1] , 
+                                    np.ones(self.freq.shape[0])[:,np.newaxis,np.newaxis])
+                    p23_L = np.kron(np.kron(np.eye(self.Ni),np.array([0,1]))[::-1] , 
+                                    np.ones(self.freq.shape[0])[:,np.newaxis,np.newaxis])
+                if upper_residuals == True:
+                    p13_U = np.kron(np.kron(np.eye(self.Ni),np.array([1,0]))[::-1] , -w**2)
+                    p23_U = np.kron(np.kron(np.eye(self.Ni),np.array([0,1]))[::-1] , -w**2) 
+
+            elif frf_type=='mobility':
+                raise Exception('To be implemented.')
+
+            else:
+                raise Exception('Wrong frf_type.')
 
             if lower_residuals == True and upper_residuals == False:
                 P = np.block([[[p11,p12,p13_L]],[[p21,p22,p23_L]]])
@@ -173,6 +208,15 @@ class modal_id(object):
             A = (Ar + 1.j*Ai).T
 
             self.A = A
+
+            LR_all = A_[2*s.shape[1]:-2*self.Ni]
+            LR = (LR_all[::2] + 1.j*LR_all[1::2]).T
+            
+            UR_all = A_[-2*self.Ni:]
+            UR = (UR_all[::2] + 1.j*UR_all[1::2]).T
+
+            self.LU = LR[:,::-1]
+            self.UR = UR[:,::-1]
 
             if reconstruction:
                 # frf reconstruction
