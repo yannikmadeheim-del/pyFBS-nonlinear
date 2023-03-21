@@ -774,13 +774,21 @@ class App(QtWidgets.QMainWindow):
     def get_modal_data(self):
         selected_poles_id = []
         selected_mpf_id = []
+        nat_freq = []
+        damp_ratio = []
 
         for index_ in self.selected_ind:
             pole_, mpf_ = self.modal_id.pL_from_index(index_)
             selected_poles_id.append(pole_)
             selected_mpf_id.append(mpf_)
+
+            nat_freq_, damp_ratio_, _, __ = self.modal_id.transform_poles(pole_, mpf_.T, 1)
+
+            nat_freq.append(nat_freq_[0])
+            damp_ratio.append(damp_ratio_[0])
             
         self.modal_id.selected_poles = np.asarray(selected_poles_id)
         self.modal_id.selected_mpf = np.asarray(selected_mpf_id).T
-
+        self.modal_id.nat_freq = np.asarray(nat_freq)
+        self.modal_id.damp_ratio = np.asarray(damp_ratio)
     

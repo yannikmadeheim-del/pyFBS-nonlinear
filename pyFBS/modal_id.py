@@ -115,12 +115,20 @@ class modal_id(object):
         With poles are available, the residues can be estimated with a Least-Squares Frequency Domain (LSFD)
         method.
 
+        :param frf_type: define FRF type (``receptance``, ``mobility`` or ``accelerance``)
+        :type frf_type: str, optional
         :param reconstruction: Reconstruct FRF from estimated modal parameters.
         :type reconstruction: bool, optional
         :param lower_residuals: Compute lower residuals.
         :type lower_residuals: bool, optional
         :param upper_residuals: Compute upper residuals.
         :type upper_residuals: bool, optional
+
+        :returns shape: Non-normalized mode shape.
+        :returns FRF_rec: FRF matrix reconstructed from identified modal parameters.
+        :returns LR: Lower residual.
+        :returns UR: Upper residual.
+        :returns residues: Full identified residue matrix.
         """
         # prepare input data
         if len(self.selected_poles)!=0: 
@@ -207,7 +215,7 @@ class modal_id(object):
             Ar, Ai = np.split(A_[:2*s.shape[1]], 2) 
             A = (Ar + 1.j*Ai).T
 
-            self.A = A
+            self.shape = A
 
             LR_all = A_[2*s.shape[1]:-2*self.Ni]
             LR = (LR_all[::2] + 1.j*LR_all[1::2]).T
@@ -229,6 +237,38 @@ class modal_id(object):
             
         else:
             raise Exception("No pole is selected. Select at least one pole on stability chart.")
+        
+    def normalize(self, driving_point_output_index, driving_point_input_index, column_wise=True):
+        """
+        Perform mode normalization. Currently, A- and mass-normalization are implemented. Before using mass-normalized modes, 
+        check their complexity using mode complexity factor (pyFBS.MCF).
+        
+        :param driving_point_output_index: define index of the output driving point in the FRF matrix
+        :type driving_point_output_index: int
+        :param driving_point_input_index: define index of the input driving point in the FRF matrix
+        :type driving_point_input_index: int
+        
+        :returns A_normalized_modes: A-normalized modes.
+        :type A_normalized_modes: array [no. of indetified modes X no. of DoFs]
+        :returns mass_normalized_modes: Mass-normalized modes.
+        :type mass_normalized_modes: array [no. of indetified modes X no. of DoFs]
+        """
+        psi_dp = np.sqrt(self.residues[:, driving_point_output_index, driving_point_input_index])
+
+        if column_wise==True:
+            psi = np.einsum('ij,i->ij', self.residues[:,:,driving_point_input_index], 1/psi_dp)
+            phi = np.einsum('ij,i->ij', psi, np.sqrt(2j*2*np.pi*self.nat_freq))
+
+            self.A_normalized_modes = psi
+            self.mass_normalized_modes = phi
+
+        elif column_wise==False:
+            psi = np.einsum('ij,i->ij', self.residues[:,driving_point_output_index,:], 1/psi_dp)
+            phi = np.einsum('ij,i->ij', psi, np.sqrt(2j*2*np.pi*self.nat_freq))
+
+            self.A_normalized_modes = psi
+            self.mass_normalized_modes = phi
+
         
     @staticmethod
     def transform_poles(poles, mpf, Ni):
