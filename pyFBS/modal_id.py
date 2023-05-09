@@ -126,7 +126,7 @@ class modal_id(object):
         if len(self.selected_poles)!=0: 
             # Sort poles by imaginary part
             poles_swapped = self.selected_poles*(-1j)
-            poles_swapped.sort_complex()
+            poles_swapped = np.sort_complex(poles_swapped)
             self.selected_poles = poles_swapped*1j
 
             s = self.selected_poles[np.newaxis]
