@@ -1,3 +1,4 @@
+import numpy as np
 import pyvista as pv
 from pyvistaqt import BackgroundPlotter
 import pandas as pd
@@ -381,9 +382,9 @@ class view3D():
         :type color: str, optional
         """
         arrow = pv.Arrow(start=(0.0, 0.0, 0.0), direction=direction)
-        arrow.translate(-1*np.asarray(direction))
+        arrow.translate(-1*np.asarray(direction), inplace=True)
         arrow.points *= size
-        arrow.translate(np.asarray(position))
+        arrow.translate(np.asarray(position), inplace=True)
         imp_actor = self.plot.add_mesh(arrow, color=color,reset_camera = False, **kwargs)
 
         return arrow,imp_actor
@@ -440,7 +441,7 @@ class view3D():
         for item in accelerometer:
             item.points = (rot@item.points.T).T
 
-            item.translate(_new)
+            item.translate(_new, inplace=True)
 
         return accelerometer
 
@@ -692,7 +693,7 @@ class view3D():
             data_chn = np.asarray([["Sensor " + str(1 + i), None, None, None, pos[0],pos[1],pos[2],euler_dir[0],euler_dir[1],euler_dir[2] ]])
 
             df_row = pd.DataFrame(data=data_chn, columns=columns_chann)
-            df = df.append(df_row, ignore_index=True)
+            df = pd.concat([df, df_row], ignore_index=True)
 
         return df
 
@@ -1092,7 +1093,7 @@ class DynamicPosition():
 
         # Creates a bounding box
         self.box = pv.Box((-size, size, -size, size, -size, size))
-        self.box.translate([size, size, size])
+        self.box.translate([size, size, size], inplace=True)
         self.box.points /= 2
 
         self.fixed_theta = fixed_rotation
@@ -1252,7 +1253,7 @@ class DynamicPosition():
         if snap:
             # translates
             for item in self.objects:
-                item.translate(_new)
+                item.translate(_new, inplace=True)
 
             self.p.sphere_widgets[self.N + 0].SetCenter(point)
             t_new = self.box.center_of_mass()
@@ -1272,7 +1273,7 @@ class DynamicPosition():
 
         else:
             for item in self.objects:
-                item.translate(_new)
+                item.translate(_new, inplace=True)
             for i in range(4):
                 self.p.sphere_widgets[self.N + i].SetCenter(_new + np.asarray(self.p.sphere_widgets[self.N + i].GetCenter()))
 
