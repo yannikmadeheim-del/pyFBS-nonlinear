@@ -15,6 +15,7 @@ matplotlib
 h5py
 PyQt5
 imageio
+polyrat
 
 #pyqtwebengine==5.12
 #importnb==0.1.3
