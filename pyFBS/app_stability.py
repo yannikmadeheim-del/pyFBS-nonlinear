@@ -78,11 +78,11 @@ class App(QtWidgets.QMainWindow):
         self.selected_ind = [] # indices of selected poles with respect to the order of the imputed poles 
         self.get_modal_data()
 
-        self.freq_trace = self.modal_id.freq#np.load("freq.npy")
+        self.freq_cmif = self.modal_id.freq#np.load("freq.npy")
         self.FRF_matrix = self.modal_id.FRF #np.load("Y.npy")
         self.poles = self.modal_id.stab_plot#np.load("for_plot.npy") # poles import
 
-        self.FRF_trace = np.trace(self.FRF_matrix, axis1=1, axis2=2)
+        self.FRF_cmif = np.linalg.svd(self.FRF_matrix)[1]
 
         #Model order / frequency / damping / pole type
         # Pole type:
@@ -204,14 +204,14 @@ class App(QtWidgets.QMainWindow):
         # FRF display option
         displyFRFoptionsLayout = QVBoxLayout()
         displyFRFsuboptionsLayout = QHBoxLayout()
-        self.display_trace = QCheckBox("Display trace")
-        self.display_trace.setChecked(True)
-        self.display_trace.stateChanged.connect(self.plot_trace)
+        self.display_cmif = QCheckBox("Display CMIF")
+        self.display_cmif.setChecked(True)
+        self.display_cmif.stateChanged.connect(self.plot_cmif)
 
         self.Btn_clear_FRF_display = QPushButton("Clear desplayed FRFs")
         self.Btn_clear_FRF_display.clicked.connect(self.clear_displayed_FRF)
 
-        displyFRFsuboptionsLayout.addWidget(self.display_trace)
+        displyFRFsuboptionsLayout.addWidget(self.display_cmif)
         displyFRFsuboptionsLayout.addWidget(self.Btn_clear_FRF_display)
         displyFRFsuboptionsWidget = QWidget()
         displyFRFsuboptionsWidget.setLayout(displyFRFsuboptionsLayout)
@@ -400,7 +400,7 @@ class App(QtWidgets.QMainWindow):
         self.axlog.set_xlabel('Frequency [Hz]')
 
         # plot data
-        self.plot_trace()
+        self.plot_cmif()
         self.plot_FRF = self.axlog.semilogy([], [])
         self.data_3 = self.ax.scatter(self.x_data_3, self.y_data_3, s=int(self.point_size/2), color=self.colors[0], marker='o', 
                                         picker=1, pickradius=self.pick_radius_size, 
@@ -453,10 +453,10 @@ class App(QtWidgets.QMainWindow):
         self.axlog.autoscale(axis='y')
         self.fig.canvas.draw() # redraw graph
         
-    def plot_trace(self):
+    def plot_cmif(self):
         self.axlog.clear()
-        if self.display_trace.isChecked():
-            self.trace_plot = self.axlog.semilogy(self.freq_trace, np.abs(self.FRF_trace), c='k')
+        if self.display_cmif.isChecked():
+            self.cmif_plot = self.axlog.semilogy(self.freq_cmif, np.abs(self.FRF_cmif), c='k')
         
         self.axlog.set_ylabel("Amplitude")
         self.axlog.set_xlabel('Frequency [Hz]')
@@ -607,10 +607,10 @@ class App(QtWidgets.QMainWindow):
 
     def update_FRFS(self):
         self.get_plot_limits()
-        self.plot_trace()
+        self.plot_cmif()
         if len(np.array(self.selected_FRF).shape) == 2:
             FRF = np.abs(np.array(self.FRF_matrix[:, [np.array(self.selected_FRF)[:, 0]], [np.array(self.selected_FRF)[:, 1]]]))
-            self.plot_FRF = self.axlog.semilogy(self.freq_trace, np.abs(FRF).reshape(FRF.shape[0], int(FRF.shape[1]*FRF.shape[2])), alpha=self.FRF_transparency)
+            self.plot_FRF = self.axlog.semilogy(self.freq_cmif, np.abs(FRF).reshape(FRF.shape[0], int(FRF.shape[1]*FRF.shape[2])), alpha=self.FRF_transparency)
             self.fig.canvas.draw() # redraw graph
 
     def update_plot(self):
@@ -774,13 +774,21 @@ class App(QtWidgets.QMainWindow):
     def get_modal_data(self):
         selected_poles_id = []
         selected_mpf_id = []
+        nat_freq = []
+        damp_ratio = []
 
         for index_ in self.selected_ind:
             pole_, mpf_ = self.modal_id.pL_from_index(index_)
             selected_poles_id.append(pole_)
             selected_mpf_id.append(mpf_)
+
+            nat_freq_, damp_ratio_, _, __ = self.modal_id.transform_poles(pole_, mpf_.T, 1)
+
+            nat_freq.append(nat_freq_[0])
+            damp_ratio.append(damp_ratio_[0])
             
         self.modal_id.selected_poles = np.asarray(selected_poles_id)
         self.modal_id.selected_mpf = np.asarray(selected_mpf_id).T
-
+        self.modal_id.nat_freq = np.asarray(nat_freq)
+        self.modal_id.damp_ratio = np.asarray(damp_ratio)
     

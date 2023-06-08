@@ -54,7 +54,11 @@ class MK_model(object):
             self._all = False
 
             full = pymapdl_reader.read_binary(full_file)
-            self.dof_ref, self.K, self.M = full.load_km(sort=True)  # dof_ref: 0-x 1-y 2-z
+            self.dof_ref, K_triu, M_triu = full.load_km(sort=True)  # dof_ref: 0-x 1-y 2-z
+            self.M = M_triu + sp.sparse.triu(M_triu, 1).T
+            self.K = K_triu + sp.sparse.triu(K_triu, 1).T
+            self._K = self.K + diags(np.random.random(self.K.shape[0]) / 1e20, shape=self.K.shape) # avoid error
+
             if self.dof_ref[0, 0] != 1:
                 self.dof_ref[:, 0] = self.dof_ref[:, 0] - (self.dof_ref[0, 0] - 1)
 
@@ -66,12 +70,6 @@ class MK_model(object):
             # an option to read directly the .rst file
             if read_rst == False:
                 #print("evaluating M and K matrices")
-
-                self.M += sp.sparse.triu(self.M, 1).T
-                self.K += sp.sparse.triu(self.K, 1).T
-
-                self._K = self.K + diags(np.random.random(self.K.shape[0]) / 1e20, shape=self.K.shape) # avoid error
-
                 p_file = '{}.pkl'.format(full_file)
                 # check if there is a .pkl file
                 same = False

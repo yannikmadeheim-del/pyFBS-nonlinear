@@ -2,6 +2,8 @@ import numpy as np
 from scipy import linalg
 from .utility import MAC
 from PyQt5 import QtCore, QtWidgets
+from scipy.optimize import least_squares
+import polyrat
 
 class modal_id(object):
     """
@@ -81,7 +83,14 @@ class modal_id(object):
         
         M = (T - np.sum(S.transpose(0,2,1) @ np.linalg.pinv(R) @ S, axis=0))
 
-        for n_p in np.arange(1,max_order,step_order):
+        n_p_all = np.arange(1,max_order+1,step_order)
+        for n_p in n_p_all:
+            # print progress
+            if n_p != n_p_all[-1]:
+                print(f"Order:" +str(n_p+1) +'/'+ str(n_p_all[-1]+1), end="\r")
+            else:
+                print(f"Order:" +str(n_p+1) +'/'+ str(n_p_all[-1]+1), end="\n")
+
             # alpha coefficients
             alpha = np.block([[np.linalg.solve(-M[:n_p*self.Ni,:n_p*self.Ni],M[:n_p*self.Ni,n_p*self.Ni:(n_p+1)*self.Ni])],
                       [np.eye(self.Ni)]])[:-self.Ni]
@@ -93,7 +102,8 @@ class modal_id(object):
             # poles
             eigval, eigvec = linalg.eig(A)
             eigval_t = -1*np.log(eigval)*2*d
-            f_np, damp_np, p_np, L_np = self.transform_poles(eigval_t, eigvec, self.Ni) 
+
+            f_np, damp_np, p_np, L_np = self.transform_poles(eigval_t, eigvec, self.Ni, self.freq) 
 
             # append results
             if p_np.size == 0:
@@ -110,84 +120,536 @@ class modal_id(object):
         self.poles = p[1:]
         self.mpf = L[1:]
 
-    def pLSFD(self, reconstruction = True, lower_residuals = True, upper_residuals = True):
+    def pLSRA(self, max_order, step_order=2, stab_f=0.01, stab_damp=0.05, stab_mpf=0.05, sol_type = 'iterative'):
         """
-        With poles are available, the residues can be estimated with a Least-Squares Frequency Domain (LSFD)
-        method.
+        Perform polyreference least squares rational approximation (pLSRA) on frequency response data.
 
+        Args:
+            max_order (int): Maximum polynomial order of the rational approximation.
+            step_order (int, optional): Step size between consecutive orders. Defaults to 2.
+            stab_f (float, optional): Stability criterion for the frequency component. Defaults to 0.01.
+            stab_damp (float, optional): Stability criterion for the damping component. Defaults to 0.05.
+            stab_mpf (float, optional): Stability criterion for the mode participation factor component. Defaults to 0.05.
+            sol_type (str, optional): Type of solver to use ('linearized' or 'iterative'). Defaults to 'iterative'.
+
+        Returns:
+            None
+        """
+               
+        stab_plot = np.asarray([[0,1e-12,1e-12,0]])
+        p = [[np.array([0])]]
+        L = [[np.zeros((self.Ni,1))]]
+        
+        n_p_all = np.arange(2, max_order+1, step_order)
+        for n_p in n_p_all:            
+            if sol_type == 'linearized':
+                rat = polyrat.LinearizedRationalApproximation(n_p, n_p)
+
+            elif sol_type == 'iterative':
+                rat = polyrat.SKRationalApproximation(n_p, n_p, verbose = False)
+
+            else:
+                raise Exception('Unknown solver type.')
+            
+            rat.fit(2*np.pi*self.freq[:,None], self.FRF)
+            
+            # poles
+            poles = 1.j*rat.poles().ravel()
+
+            # mpf
+            numerator = rat.numerator(np.abs(poles)[:,None])
+            u,s,vh = np.linalg.svd(numerator, full_matrices = False)
+            mpf = vh[:,0,:].T
+
+            f_np, damp_np, p_np, L_np = self.transform_poles(poles, mpf, self.Ni, self.freq) 
+
+            # append results
+            if p_np.size == 0:
+                stab_plot = np.vstack((stab_plot, [n_p+1,1e-12,1e-12,0]))
+                p.append([np.array([0])])
+                L.append([np.zeros((self.Ni,1))])
+            else:
+                p.append([p_np])
+                L.append([L_np])
+                stab_plot = np.vstack((stab_plot,
+                    self.select_stable_poles(stab_plot,L,n_p-1,f_np,damp_np,stab_f,stab_damp,stab_mpf)))
+                
+                # print progress
+            if n_p != n_p_all[-1]:
+                print(f"Order:" +str(n_p) +'/'+ str(n_p_all[-1]), end="\r")
+            else:
+                print(f"Order:" +str(n_p) +'/'+ str(n_p_all[-1]), end="\n")
+        
+        self.stab_plot = stab_plot[1:]
+        self.poles = p[1:]
+        self.mpf = L[1:]
+    
+    def generate_P(self, frf_type, lower_residuals, upper_residuals, freq_rec = None):
+        """
+        Generate tensor P containing data on denominator and modal participation factors, assuming general viscous damping model.
+
+        Args:
+            frf_type (str): Type of FRF ('receptance', 'mobility', or 'accelerance').
+            lower_residuals (bool): Flag indicating if lower residuals should be included in P.
+            upper_residuals (bool): Flag indicating if upper residuals should be included in P.
+            freq_rec (ndarray, optional): Frequency vector for FRF. Defaults to None.
+
+        Returns:
+            tuple: A tuple containing the number of selected poles (m) and the generated tensor P.
+        """
+        
+        # prepare input data
+        m = self.selected_poles.shape[0]
+        
+        if m == 0:
+            raise Exception("No pole is selected. Select at least one pole on stability chart.")
+                
+        sr = self.selected_poles[None].real
+        si = self.selected_poles[None].imag
+        Lr = self.selected_mpf[None].real
+        Li = self.selected_mpf[None].imag
+        if freq_rec == None:
+            w = 2*np.pi*self.freq[:,None,None]
+        else:
+            # apply a different frequency vector
+            w = 2*np.pi*freq_rec.ravel()[:,None,None]
+            
+        # adjust analytical model for frf_type
+        if frf_type == 'receptance':  
+            pO1r = -((Li*si + Lr*sr - Li*w)/(sr**2 + (-si + w)**2)) - (Lr*sr + Li*(si + w))/(sr**2 + (si + w)**2)
+            pO1i = (Li*sr + Lr*(-si + w))/(sr**2 + (-si + w)**2) + (Li*sr - Lr*(si + w))/(sr**2 + (si + w)**2)
+
+            pO2r = (Lr*si - Li*sr - Lr*w)/(sr**2 + (-si + w)**2) + (Li*sr - Lr*(si + w))/(sr**2 + (si + w)**2)
+            pO2i = -((Li*si + Lr*sr - Li*w)/(sr**2 + (-si + w)**2)) + (Lr*sr + Li*(si + w))/(sr**2 + (si + w)**2)
+
+            if lower_residuals:
+                pL1 = np.kron(np.kron(np.eye(self.Ni),np.array([1,0])) , -1/w**2)        
+                pL2 = np.kron(np.kron(np.eye(self.Ni),np.array([0,1])) , -1/w**2)      
+
+            if upper_residuals:
+                pU1 = np.kron(np.kron(np.eye(self.Ni),np.array([1,0])) , np.ones_like(w))        
+                pU2 = np.kron(np.kron(np.eye(self.Ni),np.array([0,1])) , np.ones_like(w))
+                
+        elif frf_type == 'mobility':
+            pO1r = (Lr*si*w - Li*sr*w + Lr*w**2)/(sr**2 + (si + w)**2) + (Li*sr*w + Lr*(-(si*w) + w**2))/(sr**2 + (-si + w)**2)
+            pO1i = (Li*si*w + Lr*sr*w - Li*w**2)/(sr**2 + (-si + w)**2) - (Li*si*w + Lr*sr*w + Li*w**2)/(sr**2 + (si + w)**2)
+
+            pO2r = (-((Li*si + Lr*sr)*w) + Li*w**2)/(sr**2 + (-si + w)**2) - (Li*si*w + Lr*sr*w + Li*w**2)/(sr**2 + (si + w)**2)
+            pO2i = (Li*sr*w + Lr*(-(si*w) + w**2))/(sr**2 + (-si + w)**2) + (Li*sr*w - Lr*(si*w + w**2))/(sr**2 + (si + w)**2)
+
+            if lower_residuals:
+                pL1 = np.kron(np.kron(np.eye(self.Ni),np.array([0,1])) , 1/w)        
+                pL2 = np.kron(np.kron(np.eye(self.Ni),np.array([1,0])) , -1/w)      
+
+            if upper_residuals:
+                pU1 = np.kron(np.kron(np.eye(self.Ni),np.array([0,1])) , -w)        
+                pU2 = np.kron(np.kron(np.eye(self.Ni),np.array([1,0])) , w)
+            
+        elif frf_type == 'accelerance':
+            pO1r = (Li*si*w**2 + Lr*sr*w**2 - Li*w**3)/(sr**2 + (-si + w)**2) + (Li*si*w**2 + Lr*sr*w**2 + Li*w**3)/(sr**2 + (si + w)**2)
+            pO1i = -((-(Lr*si*w**2) + Li*sr*w**2 + Lr*w**3)/(sr**2 + (-si + w)**2)) + (Lr*si*w**2 - Li*sr*w**2 + Lr*w**3)/(sr**2 + (si + w)**2)
+            pO2r = (Lr*si*w**2*((-si + w)**2 - (si + w)**2) + Li*sr*w**2*(-(-si + w)**2 + (si + w)**2) + Lr*w**3*(2*sr**2 + (-si + w)**2 + (si + w)**2))/((sr**2 + (-si + w)**2)*(sr**2 + (si + w)**2))
+            pO2i = (Li*si*w**2 + Lr*sr*w**2 - Li*w**3)/(sr**2 + (-si + w)**2) - (Li*si*w**2 + Lr*sr*w**2 + Li*w**3)/(sr**2 + (si + w)**2)
+
+            if lower_residuals:
+                pL1 = np.kron(np.kron(np.eye(self.Ni),np.array([1,0])) , np.ones_like(w))        
+                pL2 = np.kron(np.kron(np.eye(self.Ni),np.array([0,1])) , np.ones_like(w))      
+
+            if upper_residuals:
+                pU1 = np.kron(np.kron(np.eye(self.Ni),np.array([1,0])) , -w**2)        
+                pU2 = np.kron(np.kron(np.eye(self.Ni),np.array([0,1])) , -w**2)
+        
+        else:
+            raise Exception('Unknown parameter frf_type; only "receptance", "mobility" or "accelerance" is allowed.') 
+            
+        # generate P with regard to the lower and upper residuals
+        
+        if lower_residuals and not upper_residuals:
+            P = np.block([[[pO1r,pO1i,pL1]],[[pO2r,pO2i,pL2]]])
+        
+        elif upper_residuals and not lower_residuals:
+            P = np.block([[[pO1r,pO1i,pU1]],[[pO2r,pO2i,pU2]]])
+        
+        elif lower_residuals and upper_residuals:
+            P = np.block([[[pO1r,pO1i,pL1,pU1]],[[pO2r,pO2i,pL2,pU2]]])
+        
+        elif not lower_residuals and not upper_residuals:
+            P = np.block([[[pO1r,pO1i]],[[pO2r,pO2i]]])
+            
+        else:
+            raise Exception('Error generating P.')
+        
+        self.assuming_proportional = False
+        return m, P
+    
+    def generate_P_proportional(self, frf_type, lower_residuals, upper_residuals, freq_rec = None):
+        """
+        Generate tensor P containing data on denominator and (real) modal participation factors, assuming proportional viscous damping model.
+
+        Args:
+            frf_type (str): Type of FRF ('receptance', 'mobility', or 'accelerance').
+            lower_residuals (bool): Flag indicating if lower residuals should be included in P.
+            upper_residuals (bool): Flag indicating if upper residuals should be included in P.
+            freq_rec (ndarray, optional): Frequency vector for FRF. Defaults to None.
+
+        Returns:
+            tuple: A tuple containing the number of selected poles (m) and the generated tensor P.
+        """
+        
+        # prepare input data
+        m = self.selected_poles.shape[0]
+        
+        if m == 0:
+            raise Exception("No pole is selected. Select at least one pole on stability chart.")
+                
+        wr = np.abs(self.selected_poles)[None]
+        xir = (-np.real(self.selected_poles)/np.abs(self.selected_poles))[None]
+
+        self.mpf_real = self.complex_to_closest_real(self.selected_mpf)
+        Lr = self.mpf_real[None]
+        
+        if freq_rec == None:
+            w = 2*np.pi*self.freq[:,None,None]
+        else:
+            # apply a different frequency vector
+            w = 2*np.pi*freq_rec.ravel()[:,None,None]
+            
+        # adjust analytical model for frf_type
+        if frf_type == 'receptance':  
+            pO1r = (Lr*(-w**2 + wr**2))/((-w**2 + wr**2)**2 + 4*w**2*wr**2*xir**2)
+
+            pO2r = (-2*Lr*w*wr*xir)/((-w**2 + wr**2)**2 + 4*w**2*wr**2*xir**2)
+
+            if lower_residuals:
+                pL1 = np.kron(np.kron(np.eye(self.Ni),np.array([1,0])) , -1/w**2)        
+                pL2 = np.kron(np.kron(np.eye(self.Ni),np.array([0,1])) , -1/w**2)      
+
+            if upper_residuals:
+                pU1 = np.kron(np.kron(np.eye(self.Ni),np.array([1,0])) , np.ones_like(w))        
+                pU2 = np.kron(np.kron(np.eye(self.Ni),np.array([0,1])) , np.ones_like(w))
+                
+        elif frf_type == 'mobility':
+            pO1r = (2*Lr*w**2*wr*xir)/((-w**2 + wr**2)**2 + 4*w**2*wr**2*xir**2)
+
+            pO2r = (Lr*w*(-w**2 + wr**2))/((-w**2 + wr**2)**2 + 4*w**2*wr**2*xir**2)
+
+            if lower_residuals:
+                pL1 = np.kron(np.kron(np.eye(self.Ni),np.array([0,1])) , 1/w)        
+                pL2 = np.kron(np.kron(np.eye(self.Ni),np.array([1,0])) , -1/w)      
+
+            if upper_residuals:
+                pU1 = np.kron(np.kron(np.eye(self.Ni),np.array([0,1])) , -w)        
+                pU2 = np.kron(np.kron(np.eye(self.Ni),np.array([1,0])) , w)
+            
+        elif frf_type == 'accelerance':
+            pO1r = (Lr*(w**4 - w**2*wr**2))/((-w**2 + wr**2)**2 + 4*w**2*wr**2*xir**2)
+            
+            pO2r = (2*Lr*w**3*wr*xir)/((-w**2 + wr**2)**2 + 4*w**2*wr**2*xir**2)
+
+            if lower_residuals:
+                pL1 = np.kron(np.kron(np.eye(self.Ni),np.array([1,0])) , np.ones_like(w))        
+                pL2 = np.kron(np.kron(np.eye(self.Ni),np.array([0,1])) , np.ones_like(w))      
+
+            if upper_residuals:
+                pU1 = np.kron(np.kron(np.eye(self.Ni),np.array([1,0])) , -w**2)        
+                pU2 = np.kron(np.kron(np.eye(self.Ni),np.array([0,1])) , -w**2)
+        
+        else:
+            raise Exception('Unknown parameter frf_type, please use receptance, mobility or accelerance.')
+            
+        # generate P with regard to the lower and upper residuals
+        
+        if lower_residuals and not upper_residuals:
+            P = np.block([[[pO1r,pL1]],[[pO2r,pL2]]])
+        
+        elif upper_residuals and not lower_residuals:
+            P = np.block([[[pO1r,pU1]],[[pO2r,pU2]]])
+        
+        elif lower_residuals and upper_residuals:
+            P = np.block([[[pO1r,pL1,pU1]],[[pO2r,pL2,pU2]]])
+        
+        elif not lower_residuals and not upper_residuals:
+            P = np.block([[[pO1r]],[[pO2r]]])
+            
+        else:
+            raise Exception('Error generating P.')
+
+        self.assuming_proportional = True    
+        return m, P
+    
+    def pLSFD(self, frf_type = 'receptance', assume_proportional = False, reconstruction = True, lower_residuals = True, upper_residuals = True, W = None, freq_rec = None):
+        """
+        Given the poles and modal participation factors, the remaining modal parameters are estimated with a Least-Squares Frequency Domain (LSFD) method.
+
+        :param frf_type: Define FRF type (``receptance``, ``mobility`` or ``accelerance``)
+        :type frf_type: str, optional
+        :param assume_proportional: Decide if proportional damping model should be considered in the least squares fit.
+        :type assume_proportional: bool, optional
         :param reconstruction: Reconstruct FRF from estimated modal parameters.
         :type reconstruction: bool, optional
         :param lower_residuals: Compute lower residuals.
         :type lower_residuals: bool, optional
         :param upper_residuals: Compute upper residuals.
         :type upper_residuals: bool, optional
+        :param W: Weighting vector.
+        :type W: float, freq_like array of positive (nonzero) values
+        :param freq_rec: Perform FRF reconstruction given the estimated modal parameters.
+        :type freq_rec: bool
+
+        :returns shape: Non-normalized mode shape.
+        :returns FRF_rec: FRF matrix reconstructed from identified modal parameters.
+        :returns LR: Lower residual.
+        :returns UR: Upper residual.
+        :returns residues: Full identified residue matrix.
         """
-        # prepare input data
-        if len(self.selected_poles)!=0: 
-            s = self.selected_poles[np.newaxis]
-            L = self.selected_mpf[np.newaxis]
-            w = 2*np.pi*self.freq[:,np.newaxis,np.newaxis]
 
-            # generate P
-            p11 = (-s.real*L.real+(w-s.imag)*L.imag) / (s.real**2+(w-s.imag)**2)+\
-                (-s.real*L.real-(w+s.imag)*L.imag) / (s.real**2+(w+s.imag)**2)
-
-            p12 = ( s.real*L.imag+(w-s.imag)*L.real) / (s.real**2+(w-s.imag)**2)+\
-                ( s.real*L.imag-(w+s.imag)*L.real) / (s.real**2+(w+s.imag)**2)
-
-            p21 = (-s.real*L.imag-(w-s.imag)*L.real) / (s.real**2+(w-s.imag)**2)+\
-                ( s.real*L.imag-(w+s.imag)*L.real) / (s.real**2+(w+s.imag)**2)
-
-            p22 = (-s.real*L.real+(w-s.imag)*L.imag) / (s.real**2+(w-s.imag)**2)+\
-                ( s.real*L.real+(w+s.imag)*L.imag) / (s.real**2+(w+s.imag)**2)
-
-            P = np.block([[[p11,p12]],[[p21,p22]]])
-            
-            # lower and upper residuals
-            if lower_residuals == True:
-                p13_L = np.kron(np.kron(np.eye(self.Ni),np.array([1,0]))[::-1] , -1/w**2)
-                p23_L = np.kron(np.kron(np.eye(self.Ni),np.array([0,1]))[::-1] , -1/w**2)
-            if upper_residuals == True:
-                p13_U = np.kron(np.kron(np.eye(self.Ni),np.array([1,0]))[::-1] ,
-                                np.ones(self.freq.shape[0])[:,np.newaxis,np.newaxis])
-                p23_U = np.kron(np.kron(np.eye(self.Ni),np.array([0,1]))[::-1] ,
-                                np.ones(self.freq.shape[0])[:,np.newaxis,np.newaxis]) 
-
-            if lower_residuals == True and upper_residuals == False:
-                P = np.block([[[p11,p12,p13_L]],[[p21,p22,p23_L]]])
-
-            elif lower_residuals == False and upper_residuals == True:
-                P = np.block([[[p11,p12,p13_U]],[[p21,p22,p23_U]]])
-
-            elif lower_residuals == True and upper_residuals == True:
-                P = np.block([[[p11,p12,p13_L,p13_U]],[[p21,p22,p23_L,p23_U]]])
-
-            else: 
-                P = np.block([[[p11,p12]],[[p21,p22]]])
-
-            # get A
-            Y_ = np.block([[[self.FRF.real]],[[self.FRF.imag]]])
-            A_ = np.linalg.lstsq(P.transpose(1,0,2).reshape(-1, P.shape[-1]),
-                                 Y_.transpose(2,0,1).reshape(-1, Y_.shape[-2]))[0]
-            Ar, Ai = np.split(A_[:2*s.shape[1]], 2) 
-            A = (Ar + 1.j*Ai).T
-
-            self.A = A
-
-            if reconstruction:
-                # frf reconstruction
-                Y_rec_ = np.einsum("fip,op->foi", P , A_.T)
-                Y_rec_r, Y_rec_i = np.split(Y_rec_, 2)
-                Y_rec = (Y_rec_r + 1.j*Y_rec_i)
-                self.FRF_rec = Y_rec
-
-            self.residues = np.einsum("om, im -> moi", A, L.squeeze(axis = 0))
-            
-        else:
-            raise Exception("No pole is selected. Select at least one pole on stability chart.")
+        # prepare inputs for the least squares solver
+        Y_ = np.block([[[self.FRF.real]],[[self.FRF.imag]]])
         
+        if not assume_proportional: 
+            # general viscous damping model
+            m, P_ = self.generate_P(frf_type, lower_residuals, upper_residuals, freq_rec = None)
+        else:
+            # proportional visous damping model
+            m, P_ = self.generate_P_proportional(frf_type, lower_residuals, upper_residuals, freq_rec = None)
+
+        # solve the least squares problem
+        if W == None:
+            O_ = np.linalg.lstsq((P_.transpose(1,0,2).reshape(-1, P_.shape[-1])), \
+                                (Y_.transpose(2,0,1).reshape(-1, Y_.shape[-2])))[0]    
+        
+        else:
+            # weighted least squares solution
+            if W.shape == self.freq.shape:
+                W_ = np.diag(np.tile(np.tile(W, self.Ni), 2))
+                O_ = np.linalg.lstsq(W_**0.5 @ (P_.transpose(1,0,2).reshape(-1, P_.shape[-1])), \
+                                    W_**0.5 @ (Y_.transpose(2,0,1).reshape(-1, Y_.shape[-2])))[0]
+                
+            else:
+                raise Exception('Invalid W; shapes of W and freq should be the same.')
+        
+        # postprocess the solution
+        if not self.assuming_proportional:
+            # general viscous damping model
+                # flexible residues - complex
+            O = (O_[:m] + 1.j*O_[m:2*m]).T
+            self.R = np.einsum("om, im -> moi", O, self.selected_mpf)
+            self.shape = O
+
+                # residual residues - complex
+            if lower_residuals and upper_residuals:
+                RL_, RU_ = np.split(O_[2*m:], [-2*self.Ni])
+
+                self.RL = (RL_[::2] + 1.j*RL_[1::2]).T
+                self.RU = (RU_[::2] + 1.j*RU_[1::2]).T
+
+            elif lower_residuals and not upper_residuals:
+                RL_ = O_[2*m:]
+                self.RL = (RL_[::2] + 1.j*RL_[1::2]).T
+                self.RU = np.zeros_like(self.RL)
+
+            elif upper_residuals and not lower_residuals:
+                RU_ = O_[2*m:]
+                self.RU = (RU_[::2] + 1.j*RU_[1::2]).T
+                self.RL = np.zeros_like(self.RU)
+                
+            elif not upper_residuals and not lower_residuals:
+                self.RL = np.zeros((self.No,self.Ni))
+                self.RU = np.zeros((self.No,self.Ni))
+
+        else:
+            # proportional visous damping model
+                # flexible modal constants - real
+            O = O_[:m].T
+            self.A = np.einsum("om, im -> moi", O, self.mpf_real)
+            self.shape = O
+            
+                # residual modal constants - complex
+            if lower_residuals and upper_residuals:
+                AL_, AU_ = np.split(O_[m:], [-2*self.Ni])
+
+                self.AL = (AL_[::2] + 1.j*AL_[1::2]).T
+                self.AU = (AU_[::2] + 1.j*AU_[1::2]).T
+
+            elif lower_residuals and not upper_residuals:
+                AL_ = O_[m:]
+                self.AL = (AL_[::2] + 1.j*AL_[1::2]).T
+                self.AU = np.zeros_like(self.AL)
+
+            elif upper_residuals and not lower_residuals:
+                AU_ = O_[m:]
+                self.AU = (AU_[::2] + 1.j*AU_[1::2]).T
+                self.AL = np.zeros_like(self.AU)
+                
+            elif not upper_residuals and not lower_residuals:
+                self.AL = np.zeros((self.No,self.Ni))
+                self.AU = np.zeros((self.No,self.Ni))
+
+        
+        # frf reconstruction
+        if reconstruction:
+            if freq_rec != None:
+                if not self.assuming_proportional: 
+                    # general viscous damping model
+                    _, P_ = self.generate_P(frf_type, lower_residuals, upper_residuals, freq_rec = freq_rec)
+                else:
+                    # proportional visous damping model
+                    _, P_ = self.generate_P_proportional(frf_type, lower_residuals, upper_residuals, freq_rec = freq_rec)
+                Y_rec_ = np.einsum("fip,po->foi", P_ , O_)   
+            else:
+                Y_rec_ = np.einsum("fip,po->foi", P_ , O_)   
+            
+            self.Y_rec = np.vectorize(complex)(*np.split(Y_rec_,2))
+
+    def normalize(self, output_dp_ind, input_dp_ind, check_dp = True):
+        """
+        If proportional damping is NOT assumed, the function performs a-normalization of estimated flexible residues.
+        If proportional damping IS assumed, the function performs mass normalization of flexible modal constants.
+        
+        :param output_dp_ind: define index of the output driving point in the FRF matrix
+        :type output_dp_ind: int list
+        :param input_dp_ind: define index of the input driving point in the FRF matrix
+        :type input_dp_ind: int list
+        :param check_dp: check if driving point values are physically meaningful
+        :type check_dp: bool
+        
+        If proportional damping is NOT assumed:
+        :returns Psi_o: A-normalized output mode shapes (complex).
+        :type Psi_o: array [no. output DoFs x no. modes]
+        :returns Psi_i: A-normalized input mode shapes (complex).
+        :type Psi_i: array [no. input DoFs x no. modes]
+
+        If proportional damping IS assumed:
+        :returns Phi_o: mass-normalized output mode shapes (real).
+        :type Phi_o: array [no. output DoFs x no. modes]
+        :returns Phi_i: mass-normalized input mode shapes (real).
+        :type Phi_i: array [no. input DoFs x no. modes]
+        """
+        
+        # a-normalization of residues
+        if not self.assuming_proportional:
+            print('A-normalization')
+            psi_o = []
+            psi_i = []
+
+            for r, R_r in enumerate(self.R):
+                dp_values = R_r[output_dp_ind, input_dp_ind]
+
+                if check_dp:
+                    # check if driving point values are physically meaningfull
+                        # check for near-zero values (less than 5% average)
+                    ind_1 = np.where(np.abs(dp_values) < 0.05*np.mean(np.abs(dp_values)))[0]
+                    dp_values = np.delete(dp_values, ind_1)
+                    output_dp_ind = np.delete(output_dp_ind, ind_1)
+                    input_dp_ind = np.delete(input_dp_ind, ind_1)
+
+                        # check for non-negative imaginary values
+                    ind_2 = np.where(np.sign(dp_values.imag) == 1)[0]
+                    dp_values = np.delete(dp_values, ind_2)
+
+                        # check kow many values are left
+                    if len(dp_values) > 0:
+                        ndp = len(dp_values)
+                        print('Mode '+ str(r+1) + ' - Passed: ' + str(ndp) + '/' + str(len(output_dp_ind)))
+                    else:
+                        raise Exception('For at least one mode none of the provided driving point values seems to be physically valid. If you want to proceed anyway, apply check_dp = False.')
+
+                    output_dp_ind = np.delete(output_dp_ind, ind_2)
+                    input_dp_ind = np.delete(input_dp_ind, ind_2)
+                else:
+                    ndp = len(dp_values)
+
+                # least squares solution (of absolute values due to the global/absolute phase shifts between residue vectors)
+                    # columns -> modeshapes
+                b_output = np.hstack(R_r[:,input_dp_ind].T) # stacked residue columns at input_dp_dof ind
+                a_output = (np.repeat(dp_values**0.5,self.No)[:,None] * np.tile(np.eye(self.No),ndp).T)
+                x_abs_output = np.linalg.lstsq(a_output, np.abs(b_output))[0]
+                psi_o.append(x_abs_output*np.exp(1.j*np.angle(R_r[:,0])))
+
+                # rows -> modal participation factors
+                b_input = np.hstack(R_r[output_dp_ind,:].T) # stacked residue rows at output_dp_dof ind
+                a_input = (np.repeat(dp_values**0.5,self.Ni)[:,None] * np.tile(np.eye(self.Ni),ndp).T)
+                x_abs_input = np.linalg.lstsq(a_input, np.abs(b_input))[0]
+                psi_i.append(x_abs_input*np.exp(1.j*np.angle(R_r[0,:])))
+
+            self.Psi_o = np.array(psi_o).T
+            self.Psi_i = np.array(psi_i).T
+        
+        # mass normalization of modal constants
+        elif self.assuming_proportional:
+            print('Mass normalization:')
+            phi_o = []
+            phi_i = []
+
+            for r, A_r in enumerate(self.A):
+                dp_values = A_r[output_dp_ind, input_dp_ind]
+
+                if check_dp:
+                    # check if driving point values are physically meaningfull
+                        # check for near-zero values (less than 5% average)
+                    ind_1 = np.where(np.abs(dp_values) < 0.05*np.mean(np.abs(dp_values)))[0]
+                    dp_values = np.delete(dp_values, ind_1)
+                    output_dp_ind = np.delete(output_dp_ind, ind_1)
+                    input_dp_ind = np.delete(input_dp_ind, ind_1)
+
+                        # check for negative values
+                    ind_2 = np.where(np.sign(dp_values) == -1)[0]
+                    dp_values = np.delete(dp_values, ind_2)
+
+                        # check kow many values are left
+                    if len(dp_values) > 0:
+                        ndp = len(dp_values)
+                        print('Mode '+ str(r+1) + ' - Passed: ' + str(ndp) + '/' + str(len(output_dp_ind)))
+                    else:
+                        raise Exception('For at least one mode none of the provided driving point values seems to be physically valid. If you want to proceed anyway, apply check_dp_values = False.')
+
+                    output_dp_ind = np.delete(output_dp_ind, ind_2)
+                    input_dp_ind = np.delete(input_dp_ind, ind_2)
+
+                # least squares solution (of absolute values due to the global/absolute phase shifts between residue vectors)
+                    # columns -> modeshapes
+                b_output = np.hstack(A_r[:,input_dp_ind].T) # stacked residue columns at input_dp_dof ind
+                a_output = (np.repeat(dp_values**0.5,self.No)[:,None] * np.tile(np.eye(self.No),ndp).T)
+                x_abs_output = np.linalg.lstsq(a_output, np.abs(b_output))[0]
+                phi_o.append(x_abs_output*np.sign(A_r[:,0]))
+
+                # rows -> modal participation factors
+                b_input = np.hstack(A_r[output_dp_ind,:].T) # stacked residue rows at output_dp_dof ind
+                a_input = (np.repeat(dp_values**0.5,self.Ni)[:,None] * np.tile(np.eye(self.Ni),ndp).T)
+                x_abs_input = np.linalg.lstsq(a_input, np.abs(b_input))[0]
+                phi_i.append(x_abs_input*np.sign(A_r[0,:]))
+
+            self.Phi_o = np.array(phi_o).T
+            self.Phi_i = np.array(phi_i).T
+        
+    def estimate_Phi_from_Psi(self, complex_to_normal = True):
+        """
+        Tranforms a normalized complex modeshape (assuming general viscous damping model) to an approximate
+        mass normalized modeshape via scaling. mode normalization. Before application check complexity using mode complexity factor (pyFBS.MCF).
+        
+        :param complex_to_normal: Compute closest real representation of the complex modeshapes.
+        :type complex_to_normal: bool
+        
+        :returns Phi_o_: estimated mass-normalized output mode shapes.
+        :type Phi_o_: array [no. output DoFs x no. modes]
+        :returns Phi_i_: estimated mass-normalized input mode shapes.
+        :type Phi_i_: array [no. input DoFs x no. modes]
+        """
+
+        wr = np.abs(self.selected_poles)
+        xir = (-np.real(self.selected_poles)/np.abs(self.selected_poles))
+
+        scal_fact = (2j*wr*(1-xir**2)**0.5)**0.5
+
+        if not complex_to_normal:
+            self.Phi_o_ = self.Psi_o * scal_fact
+            self.Phi_o_ = self.Psi_i * scal_fact
+        else:
+            self.Phi_o_ = self.complex_to_closest_real(self.Psi_o * scal_fact)
+            self.Phi_i_ = self.complex_to_closest_real(self.Psi_i * scal_fact)
+    
     @staticmethod
-    def transform_poles(poles, mpf, Ni):
+    def transform_poles(poles, mpf, Ni, freq):
         """
         Obtain natural frequencies, damping ratios, corresponding poles and modal participation factors from all poles. 
 
@@ -205,13 +667,47 @@ class modal_id(object):
         damp = -np.real(poles)/np.abs(poles)
         
         # select physically meaningful poles and modal participation factors
-        ind = np.logical_and(f > 0, damp > 0)
+        ind = np.array([f > np.min(freq), f < np.max(freq), damp > 0]).all(axis = 0)
         f_pos = f[ind]
         damp_pos = damp[ind]*100
         p = poles[ind]
         L = mpf[-Ni:,ind]
 
         return f_pos, damp_pos, p, L
+    
+    @staticmethod
+    def complex_to_closest_real(c_all):
+        '''
+        Compute closest real modeshapes to the given set of complex modeshapes. Before doing so,
+        check their complexity using mode complexity factor (pyFBS.MCF).
+
+        :param c_all: set of complex modeshapes
+        :type c_all: array of size [no. of DoFs x no. of modes]
+
+        :returns r_all: set of closest real modeshapes
+        :type r_all: array of size [no. of DoFs x no. of modes]
+        '''
+        # real vector (r) = complex vector (c) * e^(i*phi)
+        # which translates to: {r,0} = {cr cos[phi]-ci sin[phi]  , cr sin[phi] + ci cos[phi]}
+        r_all = []
+        for c in c_all.T:
+            cr = c.real
+            ci = c.imag
+
+            def func(x, cr, ci):
+                r = x[:-1] 
+                phi = x[-1]
+                return np.hstack([r - cr*np.cos(phi) + ci*np.sin(phi), 
+                                    cr*np.sin(phi) + ci*np.cos(phi)])
+
+            x0 = np.hstack([np.abs(c) * np.sign(cr), [np.angle(c[0])]])
+
+            lower_bounds = np.hstack([np.full_like(cr, -np.inf), [-np.pi]])
+            upper_bounds = np.hstack([np.full_like(cr, np.inf), [np.pi]])
+
+            result = least_squares(func, x0, args=(cr, ci), bounds=(lower_bounds, upper_bounds))
+            r_all.append(result.x[:-1])
+        return np.array(r_all).T
     
     @staticmethod
     def select_stable_poles(stab_plot, L, order, freq_n1, damp_n1, stab_f, stab_damp, stab_mpf):
