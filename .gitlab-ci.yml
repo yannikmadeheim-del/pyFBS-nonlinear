@@ -12,7 +12,7 @@ deploy:
     - echo "[pypi]" >> ~/.pypirc
     - echo "repository: https://upload.pypi.org/legacy/" >> ~/.pypirc
     - echo "username: __token__" >> ~/.pypirc
-    - echo "password: $PYPI_TOKEN" >> ~/.pypirc
+    - echo "password: $pyfbs_token" >> ~/.pypirc
     - python setup.py sdist bdist_wheel
     - twine upload --skip-existing --verbose --config-file ~/.pypirc dist/*
   only:
