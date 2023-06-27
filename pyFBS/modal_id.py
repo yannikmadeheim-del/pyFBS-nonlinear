@@ -3,7 +3,6 @@ from scipy import linalg
 from .utility import MAC
 from PyQt5 import QtCore, QtWidgets
 from scipy.optimize import least_squares
-import polyrat
 
 class modal_id(object):
     """
@@ -136,6 +135,7 @@ class modal_id(object):
         Returns:
             None
         """
+        import polyrat
                
         stab_plot = np.asarray([[0,1e-12,1e-12,0]])
         p = [[np.array([0])]]
