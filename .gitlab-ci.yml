@@ -1,19 +1,12 @@
-image: python:3.8
-
 stages:
-  - deploy
+  - publish
 
-deploy:
-  stage: deploy
+publish:
+  stage: publish
+  image: python:3.8
   script:
     - pip install twine
-    - echo "[distutils]" > ~/.pypirc
-    - echo "index-servers = pypi" >> ~/.pypirc
-    - echo "[pypi]" >> ~/.pypirc
-    - echo "repository: https://upload.pypi.org/legacy/" >> ~/.pypirc
-    - echo "username: __token__" >> ~/.pypirc
-    - echo "password: $pyfbs_token" >> ~/.pypirc
     - python setup.py sdist bdist_wheel
-    - twine upload --skip-existing --verbose --config-file ~/.pypirc dist/*
+    - twine upload --skip-existing --repository-url https://upload.pypi.org/legacy/ -u __token__ -p $PYPI_TOKEN dist/*
   only:
     - tags
