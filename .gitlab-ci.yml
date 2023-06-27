@@ -7,6 +7,12 @@ deploy:
   stage: deploy
   script:
     - pip install twine
+    - echo "[distutils]" > ~/.pypirc
+    - echo "index-servers = pypi" >> ~/.pypirc
+    - echo "[pypi]" >> ~/.pypirc
+    - echo "repository: https://upload.pypi.org/legacy/" >> ~/.pypirc
+    - echo "username: __token__" >> ~/.pypirc
+    - echo "password: $PYPI_TOKEN" >> ~/.pypirc
     - python setup.py sdist bdist_wheel
     - twine upload --skip-existing --verbose dist/*
   only:
