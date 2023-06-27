@@ -606,6 +606,8 @@ class modal_id(object):
 
                     output_dp_ind = np.delete(output_dp_ind, ind_2)
                     input_dp_ind = np.delete(input_dp_ind, ind_2)
+                else:
+                    ndp = len(dp_values)
 
                 # least squares solution (of absolute values due to the global/absolute phase shifts between residue vectors)
                     # columns -> modeshapes
