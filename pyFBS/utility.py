@@ -882,7 +882,7 @@ def plot_FRF(freq, FRF_data, width=500, height=400, circle_size=4E3):
     :type freq: 1D array
     :param FRF_data: Admittance matrix to be displayed.
     :type FRF_data: 3D array
-    :param width: Width of the plot.
+    :param width: Width of the plot.freqselection_point
     :type width: int, optional
     :param height: Height of the plot.
     :type height: int, optional
@@ -899,13 +899,13 @@ def plot_FRF(freq, FRF_data, width=500, height=400, circle_size=4E3):
                                     "in" : [str(j)]*_f,"out_in" : ['o'+str(i)+', i'+str(j)]*_f})
             df = df.append(df_temp)
             
-    selector = alt.selection_multi(empty='all', fields=['out_in'])
+    selector = alt.selection_point(empty='all', fields=['out_in'])
     resize = alt.selection_interval(bind='scales')
 
     base = alt.Chart(df).properties(
         width=width,
         height=height
-    ).add_selection(selector)
+    ).add_params(selector)
 
     points = base.mark_circle(size=circle_size).encode(
         alt.X('out', axis=alt.Axis(title='Output DoF')),
@@ -922,7 +922,7 @@ def plot_FRF(freq, FRF_data, width=500, height=400, circle_size=4E3):
     A = alt.Chart(df).mark_line().encode(
         alt.X("f", axis=alt.Axis(title='Frequency [Hz]')),
         alt.Y('A', axis=alt.Axis(title='Amplitude(Y)'), scale=alt.Scale(type='log',base=10)),
-        color='out_in').properties(width=width,height=1/2*height).add_selection(
+        color='out_in').properties(width=width,height=1/2*height).add_params(
         resize
     ).transform_filter(
         selector
@@ -931,7 +931,7 @@ def plot_FRF(freq, FRF_data, width=500, height=400, circle_size=4E3):
     P = alt.Chart(df).mark_line().encode(
         alt.X("f", axis=alt.Axis(title='Frequency [Hz]')),
         alt.Y('ph', axis=alt.Axis(title='Phase(Y)')),
-        color='out_in').properties(width=width,height=1/3*height).add_selection(
+        color='out_in').properties(width=width,height=1/3*height).add_params(
         resize
     ).transform_filter(
         selector
@@ -979,7 +979,7 @@ def plot_frequency_response(freq, FR_data, width=500, height=400, labels=None, a
             df = df.append(df_temp)
             k=k+1
     
-    selection = alt.selection_multi(fields=['out_in'], bind='legend')
+    selection = alt.selection_point(fields=['out_in'], bind='legend')
     resize = alt.selection_interval(bind='scales')
 
     A = alt.Chart(df).mark_line().encode(
@@ -987,9 +987,9 @@ def plot_frequency_response(freq, FR_data, width=500, height=400, labels=None, a
             alt.Y('A', axis=alt.Axis(title='Amplitude'), scale=alt.Scale(type='log',base=10)),
             color=alt.Color('out_in', legend=alt.Legend(title="Click to highlight")),
             opacity=alt.condition(selection, alt.value(1), alt.value(0.2))).properties(width=width,height=1/2*height
-        ).add_selection(
+        ).add_params(
             resize
-        ).add_selection(
+        ).add_params(
             selection
         )
 
@@ -998,9 +998,9 @@ def plot_frequency_response(freq, FR_data, width=500, height=400, labels=None, a
             alt.Y('ph', axis=alt.Axis(title='Phase')),
             opacity=alt.condition(selection, alt.value(1), alt.value(0.2)),
             color='out_in').properties(width=width,height=1/3*height
-        ).add_selection(
+        ).add_params(
             resize
-        ).add_selection(
+        ).add_params(
             selection
         )
 
@@ -1053,7 +1053,7 @@ def comparison_plot(x, y, width=500, height=250, labels=None, title='', x_label=
             df = df.append(df_temp)
             k=k+1
     
-    selection = alt.selection_multi(fields=['out_in'], bind='legend')
+    selection = alt.selection_point(fields=['out_in'], bind='legend')
     resize = alt.selection_interval(bind='scales')
     
     A = alt.Chart(df, title=title).mark_line().encode(
@@ -1061,9 +1061,9 @@ def comparison_plot(x, y, width=500, height=250, labels=None, title='', x_label=
             alt.Y('y', axis=alt.Axis(title=y_label), scale=alt.Scale()),
             color=alt.Color('out_in', legend=alt.Legend(title="Click to highlight")),
             opacity=alt.condition(selection, alt.value(1), alt.value(0.2))).properties(width=width,height=height
-        ).add_selection(
+        ).add_params(
             resize
-        ).add_selection(
+        ).add_params(
             selection
         )
         
@@ -1086,13 +1086,13 @@ def plot_comparison_multiple(freq,master_Y, labels):
     height = 300
     circle_size = 1e3
 
-    selector = alt.selection_multi(empty='all', fields=['out_in'])
+    selector = alt.selection_point(empty='all', fields=['out_in'])
     resize = alt.selection_interval(bind='scales')
 
     base = alt.Chart(df).properties(
         width=width,
         height=height
-    ).add_selection(selector)
+    ).add_params(selector)
 
     points = base.mark_circle(size=circle_size).encode(
         alt.X('in', axis=alt.Axis(title='Output DoF')),
@@ -1104,7 +1104,7 @@ def plot_comparison_multiple(freq,master_Y, labels):
     A = alt.Chart(df).mark_line().encode(
         alt.X("f", axis=alt.Axis(title='Frequency [Hz]')),
         alt.Y('A', axis=alt.Axis(title='Amplitude(Y)'), scale=alt.Scale(type='log',base=10)),
-        color=alt.Color('ID', legend=alt.Legend())).properties(width=width,height=1/2*height).add_selection(
+        color=alt.Color('ID', legend=alt.Legend())).properties(width=width,height=1/2*height).add_params(
         resize
     ).transform_filter(
         selector
@@ -1113,7 +1113,7 @@ def plot_comparison_multiple(freq,master_Y, labels):
     P = alt.Chart(df).mark_line().encode(
         alt.X("f", axis=alt.Axis(title='Frequency [Hz]')),
         alt.Y('ph', axis=alt.Axis(title='Phase(Y)')),
-        color='ID').properties(width=width,height=1/3*height).add_selection(
+        color='ID').properties(width=width,height=1/3*height).add_params(
         resize
     ).transform_filter(
         selector
@@ -1158,7 +1158,7 @@ def plot_coh(freq, coh_data, width=500, height=200, opacity=0.2, color='blue', t
         alt.X('f', axis=alt.Axis(title='Frequency [Hz]')),
         alt.Y('coh', axis=alt.Axis(title='Coherence [/]')),
         color=alt.value(color)
-    ).add_selection(
+    ).add_params(
         resize
     ).properties(
         width=width,
@@ -1193,13 +1193,13 @@ def plot_coh_group(freq, coh_data, width=500, height=250, circle_size=4E3, opaci
                                     "in" : [str(j)]*_f,"out_in" : [str(i)+str(j)]*_f, "avg_coh" : [str(np.round(np.average(coh_data[:,i,j]),3))]*_f})
             df = df.append(df_temp)
             
-    selector = alt.selection_multi(empty='all', fields=['out_in'])
+    selector = alt.selection_point(empty='all', fields=['out_in'])
     resize = alt.selection_interval(bind='scales')
 
     base = alt.Chart(df).properties(
         width=width,
         height=height
-    ).add_selection(selector)
+    ).add_params(selector)
 
     points = base.mark_circle().encode(
         alt.X('out', axis=alt.Axis(title='Output DoF')),
@@ -1224,7 +1224,7 @@ def plot_coh_group(freq, coh_data, width=500, height=250, circle_size=4E3, opaci
         color='out_in'
     ).transform_filter(
         selector
-    ).add_selection(
+    ).add_params(
         resize
     )
 

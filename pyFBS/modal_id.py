@@ -30,7 +30,8 @@ class modal_id(object):
         self.Ni = FRF.shape[2]
         try:
             from IPython import get_ipython
-            get_ipython().magic('gui qt')
+            get_ipython().run_line_magic('gui', 'qt')
+            
         except BaseException as e:
             # issued if code runs in bare Python
             print('Could not enable IPython gui support: %s.' % e)

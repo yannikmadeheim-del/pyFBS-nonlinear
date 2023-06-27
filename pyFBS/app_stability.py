@@ -382,7 +382,8 @@ class App(QtWidgets.QMainWindow):
         # initialize plots
         self.fig, self.axlog = plt.subplots(facecolor='#F0F0F0', figsize=(10, 5)) #gray
         self.axlog.set_facecolor("#E1E1E1")
-        self.fig.set_tight_layout(True) #pad=2
+        self.fig.set_layout_engine('tight')
+
         self.ax = self.axlog.twinx()
         
         # self.ax.yaxis.set_label_position("right")
@@ -782,7 +783,7 @@ class App(QtWidgets.QMainWindow):
             selected_poles_id.append(pole_)
             selected_mpf_id.append(mpf_)
 
-            nat_freq_, damp_ratio_, _, __ = self.modal_id.transform_poles(pole_, mpf_.T, 1)
+            nat_freq_, damp_ratio_, _, __ = self.modal_id.transform_poles(pole_, mpf_.T, 1, self.modal_id.freq)
 
             nat_freq.append(nat_freq_[0])
             damp_ratio.append(damp_ratio_[0])

@@ -260,7 +260,7 @@ class MK_model(object):
         for node in unique_nodes:
             loc = np.where((nodes == node).all(axis=1))
             direction_nodes.append(directions[loc])
-        return unique_nodes, np.asarray(direction_nodes)
+        return unique_nodes, direction_nodes
 
     def loc_definition(self, node_index):
         """
