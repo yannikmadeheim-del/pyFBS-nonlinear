@@ -1,0 +1,13 @@
+image: python:3.8
+
+stages:
+  - deploy
+
+deploy:
+  stage: deploy
+  script:
+    - pip install twine
+    - python setup.py sdist bdist_wheel
+    - twine upload --skip-existing --verbose dist/*
+  only:
+    - tags
