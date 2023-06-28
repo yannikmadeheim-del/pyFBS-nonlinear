@@ -1,8 +1,0 @@
-publish:
-  image: python:3.9
-  script:
-    - pip install twine
-    - python setup.py sdist
-    - twine upload --repository-url https://upload.pypi.org/legacy/ --username mihakodric --password "$PYPI_API_TOKEN" dist/*
-  only:
-    - tags
