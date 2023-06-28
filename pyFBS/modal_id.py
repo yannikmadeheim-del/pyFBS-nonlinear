@@ -43,8 +43,13 @@ class modal_id(object):
 
     def stabilization(self):  
         from .app_stability import App
+
         self.win = App(self)
-        self.app.references.add(self.win)
+
+        if hasattr(self.app, 'references'):
+            self.app.references.add(self.win)
+        else:
+            self.app.references = {self.win}
         
     def pLSCF(self, max_order, step_order=2, stab_f=0.01, stab_damp=0.05, stab_mpf=0.05):
         """
