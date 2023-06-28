@@ -201,7 +201,7 @@ def MAC(phi_1, phi_2, output_type = 'matrix'):
     if phi_2.ndim == 1:
         phi_2 = phi_2[:,np.newaxis]
 
-    MAC_mat = np.abs(np.einsum('ri,ik->rk',np.conj(phi_1).T,phi_2))**2 / (np.einsum('ri,ir->r',np.conj(phi_1).T,phi_1)[:,np.newaxis] * np.einsum('ri,ir->r',np.conj(phi_2).T,phi_2))
+    MAC_mat = (np.abs(np.einsum('ri,ik->rk',np.conj(phi_1).T,phi_2))**2 / (np.einsum('ri,ir->r',np.conj(phi_1).T,phi_1)[:,np.newaxis] * np.einsum('ri,ir->r',np.conj(phi_2).T,phi_2))).real
     if output_type == 'matrix':
         return MAC_mat
     if output_type == 'diagonal':
