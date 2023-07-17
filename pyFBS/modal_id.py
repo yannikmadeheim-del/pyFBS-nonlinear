@@ -532,6 +532,9 @@ class modal_id(object):
         :type Phi_i: array [no. input DoFs x no. modes]
         """
         
+        output_dp_ind_ = np.copy(output_dp_ind)
+        input_dp_ind_ = np.copy(input_dp_ind)
+
         # a-normalization of residues
         if not self.assuming_proportional:
             print('A-normalization')
@@ -545,13 +548,13 @@ class modal_id(object):
                     # check if driving point values are physically meaningfull
                         # check for near-zero values (less than 5% average)
                     ind_1 = np.where(np.abs(dp_values) < 0.05*np.mean(np.abs(dp_values)))[0]
-                    dp_values = np.delete(dp_values, ind_1)
-                    output_dp_ind = np.delete(output_dp_ind, ind_1)
-                    input_dp_ind = np.delete(input_dp_ind, ind_1)
-
                         # check for non-negative imaginary values
                     ind_2 = np.where(np.sign(dp_values.imag) == 1)[0]
-                    dp_values = np.delete(dp_values, ind_2)
+                    ind_ = np.unique(ind_1, ind_2)
+
+                    dp_values = np.delete(dp_values, ind_)
+                    output_dp_ind_ = np.delete(output_dp_ind_, ind_)
+                    input_dp_ind_ = np.delete(input_dp_ind_, ind_)
 
                         # check kow many values are left
                     if len(dp_values) > 0:
@@ -560,21 +563,19 @@ class modal_id(object):
                     else:
                         raise Exception('For at least one mode none of the provided driving point values seems to be physically valid. If you want to proceed anyway, apply check_dp = False.')
 
-                    output_dp_ind = np.delete(output_dp_ind, ind_2)
-                    input_dp_ind = np.delete(input_dp_ind, ind_2)
                 else:
                     ndp = len(dp_values)
 
                 # least squares solution (of absolute values due to the global/absolute phase shifts between residue vectors)
                     # columns -> modeshapes
-                b_output = np.hstack(R_r[:,input_dp_ind].T) # stacked residue columns at input_dp_dof ind
-                a_output = (np.repeat(dp_values**0.5,self.No)[:,None] * np.tile(np.eye(self.No),ndp).T)
+                b_output = np.hstack(R_r[:,input_dp_ind_].T) # stacked residue columns at input_dp_dof ind
+                a_output = (np.repeat(dp_values**0.5,self.R.shape[1])[:,None] * np.tile(np.eye(self.R.shape[1]),ndp).T)
                 x_abs_output = np.linalg.lstsq(a_output, np.abs(b_output))[0]
                 psi_o.append(x_abs_output*np.exp(1.j*np.angle(R_r[:,0])))
 
                 # rows -> modal participation factors
-                b_input = np.hstack(R_r[output_dp_ind,:].T) # stacked residue rows at output_dp_dof ind
-                a_input = (np.repeat(dp_values**0.5,self.Ni)[:,None] * np.tile(np.eye(self.Ni),ndp).T)
+                b_input = np.hstack(R_r[output_dp_ind_,:].T) # stacked residue rows at output_dp_dof ind
+                a_input = (np.repeat(dp_values**0.5,self.R.shape[2])[:,None] * np.tile(np.eye(self.R.shape[2]),ndp).T)
                 x_abs_input = np.linalg.lstsq(a_input, np.abs(b_input))[0]
                 psi_i.append(x_abs_input*np.exp(1.j*np.angle(R_r[0,:])))
 
@@ -594,13 +595,13 @@ class modal_id(object):
                     # check if driving point values are physically meaningfull
                         # check for near-zero values (less than 5% average)
                     ind_1 = np.where(np.abs(dp_values) < 0.05*np.mean(np.abs(dp_values)))[0]
-                    dp_values = np.delete(dp_values, ind_1)
-                    output_dp_ind = np.delete(output_dp_ind, ind_1)
-                    input_dp_ind = np.delete(input_dp_ind, ind_1)
-
                         # check for negative values
                     ind_2 = np.where(np.sign(dp_values) == -1)[0]
-                    dp_values = np.delete(dp_values, ind_2)
+                    ind_ = np.unique(ind_1, ind_2)
+
+                    dp_values = np.delete(dp_values, ind_)
+                    output_dp_ind_ = np.delete(output_dp_ind_, ind_)
+                    input_dp_ind_ = np.delete(input_dp_ind_, ind_)
 
                         # check kow many values are left
                     if len(dp_values) > 0:
@@ -609,21 +610,19 @@ class modal_id(object):
                     else:
                         raise Exception('For at least one mode none of the provided driving point values seems to be physically valid. If you want to proceed anyway, apply check_dp_values = False.')
 
-                    output_dp_ind = np.delete(output_dp_ind, ind_2)
-                    input_dp_ind = np.delete(input_dp_ind, ind_2)
                 else:
                     ndp = len(dp_values)
 
                 # least squares solution (of absolute values due to the global/absolute phase shifts between residue vectors)
                     # columns -> modeshapes
-                b_output = np.hstack(A_r[:,input_dp_ind].T) # stacked residue columns at input_dp_dof ind
-                a_output = (np.repeat(dp_values**0.5,self.No)[:,None] * np.tile(np.eye(self.No),ndp).T)
+                b_output = np.hstack(A_r[:,input_dp_ind_].T) # stacked residue columns at input_dp_dof ind
+                a_output = (np.repeat(dp_values**0.5,self.A.shape[1])[:,None] * np.tile(np.eye(self.A.shape[1]),ndp).T)
                 x_abs_output = np.linalg.lstsq(a_output, np.abs(b_output))[0]
                 phi_o.append(x_abs_output*np.sign(A_r[:,0]))
 
                 # rows -> modal participation factors
-                b_input = np.hstack(A_r[output_dp_ind,:].T) # stacked residue rows at output_dp_dof ind
-                a_input = (np.repeat(dp_values**0.5,self.Ni)[:,None] * np.tile(np.eye(self.Ni),ndp).T)
+                b_input = np.hstack(A_r[output_dp_ind_,:].T) # stacked residue rows at output_dp_dof ind
+                a_input = (np.repeat(dp_values**0.5,self.A.shape[2])[:,None] * np.tile(np.eye(self.A.shape[2]),ndp).T)
                 x_abs_input = np.linalg.lstsq(a_input, np.abs(b_input))[0]
                 phi_i.append(x_abs_input*np.sign(A_r[0,:]))
 
