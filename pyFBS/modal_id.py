@@ -546,17 +546,19 @@ class modal_id(object):
 
                 if check_dp:
                     # check if driving point values are physically meaningfull
-                        # check for near-zero values (less than 5% average)
-                    ind_1 = np.where(np.abs(dp_values) < 0.05*np.mean(np.abs(dp_values)))[0]
-                        # check for non-negative imaginary values
-                    ind_2 = np.where(np.sign(dp_values.imag) == 1)[0]
-                    ind_ = np.unique(np.hstack([ind_1, ind_2]))
+                        # disregard entries with non-negative imaginary values
+                    ind_1 = np.where(np.sign(dp_values.imag) == 1)[0]
+                    dp_values = np.delete(dp_values, ind_1)
+                    output_dp_ind_ = np.delete(output_dp_ind, ind_1)
+                    input_dp_ind_ = np.delete(input_dp_ind, ind_1)
 
-                    dp_values = np.delete(dp_values, ind_)
-                    output_dp_ind_ = np.delete(output_dp_ind, ind_)
-                    input_dp_ind_ = np.delete(input_dp_ind, ind_)
+                        # check the remaining set for near-zero values (less than 1% average)
+                    ind_2 = np.where(np.abs(dp_values) < 0.01*np.mean(np.abs(dp_values)))[0]
+                    dp_values = np.delete(dp_values, ind_2)
+                    output_dp_ind_ = np.delete(output_dp_ind_, ind_2)
+                    input_dp_ind_ = np.delete(input_dp_ind_, ind_2)
 
-                        # check kow many values are left
+                    # check kow many values are left
                     if len(dp_values) > 0:
                         ndp = len(dp_values)
                         print('Mode '+ str(r+1) + ' - Passed: ' + str(ndp) + '/' + str(len(output_dp_ind)))
@@ -593,15 +595,17 @@ class modal_id(object):
 
                 if check_dp:
                     # check if driving point values are physically meaningfull
-                        # check for near-zero values (less than 5% average)
-                    ind_1 = np.where(np.abs(dp_values) < 0.05*np.mean(np.abs(dp_values)))[0]
-                        # check for negative values
-                    ind_2 = np.where(np.sign(dp_values) == -1)[0]
-                    ind_ = np.unique(np.hstack([ind_1, ind_2]))
+                        # disregard entries with non-negative imaginary values
+                    ind_1 = np.where(np.sign(dp_values) == -1)[0]
+                    dp_values = np.delete(dp_values, ind_1)
+                    output_dp_ind_ = np.delete(output_dp_ind, ind_1)
+                    input_dp_ind_ = np.delete(input_dp_ind, ind_1)
 
-                    dp_values = np.delete(dp_values, ind_)
-                    output_dp_ind_ = np.delete(output_dp_ind, ind_)
-                    input_dp_ind_ = np.delete(input_dp_ind, ind_)
+                        # check the remaining set for near-zero values (less than 1% average)
+                    ind_2 = np.where(np.abs(dp_values) < 0.01*np.mean(np.abs(dp_values)))[0]
+                    dp_values = np.delete(dp_values, ind_2)
+                    output_dp_ind_ = np.delete(output_dp_ind_, ind_2)
+                    input_dp_ind_ = np.delete(input_dp_ind_, ind_2)
 
                         # check kow many values are left
                     if len(dp_values) > 0:
