@@ -505,7 +505,7 @@ class modal_id(object):
             else:
                 Y_rec_ = np.einsum("fip,po->foi", P_ , O_)   
             
-            self.Y_rec = np.vectorize(complex)(*np.split(Y_rec_,2))
+            self.FRF_rec = np.vectorize(complex)(*np.split(Y_rec_,2))
 
     def normalize(self, output_dp_ind, input_dp_ind, check_dp = True):
         """
