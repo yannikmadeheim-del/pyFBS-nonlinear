@@ -576,7 +576,7 @@ class modal_id(object):
                 psi_o.append(x_abs_output*np.exp(1.j*np.angle(R_r[:,0])))
 
                 # rows -> modal participation factors
-                b_input = np.hstack(R_r[output_dp_ind_,:].T) # stacked residue rows at output_dp_dof ind
+                b_input = np.hstack(R_r[output_dp_ind_,:]) # stacked residue rows at output_dp_dof ind
                 a_input = (np.repeat(dp_values**0.5,self.R.shape[2])[:,None] * np.tile(np.eye(self.R.shape[2]),ndp).T)
                 x_abs_input = np.linalg.lstsq(a_input, np.abs(b_input))[0]
                 psi_i.append(x_abs_input*np.exp(1.j*np.angle(R_r[0,:])))
@@ -625,7 +625,7 @@ class modal_id(object):
                 phi_o.append(x_abs_output*np.sign(A_r[:,0]))
 
                 # rows -> modal participation factors
-                b_input = np.hstack(A_r[output_dp_ind_,:].T) # stacked residue rows at output_dp_dof ind
+                b_input = np.hstack(A_r[output_dp_ind_,:]) # stacked residue rows at output_dp_dof ind
                 a_input = (np.repeat(dp_values**0.5,self.A.shape[2])[:,None] * np.tile(np.eye(self.A.shape[2]),ndp).T)
                 x_abs_input = np.linalg.lstsq(a_input, np.abs(b_input))[0]
                 phi_i.append(x_abs_input*np.sign(A_r[0,:]))
