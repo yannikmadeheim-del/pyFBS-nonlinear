@@ -288,7 +288,7 @@ Measurements involving a limited number of points on the structure can be expand
     .. figure:: ./data/semm_scheme.svg   
        :target: ./dynamic_expansion/system_equivalent_model_mixing.html
 
-       System Equivalent Model Mixing
+       System Equivalent Model Mixing in Frequency Domain (SEMM)
 
 .. raw:: html
 
@@ -301,6 +301,25 @@ Measurements involving a limited number of points on the structure can be expand
 
 
 
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="System Equivalent Model Mixing">
+
+.. only:: html
+
+    .. figure:: ./data/semm_scheme.svg   
+       :target: ./dynamic_expansion/system_equivalent_model_mixing.html
+
+       System Equivalent Model Mixing in Modal Domain (M-SEMM)
+
+.. raw:: html
+
+    </div>
+
+.. toctree::
+   :hidden:
+
+   ./dynamic_expansion/system_equivalent_model_mixing
 
 
 
@@ -313,7 +332,7 @@ Measurements involving a limited number of points on the structure can be expand
     .. figure:: ./data/serep_scheme.svg   
        :target: ./dynamic_expansion/21_SEREP.html
 
-       System Equivalent Reduction Expansion Process
+       System Equivalent Reduction Expansion Process (SEREP)
 
 .. raw:: html
 
