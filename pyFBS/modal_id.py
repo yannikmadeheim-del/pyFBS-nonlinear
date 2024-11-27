@@ -383,7 +383,7 @@ class modal_id(object):
         self.assuming_proportional = True    
         return m, P
     
-    def pLSFD(self, frf_type = 'receptance', assume_proportional = False, reconstruction = True, lower_residuals = True, upper_residuals = True, W = None, freq_rec = None):
+    def pLSFD(self, frf_type = 'receptance', assume_proportional = False, reconstruction = True, lower_residuals = True, upper_residuals = True, W = None, freq_rec = None, parsing = [None, None]):
         """
         Given the poles and modal participation factors, the remaining modal parameters are estimated with a Least-Squares Frequency Domain (LSFD) method.
 
@@ -410,14 +410,43 @@ class modal_id(object):
         """
 
         # prepare inputs for the least squares solver
-        Y_ = np.block([[[self.FRF.real]],[[self.FRF.imag]]])
+        if (np.array(parsing) == None).all():
+            Y_ = np.block([[[self.FRF.real]],[[self.FRF.imag]]])
         
-        if not assume_proportional: 
-            # general viscous damping model
-            m, P_ = self.generate_P(frf_type, lower_residuals, upper_residuals, freq_rec = None)
+            if not assume_proportional: 
+                # general viscous damping model
+                m, P_ = self.generate_P(frf_type, lower_residuals, upper_residuals, freq_rec = None)
+            else:
+                # proportional visous damping model
+                m, P_ = self.generate_P_proportional(frf_type, lower_residuals, upper_residuals, freq_rec = None)
+
         else:
-            # proportional visous damping model
-            m, P_ = self.generate_P_proportional(frf_type, lower_residuals, upper_residuals, freq_rec = None)
+            interval_range_1 = int(parsing[0])
+            interval_range_2 = int(parsing[1])
+
+            if not interval_range_2 > interval_range_1:
+                raise Exception("Interval range 2 should be greater than interval range 1.")
+
+            nat_freq_ind = np.array([np.where(np.isclose(self.freq, _, atol = self.freq[1]-self.freq[0]))[0][0] for _ in self.win.nat_freq])
+
+            level_1_intervals = nat_freq_ind[:,None] + np.array([-interval_range_1,interval_range_1])
+            level_1_ind = np.array([np.arange(*_) for _ in level_1_intervals]).ravel()
+            level_1_ind = np.unique(level_1_ind[level_1_ind > 0])
+            
+            level_2_intervals = nat_freq_ind[:,None] + np.array([-interval_range_2,interval_range_2])
+            level_2_ind = np.array([np.arange(*_) for _ in level_2_intervals]).ravel()
+            level_2_ind = np.unique(level_2_ind[level_2_ind > 0])
+            
+            ind_list = np.setdiff1d(level_2_ind, level_1_ind)
+
+            Y_ = np.block([[[self.FRF.real[ind_list]]],[[self.FRF.imag[ind_list]]]])
+
+            if not assume_proportional: 
+                # general viscous damping model
+                m, P_ = self.generate_P(frf_type, lower_residuals, upper_residuals, freq_rec = self.freq[ind_list])
+            else:
+                # proportional visous damping model
+                m, P_ = self.generate_P_proportional(frf_type, lower_residuals, upper_residuals, freq_rec = self.freq[ind_list])
 
         # solve the least squares problem
         if W == None:
@@ -501,7 +530,15 @@ class modal_id(object):
                 else:
                     # proportional visous damping model
                     _, P_ = self.generate_P_proportional(frf_type, lower_residuals, upper_residuals, freq_rec = freq_rec)
-                Y_rec_ = np.einsum("fip,po->foi", P_ , O_)   
+                Y_rec_ = np.einsum("fip,po->foi", P_ , O_)
+            if not (np.array(parsing) == None).all(): # if parsing is not None, than P_ needs to be reevaluated before reconstruction due to previous slicing
+                if not self.assuming_proportional: 
+                    # general viscous damping model
+                    _, P_ = self.generate_P(frf_type, lower_residuals, upper_residuals, freq_rec = None)
+                else:
+                    # proportional visous damping model
+                    _, P_ = self.generate_P_proportional(frf_type, lower_residuals, upper_residuals, freq_rec = None)
+                Y_rec_ = np.einsum("fip,po->foi", P_ , O_)
             else:
                 Y_rec_ = np.einsum("fip,po->foi", P_ , O_)   
             
