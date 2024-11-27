@@ -214,7 +214,7 @@ class modal_id(object):
         si = self.selected_poles[None].imag
         Lr = self.selected_mpf[None].real
         Li = self.selected_mpf[None].imag
-        if freq_rec == None:
+        if freq_rec is None:
             w = 2*np.pi*self.freq[:,None,None]
         else:
             # apply a different frequency vector
@@ -314,7 +314,7 @@ class modal_id(object):
         self.mpf_real = self.complex_to_closest_real(self.selected_mpf)
         Lr = self.mpf_real[None]
         
-        if freq_rec == None:
+        if freq_rec is None:
             w = 2*np.pi*self.freq[:,None,None]
         else:
             # apply a different frequency vector
@@ -427,7 +427,7 @@ class modal_id(object):
             if not interval_range_2 > interval_range_1:
                 raise Exception("Interval range 2 should be greater than interval range 1.")
 
-            nat_freq_ind = np.array([np.where(np.isclose(self.freq, _, atol = self.freq[1]-self.freq[0]))[0][0] for _ in self.win.nat_freq])
+            nat_freq_ind = np.array([np.where(np.isclose(self.freq, _, atol = self.freq[1]-self.freq[0]))[0][0] for _ in self.nat_freq])
 
             level_1_intervals = nat_freq_ind[:,None] + np.array([-interval_range_1,interval_range_1])
             level_1_ind = np.array([np.arange(*_) for _ in level_1_intervals]).ravel()
