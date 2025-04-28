@@ -83,8 +83,8 @@ def SEMM(Y_num, Y_exp, df_chn_num, df_imp_num, df_chn_exp, df_imp_exp, SEMM_type
         raise Exception('The input impact data frame must contain those DoFs that are represented in the numerical model.')
 
     # Initialization data
-    Y_num = np.asarray(np.copy(Y_num)).astype(np.complex)
-    Y_exp = np.asarray(np.copy(Y_exp)).astype(np.complex)
+    Y_num = np.asarray(np.copy(Y_num)).astype(complex)
+    Y_exp = np.asarray(np.copy(Y_exp)).astype(complex)
 
     # Data preparation for building parent, remowed and overlay model
     # Reviewing all experimental obtained DoFs

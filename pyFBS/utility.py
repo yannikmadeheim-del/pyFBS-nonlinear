@@ -309,8 +309,8 @@ def CMIF(FRF, return_svector=False):
     _S = np.zeros((_f, val))
 
     if return_svector:
-        _U = np.zeros((_f, FRF.shape[1], FRF.shape[1]), dtype="complex")
-        _V = np.zeros((_f, FRF.shape[2], FRF.shape[2]), dtype="complex")
+        _U = np.zeros((_f, FRF.shape[1], FRF.shape[1]), dtype=complex)
+        _V = np.zeros((_f, FRF.shape[2], FRF.shape[2]), dtype=complex)
 
     for i in range(_f):
         if return_svector:
