@@ -7,7 +7,7 @@ class VPT(object):
     """
     Virtual Point Transformation (VPT) - enables the transformation of measured responses and loads to virtual DoFs. 
     Current implementation enables the use of rigid and simple flexible interface deformation modes. DoFs supported 
-    are 3 translations + 3 rotations + 3 extensions + 3 torsions + 6 skewing. DoFs can be arbitrarily selected. 
+    are 3 translations + 3 rotations + 3 extensions + 3 torsions + 6 skewing + 6 bending. DoFs can be arbitrarily selected. 
     
     The following DoF labels should be used in VP dataframes to include them in the transformation:
     * Translational response/load:
@@ -20,6 +20,8 @@ class VPT(object):
         tx, ty, tz / tx, ty, tz
     * Skewing response/load:
         sxy, sxz, syz, syx, szx, szy / sxy, sxz, syz, syx, szx, szy
+    * Bending response/load:
+        bxy, bxz, byz, byx, bzx, bzy / bxy, bxz, byz, byx, bzx, bzy
 
     :param ch: A DataFrame containing information on channels (i.e. outputs)
     :type ch: pd.DataFrame
@@ -196,17 +198,19 @@ class VPT(object):
         rx, ry, rz = pos
 
         if type == "Angular Acceleration":
-            _R = np.asarray([[0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                             [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                             [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]])
+            _R = np.asarray([[0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                             [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                             [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]])
         else:
-            _R = np.asarray([[1, 0, 0, 0, rz, -ry, rx, 0, 0, 0, ry * rz, -rz * ry, rx * ry, rx * rz, 0, 0, 0, 0],
-                             [0, 1, 0, -rz, 0, rx, 0, ry, 0, -rx * rz, 0, rz * rx, 0, 0, ry * rz, ry * rx, 0, 0],
-                             [0, 0, 1, ry, -rx, 0, 0, 0, rz, rx * ry, -ry * rx, 0, 0, 0, 0, 0, rz * rx, rz * ry]])
+            _R = np.asarray([[1, 0, 0, 0, rz, -ry, rx, 0, 0, 0, ry * rz, -rz * ry, rx * ry, rx * rz, 0, 0, 0, 0, -rx * ry, -rx * rz, 0, (ry**2) / 2, (rz**2) / 2, 0],
+                             [0, 1, 0, -rz, 0, rx, 0, ry, 0, -rx * rz, 0, rz * rx, 0, 0, ry * rz, ry * rx, 0, 0, (rx**2) / 2, 0, -ry * rz, -ry * rx, 0, (rz**2) / 2],
+                             [0, 0, 1, ry, -rx, 0, 0, 0, rz, rx * ry, -ry * rx, 0, 0, 0, 0, 0, rz * rx, rz * ry, 0, (rx**2) / 2, (ry**2) / 2, 0, -rz * rx, -rz * ry]])
 
         # isolating desired DoF
-        columns_ = ['ux', 'uy', 'uz', 'rx', 'ry', 'rz', 'ex', 'ey', 'ez', 'tx', 'ty', 'tz', 'sxy', 'sxz', 'syz', 'syx',
-                    'szx', 'szy']
+        columns_ = ['ux', 'uy', 'uz', 'rx', 'ry', 'rz',
+                    'ex', 'ey', 'ez', 'tx', 'ty', 'tz',
+                    'sxy', 'sxz', 'syz', 'syx', 'szx', 'szy',
+                    'bxy', 'bxz', 'byz', 'byx', 'bzx', 'bzy']
         _R = np.asarray(pd.DataFrame(_R, columns=columns_)[desc])
 
         return _R
@@ -271,10 +275,19 @@ class VPT(object):
                          [0, ry * rz, 0],
                          [0, ry * rx, 0],
                          [0, 0, rz * rx],
-                         [0, 0, rz * ry]])
+                         [0, 0, rz * ry],
+                         [-rx * ry, (rx**2) / 2, 0],
+                         [-rx * rz, 0, (rx**2) / 2],
+                         [0, -ry * rz, (ry**2) / 2],
+                         [(ry**2) / 2, -ry * rx, 0],
+                         [(rz**2) / 2, 0, -rz * rx],
+                         [0, (rz**2) / 2, -rz * ry]])
 
         # isolating desired DoF
-        columns_ = ['fx','fy','fz','mx','my','mz','ex','ey','ez','tx','ty','tz','sxy','sxz','syz','syx','szx','szy']
+        columns_ = ['fx', 'fy', 'fz', 'mx', 'my', 'mz',
+                    'ex', 'ey', 'ez', 'tx', 'ty', 'tz',
+                    'sxy', 'sxz', 'syz', 'syx', 'szx', 'szy',
+                    'bxy', 'bxz', 'byz', 'byx', 'bzx', 'bzy']
         _R = np.asarray(pd.DataFrame(_R.T, columns=columns_)[desc]).T
         
         return _R
