@@ -1,5 +1,8 @@
 from scipy.sparse import linalg,diags
 from ansys.mapdl import reader as pymapdl_reader
+from ansys.dpf import core as dpf
+from ansys.dpf import post
+from ansys.dpf.core import vtk_helper
 from numpy.random import randn
 from .VPT import VPT
 
@@ -109,7 +112,44 @@ class MK_model(object):
                         Therefore value of parameter ``no_modes`` is changed to {len(self.eig_freq)}.")
                     self.no_modes = len(self.eig_freq)
 
-        else: # if mass and stifenss matrices are manualy defined
+        elif rst_file is not None and full_file is None:
+            # if only the rst file is defined, then the mass and stiffness matrices are not available, but the eigenvalue problem is solved
+            model = dpf.Model(rst_file)
+            simulation = post.load_simulation(rst_file)
+            displacement = simulation.displacement(all_sets=True, norm=False)
+            
+            nodes = simulation.mesh.coordinates.array
+            nat_freq = simulation.time_freq_support.time_frequencies.data
+            eig_vec = []
+            sort_ix = np.argsort(displacement.axes[0].node_ids.values)
+            for i in range(1, len(nat_freq)+1):
+                eig_vec.append(displacement.select(set_ids=i).array[sort_ix])
+            eig_vec = np.asarray(eig_vec)
+            _eig_vec = eig_vec.reshape(eig_vec.shape[0], -1).T
+            _dof_ref = np.zeros((int(nodes.shape[0]*nodes.shape[1]), 2), dtype=int)
+            _dof_ref[:, 0] = np.repeat(np.arange(1, nodes.shape[0]+1), 3)
+            _dof_ref[1::3, 1] = 1
+            _dof_ref[2::3, 1] = 2
+            
+            self.nodes = nodes * scale
+            self.mesh = vtk_helper.dpf_mesh_to_vtk_op(model.metadata.meshed_region)
+            self.mesh.points *= scale
+            self.pts = self.mesh.points.copy()
+            self.eig_freq = nat_freq
+            self.eig_val = (2*np.pi*nat_freq)**2
+            self.eig_vec = _eig_vec
+            self.dof_ref = _dof_ref
+            self.rotation_included = False
+            if no_modes > len(self.nodes):
+                self.no_modes = len(self.nodes)
+            else:
+                self.no_modes = no_modes
+            if no_modes > len(self.eig_freq):
+                print(f"Parameter ``no_modes`` is set to {self.no_modes}, but the .rst file from Ansys includes {len(self.eig_freq)} natural frequencies and mode shapes. \n \
+                            Therefore value of parameter ``no_modes`` is changed to {len(self.eig_freq)}.")
+                self.no_modes = len(self.eig_freq)
+
+        elif (manual_mass_matrix is not None) and (manual_stifenss_matrix is not None): # if mass and stifenss matrices are manualy defined
             self.K, self.M  = manual_stifenss_matrix, manual_mass_matrix
             self._K = self.K + diags(np.random.random(self.K.shape[0]) / 1e20, shape=self.K.shape) # avoid error
             if no_modes > len(self.K):
