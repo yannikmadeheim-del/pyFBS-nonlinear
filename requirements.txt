@@ -3,7 +3,7 @@ ansys-mapdl-reader
 pyuff
 pyvista
 pyvistaqt
-pandas<2
+pandas
 scipy
 tqdm
 keyboard
