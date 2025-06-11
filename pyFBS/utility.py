@@ -466,7 +466,7 @@ def generate_channels_from_sensors(df):
                                     None, df["Grouping"][s], df["Position_1"][s], df["Position_2"][s],
                                     df["Position_3"][s], rot[i][0], rot[i][1], rot[i][2]]])
             df_row = pd.DataFrame(data=data_chn, columns=columns_chann)
-            df_ch = df_ch.append(df_row,ignore_index = True)
+            df_ch = pd.concat([df_ch, df_row],ignore_index = True)
 
     return df_ch
 
@@ -497,7 +497,7 @@ def generate_sensors_from_channels(df):
 
 
         df_row = pd.DataFrame(data=data_chn, columns=columns_sen)
-        df_sen = df_sen.append(df_row,ignore_index = True)
+        df_sen = pd.concapt([df_sen,df_row],ignore_index = True)
 
     return df_sen
 
@@ -539,8 +539,8 @@ def generate_VP_from_position(df):
             df_row_vp = pd.DataFrame(data=data_vp, columns=columns_vp)
             df_row_vpref = pd.DataFrame(data=data_vpref, columns=columns_vp)
 
-            df_vp = df_vp.append(df_row_vp, ignore_index=True).apply(pd.to_numeric, errors='ignore')
-            df_vpref = df_vpref.append(df_row_vpref, ignore_index=True).apply(pd.to_numeric, errors='ignore')
+            df_vp = pd.concat([df_vp,df_row_vp], ignore_index=True).apply(pd.to_numeric, errors='ignore')
+            df_vpref = pd.concat([df_vpref,df_row_vpref], ignore_index=True).apply(pd.to_numeric, errors='ignore')
         
     return df_vp, df_vpref
 
@@ -897,7 +897,7 @@ def plot_FRF(freq, FRF_data, width=500, height=400, circle_size=4E3):
 
             df_temp = pd.DataFrame({"f" : freq, "A" : np.abs(FRF_data[:,i,j]),"ph" : np.angle(FRF_data[:,i,j]),"out" : [str(i)]*_f,\
                                     "in" : [str(j)]*_f,"out_in" : ['o'+str(i)+', i'+str(j)]*_f})
-            df = df.append(df_temp)
+            df = pd.concat([df,df_temp])
             
     selector = alt.selection_point(empty='all', fields=['out_in'])
     resize = alt.selection_interval(bind='scales')
@@ -976,7 +976,7 @@ def plot_frequency_response(freq, FR_data, width=500, height=400, labels=None, a
 
             df_temp = pd.DataFrame({"f" : freq, "A" : np.abs(FR_data[:,i,j]),"ph" : np.angle(FR_data[:,i,j]),"out" : [str(i)]*_f,\
                                     "in" : [str(j)]*_f,"out_in" : [labels[k]]*_f})
-            df = df.append(df_temp)
+            df = pd.concat([df,df_temp])
             k=k+1
     
     selection = alt.selection_point(fields=['out_in'], bind='legend')
@@ -1050,7 +1050,7 @@ def comparison_plot(x, y, width=500, height=250, labels=None, title='', x_label=
 
             df_temp = pd.DataFrame({"x" : x, "y" : y[:,i,j],"out" : [str(i)]*_x,\
                                     "in" : [str(j)]*_x,"out_in" : [labels[k]]*_x})
-            df = df.append(df_temp)
+            df = pd.concat([df,df_temp])
             k=k+1
     
     selection = alt.selection_point(fields=['out_in'], bind='legend')
@@ -1080,7 +1080,7 @@ def plot_comparison_multiple(freq,master_Y, labels):
 
                 df_temp = pd.DataFrame({"f" : freq, "A" : np.abs(FRF_data[:,i,j]),"ph" : np.angle(FRF_data[:,i,j]),"out" : [str(i)]*_f,\
                                         "in" : [str(j)]*_f,"out_in" : ['o'+str(i)+', i'+str(j)]*_f, "master" : str(i_master), "ID" : [''+str(i)+','+str(j)+' '+str(labels[i_master])]*_f})
-                df = df.append(df_temp)
+                df = pd.concat([df,df_temp])
 
     width = 500
     height = 300
@@ -1146,7 +1146,7 @@ def plot_coh(freq, coh_data, width=500, height=200, opacity=0.2, color='blue', t
     _f = coh_data.shape[0]
 
     df_temp = pd.DataFrame({"f" : freq, "coh" : np.abs(coh_data),"out" : [str(0)]*_f, "avg_coh" : [str(np.round(np.average(coh_data),3))]*_f})
-    df = df.append(df_temp)
+    df = pd.concat([df,df_temp])
             
     resize = alt.selection_interval(bind='scales')
 
@@ -1191,7 +1191,7 @@ def plot_coh_group(freq, coh_data, width=500, height=250, circle_size=4E3, opaci
 
             df_temp = pd.DataFrame({"f" : freq, "coh" : np.abs(coh_data[:,i,j]),"out" : [str(i)]*_f,\
                                     "in" : [str(j)]*_f,"out_in" : [str(i)+str(j)]*_f, "avg_coh" : [str(np.round(np.average(coh_data[:,i,j]),3))]*_f})
-            df = df.append(df_temp)
+            df = pd.concat([df,df_temp])
             
     selector = alt.selection_point(empty='all', fields=['out_in'])
     resize = alt.selection_interval(bind='scales')
@@ -1248,7 +1248,7 @@ def tranfer_path(freq, u3_partial, width=700, height=150):
     for i in range(u3_partial.shape[1]):
         DoFs = ['fx', 'fy', 'fz', 'mx', 'my', 'mz']        
         df_temp = pd.DataFrame({"f" : freq, "A" : np.log(np.abs(u3_partial[:,i])),"out" : [DoFs[i]]*_f})
-        df = df.append(df_temp)
+        df = pd.concat([df,df_temp])
     
     A = alt.Chart(df).mark_rect().encode(
             alt.X('f:O', axis=alt.Axis(title='Frequency [Hz]')),
