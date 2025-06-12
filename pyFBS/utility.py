@@ -497,7 +497,7 @@ def generate_sensors_from_channels(df):
 
 
         df_row = pd.DataFrame(data=data_chn, columns=columns_sen)
-        df_sen = pd.concapt([df_sen,df_row],ignore_index = True)
+        df_sen = pd.concat([df_sen,df_row],ignore_index = True)
 
     return df_sen
 
