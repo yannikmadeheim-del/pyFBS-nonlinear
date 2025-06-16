@@ -125,7 +125,7 @@ class modal_id(object):
         self.poles = p[1:]
         self.mpf = L[1:]
 
-    def pLSRA(self, max_order, step_order=2, stab_f=0.01, stab_damp=0.05, stab_mpf=0.05, sol_type = 'iterative'):
+    def pLSRA(self, max_order, step_order=1, stab_f=0.01, stab_damp=0.05, stab_mpf=0.05, sol_type = 'iterative'):
         """
         Perform polyreference least squares rational approximation (pLSRA) on frequency response data.
 
@@ -135,7 +135,7 @@ class modal_id(object):
             stab_f (float, optional): Stability criterion for the frequency component. Defaults to 0.01.
             stab_damp (float, optional): Stability criterion for the damping component. Defaults to 0.05.
             stab_mpf (float, optional): Stability criterion for the mode participation factor component. Defaults to 0.05.
-            sol_type (str, optional): Type of solver to use ('linearized' or 'iterative'). Defaults to 'iterative'.
+            sol_type (str, optional): Type of solver to use ('linearized' or 'iterative' or 'stabilized iterative'). Defaults to 'iterative'.
 
         Returns:
             None
@@ -146,22 +146,31 @@ class modal_id(object):
         p = [[np.array([0])]]
         L = [[np.zeros((self.Ni,1))]]
         
-        n_p_all = np.arange(2, max_order+1, step_order)
+        n_p_all = np.arange(max_order-6, max_order+1, step_order)
         for n_p in n_p_all:            
             if sol_type == 'linearized':
                 rat = polyrat.LinearizedRationalApproximation(n_p, n_p)
+                rat.fit(2*np.pi*self.freq[:,None], self.FRF)
+                poles = 1.j*rat.poles().ravel()
 
             elif sol_type == 'iterative':
                 rat = polyrat.SKRationalApproximation(n_p, n_p, verbose = False)
+                rat.fit(2*np.pi*self.freq[:,None], self.FRF)
+                poles = 1.j*rat.poles().ravel()
+
+            elif sol_type == 'stabilized iterative':
+                rat = polyrat.StabilizedSKRationalApproximation(n_p-1, n_p, verbose = False)
+
+                rat.fit(2*np.pi*self.freq[:,None], self.FRF)
+
+                y = rat.denominator(2*np.pi*self.freq[:,None])
+                poly = polyrat.PolynomialApproximation(n_p, Basis = polyrat.LegendrePolynomialBasis)
+                poly.fit(2*np.pi*self.freq[:,None], y)
+                poles = 1.j*poly.roots().ravel()
 
             else:
                 raise Exception('Unknown solver type.')
             
-            rat.fit(2*np.pi*self.freq[:,None], self.FRF)
-            
-            # poles
-            poles = 1.j*rat.poles().ravel()
-
             # mpf
             numerator = rat.numerator(np.abs(poles)[:,None])
             u,s,vh = np.linalg.svd(numerator, full_matrices = False)
