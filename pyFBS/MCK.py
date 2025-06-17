@@ -113,7 +113,8 @@ class MK_model(object):
                     self.no_modes = len(self.eig_freq)
 
         elif rst_file is not None and full_file is None:
-            # if only the rst file is defined, then the mass and stiffness matrices are not available, but the eigenvalue problem is solved
+            # if only the .rst file is defined, then the mass and stiffness matrices are not available
+            # the solution to the eigenvalue problem is read from the .rst file
             model = dpf.Model(rst_file)
             simulation = post.load_simulation(rst_file)
             displacement = simulation.displacement(all_sets=True, norm=False)
