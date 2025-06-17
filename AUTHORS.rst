@@ -15,6 +15,10 @@ Development Lead
 
 * Mert Göldeli
 
+* Tim Vrtač
+
+* Jure Korbar
+
 Contributors
 ------------
 
