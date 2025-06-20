@@ -1,5 +1,8 @@
 from scipy.sparse import linalg,diags
 from ansys.mapdl import reader as pymapdl_reader
+from ansys.dpf import core as dpf
+from ansys.dpf import post
+from ansys.dpf.core import vtk_helper
 from numpy.random import randn
 from .VPT import VPT
 
@@ -109,7 +112,67 @@ class MK_model(object):
                         Therefore value of parameter ``no_modes`` is changed to {len(self.eig_freq)}.")
                     self.no_modes = len(self.eig_freq)
 
-        else: # if mass and stifenss matrices are manualy defined
+        elif rst_file is not None and full_file is None:
+            # if only the .rst file is defined, then the mass and stiffness matrices are not available
+            # the solution to the eigenvalue problem is read from the .rst file
+            model = dpf.Model(rst_file)
+            simulation = post.load_simulation(rst_file)
+            displacement = simulation.displacement(all_sets=True, norm=False)
+            if 'complex' in displacement.columns.names:
+                self.damped_solver = True
+            else:
+                self.damped_solver = False
+            
+            nodes = simulation.mesh.coordinates.array
+            eig_vec = []
+            sort_ix = np.argsort(displacement.axes[0].node_ids.values)
+            if self.damped_solver:
+                nat_freq_imag = simulation.time_freq_support.time_frequencies.data
+                nat_freq_real = simulation.time_freq_support.complex_frequencies.data
+                nat_freq = (nat_freq_real + 1.j * nat_freq_imag) * 2 * np.pi # from Hz to rad/s
+                self.eig_freq = nat_freq
+                self.eig_val = nat_freq
+                self.eig_freq_undamped = np.abs(nat_freq)
+                damping_ratio = -nat_freq.real / self.eig_freq_undamped
+                self.damped_modes = (damping_ratio > 1e-5) & (damping_ratio < .999999)
+                for i in range(1, len(nat_freq)+1):
+                    _eig_vec_real = displacement.select(set_ids=i, complex=0).array[sort_ix]
+                    _eig_vec_imag = displacement.select(set_ids=i, complex=1).array[sort_ix]
+                    eig_vec.append(_eig_vec_real + 1.j * _eig_vec_imag)
+                eig_vec = np.asarray(eig_vec)
+                _eig_vec = eig_vec.reshape(eig_vec.shape[0], -1).T
+                a_normalized_eig_vec = _eig_vec[:, self.damped_modes] * (np.e**(-1.j * np.pi/4) / np.sqrt(2 * self.eig_val[self.damped_modes].imag))
+                _eig_vec[:, self.damped_modes] = a_normalized_eig_vec
+            else:
+                nat_freq = simulation.time_freq_support.time_frequencies.data * 2 * np.pi # from Hz to rad/s
+                self.eig_freq = nat_freq 
+                self.eig_val = nat_freq**2
+                for i in range(1, len(nat_freq)+1):
+                    eig_vec.append(displacement.select(set_ids=i).array[sort_ix])
+                eig_vec = np.asarray(eig_vec)
+                _eig_vec = eig_vec.reshape(eig_vec.shape[0], -1).T
+            _dof_ref = np.zeros((int(nodes.shape[0]*nodes.shape[1]), 2), dtype=int)
+            _dof_ref[:, 0] = np.repeat(np.arange(1, nodes.shape[0]+1), 3)
+            _dof_ref[1::3, 1] = 1
+            _dof_ref[2::3, 1] = 2
+            
+            self.nodes = nodes * scale
+            self.mesh = vtk_helper.dpf_mesh_to_vtk_op(model.metadata.meshed_region)
+            self.mesh.points *= scale
+            self.pts = self.mesh.points.copy()
+            self.eig_vec = _eig_vec
+            self.dof_ref = _dof_ref
+            self.rotation_included = False
+            if no_modes > len(self.nodes):
+                self.no_modes = len(self.nodes)
+            else:
+                self.no_modes = no_modes
+            if no_modes > len(self.eig_freq):
+                print(f"Parameter ``no_modes`` is set to {self.no_modes}, but the .rst file from Ansys includes {len(self.eig_freq)} natural frequencies and mode shapes. \n \
+                            Therefore value of parameter ``no_modes`` is changed to {len(self.eig_freq)}.")
+                self.no_modes = len(self.eig_freq)
+
+        elif (manual_mass_matrix is not None) and (manual_stifenss_matrix is not None): # if mass and stifenss matrices are manualy defined
             self.K, self.M  = manual_stifenss_matrix, manual_mass_matrix
             self._K = self.K + diags(np.random.random(self.K.shape[0]) / 1e20, shape=self.K.shape) # avoid error
             if no_modes > len(self.K):
@@ -300,7 +363,7 @@ class MK_model(object):
         :return: selected modes shape
         :rtype: array(float)
         """
-        _modeshape = np.zeros_like(self.nodes)
+        _modeshape = np.zeros_like(self.nodes, dtype=self.eig_vec.dtype)
         _mode = self.eig_vec[:, select_mode]
         _dof_ref = self.dof_ref
         if self.rotation_included: # to skip rotational modeshape
@@ -351,7 +414,10 @@ class MK_model(object):
                 no_modes = limit_modes
 
         # eigenvalues
-        _eig_val2 = self.eig_freq[:no_modes] ** 2
+        if self.damped_solver:
+            _eig_val2 = self.eig_val[:no_modes]
+        else:
+            _eig_val2 = self.eig_freq[:no_modes] ** 2
         # damping
 
         modal_damping = np.asarray(modal_damping).ravel()
@@ -472,9 +538,22 @@ class MK_model(object):
         ome = 2 * np.pi * _freq
         ome2 = ome ** 2        
         
-        denominator = (_eig_val2[:no_modes, np.newaxis] - ome2) + np.einsum('ij,i->ij',(ome * self.eig_freq[:no_modes, np.newaxis]),(2 * 1j * damping[:no_modes]))
+        if self.damped_solver:
+            m_p_undamped = m_p[~self.damped_modes[:no_modes]]  
+            m_p = m_p[self.damped_modes[:no_modes]]
+            _eig_val2 = _eig_val2[self.damped_modes[:no_modes]]
+            m_p_conj = np.conj(m_p)
+            den_1 = 1.j * ome - _eig_val2[:no_modes, np.newaxis]
+            den_2 = 1.j * ome - _eig_val2[:no_modes, np.newaxis].conj()
+            
+            FRF_matrix = np.einsum('ijk,il->ljk', m_p, 1 / den_1) + np.einsum('ijk,il->ljk', m_p_conj, 1 / den_2)
+            if not np.all(self.damped_modes[:no_modes]):
+                FRF_matrix += np.einsum('ijk,l->ljk', m_p_undamped, -1 / (ome2))
+        
+        else:
+            denominator = (_eig_val2[:no_modes, np.newaxis] - ome2) + np.einsum('ij,i->ij',(ome * self.eig_freq[:no_modes, np.newaxis]),(2 * 1j * damping[:no_modes]))
 
-        FRF_matrix = np.einsum('ijk,il->ljk', m_p, 1 / denominator)
+            FRF_matrix = np.einsum('ijk,il->ljk', m_p, 1 / denominator)
 
         if frf_type == "receptance":
             _temp = FRF_matrix

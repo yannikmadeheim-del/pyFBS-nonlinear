@@ -1,5 +1,7 @@
 numpy
 ansys-mapdl-reader
+ansys-dpf-core
+ansys-dpf-post
 pyuff
 pyvista
 pyvistaqt
