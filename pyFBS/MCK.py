@@ -16,6 +16,7 @@ import pickle
 import os
 from os import path
 import h5py
+import warnings
 
 class MK_model(object):
     """
@@ -42,6 +43,7 @@ class MK_model(object):
 
     def __init__(self, rst_file=None, full_file=None, manual_mass_matrix=None, manual_stifenss_matrix=None, no_modes=100, allow_pickle=True, recalculate=False, scale=1, read_rst=False):
         
+        warnings.warn("MK_model is deprecated and will be removed in future versions. Use Model instead.", DeprecationWarning)
         if rst_file and full_file: # check if rest and full files are defined, that mass and stifenss matrices will be importd from there
 
             rst = pymapdl_reader.read_binary(rst_file)
