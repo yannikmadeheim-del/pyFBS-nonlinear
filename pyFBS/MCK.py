@@ -7,12 +7,15 @@ from numpy.random import randn
 from .VPT import VPT
 
 import pandas as pd
+import pyvista as pv
 import scipy as sp
 import numpy as np
 from scipy import spatial
 from scipy.linalg import block_diag
 import pickle
+import os
 from os import path
+import h5py
 
 class MK_model(object):
     """
@@ -78,7 +81,7 @@ class MK_model(object):
                 same = False
                 if allow_pickle and path.exists(p_file):
                 
-                    same = self.piclke_check(p_file, no_modes)
+                    same = self._pickle_check(p_file, no_modes)
                     if same:
                         self.M, self.K, self.eig_freq, self.eig_val, self.eig_vec, no_modes = pickle.load(open(p_file, "rb"))
                     # solve the problem
@@ -185,7 +188,7 @@ class MK_model(object):
             p_file = '{}.pkl'.format("mass_stifenss_matrices")
             same = False
             if allow_pickle and path.exists(p_file):
-                same = self.piclke_check(p_file, no_modes)
+                same = self._pickle_check(p_file, no_modes)
                 if same:
                         self.M, self.K, self.eig_freq, self.eig_val, self.eig_vec, no_modes = pickle.load(open(p_file, "rb"))
                     # solve the problem
@@ -196,9 +199,44 @@ class MK_model(object):
                         pickle.dump([self.M, self.K, self.eig_freq, self.eig_val, self.eig_vec, no_modes],open(p_file, "wb"))
             else:
                 self.eig_freq, self.eig_val, self.eig_vec = self.eig_solve(self.M, self._K, no_modes)
+                
+    def save(self, directory='./', file_name='file'):
+        """
+        Save the model mesh to .vtk and other attributes to .hdf5.
 
-    def piclke_check(self, p_file, no_modes):
-        """The function checks if the defined mass and stiffness matrices are the same as were defined in the saved pickle file.
+        :param directory: directory where the file will be saved
+        :type directory: str
+        :param file_name: name of the file
+        :type file_name: str
+        """
+        hdf5_filepath = os.path.join(directory, f"{file_name}.hdf5")
+        hdf5_file = h5py.File(hdf5_filepath, "w")
+        hdf5_file.create_dataset("nodes", data=self.nodes)
+        hdf5_file.create_dataset("pts", data=self.pts)
+        hdf5_file.create_dataset("eig_vec", data=self.eig_vec)
+        hdf5_file.create_dataset("dof_ref", data=self.dof_ref)
+        hdf5_file.create_dataset("eig_freq", data=self.eig_freq)
+        hdf5_file.create_dataset("eig_val", data=self.eig_val)
+        hdf5_file.create_dataset("no_modes", data=self.no_modes)
+        hdf5_file.create_dataset("rotation_included", data=self.rotation_included)
+        if hasattr(self, 'eig_vec_strain'):
+            if self.eig_vec_strain is not None:
+                hdf5_file.create_dataset("eig_vec_strain", data=self.eig_vec_strain)
+        if hasattr(self, 'damped_solver'):
+            hdf5_file.create_dataset("damped_solver", data=self.damped_solver)
+        hdf5_file.close()
+        
+        # save mesh to vtk
+        vtk_filepath = os.path.join(directory, f"{file_name}.vtk")
+        grid = self.mesh.copy()
+        grid.save(vtk_filepath)
+
+        print(f"MK model saved to {hdf5_filepath} and {vtk_filepath}")
+
+    def _pickle_check(self, p_file, no_modes):
+        """
+        The function checks if the defined mass and stiffness matrices are the same as were defined in the saved pickle file.
+        Will be depricated once MK_model is removed.
 
         :param p_file: name of pickle file
         :type p_file: array
@@ -207,18 +245,34 @@ class MK_model(object):
 
         :rtype: bool
         """
-        _M,_K,_eig_freq,_eig_val,_eig_vec,_no_modes = pickle.load( open(p_file, "rb" ))
+        return self.pickle_check(p_file, no_modes, self.M, self.K)
+    
+    @staticmethod
+    def pickle_check(p_file, no_modes, M, K):
+        """The function checks if the defined mass and stiffness matrices are the same as were defined in the saved pickle file.
+
+        :param p_file: name of pickle file
+        :type p_file: array
+        :param no_modes: number of modes to be included in output of the eigenvalue computation
+        :type no_modes: int
+        :param M: mass matrix
+        :type M: scipy.sparse
+        :param K: stiffness matrix
+        :type K: scipy.sparse
+
+        :rtype: bool
+        """
+        _M, _K, _eig_freq, _eig_val, _eig_vec, _no_modes = pickle.load(open(p_file, "rb"))
         # check if the solution is the same
-        if _K.shape == self.K.shape and _M.shape == self.M.shape:
-            check_mas  = (_K != self.K).nnz == 0
-            check_stif = (_M != self.M).nnz == 0
+        if _K.shape == K.shape and _M.shape == M.shape:
+            check_mas = (_M != M).nnz == 0
+            check_stif = (_K != K).nnz == 0
         else:
             check_mas = False
             check_stif = False
         check_no_modes = _no_modes == no_modes
-        same = np.all([check_mas,check_stif,check_no_modes])
+        same = np.all([check_mas, check_stif,check_no_modes])
         return same
-    
     
     def manual_mesh_definition(self, grid, dof_ref):
         """
@@ -777,3 +831,243 @@ class MK_model(object):
         noise = np.einsum("ijk,ijk->ijk", np.abs(self.FRF), rand1) + np.einsum("ijk,ijk->ijk", np.abs(self.FRF), rand2) + rand3 + rand4
 
         self.FRF_noise = self.FRF + noise
+
+
+class Model(MK_model):
+    def __init__(
+        self, nodes=None, pts=None, mesh=None, dof_ref=None, K=None, _K=None,
+        M=None, eig_val=None, eig_freq=None, eig_vec=None, eig_vec_strain=None,
+        no_modes=None, rotation_included=False, damped_solver=False, _all=False
+        ):
+        """
+        Initialization of the Model.
+        """
+        self.nodes = nodes
+        self.pts = pts
+        self.mesh = mesh
+        self.dof_ref = dof_ref
+        self.K = K
+        self._K = _K
+        self.M = M
+        self.eig_val = eig_val
+        self.eig_freq = eig_freq
+        self.eig_vec = eig_vec
+        self.eig_vec_strain = eig_vec_strain
+        self.no_modes = no_modes
+        self.rotation_included = rotation_included
+        self.damped_solver = damped_solver
+        self._all = _all
+        
+    @classmethod
+    def from_save(cls, directory='./', file_name='file'):
+        """
+        Load the model from .vtk and .hdf5 files.
+        """
+        vtk_file = os.path.join(directory, f"{file_name}.vtk")
+        hdf5_file = os.path.join(directory, f"{file_name}.hdf5")
+
+        # Load the mesh from the .vtk file
+        mesh = pv.read(vtk_file)
+
+        # Load the attributes from the .hdf5 file
+        with h5py.File(hdf5_file, 'r') as f:
+            data = {key: f[key][()] for key in f.keys()}
+
+        return cls(mesh=mesh, **data)
+
+    @classmethod
+    def from_ansys(cls, rst_file=None, full_file=None, manual_mass_matrix=None, manual_stiffness_matrix=None, no_modes=100, allow_pickle=True, recalculate=False, scale=1, read_rst=False):
+        """
+        Initialization of the finite element model. Mass and stiffness matrices are imported and also nodes, DoFs and complete mesh of finite elements are defined.
+        If parameter ``recalculate`` is ``Ture`` eigenvalues and eigenvectors are calculated. 
+        For faster processing by default pickle file is generated where mass and stiffness matrices are stored and also computed eigenvalues, eigenvectors and used number of modes.
+        If changes are detected in the mass or stiffness matrix with respect to the stored pickle file, the calculation of eigenvalues and eigenvectors is repeated.
+        
+        :param rst_file: path of the .rst file exported from Ansys
+        :type rst_file: str
+        :param full_file: path of the .full file exported from Ansys
+        :type full_file: str
+        :param no_modes: number of modes to be included in output of the eigenvalue computation
+        :type no_modes: int
+        :param allow_pickle: if ``True``, pickle file will be generated to store data or will pickle file be used to load data
+        :type allow_pickle: bool
+        :param recalculate: if ``False`` just mass and stiffness matrices with corresponding nodes and their DoFs will be imported. If ``True`` also the eigenvalue problem will be solved.
+        :type recalculate: bool
+        :param scale: distance scaling factor
+        :type scale: float
+        :param read_rst: if ``True`` reads the eigenvalue solution directly from .rst file
+        :type read_rst: bool
+        """
+        
+        nodes = None
+        pts = None
+        mesh = None
+        dof_ref = None
+        K = None
+        _K = None
+        M = None
+        eig_val = None
+        eig_freq = None
+        eig_vec = None
+        eig_vec_strain = None
+        rotation_included = False
+        damped_solver = False
+        _all = False
+            
+        if rst_file and full_file: # check if rest and full files are defined, that mass and stifenss matrices will be importd from there
+
+            rst = pymapdl_reader.read_binary(rst_file)
+
+            # new version of pyansys
+            nodes = rst.mesh.nodes*scale  # only translational dofs
+            mesh = rst.grid
+            mesh.points *= scale
+            pts = mesh.points.copy()
+            _all = False
+
+            full = pymapdl_reader.read_binary(full_file)
+            dof_ref, K_triu, M_triu = full.load_km(sort=True)  # dof_ref: 0-x 1-y 2-z
+            M = M_triu + sp.sparse.triu(M_triu, 1).T
+            K = K_triu + sp.sparse.triu(K_triu, 1).T
+            _K = K + diags(np.random.random(K.shape[0]) / 1e20, shape=K.shape) # avoid error
+
+            if dof_ref[0, 0] != 1:
+                dof_ref[:, 0] = dof_ref[:, 0] - (dof_ref[0, 0] - 1)
+                
+            if no_modes > len(dof_ref):
+                no_modes = len(dof_ref)
+
+            if np.max(dof_ref[:, 1]) == 5:
+                rotation_included = True
+            elif np.max(dof_ref[:, 1]) == 2:
+                rotation_included = False
+
+            # an option to read directly the .rst file
+            if read_rst == False:
+                #print("evaluating M and K matrices")
+                p_file = '{}.pkl'.format(full_file)
+                # check if there is a .pkl file
+                same = False
+                if allow_pickle and path.exists(p_file):
+
+                    same = cls.pickle_check(p_file, no_modes, M, K)
+                    if same:
+                        M, K, eig_freq, eig_val, eig_vec, no_modes = pickle.load(open(p_file, "rb"))
+                    # solve the problem
+                else:
+                    eig_freq, eig_val, eig_vec = cls.eig_solve(M, _K, no_modes)
+
+                if same == False or recalculate == True:
+                    eig_freq, eig_val, eig_vec = cls.eig_solve(M, _K, no_modes)
+
+                    if allow_pickle:
+                        pickle.dump([M, K, eig_freq, eig_val, eig_vec, no_modes],open(p_file, "wb"))
+            else: # read from pyansys - from rst file
+                # print("Reading RST file")
+
+                M += sp.sparse.triu(M, 1).T
+                K += sp.sparse.triu(K, 1).T
+
+                _K = K + diags(np.random.random(K.shape[0]) / 1e20, shape=K.shape) # avoid error
+
+                eig_freq, eig_val, eig_vec, eig_vec_strain = cls.get_values_from_rst(rst)
+                if len(eig_freq)>=no_modes: # truncation of results in .rst file to match the desired number of modes in ``no_modes`` parameter
+                    eig_freq = eig_freq[:no_modes]
+                    eig_val = eig_val[:no_modes]
+                    eig_vec = eig_vec[:, :no_modes]
+                    try:
+                        eig_vec_strain = eig_vec_strain[:, :no_modes]
+                    except: # if the strain is not included in the .rst file, then the ``self.eig_vec_strain`` is just left as an empty array
+                        pass
+                else:
+                    print(f"Parameter ``no_modes`` is set to {no_modes}, but the .rst file from Ansys includes {len(eig_freq)} natural frequencies and mode shapes. \n \
+                        Therefore value of parameter ``no_modes`` is changed to {len(eig_freq)}.")
+                    no_modes = len(eig_freq)
+
+        elif rst_file is not None and full_file is None:
+            # if only the .rst file is defined, then the mass and stiffness matrices are not available
+            # the solution to the eigenvalue problem is read from the .rst file
+            model = dpf.Model(rst_file)
+            simulation = post.load_simulation(rst_file)
+            displacement = simulation.displacement(all_sets=True, norm=False)
+            if 'complex' in displacement.columns.names:
+                damped_solver = True
+            else:
+                damped_solver = False
+            
+            nodes = simulation.mesh.coordinates.array
+            eig_vec = []
+            sort_ix = np.argsort(displacement.axes[0].node_ids.values)
+            if damped_solver:
+                nat_freq_imag = simulation.time_freq_support.time_frequencies.data
+                nat_freq_real = simulation.time_freq_support.complex_frequencies.data
+                nat_freq = (nat_freq_real + 1.j * nat_freq_imag) * 2 * np.pi # from Hz to rad/s
+                eig_freq = nat_freq
+                eig_val = nat_freq
+                eig_freq_undamped = np.abs(nat_freq)
+                damping_ratio = -nat_freq.real / eig_freq_undamped
+                damped_modes = (damping_ratio > 1e-5) & (damping_ratio < .999999)
+                for i in range(1, len(nat_freq)+1):
+                    _eig_vec_real = displacement.select(set_ids=i, complex=0).array[sort_ix]
+                    _eig_vec_imag = displacement.select(set_ids=i, complex=1).array[sort_ix]
+                    eig_vec.append(_eig_vec_real + 1.j * _eig_vec_imag)
+                eig_vec = np.asarray(eig_vec)
+                _eig_vec = eig_vec.reshape(eig_vec.shape[0], -1).T
+                a_normalized_eig_vec = _eig_vec[:, damped_modes] * (np.e**(-1.j * np.pi/4) / np.sqrt(2 * eig_val[damped_modes].imag))
+                _eig_vec[:, damped_modes] = a_normalized_eig_vec
+            else:
+                nat_freq = simulation.time_freq_support.time_frequencies.data * 2 * np.pi # from Hz to rad/s
+                eig_freq = nat_freq 
+                eig_val = nat_freq**2
+                for i in range(1, len(nat_freq)+1):
+                    eig_vec.append(displacement.select(set_ids=i).array[sort_ix])
+                eig_vec = np.asarray(eig_vec)
+                _eig_vec = eig_vec.reshape(eig_vec.shape[0], -1).T
+            _dof_ref = np.zeros((int(nodes.shape[0]*nodes.shape[1]), 2), dtype=int)
+            _dof_ref[:, 0] = np.repeat(np.arange(1, nodes.shape[0]+1), 3)
+            _dof_ref[1::3, 1] = 1
+            _dof_ref[2::3, 1] = 2
+            
+            nodes = nodes * scale
+            mesh = vtk_helper.dpf_mesh_to_vtk_op(model.metadata.meshed_region)
+            mesh.points *= scale
+            pts = mesh.points.copy()
+            eig_vec = _eig_vec
+            dof_ref = _dof_ref
+            rotation_included = False
+            if no_modes > len(dof_ref):
+                no_modes = len(dof_ref)
+            if no_modes > len(eig_freq):
+                print(f"Parameter ``no_modes`` is set to {no_modes}, but the .rst file from Ansys includes {len(eig_freq)} natural frequencies and mode shapes. \n \
+                            Therefore value of parameter ``no_modes`` is changed to {len(eig_freq)}.")
+                no_modes = len(eig_freq)
+
+        elif (manual_mass_matrix is not None) and (manual_stiffness_matrix is not None): # if mass and stiffness matrices are manually defined
+            K, M  = manual_stiffness_matrix, manual_mass_matrix
+            _K = K + diags(np.random.random(K.shape[0]) / 1e20, shape=K.shape) # avoid error
+            if no_modes > len(K):
+                no_modes = len(K)
+            else:
+                no_modes = no_modes
+            _all = False
+            rotation_included = False
+
+            p_file = '{}.pkl'.format("mass_stifenss_matrices")
+            same = False
+            if allow_pickle and path.exists(p_file):
+                same = cls.pickle_check(p_file, no_modes, M, K)
+                if same:
+                        M, K, eig_freq, eig_val, eig_vec, no_modes = pickle.load(open(p_file, "rb"))
+                    # solve the problem
+                if same == False or recalculate == True:
+                    eig_freq, eig_val, eig_vec = cls.eig_solve(M, _K, no_modes)
+
+                    if allow_pickle:
+                        pickle.dump([M, K, eig_freq, eig_val, eig_vec, no_modes],open(p_file, "wb"))
+            else:
+                eig_freq, eig_val, eig_vec = cls.eig_solve(M, _K, no_modes)
+                
+        return cls(
+            nodes=nodes, pts=pts, mesh=mesh, dof_ref=dof_ref, K=K, _K=_K, M=M,
+            eig_val=eig_val, eig_freq=eig_freq, eig_vec=eig_vec, eig_vec_strain=eig_vec_strain,
+            no_modes=no_modes, rotation_included=rotation_included, damped_solver=damped_solver, _all=_all)
