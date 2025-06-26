@@ -5,7 +5,7 @@ import pkg_resources
 
 """The setup script."""
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
 with open('README.rst') as readme_file:
     readme = readme_file.read()
@@ -47,8 +47,8 @@ setup(
     package_data={'': extra_files},
     keywords='pyFBS',
     name='pyFBS',
-    packages=["pyFBS"],
+    packages=find_packages(),
     test_suite='tests',
     url='https://pyfbs.readthedocs.io/en/latest/intro.html',
-    version='0.3.3',
+    version='1.0.0',
 )
