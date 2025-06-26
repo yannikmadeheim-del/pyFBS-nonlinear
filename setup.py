@@ -1,37 +1,17 @@
 #!/usr/bin/env python
 
 import os
-import re
+import pkg_resources
 
 """The setup script."""
 
-from setuptools import setup, find_packages
-
-
-try:  # for pip >= 10
-    from pip._internal.req import parse_requirements
-    try:
-        from pip._internal.download import PipSession
-    except ImportError:  # for pip >= 20
-        from pip._internal.network.session import PipSession
-except ImportError:  # for pip <= 9.0.3
-    from pip.req import parse_requirements
-    from pip.download import PipSession
-
+from setuptools import setup
 
 with open('README.rst') as readme_file:
     readme = readme_file.read()
 
-#with open('HISTORY.rst') as history_file:
-#    history = history_file.read()
-
-requirements = parse_requirements('requirements.txt', session=PipSession())
-
-try:
-    all_requirements = [str(requirement.req) for requirement in requirements]
-except AttributeError:
-    all_requirements = [str(requirement.requirement) for requirement in requirements]
-
+with open('requirements.txt') as f:
+    all_requirements = [str(req) for req in pkg_resources.parse_requirements(f)]
 	
 def package_files(directory):
     paths = []
@@ -70,5 +50,5 @@ setup(
     packages=["pyFBS"],
     test_suite='tests',
     url='https://pyfbs.readthedocs.io/en/latest/intro.html',
-    version='0.3.1',
+    version='0.3.3',
 )
