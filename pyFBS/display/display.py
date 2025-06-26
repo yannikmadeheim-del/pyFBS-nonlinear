@@ -23,7 +23,7 @@ COLUMNS_ACC = ["Name", "Description", "Quantity","Grouping", "Position_1", "Posi
 COLUMNS_CHN = ["Name", "Description","Quantity","Grouping","Position_1", "Position_2", "Position_3", "Direction_1", "Direction_2","Direction_3"]
 
 
-class view3D():
+class View3D():
     """
     A 3D display where structure, impacts, accelerometer and channels can be quickly displayed. Additionaly, all objects
     can be interactively placed on the mesh from a STL file. Also the 3D display supports basic animations.
