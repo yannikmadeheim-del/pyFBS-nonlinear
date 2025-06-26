@@ -1,7 +1,9 @@
 import pyuff
 import math
-from .utility import *
+import numpy as np
+from ..utility import generate_sensors_from_channels
 import os
+import pandas as pd
 import requests
 import shutil
 import h5py    

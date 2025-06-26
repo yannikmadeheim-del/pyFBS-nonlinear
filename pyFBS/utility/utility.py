@@ -1295,3 +1295,17 @@ def contour_plot(x, y, z, width=200, height=200, title='', cmap='turbo'):
         ).properties(width=width, height=height)
     
     return imshow
+
+__all__ = [
+    'modeshape_sync_lstsq', 'modeshape_scaling_DP', 'MCF', 'flatten_FRFs', 
+    'unflatten_modes', 'complex_plot', 'complex_plot_3D', 'mode_animation', 
+    'MAC', 'coh_frf', 'dict_animation', 'CMIF', 'TSVD', 'M', 'angle', 
+    'rotation_matrix_from_vectors', 'unit_vector', 'angle_between', 
+    'generate_channels_from_sensors', 'generate_sensors_from_channels', 
+    'generate_VP_from_position', 'coh_on_FRF', 'orient_in_global', 
+    'orient_in_global_2', 'MCC', 'MPC', 'auralization', 'SSA_filter', 
+    'SSA_evaluate', 'PRF', 'ODS_FRF', 'ODS_FRF_averaging', 'runup_data', 
+    'barchart', 'imshow', 'plot_FRF', 'plot_frequency_response', 
+    'comparison_plot', 'plot_comparison_multiple', 'plot_coh', 
+    'plot_coh_group', 'tranfer_path', 'contour_plot'
+    ]

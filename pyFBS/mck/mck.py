@@ -1,16 +1,14 @@
-from scipy.sparse import linalg,diags
+from scipy.sparse import diags
 from ansys.mapdl import reader as pymapdl_reader
 from ansys.dpf import core as dpf
 from ansys.dpf import post
 from ansys.dpf.core import vtk_helper
-from numpy.random import randn
-from .VPT import VPT
+from ..interface import VPT
 
 import pandas as pd
 import pyvista as pv
 import scipy as sp
 import numpy as np
-from scipy import spatial
 from scipy.linalg import block_diag
 import pickle
 import os

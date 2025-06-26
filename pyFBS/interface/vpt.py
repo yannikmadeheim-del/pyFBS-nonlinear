@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from scipy.linalg import block_diag, norm
-from .utility import coh_frf
+from ..utility import coh_frf
 
 class VPT(object):
     """

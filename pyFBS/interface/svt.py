@@ -1,7 +1,7 @@
 import numpy as np
-from scipy.linalg import block_diag, norm
-from .utility import coh_frf,CMIF
-from .VPT import VPT
+from scipy.linalg import norm
+from ..utility import coh_frf, CMIF
+from .vpt import VPT
 
 class SVT(object):
     """

@@ -6,7 +6,7 @@ from time import time,sleep
 from PyQt5.QtWidgets import QAction
 from PyQt5 import  QtGui
 import imageio
-from .utility import *
+from ..utility import rotation_matrix_from_vectors, angle_between, angle, M
 import keyboard as kb
 from scipy.spatial.transform import Rotation as R
 from pathlib import Path

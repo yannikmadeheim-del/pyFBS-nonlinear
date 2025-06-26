@@ -1,10 +1,10 @@
 import numpy as np
 from scipy import linalg
-from .utility import MAC
+from ..utility import MAC
 from PyQt5 import QtCore, QtWidgets
 from scipy.optimize import least_squares
 
-class modal_id(object):
+class ModalID(object):
     """
     Poly-reference frequency domain identification for modal parameter estimation as a combination of 
     poly-reference Least-Squares Complex Frequency (pLSCF) and Least-Squares Frequency Domain (LSFD) methods.

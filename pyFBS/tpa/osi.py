@@ -3,7 +3,7 @@ from numpy.fft import fft
 import matplotlib.pyplot as plt
 from scipy.signal import TransferFunction as TF
 
-def OSI_var1(u_signal, f_signal, Fs, NT, NT_cancel=5, T=1):
+def osi_var1(u_signal, f_signal, Fs, NT, NT_cancel=5, T=1):
     '''
     Computes the Frequency Response Function (FRF) of an operating system 
     using the Operational System Identification (OSI) method.
@@ -149,7 +149,7 @@ def OSI_var1(u_signal, f_signal, Fs, NT, NT_cancel=5, T=1):
 
 
 
-def OSI_var2(u_signal, f_signal, Fs, NT, NT_cancel=5, T=1):
+def osi_var2(u_signal, f_signal, Fs, NT, NT_cancel=5, T=1):
     '''
     Computes the Frequency Response Function (FRF) of an operating system 
     using the Operational System Identification (OSI) method.
@@ -288,7 +288,7 @@ def OSI_var2(u_signal, f_signal, Fs, NT, NT_cancel=5, T=1):
     
     return Y_osi, freq, err_U, err_F
 
-def MIMO_OSI(responses,excitations, Fs_=4096, NT_=300, NT_cancel_=5, T_=1):
+def mimo_osi(responses,excitations, Fs_=4096, NT_=300, NT_cancel_=5, T_=1):
     '''
     Application of the OSI method for multiple inputs and outputs
 
