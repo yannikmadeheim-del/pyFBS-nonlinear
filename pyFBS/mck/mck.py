@@ -5,6 +5,7 @@ from ansys.dpf import post
 from ansys.dpf.core import vtk_helper
 from ..interface import VPT
 
+import json
 import pandas as pd
 import pyvista as pv
 import scipy as sp
@@ -39,10 +40,10 @@ class MK_model(object):
     :type read_rst: bool
     """
 
-    def __init__(self, rst_file=None, full_file=None, manual_mass_matrix=None, manual_stifenss_matrix=None, no_modes=100, allow_pickle=True, recalculate=False, scale=1, read_rst=False):
+    def __init__(self, rst_file=None, full_file=None, manual_mass_matrix=None, manual_stiffness_matrix=None, no_modes=100, allow_pickle=True, recalculate=False, scale=1, read_rst=False):
         
         warnings.warn("MK_model is deprecated and will be removed in future versions. Use Model instead.", DeprecationWarning)
-        if rst_file and full_file: # check if rest and full files are defined, that mass and stifenss matrices will be importd from there
+        if rst_file and full_file: # check if rest and full files are defined, that mass and stiffness matrices will be importd from there
 
             rst = pymapdl_reader.read_binary(rst_file)
 
@@ -51,6 +52,7 @@ class MK_model(object):
             self.mesh = rst.grid
             self.mesh.points *= scale
             self.pts = self.mesh.points.copy()
+            self.scale = scale
 
             if no_modes > len(self.nodes):
                 self.no_modes = len(self.nodes)
@@ -120,6 +122,7 @@ class MK_model(object):
             # the solution to the eigenvalue problem is read from the .rst file
             model = dpf.Model(rst_file)
             simulation = post.load_simulation(rst_file)
+            self.units = simulation.units
             displacement = simulation.displacement(all_sets=True, norm=False)
             if 'complex' in displacement.columns.names:
                 self.damped_solver = True
@@ -175,8 +178,8 @@ class MK_model(object):
                             Therefore value of parameter ``no_modes`` is changed to {len(self.eig_freq)}.")
                 self.no_modes = len(self.eig_freq)
 
-        elif (manual_mass_matrix is not None) and (manual_stifenss_matrix is not None): # if mass and stifenss matrices are manualy defined
-            self.K, self.M  = manual_stifenss_matrix, manual_mass_matrix
+        elif (manual_mass_matrix is not None) and (manual_stiffness_matrix is not None): # if mass and stiffness matrices are manualy defined
+            self.K, self.M  = manual_stiffness_matrix, manual_mass_matrix
             self._K = self.K + diags(np.random.random(self.K.shape[0]) / 1e20, shape=self.K.shape) # avoid error
             if no_modes > len(self.K):
                 self.no_modes = len(self.K)
@@ -185,7 +188,7 @@ class MK_model(object):
             self._all = False
             self.rotation_included = False
 
-            p_file = '{}.pkl'.format("mass_stifenss_matrices")
+            p_file = '{}.pkl'.format("mass_stiffness_matrices")
             same = False
             if allow_pickle and path.exists(p_file):
                 same = self._pickle_check(p_file, no_modes)
@@ -219,6 +222,7 @@ class MK_model(object):
         hdf5_file.create_dataset("eig_val", data=self.eig_val)
         hdf5_file.create_dataset("no_modes", data=self.no_modes)
         hdf5_file.create_dataset("rotation_included", data=self.rotation_included)
+        hdf5_file.create_dataset("scale", data=self.scale)
         if hasattr(self, 'eig_vec_strain'):
             if self.eig_vec_strain is not None:
                 hdf5_file.create_dataset("eig_vec_strain", data=self.eig_vec_strain)
@@ -230,8 +234,17 @@ class MK_model(object):
         vtk_filepath = os.path.join(directory, f"{file_name}.vtk")
         grid = self.mesh.copy()
         grid.save(vtk_filepath)
-
-        print(f"MK model saved to {hdf5_filepath} and {vtk_filepath}")
+        
+        if hasattr(self, 'units'):
+            if self.units is not None:
+                json_filepath = os.path.join(directory, f"{file_name}.json")
+                with open(json_filepath, 'w') as f:
+                    json.dump(self.units, f)
+                print(f"Model saved to {file_name}.hdf5, {file_name}.vtk, and {file_name}.json")
+            else:
+                print(f"Model saved to {file_name}.hdf5 and {file_name}.vtk")
+        else:
+            print(f"Model saved to {file_name}.hdf5 and {file_name}.vtk")
 
     def _pickle_check(self, p_file, no_modes):
         """
@@ -837,7 +850,8 @@ class Model(MK_model):
     def __init__(
         self, nodes=None, pts=None, mesh=None, dof_ref=None, K=None, _K=None,
         M=None, eig_val=None, eig_freq=None, eig_vec=None, eig_vec_strain=None,
-        no_modes=None, rotation_included=False, damped_solver=False, _all=False
+        no_modes=None, rotation_included=False, damped_solver=False, scale=1, 
+        units=None, _all=False
         ):
         """
         Initialization of the Model.
@@ -856,6 +870,8 @@ class Model(MK_model):
         self.no_modes = no_modes
         self.rotation_included = rotation_included
         self.damped_solver = damped_solver
+        self.scale = scale
+        self.units = units
         self._all = _all
         
     @classmethod
@@ -865,6 +881,12 @@ class Model(MK_model):
         """
         vtk_file = os.path.join(directory, f"{file_name}.vtk")
         hdf5_file = os.path.join(directory, f"{file_name}.hdf5")
+        json_file = os.path.join(directory, f"{file_name}.json")
+        if os.path.exists(json_file):
+            with open(json_file, 'r') as f:
+                units = json.load(f)
+        else:
+            units = None
 
         # Load the mesh from the .vtk file
         mesh = pv.read(vtk_file)
@@ -873,7 +895,7 @@ class Model(MK_model):
         with h5py.File(hdf5_file, 'r') as f:
             data = {key: f[key][()] for key in f.keys()}
 
-        return cls(mesh=mesh, **data)
+        return cls(mesh=mesh, units=units, **data)
 
     @classmethod
     def from_ansys(cls, rst_file=None, full_file=None, manual_mass_matrix=None, manual_stiffness_matrix=None, no_modes=100, allow_pickle=True, recalculate=False, scale=1, read_rst=False):
@@ -913,8 +935,9 @@ class Model(MK_model):
         rotation_included = False
         damped_solver = False
         _all = False
+        units = None
             
-        if rst_file and full_file: # check if rest and full files are defined, that mass and stifenss matrices will be importd from there
+        if rst_file and full_file: # check if rest and full files are defined, that mass and stiffness matrices will be importd from there
 
             rst = pymapdl_reader.read_binary(rst_file)
 
@@ -989,6 +1012,7 @@ class Model(MK_model):
             # the solution to the eigenvalue problem is read from the .rst file
             model = dpf.Model(rst_file)
             simulation = post.load_simulation(rst_file)
+            units = simulation.units
             displacement = simulation.displacement(all_sets=True, norm=False)
             if 'complex' in displacement.columns.names:
                 damped_solver = True
@@ -1052,7 +1076,7 @@ class Model(MK_model):
             _all = False
             rotation_included = False
 
-            p_file = '{}.pkl'.format("mass_stifenss_matrices")
+            p_file = '{}.pkl'.format("mass_stiffness_matrices")
             same = False
             if allow_pickle and path.exists(p_file):
                 same = cls.pickle_check(p_file, no_modes, M, K)
@@ -1069,5 +1093,7 @@ class Model(MK_model):
                 
         return cls(
             nodes=nodes, pts=pts, mesh=mesh, dof_ref=dof_ref, K=K, _K=_K, M=M,
-            eig_val=eig_val, eig_freq=eig_freq, eig_vec=eig_vec, eig_vec_strain=eig_vec_strain,
-            no_modes=no_modes, rotation_included=rotation_included, damped_solver=damped_solver, _all=_all)
+            eig_val=eig_val, eig_freq=eig_freq, eig_vec=eig_vec, 
+            eig_vec_strain=eig_vec_strain, no_modes=no_modes, 
+            rotation_included=rotation_included, damped_solver=damped_solver,
+            scale=scale, units=units, _all=_all)
