@@ -362,8 +362,10 @@ class View3D():
         """
 
         mesh = pv.PolyData(stl_path)
-        actor = self.plot.add_mesh(mesh,name = name,**kwargs)
+        actor = self.plot.add_mesh(mesh, name=name,**kwargs)
         self.displayed_bodies.append([name,actor])
+        # initialize camera so that the view does not reset after dynamically adding objects
+        self.plot.camera.direction
 
         return mesh
 
@@ -481,7 +483,7 @@ class View3D():
         return sphere,vp_actor
 
 
-    def acc_callback(self,point, orientation = None,fixed_rotation = None):
+    def acc_callback(self, point, orientation=None, fixed_rotation=None):
         """
         Interactive accelerometer callback function.
 
@@ -504,13 +506,13 @@ class View3D():
             rot = r.as_matrix()
 
         self.add_accelerometer(acc)
-        _gg = DynamicPosition(acc, self.plot, i, mesh=self.mesh, size=size,rot = rot,fixed_rotation = self.fixed_rotation,snap_outward = True)
+        _gg = DynamicPosition(acc, self.plot, i, mesh=self.mesh, size=size, rot=rot, fixed_rotation=self.fixed_rotation, snap_outward=True, acc_normal=self.acc_normal)
         self.plot.add_sphere_widget(_gg.callback, center=_gg.points, color=["k", "r", "g", "b"], radius=size / 15)
         _gg.translate(point)
         _gg.turn_on = True
         self.all_accs_dynamic.append(_gg)
 
-    def add_acc_dynamic(self, mesh, predefined=None,scale = 1,fixed_rotation = None, size = 10):
+    def add_acc_dynamic(self, mesh, predefined=None, scale=1, fixed_rotation=None, size=10, acc_normal=None):
         """
         Add a set of predefined accelerometers to the 3D display and toggle the possibility to add
         additional accelerometers.
@@ -523,6 +525,8 @@ class View3D():
         :type scale: float
         :param fixed_rotation: fixed rotation angle
         :type fixed_rotation: float
+        :param acc_normal: Accelerometer normal direction for snapping
+        :type acc_normal: str | None. Valid options are "x", "y", "z", "-x", "-y", "-z", or None
         """
         self.size = size
         self.fixed_rotation = fixed_rotation
@@ -531,13 +535,13 @@ class View3D():
 
         self.toggle_fun()
         self.toggle = "acc"
-
+        self.acc_normal = acc_normal
 
         if isinstance(predefined, pd.DataFrame):
             for i, row in predefined.iterrows():
                 point = np.asarray([row["Position_1"] * scale, row["Position_2"] * scale, row["Position_3"] * scale])
                 orientation = np.asarray([row["Orientation_1"], row["Orientation_2"], row["Orientation_3"]])
-                self.acc_callback(point, orientation=orientation,fixed_rotation = self.fixed_rotation)
+                self.acc_callback(point, orientation=orientation, fixed_rotation=self.fixed_rotation)
         
         self.plot.add_text('Use right mouse click to add an accelerometer, hold the letter T to not snap to mesh.', color="k", font="times",font_size = 10, name="text")
 
@@ -1079,9 +1083,11 @@ class DynamicPosition():
     :tpye rot: array(float), optional
     :param fixed_rotation: fixed rotation angle
     :type fixed_rotation: float
+    :param acc_normal: Accelerometer normal direction for snapping
+    :type acc_normal: str | None. Valid options are "x", "y", "z", "-x", "-y", "-z", or None
     """
 
-    def __init__(self, objects, p, N, mesh=None, snap_outward=True, size=1, rot = np.diag([1]*3), fixed_rotation = None,toggle = "acc"):
+    def __init__(self, objects, p, N, mesh=None, snap_outward=True, size=1, rot=np.diag([1]*3), fixed_rotation=None, toggle="acc", acc_normal=None):
         # set size and static points
         self.size = size
         self.points = np.array([[0.0, 0.0, 0.0],
@@ -1138,6 +1144,10 @@ class DynamicPosition():
         self.local_normals = rot @ self.local_normals
         self.local_rays = rot @ self.local_rays
 
+        if not toggle == "impact" and acc_normal is not None:
+            acc_normal_dict = {"x": 0, "y": 1, "z": 2, "-x": 3, "-y": 4, "-z": 5}
+            acc_normal = acc_normal_dict[acc_normal]
+
         # computes mesh normals
         self.mesh = mesh
         self.mesh.compute_normals(auto_orient_normals=True, inplace=True)
@@ -1150,7 +1160,7 @@ class DynamicPosition():
         # define display
         self.p = p
         self.toggle = toggle
-
+        self.acc_normal = acc_normal
 
     def get_pos_orient(self, euler_angles=False, one_dir=None, eps=1e-10,scale = 1):
         """
@@ -1200,6 +1210,7 @@ class DynamicPosition():
 
         # default option - no rotation
         rot = np.diag([1., 1., 1.])
+        camera_direction = self.p.camera.direction
 
         if snap and not (kb.is_pressed('t')):
             direction = np.asarray(point) - np.asarray(self.p.camera_position[0])
@@ -1234,6 +1245,11 @@ class DynamicPosition():
                     closest_orient = self.local_normals.T[2] # always Z axis
                     t = closest_orient #+ np.random.random(3) / 1e20
                     f = -1*self.mesh.cell_normals[int(ind)]
+                    if np.dot(f, camera_direction) < 0:
+                        f = -1*f
+                else:
+                    if np.dot(f, camera_direction) > 0:
+                        f = -1*f
 
                 # push box 0.5 away from the normal
                 if self.snap_outward:
@@ -1269,7 +1285,15 @@ class DynamicPosition():
             # rotate everything within accelerometer
             for item in self.objects:
                 item.points = (rot @ (item.points - t_new).T).T + t_new
-            
+            if not self.toggle == "impact" and self.acc_normal is not None:
+                rot2 = rotation_matrix_from_vectors(self.local_normals.T[self.acc_normal], f)
+                # orient the local csys of accelerometer with the new rotation
+                self.local_orientation = (rot2 @ (self.local_orientation))
+                self.local_normals = rot2 @ self.local_normals
+                self.local_rays = rot2 @ self.local_rays
+                # rotate everything within accelerometer
+                for item in self.objects:
+                    item.points = (rot2 @ (item.points - t_new).T).T + t_new
 
         else:
             for item in self.objects:

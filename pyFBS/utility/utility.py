@@ -381,34 +381,39 @@ def angle(vector1, vector2):
     dot_p = min(max(dot_p, -1.0), 1.0)
     return sign * np.arccos(dot_p)
 
-def rotation_matrix_from_vectors(vec1, vec2):
+def rotation_matrix_from_vectors(vec1, vec2, tol=1e-8):
     """
-    Find the rotation matrix that aligns vec1 to vec2
-
-    :param vec1: A 3D "source" vector
-    :type vec1: array(float)
-    :param vec2: A 3D "destination" vector
-    :type vec2: array(float)
-    :return: Rotational matrix which when applied to vec1, aligns it with vec2.
+    Robust rotation matrix between two vectors.
+    
+    :param vec1: Source vector (3D)
+    :param vec2: Target vector (3D)
+    :param tol: Numerical tolerance
+    :return: Rotation matrix aligning vec1 to vec2
     """
-
-    vec1 += np.random.random(3) / 1e20
-    vec2 += np.random.random(3) / 1e20
-
-    a, b = (vec1 / np.linalg.norm(vec1)).reshape(3), (vec2 / np.linalg.norm(vec2)).reshape(3)
-
-    if (np.abs(a) == np.abs(b)).all():
-        return np.diag([1, 1, 1])
-    else:
-        v = np.cross(a, b)
-        c = np.dot(a, b)
-        s = np.linalg.norm(v)
-        if np.isclose(s, 0):
-            s = 1.
-        kmat = np.array([[0, -v[2], v[1]], [v[2], 0, -v[0]], [-v[1], v[0], 0]])
-        rotation_matrix = np.eye(3) + kmat + kmat.dot(kmat) * ((1 - c) / (s ** 2))
-
-        return rotation_matrix
+    # return R.align_vectors([vec2], [vec1])[0].as_matrix()
+    a = vec1 / np.linalg.norm(vec1)
+    b = vec2 / np.linalg.norm(vec2)
+    
+    # Handle parallel/anti-parallel cases
+    if np.allclose(a, b, atol=tol):
+        return np.eye(3)
+    if np.allclose(a, -b, atol=tol):
+        # 180° rotation around perpendicular axis
+        axis = np.array([a[1], -a[0], 0])
+        if np.linalg.norm(axis) < tol:  # Handle [0,0,z]
+            axis = np.array([a[2], 0, -a[0]])
+        axis /= np.linalg.norm(axis)
+        return 2 * np.outer(axis, axis) - np.eye(3)
+    
+    # General case (Rodrigues' formula)
+    v = np.cross(a, b)
+    s = np.linalg.norm(v)
+    c = np.dot(a, b)
+    
+    kmat = np.array([[0, -v[2], v[1]], 
+                     [v[2], 0, -v[0]], 
+                     [-v[1], v[0], 0]])
+    return np.eye(3) + kmat + kmat @ kmat * ((1 - c) / (s**2))
 
 def unit_vector(vector):
     """
