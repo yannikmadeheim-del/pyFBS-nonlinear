@@ -6,7 +6,6 @@ import pandas as pd
 from scipy.spatial.transform import Rotation as R
 from pyts.decomposition import SingularSpectrumAnalysis
 import altair as alt
-from ..display import contour_plot
 
 alt.data_transformers.enable('json')
 alt.data_transformers.enable('default', max_rows=None)
@@ -734,41 +733,6 @@ def ODS_FRF_averaging(roving_responses, reference, no_of_avg):
     
     return ODS_FRFs
 
-def runup_data(time, signal, block_lenght=1, upper_frequency=100, plot=True):
-    """
-    Function for calculating run-up diagram data from time and signal time series.
-    :param time: Time series.
-    :type time: array
-    :param signal: Signal time series.
-    :type signal: array
-    :param block_lenght: Lenght of each time block for run-up diagram.
-    :type block_lenght: int, optional
-    :param upper_frequency: Maximum frequency in run-up diagram.
-    :type upper_frequency: int, optional
-    :param plot: Function returns a run-up plot or run-up data.
-    :type plot: bool, optional
-    """
-    
-    N = time.shape[0]
-    dt = time[1] - time[0]    
-    T = int(max(time)//block_lenght)
-    
-    freq = np.fft.rfftfreq(N//T,dt)
-    ind = np.argmin(np.abs(freq-upper_frequency))
-    
-    Acc_f = np.zeros((T,(N//T)//2+1), dtype=complex)
-
-    for i in range(T):
-        acc_f = signal[i*(N//T):(i+1)*(N//T)]
-        Acc_f[i,:] = np.fft.rfft(acc_f)*2/(N//T)
-
-    Acc_f_dB = 20*np.log10(np.abs(Acc_f/10**-6))
-    
-    if plot==True:
-        return contour_plot(np.arange(T)*block_lenght, freq[:ind], np.abs(Acc_f_dB).T[:ind])
-    else:
-        return np.arange(T)*block_lenght, freq[:ind], Acc_f.T[:ind], Acc_f_dB.T[:ind]
-
 #if necessary, font properties can be changed
 #def font():
 #    font = "Sans Serif"
@@ -812,5 +776,5 @@ __all__ = [
     'generate_channels_from_sensors', 'generate_sensors_from_channels', 
     'generate_VP_from_position', 'coh_on_FRF', 'orient_in_global', 
     'orient_in_global_2', 'MCC', 'MPC', 'auralization', 'SSA_filter', 
-    'SSA_evaluate', 'PRF', 'ODS_FRF', 'ODS_FRF_averaging', 'runup_data'
+    'SSA_evaluate', 'PRF', 'ODS_FRF', 'ODS_FRF_averaging'
     ]

@@ -329,7 +329,7 @@ class App(QtWidgets.QMainWindow):
         self.logo = QLabel(self)
         # loading image
         #set the pyFBS logo
-        icon = str(Path(__file__).parents[1]) + os.sep + "data" + os.sep + "logo_new.png"
+        icon = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "logo_new.png")
         self.pixmap = QtGui.QPixmap(icon)
         self.logo.setPixmap(self.pixmap)
         self.layout().setAlignment(self.logo, QtCore.Qt.AlignCenter)

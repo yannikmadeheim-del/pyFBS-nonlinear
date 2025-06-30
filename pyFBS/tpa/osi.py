@@ -344,7 +344,7 @@ def mimo_osi(responses,excitations, Fs_=4096, NT_=300, NT_cancel_=5, T_=1):
             
             response = responses[:,j,i]
             force    = excitations[:,i]
-            Y_osi, freq, _, _ = OSI_var1(response, force, Fs=Fs_, NT=NT_, NT_cancel=NT_cancel_, T=T_)
+            Y_osi, freq, _, _ = osi_var1(response, force, Fs=Fs_, NT=NT_, NT_cancel=NT_cancel_, T=T_)
             
             if i==0 and j==0:
                 Y_uf = np.zeros((np.size(freq),dim2_resp,dim3_resp),dtype=complex)
