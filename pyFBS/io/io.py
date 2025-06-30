@@ -107,7 +107,7 @@ def load_uff_file_PAK(uff_file_data,uff_file_output,uff_file_input,chn_input = F
                                     out_pos[1], out_pos[2], out_dir[0], out_dir[1], out_dir[2]]])
 
             df_row = pd.DataFrame(data=data_chn, columns=columns_chann)
-            df = df.append(df_row, ignore_index=True)
+            df = pd.concat([df, df_row], ignore_index=True)
 
     if chn_input:
         df_chn = df
@@ -135,12 +135,12 @@ def load_uff_file_PAK(uff_file_data,uff_file_output,uff_file_input,chn_input = F
               in_pos[1], in_pos[2], in_dir[0], in_dir[1], in_dir[2]]])
 
         df_row = pd.DataFrame(data=data_chn, columns=columns_chann)
-        df = df.append(df_row, ignore_index=True)
+        df = pd.concat([df, df_row], ignore_index=True)
 
     df_imp = df
 
 
-    return freq,FRF,df_chn,df_imp,df_acc
+    return freq, FRF, df_chn, df_imp, df_acc
 
 
 def download_automotive_testbench(overwrite=False):

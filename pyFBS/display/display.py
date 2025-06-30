@@ -673,7 +673,7 @@ class View3D():
             data_chn = np.asarray([["Impact " + str(1 + i), None, None, None, pos[0],pos[1], pos[2], _dir[0], _dir[1], _dir[2]]])
 
             df_row = pd.DataFrame(data=data_chn, columns=columns_chann)
-            df = df.append(df_row, ignore_index=True)
+            df = pd.concat([df, df_row], ignore_index=True)
 
         return df
 
@@ -713,7 +713,7 @@ class View3D():
             data_chn = np.asarray([["VP " + str(1 + i), None, None, None, pos[0],pos[1],pos[2],euler_dir[0],euler_dir[1],euler_dir[2] ]])
 
             df_row = pd.DataFrame(data=data_chn, columns=columns_chann)
-            df = df.append(df_row, ignore_index=True)
+            df = pd.concat([df, df_row], ignore_index=True)
 
         return df
 

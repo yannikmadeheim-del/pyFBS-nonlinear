@@ -414,7 +414,7 @@ class MK_model(object):
         :return: updated data frame
         :rtype: pandas.DataFrame
         """
-        _df = df.copy(deep = True).reset_index()
+        _df = df.copy(deep=True).reset_index(drop=True)
         _loc = _df[["Position_1", "Position_2", "Position_3"]].to_numpy()*scale
         _index = self.find_nearest_locations(_loc)
         for i, _indedex_i in enumerate(_index):
