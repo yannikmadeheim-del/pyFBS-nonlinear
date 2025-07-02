@@ -20,7 +20,7 @@ def package_files(directory):
             paths.append(os.path.join('..', path, filename))
     return paths
 
-extra_files = package_files('./data')
+# extra_files = package_files('./data')
 
 
 setup(
@@ -44,7 +44,7 @@ setup(
     license="MIT license",
     long_description=readme,
     include_package_data=True,
-    package_data={'': extra_files},
+    # package_data={'': extra_files},
     keywords='pyfbs',
     name='pyfbs',
     packages=find_packages(),
