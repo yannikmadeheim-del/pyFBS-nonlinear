@@ -161,13 +161,13 @@ class View3D():
 
             for mesh in self.modeshape_animation["mesh"]:
 
-                self.plot.update_coordinates(self.modeshape_animation["or_pts"] + add_val, mesh=mesh,render = False)
+                mesh.points = self.modeshape_animation["or_pts"] + add_val
+                scalars_name = mesh.active_scalars_name
                 if self.modeshape_animation["scalars"]:
                     if self.modeshape_animation["animate_secondary_mode_shape"]==True:
-
-                        self.plot.update_scalars(add_val_secondary, mesh=mesh ,render = False) # for color changing
+                        mesh[scalars_name] = add_val_secondary # for color changing
                     else: 
-                        self.plot.update_scalars(np.sqrt(np.mean(add_val ** 2, axis=1)).reshape(self.modeshape_animation["or_pts"].shape[0]), mesh=mesh ,render = False) # for color changing
+                        mesh[scalars_name] = np.sqrt(np.mean(add_val ** 2, axis=1)).reshape(self.modeshape_animation["or_pts"].shape[0]) # for color changing
 
             self.plot.render()
             if self.take_gif:
@@ -188,8 +188,10 @@ class View3D():
         """
 
         for mesh in self.modeshape_animation["mesh"]:
-            self.plot.update_coordinates(self.modeshape_animation["or_pts"], mesh=mesh, render=True)
-            self.plot.update_scalars(np.zeros(self.modeshape_animation["or_pts"].shape[0]), mesh=mesh, render=False)
+            mesh.points = self.modeshape_animation["or_pts"]
+            self.plot.render()
+            scalars_name = mesh.active_scalars_name
+            mesh[scalars_name] = np.zeros(self.modeshape_animation["or_pts"].shape[0])
         self.plot.update_scalar_bar_range(clim=[-100,100])
 
 
