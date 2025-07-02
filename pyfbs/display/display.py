@@ -1225,7 +1225,7 @@ class DynamicPosition():
 
             # fast upgrade to option B
             if self.snap_outward and points.size != 0:
-                f = self.mesh.cell_normals[int(ind)]
+                f = self.mesh.cell_normals[ind[0]]
                 point = points - f / 2 * self.size
                 direction = np.asarray(point) - np.asarray(self.p.camera_position[0])
                 direction = direction / np.linalg.norm(direction)
@@ -1236,19 +1236,19 @@ class DynamicPosition():
             # if there is an intersection and if "t" is not pressed go forward
             if points.size != 0 and not (kb.is_pressed('t')):
                 # find the nearest normal
-                v2 = self.mesh.cell_normals[int(ind)]
+                v2 = self.mesh.cell_normals[ind[0]]
                 th = []
                 for _loc in self.local_normals.T:
                     th.append(angle_between(_loc, v2))
                 closest_orient = self.local_normals.T[np.argmin(th)]
 
                 # find orientation between box orientation and cell normal
-                f = self.mesh.cell_normals[int(ind)]
+                f = self.mesh.cell_normals[ind[0]]
                 t = closest_orient #+ np.random.random(3) / 1e20
                 if self.toggle == "impact":
                     closest_orient = self.local_normals.T[2] # always Z axis
                     t = closest_orient #+ np.random.random(3) / 1e20
-                    f = -1*self.mesh.cell_normals[int(ind)]
+                    f = -1*self.mesh.cell_normals[ind[0]]
                     if np.dot(f, camera_direction) < 0:
                         f = -1*f
                 else:
