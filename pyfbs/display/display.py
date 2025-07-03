@@ -11,6 +11,7 @@ import keyboard as kb
 from scipy.spatial.transform import Rotation as R
 from pathlib import Path
 import os
+from ..mck import Model
 
 # static color variables
 RED = "#d62728"
@@ -79,6 +80,7 @@ class View3D():
         self.name_ev = None
 
         self.displayed_bodies = []
+        self.displayed_models = {}
 
         self.obj_animation = None
         self.modeshape_animation = None
@@ -100,6 +102,9 @@ class View3D():
         self.scale = 1
         self.toggle = None
         self.size = 10
+        
+    def add_modeshape_model(self, model, fps=30, r_scale=10, no_points=60, run_animation=False, add_note=False):
+        pass
 
     def add_modeshape(self,dict_animation,run_animation = False,add_note = False):
         """
@@ -130,6 +135,13 @@ class View3D():
         if run_animation:
             self.animate_modeshape()
 
+    def _set_scalars(self, mesh, scalars_name, scalars):
+        mesh[scalars_name] = scalars
+        
+    def _set_scalars_placeholder(self, mesh, scalars_name, scalars):
+        """Do nothing, placeholder for when scalars are not needed."""
+        return
+
     def animate_modeshape(self):
         """
         Animate a mode shape in the 3D display.
@@ -151,23 +163,32 @@ class View3D():
             self.plot.update_scalar_bar_range(clim=[np.min(set_lim), np.max(set_lim)])
             if self.modeshape_animation["animate_secondary_mode_shape"]==True:
                 self.plot.update_scalar_bar_range(clim=[np.min(ann_secondary), np.max(ann_secondary)])
-
+                
+        if type(self.modeshape_animation["mesh"]) is not list:
+            self.modeshape_animation["mesh"] = [self.modeshape_animation["mesh"]]
+        
+        set_scalar_list = []
+        for mesh in self.modeshape_animation["mesh"]:
+            if mesh.active_scalars_name is None:
+                set_scalar_list.append(self._set_scalars_placeholder)
+            elif self.modeshape_animation["scalars"]:
+                set_scalar_list.append(self._set_scalars)
+        if self.modeshape_animation["animate_secondary_mode_shape"]:
+            scalars = ann_secondary
+        else:
+            scalars = np.sqrt(np.mean(ann**2, axis=1)).reshape(self.modeshape_animation["or_pts"].shape[0], -1)
+        original_points = []
+        for mesh in self.modeshape_animation["mesh"]:
+            points = self.modeshape_animation["or_pts"].copy()
+            original_points.append(points)
+            mesh.points = self.modeshape_animation["or_pts"].copy()
         for i in range(ann.shape[2]):
             add_val = ann[:, :, i]
-            add_val_secondary = ann_secondary[:, i]
 
-            if type(self.modeshape_animation["mesh"]) is not list:
-                self.modeshape_animation["mesh"] = [self.modeshape_animation["mesh"]]
-
-            for mesh in self.modeshape_animation["mesh"]:
-
+            for j, mesh in enumerate(self.modeshape_animation["mesh"]):
                 mesh.points = self.modeshape_animation["or_pts"] + add_val
                 scalars_name = mesh.active_scalars_name
-                if self.modeshape_animation["scalars"]:
-                    if self.modeshape_animation["animate_secondary_mode_shape"]==True:
-                        mesh[scalars_name] = add_val_secondary # for color changing
-                    else: 
-                        mesh[scalars_name] = np.sqrt(np.mean(add_val ** 2, axis=1)).reshape(self.modeshape_animation["or_pts"].shape[0]) # for color changing
+                set_scalar_list[j](mesh, scalars_name, scalars[:, i])
 
             self.plot.render()
             if self.take_gif:
@@ -296,7 +317,7 @@ class View3D():
         arrow.points += np.asarray(position)
         self.plot.add_mesh(arrow, color=BLUE)
 
-    def add_stl(self, stl_path, name = "model", **kwargs):
+    def add_stl(self, stl_path, name="model", **kwargs):
         """
         Adds a mesh to the 3D display from STL file.
 
@@ -307,13 +328,69 @@ class View3D():
         """
 
         mesh = pv.PolyData(stl_path)
-        actor = self.plot.add_mesh(mesh, name=name,**kwargs)
-        self.displayed_bodies.append([name,actor])
+        return self.add_mesh(mesh, name=name, cmap=None, **kwargs)
+        
+    def add_model(self, model, name="model", cmap="coolwarm", **kwargs):
+        """
+        Adds a pyfbs.mck.Model mesh to the 3D display.
+
+        :param model: Model to be added
+        :type model: pyfbs.mck.Model
+        :param name: Name of the mesh
+        :type name: str, optional
+        :param cmap: If not None, applies a colormap to the mesh.
+        :type str | None | matplotlib colormap: optional
+        :param kwargs: Additional keyword arguments accepted by 
+            pyvista.Plotter.add_mesh()
+        """
+
+        if not isinstance(model, Model):
+            raise TypeError("Model must be a pyfbs.mck.Model object.")
+        
+        mesh = model.mesh
+        if isinstance(mesh, pv.core.pointset.PolyData):
+            _model = model
+            _mesh = mesh
+        elif isinstance(mesh, pv.core.pointset.UnstructuredGrid):
+            # Extract surface if the mesh is an UnstructuredGrid
+            _model = model.extract_surface()
+            _mesh = _model.mesh
+        self.displayed_models[name] = {
+            'model': _model,
+        }
+        return self.add_mesh(mesh, name=name, cmap=cmap, **kwargs)
+    
+    def add_mesh(self, mesh, name="model", cmap="coolwarm", **kwargs):
+        """
+        Adds a mesh to the 3D display.
+
+        :param mesh: Mesh to be added
+        :type mesh: pyvista.PolyData | pyvista.UnstructuredGrid
+        :param name: Name of the mesh
+        :type name: str, optional
+        :param cmap: If not None, applies a colormap to the mesh.
+        :type None | str | matplotlib colormap: optional
+        :param kwargs: Additional keyword arguments accepted by 
+            pyvista.Plotter.add_mesh()
+        """
+
+        if isinstance(mesh, pv.core.pointset.PolyData):
+            _mesh = mesh
+        elif isinstance(mesh, pv.core.pointset.UnstructuredGrid):
+            _mesh = mesh.extract_surface()
+        else:
+            raise TypeError("Mesh must be a PolyData or UnstructuredGrid object.")
+        if cmap is not None:
+            scalars = np.ones(_mesh.points.shape[0])
+        else:
+            scalars = None
+        actor = self.plot.add_mesh(
+            _mesh, name=name, scalars=scalars, cmap=cmap, **kwargs
+            )
+        self.displayed_bodies.append([name, actor])
         # initialize camera so that the view does not reset after dynamically adding objects
         self.plot.camera.direction
-
-        return mesh
-
+        return _mesh
 
     def add_impact(self, position, direction, size = 10, color = RED, **kwargs):
         """

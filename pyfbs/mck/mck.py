@@ -843,8 +843,8 @@ class MK_model(object):
 
         noise = np.einsum("ijk,ijk->ijk", np.abs(self.FRF), rand1) + np.einsum("ijk,ijk->ijk", np.abs(self.FRF), rand2) + rand3 + rand4
 
-        self.FRF_noise = self.FRF + noise
-
+        self.FRF_noise = self.FRF + noise         
+            
 
 class Model(MK_model):
     def __init__(
@@ -1097,3 +1097,72 @@ class Model(MK_model):
             eig_vec_strain=eig_vec_strain, no_modes=no_modes, 
             rotation_included=rotation_included, damped_solver=damped_solver,
             scale=scale, units=units, _all=_all)
+        
+    def extract_surface(self):
+        """
+        Extract the surface mesh from the current mesh and return a new Model 
+        instance with the surface mesh.
+        :return: A new Model instance with the surface mesh.
+        :rtype: Model
+        """
+        import pyvista as pv
+        if isinstance(self.mesh, pv.core.pointset.PolyData):
+            print("This mesh is already a PolyData object, nothing to extract.")
+            return
+        elif isinstance(self.mesh, pv.core.pointset.UnstructuredGrid):
+            mesh = self.mesh.extract_surface()
+            ix = mesh['vtkOriginalPointIds']
+            nodes = mesh.points
+            pts = mesh.points.copy()
+            
+            # Extracting the modes at surface nodes
+            # Check if dof_ref indices continuously increase
+            c1 = np.all(
+                self.dof_ref[::3, 0][1:] - self.dof_ref[::3, 0][:-1] > 0
+                )
+            c2 = np.all(
+                self.dof_ref[1::3, 0][1:] - self.dof_ref[1::3, 0][:-1] > 0
+                )
+            c3 = np.all(
+                self.dof_ref[2::3, 0][1:] - self.dof_ref[2::3, 0][:-1] > 0
+                )
+            if c1 and c2 and c3:
+                _modes = self.eig_vec.copy()
+                _modes = _modes.reshape(len(self.nodes), 3, self.no_modes)
+                _modes_surface = _modes[ix]
+                eig_vec = _modes_surface.reshape(-1, self.no_modes)
+            else:
+                _modes = np.empty(
+                    (self.no_modes, len(self.nodes), 3),
+                    dtype=self.eig_vec.dtype
+                    )
+                print("Extracting modes at surface nodes...")
+                for i in range(self.no_modes):
+                    _modes[i] = self.get_modeshape(i)
+                print("Modes extracted.")
+                _modes_surface = _modes[:, ix]
+                eig_vec = _modes_surface.reshape(self.no_modes, -1).T
+            # Generate new dof_ref of the surface mesh
+            ndof = eig_vec.shape[0]
+            dof_ref = np.empty((ndof, 2), dtype=int)
+            dof_ref[:, 0] = np.repeat(np.arange(1, len(nodes)+1), 3)
+            dof_ref[:, 1] = np.tile(np.arange(3), len(nodes))
+            
+            # Extracting the eig_vec_strain if it exists
+            if self.eig_vec_strain is None:
+                eig_vec_strain = None
+            else:
+                _eig_vec_strain = self.eig_vec_strain.copy()
+                _eig_vec_strain = _eig_vec_strain.reshape(len(nodes), -1, self.no_modes)[ix]
+                eig_vec_strain = _eig_vec_strain.reshape(-1, self.no_modes)
+            return type(self)(
+                nodes=nodes, pts=pts, mesh=mesh, dof_ref=dof_ref,
+                K=None, _K=None, M=None, eig_val=self.eig_val,
+                eig_freq=self.eig_freq, eig_vec=eig_vec, eig_vec_strain=eig_vec_strain,
+                no_modes=self.no_modes, rotation_included=False, 
+                damped_solver=self.damped_solver, scale=self.scale,
+                units=self.units, _all=self._all
+                )
+        else:
+            raise TypeError(f"Mesh type {type(self.mesh)} unsupported. Must \
+                be either a PolyData or UnstructuredGrid object.")
