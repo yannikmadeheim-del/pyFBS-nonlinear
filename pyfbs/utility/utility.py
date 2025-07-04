@@ -3,7 +3,7 @@ import numpy as np
 from numpy import cross, eye
 from scipy.linalg import expm, norm
 import pandas as pd
-from scipy.spatial.transform import Rotation as R
+from scipy.spatial.transform import Rotation
 from pyts.decomposition import SingularSpectrumAnalysis
 import altair as alt
 
@@ -26,7 +26,7 @@ def modeshape_sync_lstsq(mode_shape_vec):
         _n[:,i] = _mode*(np.cos(-1*z)+1j*np.sin(-1*z))
     return _n
 
-def modeshape_scaling_DP(mode_shape_vec, driving_point,sync = True):
+def modeshape_scaling_driving_point(mode_shape_vec, driving_point, sync=True):
     """
     Scales mode shapes according to the driving point measurement.
 
@@ -48,7 +48,7 @@ def modeshape_scaling_DP(mode_shape_vec, driving_point,sync = True):
 
     return _mode        
 
-def MCF(mod):
+def mcf(mod):
     """
     Calculate Mode Complexity Factor (MCF)
 
@@ -62,39 +62,41 @@ def MCF(mod):
     mcf = (1 - ((sxx-syy)**2+4*sxy**2)/((sxx+syy)**2))
     return mcf
 
-def flatten_FRFs(Y):
+def flatten_frfs(frf):
     """
-    Flattens input FRF matrix Y from shape (out,in,freq) in (out x in,freq)
+    Flattens input FRF matrix frf from shape (out,in,freq) in (out x in,freq)
 
-    :param Y: Matrix of FRFs [out,in,f]
-    :type Y: array(float)
+    :param frf: Matrix of FRFs [out,in,f]
+    :type frf: array(float)
     :return:  Matrix of FRFs [out x in,f]
     """
-    new = np.zeros((Y.shape[0] * Y.shape[1], Y.shape[2]), dtype=complex)
+    new = np.zeros((frf.shape[0] * frf.shape[1], frf.shape[2]), dtype=complex)
 
-    _len = Y.shape[1]
-    for i in range(Y.shape[0]):
-        new[_len * i:_len * (i + 1), :] = Y[i, :, :]
+    _len = frf.shape[1]
+    for i in range(frf.shape[0]):
+        new[_len * i:_len * (i + 1), :] = frf[i, :, :]
 
     return new
 
-def unflatten_modes(_modes_acc, Y):
+def unflatten_modes(_modes_acc, frf):
     """
     Unflattens mode shapes based on the shape of the input FRF matrix [out x in] in [out, in]
 
     :param _modes_acc: Mode shape [out x in]
     :type _modes_acc: array(float)
-    :param Y:
+    :param frf:
     :return: Unflattened mode shape [out, in]
     """
-    new_mode = np.zeros((Y.shape[0],Y.shape[1],_modes_acc.shape[1]),dtype = complex)
-
-    _len = Y.shape[1]
-    for i in range(Y.shape[0]):
+    new_mode = np.zeros(
+        (frf.shape[0], frf.shape[1], _modes_acc.shape[1]),
+        dtype=complex
+        )
+    _len = frf.shape[1]
+    for i in range(frf.shape[0]):
         new_mode[i,:,:] = _modes_acc[i*_len:(i+1)*_len,:]
     return new_mode
 
-def complex_plot(mode_shape, color = "k"):
+def complex_plot(mode_shape, color="k"):
     """
     Plots a mode shape on a radial plot.
 
@@ -107,27 +109,35 @@ def complex_plot(mode_shape, color = "k"):
     ax1 = plt.subplot(111,projection = "polar")
 
     for x in mode_shape:
-        ax1.plot([0,np.angle(x)],[0,np.abs(x)],marker='.',color = color,alpha = 0.5)
-
+        ax1.plot(
+            [0, np.angle(x)], [0, np.abs(x)],
+            marker='.', color=color, alpha=0.5
+            )
     plt.yticks([])
 
-def complex_plot_3D(mode_shape):
+def complex_plot_3d(mode_shape):
     """
     Plots a 3D mode shape on a radial plot.
 
     :param mode_shape: 3D mode shape
     :type mode_shape: array(float)
     """
-    plt.figure(figsize = (3,3))
-    ax1 = plt.subplot(111,projection = "polar")
+    plt.figure(figsize=(3, 3))
+    ax1 = plt.subplot(111, projection="polar")
 
-    for i,color in enumerate(["tab:red","tab:green","tab:blue"]):
-        for x in mode_shape[:,i]:
-            ax1.plot([0,np.angle(x)],[0,np.abs(x)],marker='.',color = color,alpha = 0.5)
-
+    for i,color in enumerate(["tab:red", "tab:green", "tab:blue"]):
+        for x in mode_shape[:, i]:
+            ax1.plot(
+                [0,np.angle(x)], [0, np.abs(x)],
+                marker='.', color=color, alpha=0.5
+                )
     plt.yticks([])
 
-def mode_animation(mode_shape, scale, no_points=60, no_of_repetitions = 2, abs_scale = True, secondary_mode_shape = None, animate_secondary_mode_shape = False):
+def mode_animation(
+    mode_shape, scale, no_points=60, no_of_repetitions=2,
+    abs_scale=True, secondary_mode_shape=None,
+    animate_secondary_mode_shape=False
+):
     """
     Creates an animation sequence from the mode shape and scales the displacemetns.
     It is also possible to add a secondary mode shape, which is displayed on a deformed 
@@ -156,7 +166,11 @@ def mode_animation(mode_shape, scale, no_points=60, no_of_repetitions = 2, abs_s
             ann = np.zeros((mode_shape.shape[0], mode_shape.shape[1], int(no_points)))
             ann_secondary = np.zeros((mode_shape.shape[0], int(no_points)))
         else:
-            raise ValueError("Parameter mode_shape must be a 2D vector, where the first dimension presents all nodes and the second dimension 3 coordinates (x, y, z).")
+            raise ValueError(
+                "Parameter mode_shape must be a 2D vector, where the first "
+                "dimension presents all nodes and the second dimension 3 "
+                "coordinates (x, y, z)."
+            )
     else:
         raise ValueError("To animate mode shape, a parameter mode_shape must be defined in form of 2D numpy array.")
 
@@ -178,7 +192,7 @@ def mode_animation(mode_shape, scale, no_points=60, no_of_repetitions = 2, abs_s
         ann = ann * scale
     return ann, ann_secondary
 
-def MAC(phi_1, phi_2, output_type = 'matrix'):
+def mac(phi_1, phi_2, output_type = 'matrix'):
     """
     Calculates modal assurance criterion matrix.
 
@@ -197,48 +211,49 @@ def MAC(phi_1, phi_2, output_type = 'matrix'):
     if phi_2.ndim == 1:
         phi_2 = phi_2[:,np.newaxis]
 
-    MAC_mat = (np.abs(np.einsum('ri,ik->rk',np.conj(phi_1).T,phi_2))**2 / (np.einsum('ri,ir->r',np.conj(phi_1).T,phi_1)[:,np.newaxis] * np.einsum('ri,ir->r',np.conj(phi_2).T,phi_2))).real
+    mac_mat = (np.abs(np.einsum('ri,ik->rk',np.conj(phi_1).T,phi_2))**2 / (np.einsum('ri,ir->r',np.conj(phi_1).T,phi_1)[:,np.newaxis] * np.einsum('ri,ir->r',np.conj(phi_2).T,phi_2))).real
     if output_type == 'matrix':
-        return MAC_mat
+        return mac_mat
     if output_type == 'diagonal':
-        return np.diagonal(MAC_mat)
+        return np.diagonal(mac_mat)
     else:
         raise Exception('Unknown output type.')
 
-def coh_frf(Y_1, Y_2, return_average = True):
+def coh_frf(y_1, y_2, return_average = True):
     """
     Calculates values of coherence between two FRFs.
 
-    :param Y_1: FRF 1
-    :type Y_1: array(float)
-    :param Y_2: FRF 2
-    :type Y_2: array(float)
+    :param y_1: FRF 1
+    :type y_1: array(float)
+    :param y_2: FRF 2
+    :type y_2: array(float)
     :return: coherence criterion
     """
+    return coh(y_1, y_2, return_average=return_average)
+    
+def coh(x, y, return_average=True):
+    """
+    Compute coherence of (complex or real-valued) signals
+    x and y.
 
-    if Y_1.shape == Y_2.shape:
-        if len(Y_1.shape) == 3:
-            numerator = np.einsum("ijk,ijk->ijk", (Y_1+Y_2), (np.conj(Y_1)+np.conj(Y_2)))
-            denumerator = 2*(np.einsum("ijk,ijk->ijk", Y_1, np.conj(Y_1)) + np.einsum("ijk,ijk->ijk", Y_2, np.conj(Y_2)))
-            coh = np.einsum("ijk,ijk->ijk", numerator, 1/denumerator)
-        elif len(Y_1.shape) == 2:
-            numerator = np.einsum("ij,ij->ij", (Y_1+Y_2), (np.conj(Y_1)+np.conj(Y_2)))
-            denumerator = 2*(np.einsum("ij,ij->ij", Y_1, np.conj(Y_1)) + np.einsum("ij,ij->ij", Y_2, np.conj(Y_2)))
-            coh = np.einsum("ij,ij->ij", numerator, 1/denumerator)
-        elif len(Y_1.shape) == 1:
-            numerator = (Y_1+Y_2)*(np.conj(Y_1)+np.conj(Y_2))
-            denumerator = 2*((Y_1*np.conj(Y_1)) + (Y_2*np.conj(Y_2)))
-            coh = numerator/denumerator
-        else:
-            print("Wrong matrix shape")
-        
-        if return_average == True:
-            return np.mean(np.abs(coh))
-        else:
-            return np.abs(coh)
+    Parameters
+    ----------
+    x, y : numpy.ndarray with identical shapes or at least
+        shapes such that (x + y) returns a valid result.
+    """
+    if x.shape != y.shape:
+        raise ValueError("Input arrays must have the same shape.")
+    coh_xy = (
+        (
+            (x + y) * (x + y).conj()
+        ) / (
+            2 * (x.conj() * x + y.conj() * y)
+        )
+    ).real
+    if return_average:
+        return np.mean(coh_xy)
     else:
-        print("Wrong matrix shape")
-        return None
+        return coh_xy
 
 def dict_animation(_modeshape, a_type, mesh= None, pts = None, fps = 30, r_scale = 10, no_points=60, no_of_repetitions = 2, object_list = None, abs_scale = True, secondary_mode_shape=None, animate_secondary_mode_shape = False):
     """
@@ -288,43 +303,43 @@ def dict_animation(_modeshape, a_type, mesh= None, pts = None, fps = 30, r_scale
 
     return mode_dict
 
-def CMIF(FRF, return_svector=False):
+def cmif(frf, return_svector=False):
     """
     Calculates a CMIF parameter of input FRF matrix
 
-    :param FRF: Input FRF matrix
-    :type FRF: array(float)
+    :param frf: Input FRF matrix
+    :type frf: array(float)
     :param singular_vector: Return corresponding singular vectors
     :type singular_vector: bool, optional
     :return: CMIF parameters (singular values with or without left and right singular vectors)
     """
-    _f = FRF.shape[0]
-    val = np.min([FRF.shape[1], FRF.shape[2]])
+    _f = frf.shape[0]
+    val = np.min([frf.shape[1], frf.shape[2]])
 
-    _S = np.zeros((_f, val))
+    _s = np.zeros((_f, val))
 
     if return_svector:
-        _U = np.zeros((_f, FRF.shape[1], FRF.shape[1]), dtype=complex)
-        _V = np.zeros((_f, FRF.shape[2], FRF.shape[2]), dtype=complex)
+        _u = np.zeros((_f, frf.shape[1], frf.shape[1]), dtype=complex)
+        _v = np.zeros((_f, frf.shape[2], frf.shape[2]), dtype=complex)
 
     for i in range(_f):
         if return_svector:
-            U, S, VH = np.linalg.svd(FRF[i, :, :], full_matrices=True, compute_uv=True)
-            V = np.conj(VH).T
-            _S[i, :] = S
-            _U[i, :, :] = U
-            _V[i, :, :] = V
+            u, s, vh = np.linalg.svd(frf[i, :, :], full_matrices=True, compute_uv=True)
+            v = np.conj(vh).T
+            _s[i, :] = s
+            _u[i, :, :] = u
+            _v[i, :, :] = v
 
         else:
-            S = np.linalg.svd(FRF[i, :, :], full_matrices=True, compute_uv=False)
-            _S[i, :] = S
+            s = np.linalg.svd(frf[i, :, :], full_matrices=True, compute_uv=False)
+            _s[i, :] = s
 
     if return_svector:
-        return _U, _S, _V
+        return _u, _s, _v
     else:
-        return _S
+        return _s
 
-def TSVD(matrix,reduction = 0):
+def _tsvd(matrix,reduction = 0):
     """
     Filters a FRF matrix  with a truncated singular value decomposition (TSVD) by removing the smallest singular values.
 
@@ -335,18 +350,66 @@ def TSVD(matrix,reduction = 0):
     :return: Filtered matrix
     :rtype: array(float)
     """
-    U, s, VH = np.linalg.svd(matrix)
+    u, s, vh = np.linalg.svd(matrix)
     kk = s.shape[1] - reduction
-    Uk = U[:, :, :kk]
-    Sk = np.zeros((matrix.shape[0], kk, kk))
+    uk = u[:, :, :kk]
+    sk = np.zeros((matrix.shape[0], kk, kk))
 
     for i in range(matrix.shape[0]):
-        Sk[i] = np.diag(s[i, :kk])
-    Vk = VH[:, :kk, :]
+        sk[i] = np.diag(s[i, :kk])
+    vk = vh[:, :kk, :]
 
-    return Uk @ Sk @ Vk
+    return uk @ sk @ vk
 
-def M(axis, theta):
+def tsvd(matrix, reduction=0):
+    """
+    Filters a FRF matrix  with a truncated singular value decomposition (TSVD)
+    by removing the smallest singular values.
+
+    :param matrix: Matrix to be filtered by singular value decomposition
+    :type matrix: array(float)
+    :param reduction: Number of singular values not taken into account by 
+        reconstruction of the matrix
+    :type reduction: int, optional
+    :return: Filtered matrix
+    :rtype: array(float)
+    """
+    u, s, vh = np.linalg.svd(matrix, full_matrices=False)
+    n = s.shape[-1] - reduction
+    if n < 0:
+        raise ValueError(
+            "Reduction value is higher than the number of singular values"
+        )
+    return (u[..., :n] * s[..., None, :n]) @ vh[..., :n, :]
+
+def tpinv(a: np.ndarray, trunc: int | None = None):
+    """
+    Compute Moore-Penrose pseudo inverse using SVD with or without truncation.
+
+    ----------
+    Parameters
+    ----------
+    a : numpy.ndarray
+        Array to be inverted.
+    trunc : int or None
+        Cutoff for singular values. If None, the inverse is calculated without
+        truncation. If type(trunc) is int, trunc is the number of singular
+        values to be set to zero.
+    """
+    u, s, vh = np.linalg.svd(a, full_matrices=False)
+    if trunc is None or trunc == 0:
+        pass
+    elif isinstance(trunc, int):
+        s[..., -trunc:] = 0.
+    else:
+        raise Exception("`trunc` type must be int or None")
+    s_mask = np.where(s > 0, 0, 1)
+    s_inv = 1/(s + s_mask) - s_mask
+    a_inv = np.swapaxes(vh.conj(), -2, -1) @ (s_inv[..., None] * np.swapaxes(u.conj(), -2, -1))
+
+    return a_inv
+
+def rotation_matrix(axis, theta):
     """
     Calculates rotational matrix based on the Euler-Rodrigues formula.
 
@@ -390,7 +453,6 @@ def rotation_matrix_from_vectors(vec1, vec2, tol=1e-8):
     :param tol: Numerical tolerance
     :return: Rotation matrix aligning vec1 to vec2
     """
-    # return R.align_vectors([vec2], [vec1])[0].as_matrix()
     a = vec1 / np.linalg.norm(vec1)
     b = vec2 / np.linalg.norm(vec2)
     
@@ -450,20 +512,28 @@ def generate_channels_from_sensors(df):
     :return: A DataFrame containing information on channels
     """
 
-    columns_chann = ["Name", "Description", "Quantity", "Grouping",
-                     "Position_1", "Position_2", "Position_3", "Direction_1", "Direction_2", "Direction_3"]
+    columns_chann = [
+        "Name", "Description", "Quantity", "Grouping",
+        "Position_1", "Position_2", "Position_3",
+        "Direction_1", "Direction_2", "Direction_3"
+    ]
     df_ch = pd.DataFrame(columns=columns_chann)
 
     axes = ["x", "y", "z"]
-    for s, angle in enumerate(df[["Orientation_1", "Orientation_2", "Orientation_3"]].to_numpy()):
-        r = R.from_euler('xyz', angle, degrees=True)
+    for s, angle in enumerate(
+        df[["Orientation_1", "Orientation_2", "Orientation_3"]].to_numpy()
+    ):
+        r = Rotation.from_euler('xyz', angle, degrees=True)
         rot = r.as_matrix().T
         for i in range(3):
-            data_chn = np.asarray([[str(df["Name"][s]) + axes[i], df["Description"][s],
-                                    None, df["Grouping"][s], df["Position_1"][s], df["Position_2"][s],
-                                    df["Position_3"][s], rot[i][0], rot[i][1], rot[i][2]]])
+            data_chn = np.asarray([[
+                str(df["Name"][s]) + axes[i],
+                df["Description"][s], None, df["Grouping"][s],
+                df["Position_1"][s], df["Position_2"][s], df["Position_3"][s],
+                rot[i][0], rot[i][1], rot[i][2]
+            ]])
             df_row = pd.DataFrame(data=data_chn, columns=columns_chann)
-            df_ch = pd.concat([df_ch, df_row],ignore_index = True)
+            df_ch = pd.concat([df_ch, df_row], ignore_index=True)
 
     return df_ch
 
@@ -477,28 +547,36 @@ def generate_sensors_from_channels(df):
     :return: A DataFrame containing information on sensors
     """
 
-    columns_sen = ["Name", "Description", "Quantity", "Grouping",
-                   "Position_1", "Position_2", "Position_3", "Orientation_1", "Orientation_2", "Orientation_3"]
+    columns_sen = [
+        "Name", "Description", "Quantity", "Grouping",
+        "Position_1", "Position_2", "Position_3",
+        "Orientation_1", "Orientation_2", "Orientation_3"
+    ]
     df_sen = pd.DataFrame(columns=columns_sen)
 
     for i in range(int(len(df)/3)):
-        sen_or = df[["Direction_1", "Direction_2", "Direction_3"]].to_numpy()[3 * (i):3 * (i + 1)]
-        sen_pos = df[["Position_1", "Position_2", "Position_3"]].to_numpy()[3 * (i)]
+        sen_or = df[[
+            "Direction_1", "Direction_2", "Direction_3"
+        ]].to_numpy()[3 * (i):3 * (i + 1)]
+        sen_pos = df[[
+            "Position_1", "Position_2", "Position_3"
+        ]].to_numpy()[3 * (i)]
 
-        r = R.from_matrix(sen_or)
+        r = Rotation.from_matrix(sen_or)
         r = r.inv()
-
         orient = r.as_euler('xyz', degrees=True)
 
-        data_chn = np.asarray([["S"+str(i+1),None,None,None,sen_pos[0],sen_pos[1],sen_pos[2],orient[0],orient[1],orient[2]]])
-
-
+        data_chn = np.asarray([[
+            "S"+str(i+1), None, None, None,
+            sen_pos[0], sen_pos[1], sen_pos[2], 
+            orient[0], orient[1], orient[2]
+        ]])
         df_row = pd.DataFrame(data=data_chn, columns=columns_sen)
-        df_sen = pd.concat([df_sen,df_row],ignore_index = True)
+        df_sen = pd.concat([df_sen, df_row], ignore_index=True)
 
     return df_sen
 
-def generate_VP_from_position(df):
+def generate_vp_from_position(df):
     """
     Generates a DataFrame for full-DoF VP based on VP position determined using interactive positioning.
     VP is orientated in the direction of the global coordinate system.
@@ -509,16 +587,21 @@ def generate_VP_from_position(df):
     :return df_vpref: A DataFrame containing full DoF VPs reference channels
     """
     
-    columns_vp = ["Name", "Description", "Quantity", "Grouping",
-                   "Position_1", "Position_2", "Position_3", "Direction_1", "Direction_2", "Direction_3"]
+    columns_vp = [
+        "Name", "Description", "Quantity", "Grouping",
+        "Position_1", "Position_2", "Position_3",
+        "Direction_1", "Direction_2", "Direction_3"
+    ]
 
     desc_u = ['ux', 'uy', 'uz', 'rx', 'ry', 'rz']
     desc_f = ['fx', 'fy', 'fz', 'mx', 'my', 'mz']
 
-    quantity_u = np.tile(np.repeat(['Acceleration', 'Rotational Acceleration'], 3), 1)
+    quantity_u = np.tile(
+        np.repeat(['Acceleration', 'Rotational Acceleration'], 3), 1
+    )
     quantity_f = np.tile(np.repeat(['Force', 'Moment'], 3), 1)
 
-    orientation = np.vstack((np.eye(3),np.eye(3)))
+    orientation = np.vstack((np.eye(3), np.eye(3)))
 
     df_vp = pd.DataFrame(columns=columns_vp)
     df_vpref = pd.DataFrame(columns=columns_vp)
@@ -526,38 +609,60 @@ def generate_VP_from_position(df):
     for i in range(df.shape[0]):
 
         for j in range(6):
-            data_vp = np.asarray([[df.iloc[i]['Name'], desc_u[j], quantity_u[j], i+1,
-                                  df.iloc[i]['Position_1'], df.iloc[i]['Position_2'], df.iloc[i]['Position_3'],
-                                  orientation[j][0], orientation[j][1], orientation[j][2]]])
-            data_vpref = np.asarray([[df.iloc[i]['Name'], desc_f[j], quantity_f[j], i+1,
-                                  df.iloc[i]['Position_1'], df.iloc[i]['Position_2'], df.iloc[i]['Position_3'],
-                                  orientation[j][0], orientation[j][1], orientation[j][2]]])
+            data_vp = np.asarray([[
+                df.iloc[i]['Name'],
+                desc_u[j],
+                quantity_u[j],
+                i+1,
+                df.iloc[i]['Position_1'],
+                df.iloc[i]['Position_2'],
+                df.iloc[i]['Position_3'],
+                orientation[j][0],
+                orientation[j][1],
+                orientation[j][2]
+            ]])
+            data_vpref = np.asarray([[
+                df.iloc[i]['Name'],
+                desc_f[j],
+                quantity_f[j],
+                i+1,
+                df.iloc[i]['Position_1'],
+                df.iloc[i]['Position_2'],
+                df.iloc[i]['Position_3'],
+                orientation[j][0],
+                orientation[j][1],
+                orientation[j][2]
+            ]])
 
             df_row_vp = pd.DataFrame(data=data_vp, columns=columns_vp)
             df_row_vpref = pd.DataFrame(data=data_vpref, columns=columns_vp)
 
-            df_vp = pd.concat([df_vp,df_row_vp], ignore_index=True).apply(pd.to_numeric, errors='ignore')
-            df_vpref = pd.concat([df_vpref,df_row_vpref], ignore_index=True).apply(pd.to_numeric, errors='ignore')
+            df_vp = pd.concat(
+                [df_vp, df_row_vp], ignore_index=True
+            ).apply(pd.to_numeric, errors='ignore')
+            df_vpref = pd.concat(
+                [df_vpref,df_row_vpref], ignore_index=True
+            ).apply(pd.to_numeric, errors='ignore')
         
     return df_vp, df_vpref
 
-def coh_on_FRF(FRF_matrix):
+def reciprocity(frf_matrix):
     """
     Evaluates a reciprocity on the whole FRF matrix.
 
-    :param FRF_matrix: Matrix of FRFs [f,out,in]
-    :type FRF_matrix: array(float)
+    :param frf_matrix: Matrix of FRFs [f,out,in]
+    :type frf_matrix: array(float)
     :return: A matrix of coherence criterion values on the reciprocal FRFs
     """
 
-    _out = FRF_matrix.shape[1]
-    _in = FRF_matrix.shape[2]
+    _out = frf_matrix.shape[1]
+    _in = frf_matrix.shape[2]
 
     coh_crit = np.zeros((_out, _in))
 
     for i in range(_out):
         for j in range(_in):
-            coh_crit[i, j] = coh_frf(FRF_matrix[:, i, j], FRF_matrix[:, j, i])
+            coh_crit[i, j] = coh_frf(frf_matrix[:, i, j], frf_matrix[:, j, i])
 
     return coh_crit
 
@@ -579,7 +684,9 @@ def orient_in_global(mode, df_chn, df_acc):
 
     empty = np.zeros((n_sen, n_ax), dtype=complex)
 
-    _dir = df_chn[["Direction_1", "Direction_2", "Direction_3"]].to_numpy(dtype = float)
+    _dir = df_chn[[
+        "Direction_1", "Direction_2", "Direction_3"
+    ]].to_numpy(dtype=float)
 
     for i in range(n_sen):
         for j in range(n_ax):
@@ -610,19 +717,19 @@ def orient_in_global_2(mode, df_imp):
 
     return empty
 
-def MCC(mod):
+def mcc(mod):
     """
     Calculate a correlation coefficient MCC
     source: 10.1016/j.jsv.2013.01.039
     """
-    Sxy = np.imag(mod).T @ np.real(mod)
+    s_xy = np.imag(mod).T @ np.real(mod)
 
-    Sxx = np.real(mod).T @ np.real(mod)
-    Syy = np.imag(mod).T @ np.imag(mod)
-    MCC = Sxy ** 2 / (Sxx * Syy)
-    return MCC
+    s_xx = np.real(mod).T @ np.real(mod)
+    s_yy = np.imag(mod).T @ np.imag(mod)
+    _mcc = s_xy ** 2 / (s_xx * s_yy)
+    return _mcc
 
-def MPC(mod, sel=0):
+def mpc(mod, sel=0):
     """
     Calculate a modal phase collinearity coefficient MCC
     source: 10.1016/S0045-7949(03)00034-8
@@ -636,67 +743,71 @@ def MPC(mod, sel=0):
     cri = _re.T @ _im
     cii = _im.T @ _im
 
-    MPC = ((cii - crr) ** 2 + 4 * cri ** 2) / (crr + cii) ** 2
-    return MPC
+    _mpc = ((cii - crr) ** 2 + 4 * cri ** 2) / (crr + cii) ** 2
+    return _mpc
 
-def auralization(freq,FRF, load_case = None):
+def auralization(freq, frf, load_case=None):
     """
     Auralization of FRFs, performs an IFFT and if the load case is supplied a convolution to obtain time response.
 
     :param freq: Frequency vector
     :type freq: array(float)
-    :param FRF: Frequency Response Function
-    :type FRF: array(float)
+    :param frf: Frequency Response Function
+    :type frf: array(float)
     :param load_case: Load vector
     :type load_case: array(float)
     :return: time vector, time response
     """
 
-    s = np.fft.irfft(FRF)
+    s = np.fft.irfft(frf)
     dt = 1 / (freq[1] - freq[0])  
     xt = np.linspace(0, dt, len(s), endpoint=True)
     if type(load_case) == type(np.asarray([])):
         s = (np.convolve(load_case, s, 'full').real)[:len(load_case)]
         xt = np.linspace(0, dt, len(load_case), endpoint=False)
 
-    return xt,s
+    return xt, s
 
-def SSA_filter(time_series, no_sel, window_size=100):
+def ssa_filter(time_series, no_sel, window_size=100):
     groups = [np.arange(0, no_sel), np.arange(no_sel, window_size)]
-    transformer = SingularSpectrumAnalysis(window_size=window_size, groups=groups)
+    transformer = SingularSpectrumAnalysis(
+        window_size=window_size, groups=groups
+    )
 
-    X_new = transformer.transform(time_series.reshape(1, len(time_series)))
+    x_new = transformer.transform(time_series.reshape(1, len(time_series)))
 
-    signal = X_new[0, :]
-    noise = X_new[1, :]
+    signal = x_new[0, :]
+    noise = x_new[1, :]
 
     return signal, noise
 
-def SSA_evaluate(time_series, window_size=100):
+def ssa_evaluate(time_series, window_size=100):
     L = window_size
     N = len(time_series)
     K = N - L + 1
 
     # create trajectory matrix
-    X_trajectory = np.column_stack([time_series[i:i + L] for i in range(0, K)])
+    x_trajectory = np.column_stack([time_series[i:i + L] for i in range(0, K)])
 
     # compute singular values
-    s = np.linalg.svd(X_trajectory, compute_uv=False)
+    s = np.linalg.svd(x_trajectory, compute_uv=False)
     return s
 
-def PRF(H1_main, n_sel):
+def prf(h1_main, n_sel):
     k = n_sel
 
-    new_arr = H1_main.reshape(H1_main.shape[0], H1_main.shape[1] * H1_main.shape[2])
+    new_arr = h1_main.reshape(h1_main.shape[0], h1_main.shape[1] * h1_main.shape[2])
     u, s, vh = np.linalg.svd(new_arr, full_matrices=False)
 
     prfs = u @ np.diag(s)
 
-    H1_rec = (u[:, :k] @ np.diag(s[:k]) @ vh[:k, :]).reshape(H1_main.shape[0], H1_main.shape[1], H1_main.shape[2])
+    h1_rec = (u[:, :k] @ np.diag(s[:k]) @ vh[:k, :]).reshape(
+        h1_main.shape[0], h1_main.shape[1], h1_main.shape[2]
+    )
 
-    return prfs, H1_rec
+    return prfs, h1_rec
 
-def ODS_FRF(roving_responses, reference):
+def ods_frf(roving_responses, reference):
     '''
     roving_responses: roving responses not phase matched shaped in a form of (frequency X no. of responses)
     
@@ -706,14 +817,14 @@ def ODS_FRF(roving_responses, reference):
     return ODS_FRFs: responses phase matched in a form of (frequency X no. of responses)
     '''
     
-    Gxx = np.einsum('ij,ij->ij', roving_responses, np.conj(roving_responses))
-    Gxy = np.einsum('ij,j->ij', roving_responses, np.conj(reference))
+    gxx = np.einsum('ij,ij->ij', roving_responses, np.conj(roving_responses))
+    gxy = np.einsum('ij,j->ij', roving_responses, np.conj(reference))
     
-    ODS_FRFs = np.einsum('ij,ij->ij', np.sqrt(Gxx), Gxy/np.abs(Gxy))
+    ods_frfs = np.einsum('ij,ij->ij', np.sqrt(gxx), gxy/np.abs(gxy))
     
-    return ODS_FRFs
+    return ods_frfs
 
-def ODS_FRF_averaging(roving_responses, reference, no_of_avg):
+def ods_frf_averaging(roving_responses, reference, no_of_avg):
     '''
     roving_responses: roving responses not phase matched shaped in a form of (samples X no. of responses)
     
@@ -724,19 +835,25 @@ def ODS_FRF_averaging(roving_responses, reference, no_of_avg):
     '''
     N = reference.shape[0]
     n = int(N/no_of_avg)
-    Gxx = np.zeros((int(n/2)+1,roving_responses.shape[1]),dtype=complex)
-    Gxy = np.zeros((int(n/2)+1,roving_responses.shape[1]),dtype=complex)
+    gxx = np.zeros((int(n / 2) + 1, roving_responses.shape[1]), dtype=complex)
+    gxy = np.zeros((int(n / 2) + 1, roving_responses.shape[1]), dtype=complex)
     
     for i in range(no_of_avg):
-        roving_responses_ = np.fft.rfft(roving_responses[i*n:(i+1)*n,:],axis=0)
-        reference_ = np.fft.rfft(reference[i*n:(i+1)*n])
+        roving_responses_ = np.fft.rfft(
+            roving_responses[i * n:(i + 1) * n, :],axis=0
+        )
+        reference_ = np.fft.rfft(reference[i * n:(i + 1) * n])
         
-        Gxx += np.einsum('ij,ij->ij', roving_responses_, np.conj(roving_responses_))/no_of_avg
-        Gxy += np.einsum('ij,i->ij', roving_responses_, np.conj(reference_))/no_of_avg
+        gxx += np.einsum(
+            'ij,ij->ij', roving_responses_, np.conj(roving_responses_)
+        ) / no_of_avg
+        gxy += np.einsum(
+            'ij,i->ij', roving_responses_, np.conj(reference_)
+        ) / no_of_avg
     
-    ODS_FRFs = np.einsum('ij,ij->ij', np.sqrt(Gxx), Gxy/np.abs(Gxy))
+    _ods_frfs = np.einsum('ij,ij->ij', np.sqrt(gxx), gxy / np.abs(gxy))
     
-    return ODS_FRFs
+    return _ods_frfs
 
 #if necessary, font properties can be changed
 #def font():
@@ -774,12 +891,38 @@ def ODS_FRF_averaging(roving_responses, reference, no_of_avg):
 #alt.themes.enable('font')
 
 __all__ = [
-    'modeshape_sync_lstsq', 'modeshape_scaling_DP', 'MCF', 'flatten_FRFs', 
-    'unflatten_modes', 'complex_plot', 'complex_plot_3D', 'mode_animation', 
-    'MAC', 'coh_frf', 'dict_animation', 'CMIF', 'TSVD', 'M', 'angle', 
-    'rotation_matrix_from_vectors', 'unit_vector', 'angle_between', 
-    'generate_channels_from_sensors', 'generate_sensors_from_channels', 
-    'generate_VP_from_position', 'coh_on_FRF', 'orient_in_global', 
-    'orient_in_global_2', 'MCC', 'MPC', 'auralization', 'SSA_filter', 
-    'SSA_evaluate', 'PRF', 'ODS_FRF', 'ODS_FRF_averaging'
+    'modeshape_sync_lstsq', 
+    'modeshape_scaling_driving_point', 
+    'mcf',
+    'flatten_frfs',
+    'unflatten_modes',
+    'complex_plot',
+    'complex_plot_3d',
+    'mode_animation',
+    'mac',
+    'coh_frf',
+    'dict_animation',
+    'cmif',
+    '_tsvd',
+    'tsvd',
+    'tpinv',
+    'rotation_matrix',
+    'angle', 
+    'rotation_matrix_from_vectors',
+    'unit_vector',
+    'angle_between',
+    'generate_channels_from_sensors',
+    'generate_sensors_from_channels', 
+    'generate_vp_from_position',
+    'reciprocity',
+    'orient_in_global', 
+    'orient_in_global_2',
+    'mcc',
+    'mpc',
+    'auralization',
+    'ssa_filter', 
+    'ssa_evaluate',
+    'prf',
+    'ods_frf',
+    'ods_frf_averaging'
     ]
