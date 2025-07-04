@@ -1260,6 +1260,8 @@ class DynamicPosition():
                                        [0.5, 0, 0],
                                        [0, 0.5, 0],
                                        [0, 0, 0.5]]) * size
+        if toggle == "impact":
+            self.local_widgets[-1] *= -1  # flip the z-rotation widget for impact
 
         # local normals on which the snapping happens
         self.local_normals = np.asarray([[1, 0, 0],
