@@ -279,7 +279,7 @@ def dict_animation(_modeshape, a_type, mesh= None, pts = None, fps = 30, r_scale
     mode_dict["fps"] = fps
 
     if a_type == "modeshape":
-        mode_dict["or_pts"] = pts
+        mode_dict["or_pts"] = pts.copy() if pts is not None else None
         mode_dict["mesh"] = mesh
         mode_dict["scalars"] = True
 

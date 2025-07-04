@@ -7,6 +7,7 @@ from PyQt5.QtWidgets import QAction
 from PyQt5 import  QtGui
 import imageio
 from ..utility import rotation_matrix_from_vectors, angle_between, angle, M
+from ..utility import dict_animation
 import keyboard as kb
 from scipy.spatial.transform import Rotation as R
 from pathlib import Path
@@ -80,7 +81,7 @@ class View3D():
         self.name_ev = None
 
         self.displayed_bodies = []
-        self.displayed_models = {}
+        self.mesh_dict = {}
 
         self.obj_animation = None
         self.modeshape_animation = None
@@ -103,10 +104,76 @@ class View3D():
         self.toggle = None
         self.size = 10
         
-    def add_modeshape_model(self, model, fps=30, r_scale=10, no_points=60, run_animation=False, add_note=False):
-        pass
+    def add_modeshape(
+        self, mode, mesh_or_name=None, fps=30, r_scale=10, no_frames=60,
+        run_animation=False, add_note=False
+        ):
+        """
+        Add a modeshape animation to the 3D display.
+        
+        :param mode: Mode shape to animate.
+        :type mode: np.ndarray with shape (number of points, number of modes)
+        :param mesh_or_name: Mesh to animate retured by View3D.add_mesh() or 
+            View3D.add_model(), or a string with the name of the mesh. If None,
+            the first mesh in the mesh dictionary will be used.
+        :type mesh_or_name: str | pyvista.core.pointset.PolyData | 
+            pyvista.core.pointset.UnstructuredGrid | None
+        :param fps: Frames per second for the animation.
+        :type fps: int
+        :param r_scale: Scale factor for the mode shape to be animated.
+        :type r_scale: int | float
+        :param no_frames: Number of frames to animate.
+        :type no_frames: int
+        :param run_animation: Run animation at start.
+        :type run_animation: bool
+        :param add_note: Add a note to a corner of the 3D display.
+        :type add_note: bool
+        """
+        name = None
+        if mesh_or_name is None:
+            name = list(self.mesh_dict.keys())[0]
+            mesh = self.mesh_dict[name]['mesh']
+            ix = self.mesh_dict[name]['vtkOriginalPointIds']
+            points = self.mesh_dict[name]['points']
+        elif isinstance(mesh_or_name, str):
+            if mesh_or_name in self.mesh_dict.keys():
+                name = mesh
+                mesh = self.mesh_dict[name]['mesh']
+                ix = self.mesh_dict[name]['vtkOriginalPointIds']
+                points = self.mesh_dict[name]['points']
+            else:
+                raise ValueError("Mesh name not found in the mesh dictionary.")
+        elif isinstance(mesh_or_name, (pv.PolyData, pv.UnstructuredGrid)):
+            for key, value in self.mesh_dict.items():
+                if value['mesh'] is mesh_or_name:
+                    name = key
+                    mesh = value['mesh']
+                    ix = self.mesh_dict[name]['vtkOriginalPointIds']
+                    points = self.mesh_dict[name]['points']
+                    break
+        else:
+            raise TypeError(
+                "Mesh must be a string, PolyData, UnstructuredGrid or None."
+                )
+        if name is None:
+            raise ValueError(
+                "Mesh not found in the mesh dictionary. Please add a mesh \
+                    first using add_mesh() or add_model()."
+                    )
+        if ix is None:
+            _mode = mode
+        else:
+            _mode = mode[ix]
+            
+        mode_dict = dict_animation(
+            _mode, 'modeshape', pts=points, mesh=mesh, fps=fps,
+            r_scale=r_scale, no_points=no_frames
+            )
+        self._add_modeshape(
+            mode_dict, run_animation=run_animation, add_note=add_note
+        )
 
-    def add_modeshape(self,dict_animation,run_animation = False,add_note = False):
+    def _add_modeshape(self,dict_animation,run_animation = False,add_note = False):
         """
         Add a modeshape animation to the 3D display.
 
@@ -177,14 +244,10 @@ class View3D():
             scalars = ann_secondary
         else:
             scalars = np.sqrt(np.mean(ann**2, axis=1)).reshape(self.modeshape_animation["or_pts"].shape[0], -1)
-        original_points = []
         for mesh in self.modeshape_animation["mesh"]:
-            points = self.modeshape_animation["or_pts"].copy()
-            original_points.append(points)
-            mesh.points = self.modeshape_animation["or_pts"].copy()
+            mesh.points = self.modeshape_animation["or_pts"]
         for i in range(ann.shape[2]):
             add_val = ann[:, :, i]
-
             for j, mesh in enumerate(self.modeshape_animation["mesh"]):
                 mesh.points = self.modeshape_animation["or_pts"] + add_val
                 scalars_name = mesh.active_scalars_name
@@ -348,16 +411,6 @@ class View3D():
             raise TypeError("Model must be a pyfbs.mck.Model object.")
         
         mesh = model.mesh
-        if isinstance(mesh, pv.core.pointset.PolyData):
-            _model = model
-            _mesh = mesh
-        elif isinstance(mesh, pv.core.pointset.UnstructuredGrid):
-            # Extract surface if the mesh is an UnstructuredGrid
-            _model = model.extract_surface()
-            _mesh = _model.mesh
-        self.displayed_models[name] = {
-            'model': _model,
-        }
         return self.add_mesh(mesh, name=name, cmap=cmap, **kwargs)
     
     def add_mesh(self, mesh, name="model", cmap="coolwarm", **kwargs):
@@ -367,17 +420,19 @@ class View3D():
         :param mesh: Mesh to be added
         :type mesh: pyvista.PolyData | pyvista.UnstructuredGrid
         :param name: Name of the mesh
-        :type name: str, optional
+        :type name: str
         :param cmap: If not None, applies a colormap to the mesh.
-        :type None | str | matplotlib colormap: optional
+        :type str | matplotlib colormap | None
         :param kwargs: Additional keyword arguments accepted by 
             pyvista.Plotter.add_mesh()
         """
 
         if isinstance(mesh, pv.core.pointset.PolyData):
-            _mesh = mesh
+            _mesh = pv.PolyData(mesh, deep=True)
+            ix = None
         elif isinstance(mesh, pv.core.pointset.UnstructuredGrid):
             _mesh = mesh.extract_surface()
+            ix = _mesh['vtkOriginalPointIds']
         else:
             raise TypeError("Mesh must be a PolyData or UnstructuredGrid object.")
         if cmap is not None:
@@ -388,6 +443,11 @@ class View3D():
             _mesh, name=name, scalars=scalars, cmap=cmap, **kwargs
             )
         self.displayed_bodies.append([name, actor])
+        self.mesh_dict[name] = {
+            'mesh': _mesh,
+            'points': _mesh.points.copy(),
+            'vtkOriginalPointIds': ix
+            }
         # initialize camera so that the view does not reset after dynamically adding objects
         self.plot.camera.direction
         return _mesh
