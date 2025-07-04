@@ -3,12 +3,13 @@ import pandas as pd
 from scipy.linalg import block_diag, norm
 from ..utility import coh_frf
 
+
 class VPT(object):
     """
-    Virtual Point Transformation (VPT) - enables the transformation of measured responses and loads to virtual DoFs. 
-    Current implementation enables the use of rigid and simple flexible interface deformation modes. DoFs supported 
-    are 3 translations + 3 rotations + 3 extensions + 3 torsions + 6 skewing + 6 bending. DoFs can be arbitrarily selected. 
-    
+    Virtual Point Transformation (VPT) - enables the transformation of measured responses and loads to virtual DoFs.
+    Current implementation enables the use of rigid and simple flexible interface deformation modes. DoFs supported
+    are 3 translations + 3 rotations + 3 extensions + 3 torsions + 6 skewing + 6 bending. DoFs can be arbitrarily selected.
+
     The following DoF labels should be used in VP dataframes to include them in the transformation:
     * Translational response/load:
         ux, uy, uz / fx, fy, fz
@@ -31,43 +32,48 @@ class VPT(object):
     :type vp_ch: pd.DataFrame
     :param vp_refch: A DataFrame containing information on virtual point loads
     :type vp_refch: pd.DataFrame
-    :param Wu: Displacement weigting matrix for the interface channels
-    :type Wu: 2D matrix (float), optional
-    :param Wf: Force weighting matrix for the interface impact points
-    :type Wf: 2D matrix (float), optional
+    :param wu: Displacement weigting matrix for the interface channels
+    :type wu: 2D matrix (float), optional
+    :param wf: Force weighting matrix for the interface impact points
+    :type wf: 2D matrix (float), optional
     :param sort_matrix: Sort transformation matrices
     :type sort_matrix: bool, optional
 
-    Transformed admittance matrix is sorted by increasing grouping number. VP DoFs are ordered in the same manner as 
+    Transformed admittance matrix is sorted by increasing grouping number. VP DoFs are ordered in the same manner as
     provided in the dataframe.
     """
 
-    def __init__(self, ch, refch, vp_ch, vp_refch, Wu = None, Wf = None, sort_matrix = True):
+    def __init__(
+        self, ch, refch, vp_ch, vp_refch, wu=None, wf=None, sort_matrix=True
+    ):
         self.sort_matrix = sort_matrix
 
         # Load the physical input-output DoFs
-        self.Channels = ch
-        self.RefChannels = refch
+        self.channels = ch
+        self.ref_channels = refch
 
         # Load virtual input-output DoFs and order by grouping number
-        self.Virtual_Channels = vp_ch.sort_values(["Grouping"], kind='stable')
-        self.Virtual_RefChannels = vp_refch.sort_values(["Grouping"], kind='stable')
+        self.virtual_channels = vp_ch.sort_values(["Grouping"], kind='stable')
+        self.virtual_ref_channels = vp_refch.sort_values(
+            ["Grouping"], kind='stable'
+        )
 
         # Load Weighting matrices: if None, no weighting is applied in the transformation
-        self.Wu_p = Wu
-        self.Wf_p = Wf
+        self.wu_p = wu
+        self.wf_p = wf
 
         # Define the IDM_U and IDM_F matrix
-        self.define_IDM_U()
-        self.define_IDM_F()
+        self.define_idm_u()
+        self.define_idm_f()
 
-
-    def define_IDM_U(self):
+    def define_idm_u(self):
         """
         Calculates Ru, Tu and Fu matrices based on the supplied position and orientation of Channels and Virtual
         Channels.
         """
-        ov_u, _vps, mask_u = self.find_overlap(self.Channels, self.Virtual_Channels)
+        ov_u, _vps, mask_u = self.find_overlap(
+            self.channels, self.virtual_channels
+        )
 
         R_all = []
         _Warray = []
@@ -75,9 +81,13 @@ class VPT(object):
         # iterates through all unique virtual points (through grouping)
         for i in range(len(ov_u)):
             # gets the unique VP position
-            _posVP = self.Virtual_Channels.iloc[_vps[1][i]][["Position_1","Position_2","Position_3"]].to_numpy()
+            _posVP = self.virtual_channels.iloc[_vps[1][i]][
+                ["Position_1", "Position_2", "Position_3"]
+            ].to_numpy()
             # gets defined DoF for specific VP
-            _desc = self.Virtual_Channels.loc[self.Virtual_Channels["Grouping"]==_vps[0][i]]["Description"].to_list()
+            _desc = self.virtual_channels.loc[
+                self.virtual_channels["Grouping"] == _vps[0][i]
+            ]["Description"].to_list()
             # gets the current positions
             ov_c = ov_u[i]
 
@@ -85,14 +95,20 @@ class VPT(object):
             r = np.zeros((len(ov_c), len(_desc)))
             for j, ch in enumerate(ov_c):
                 # gets position of the single channel
-                _pos = self.Channels.iloc[ch][["Position_1","Position_2","Position_3"]].to_numpy()
+                _pos = self.channels.iloc[ch][
+                    ["Position_1", "Position_2", "Position_3"]
+                ].to_numpy()
                 # gets orientation of the single channel
-                _dir = self.Channels.iloc[ch][["Direction_1","Direction_2","Direction_3"]].to_numpy()
+                _dir = self.channels.iloc[ch][
+                    ["Direction_1", "Direction_2", "Direction_3"]
+                ].to_numpy()
                 # gets quantity type of the single channel (either translational or angular acceleration)
-                _type = self.Channels.iloc[ch]['Quantity']
+                _type = self.channels.iloc[ch]['Quantity']
 
-                r[j, :] = _dir @ self.R_matrix_U(_pos - _posVP, _desc, type=_type)
-                _Warray.append(self.W_rotational(_pos, _dir, type=_type))
+                r[j, :] = _dir @ self.r_matrix_u(
+                    _pos - _posVP, _desc, type=_type
+                )
+                _Warray.append(self.w_rotational(_pos, _dir, type=_type))
 
             R_all.append(r)
 
@@ -102,44 +118,57 @@ class VPT(object):
         # sorting of the Ru matrix
         if self.sort_matrix == True:
             # sort on channels
-            _ov_u = np.concatenate((np.concatenate(ov_u), np.where(mask_u == 1)[0]))
-            Ru = Ru[np.argsort(_ov_u, kind='stable'),:]
+            _ov_u = np.concatenate(
+                (np.concatenate(ov_u), np.where(mask_u == 1)[0])
+            )
+            Ru = Ru[np.argsort(_ov_u, kind='stable'), :]
             # sort on VPs
-            ind_vp = self.Virtual_Channels['Grouping'].to_numpy()
-            _ind_vp = np.concatenate((ind_vp, self.Channels.iloc[np.where(mask_u == 1)[0]]['Grouping']))
-            Ru = Ru[:,np.argsort(_ind_vp, kind='stable')]
+            ind_vp = self.virtual_channels['Grouping'].to_numpy()
+            _ind_vp = np.concatenate(
+                (
+                    ind_vp,
+                    self.channels.iloc[np.where(mask_u == 1)[0]]['Grouping'],
+                )
+            )
+            Ru = Ru[:, np.argsort(_ind_vp, kind='stable')]
 
         # definition of weighting matrix
-        Wu = np.eye(np.max(Ru.shape))
-        if self.Wu_p is not None:
+        wu = np.eye(np.max(Ru.shape))
+        if self.wu_p is not None:
             interfaceDOFs_u = np.where(mask_u == 0)[0]
-            Wu[np.ix_(interfaceDOFs_u,interfaceDOFs_u)] = self.Wu_p
+            wu[np.ix_(interfaceDOFs_u, interfaceDOFs_u)] = self.wu_p
 
         # calculate the Tu, Fu matrices
-        Tu = np.linalg.pinv(Ru.T @ Wu @ Ru) @ Ru.T @ Wu
+        Tu = np.linalg.pinv(Ru.T @ wu @ Ru) @ Ru.T @ wu
         Fu = Ru @ Tu
 
-        self.Ru = Ru
-        self.Wu = Wu
-        self.Tu = Tu
-        self.Fu = Fu
+        self.ru = Ru
+        self.wu = wu
+        self.tu = Tu
+        self.fu = Fu
 
-    def define_IDM_F(self):
+    def define_idm_f(self):
         """
         Calculates the Rf, Tf, Ff matrices based on the supplied position and orientation of Reference Channels and
         Reference Virtual Channels.
         """
 
-        ov_f, _vps, mask_f = self.find_overlap(self.RefChannels, self.Virtual_RefChannels)
-        
+        ov_f, _vps, mask_f = self.find_overlap(
+            self.ref_channels, self.virtual_ref_channels
+        )
+
         R_all = []
 
         # iterates through all unique virtual points (through grouping)
         for i in range(len(ov_f)):
             # gets the unique VP position
-            _posVP = self.Virtual_RefChannels.iloc[_vps[1][i]][["Position_1","Position_2","Position_3"]].to_numpy()
+            _posVP = self.virtual_ref_channels.iloc[_vps[1][i]][
+                ["Position_1", "Position_2", "Position_3"]
+            ].to_numpy()
             # gets defined DoF for specific VP
-            _desc = self.Virtual_RefChannels.loc[self.Virtual_RefChannels["Grouping"]==_vps[0][i]]["Description"].to_list()
+            _desc = self.virtual_ref_channels.loc[
+                self.virtual_ref_channels["Grouping"] == _vps[0][i]
+            ]["Description"].to_list()
             # gets the current positions
             ov_c = ov_f[i]
 
@@ -147,11 +176,15 @@ class VPT(object):
             r = np.zeros((len(ov_c), len(_desc)))
             for j, im in enumerate(ov_c):
                 # gets position of the single impact
-                _pos = self.RefChannels.iloc[im][["Position_1", "Position_2", "Position_3"]].to_numpy()
+                _pos = self.ref_channels.iloc[im][
+                    ["Position_1", "Position_2", "Position_3"]
+                ].to_numpy()
                 # gets orientation of the single impact
-                _dir = self.RefChannels.iloc[im][["Direction_1", "Direction_2", "Direction_3"]].to_numpy()
+                _dir = self.ref_channels.iloc[im][
+                    ["Direction_1", "Direction_2", "Direction_3"]
+                ].to_numpy()
 
-                r[j, :] = (self.R_matrix_F(_pos - _posVP, _desc) @ (_dir).T)
+                r[j, :] = self.r_matrix_f(_pos - _posVP, _desc) @ (_dir).T
 
             R_all.append(r)
 
@@ -161,30 +194,43 @@ class VPT(object):
         # sorting of the Rf matrix
         if self.sort_matrix == True:
             # sort on impacts
-            _ov_f = np.concatenate((np.concatenate(ov_f), np.where(mask_f == 1)[0]))
-            Rf = Rf[np.argsort(_ov_f),:]
+            _ov_f = np.concatenate(
+                (np.concatenate(ov_f), np.where(mask_f == 1)[0])
+            )
+            Rf = Rf[np.argsort(_ov_f), :]
             # sort on VPs
-            ind_vpref = self.Virtual_RefChannels['Grouping'].to_numpy()
-            _ind_vpref = np.concatenate((ind_vpref, self.RefChannels.iloc[np.where(mask_f == 1)[0]]['Grouping']))
-            Rf = Rf[:,np.argsort(_ind_vpref, kind='stable')]
+            ind_vpref = self.virtual_ref_channels['Grouping'].to_numpy()
+            _ind_vpref = np.concatenate(
+                (
+                    ind_vpref,
+                    self.ref_channels.iloc[np.where(mask_f == 1)[0]][
+                        'Grouping'
+                    ],
+                )
+            )
+            Rf = Rf[:, np.argsort(_ind_vpref, kind='stable')]
 
-        # definition of weighting matrix            
-        Wf = np.eye(np.max(Rf.shape))
-        if self.Wf_p is not None:
+        # definition of weighting matrix
+        wf = np.eye(np.max(Rf.shape))
+        if self.wf_p is not None:
             interfaceDOFs_f = np.where(mask_f == 0)[0]
-            Wf[np.ix_(interfaceDOFs_f,interfaceDOFs_f)] = self.Wf_p
+            wf[np.ix_(interfaceDOFs_f, interfaceDOFs_f)] = self.wf_p
 
         # calculate the Tf, Ff matrices
-        Tf = np.linalg.pinv(Wf) @ Rf @ np.linalg.pinv(Rf.T @ np.linalg.pinv(Wf) @ Rf)
+        Tf = (
+            np.linalg.pinv(wf)
+            @ Rf
+            @ np.linalg.pinv(Rf.T @ np.linalg.pinv(wf) @ Rf)
+        )
         Ff = Rf @ Tf.T
 
-        self.Rf = Rf
-        self.Wf = Wf
-        self.Tf = Tf
-        self.Ff = Ff
+        self.rf = Rf
+        self.wf = wf
+        self.tf = Tf
+        self.ff = Ff
 
     @staticmethod
-    def R_matrix_U(pos, desc, type="Acceleration"):
+    def r_matrix_u(pos, desc, type="Acceleration"):
         """
         Calculate Ru matrix based on the channel position/orientation and sensor type.
 
@@ -198,28 +244,74 @@ class VPT(object):
         rx, ry, rz = pos
 
         if type == "Angular Acceleration":
-            _R = np.asarray([[0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                             [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                             [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]])
+            _R = np.zeros((3, 24))
+            _R[:, 3:6] = np.eye(3)
         else:
-            _R = np.asarray([[1, 0, 0, 0, rz, -ry, rx, 0, 0, 0, ry * rz, -rz * ry, rx * ry, rx * rz, 0, 0, 0, 0, -rx * ry, -rx * rz, 0, (ry**2) / 2, (rz**2) / 2, 0],
-                             [0, 1, 0, -rz, 0, rx, 0, ry, 0, -rx * rz, 0, rz * rx, 0, 0, ry * rz, ry * rx, 0, 0, (rx**2) / 2, 0, -ry * rz, -ry * rx, 0, (rz**2) / 2],
-                             [0, 0, 1, ry, -rx, 0, 0, 0, rz, rx * ry, -ry * rx, 0, 0, 0, 0, 0, rz * rx, rz * ry, 0, (rx**2) / 2, (ry**2) / 2, 0, -rz * rx, -rz * ry]])
+            _R = np.asarray(
+                [
+                    [1, 0, 0],
+                    [0, 1, 0],
+                    [0, 0, 1],
+                    [0, -rz, ry],
+                    [rz, 0, -rx],
+                    [-ry, rx, 0],
+                    [rx, 0, 0],
+                    [0, ry, 0],
+                    [0, 0, rz],
+                    [0, -rx * rz, rx * ry],
+                    [ry * rz, 0, -ry * rx],
+                    [-rz * ry, rz * rx, 0],
+                    [rx * ry, 0, 0],
+                    [rx * rz, 0, 0],
+                    [0, ry * rz, 0],
+                    [0, ry * rx, 0],
+                    [0, 0, rz * rx],
+                    [0, 0, rz * ry],
+                    [-rx * ry, (rx**2) / 2, 0],
+                    [-rx * rz, 0, (rx**2) / 2],
+                    [0, -ry * rz, (ry**2) / 2],
+                    [(ry**2) / 2, -ry * rx, 0],
+                    [(rz**2) / 2, 0, -rz * rx],
+                    [0, (rz**2) / 2, -rz * ry],
+                ]
+            ).T
 
         # isolating desired DoF
-        columns_ = ['ux', 'uy', 'uz', 'rx', 'ry', 'rz',
-                    'ex', 'ey', 'ez', 'tx', 'ty', 'tz',
-                    'sxy', 'sxz', 'syz', 'syx', 'szx', 'szy',
-                    'bxy', 'bxz', 'byz', 'byx', 'bzx', 'bzy']
+        columns_ = [
+            'ux',
+            'uy',
+            'uz',
+            'rx',
+            'ry',
+            'rz',
+            'ex',
+            'ey',
+            'ez',
+            'tx',
+            'ty',
+            'tz',
+            'sxy',
+            'sxz',
+            'syz',
+            'syx',
+            'szx',
+            'szy',
+            'bxy',
+            'bxz',
+            'byz',
+            'byx',
+            'bzx',
+            'bzy',
+        ]
         _R = np.asarray(pd.DataFrame(_R, columns=columns_)[desc])
 
         return _R
 
     @staticmethod
-    def W_rotational(pos, dir, type="Angular Acceleration"):
+    def w_rotational(pos, dir, type="Angular Acceleration"):
         """
-        Defines the weighting matrix based on the location of rotational accelerometer. 
-        If translational accelerometer is used, identity matrix of appropriate size is 
+        Defines the weighting matrix based on the location of rotational accelerometer.
+        If translational accelerometer is used, identity matrix of appropriate size is
         defined.
 
         :param pos: Position of the channel.
@@ -235,19 +327,19 @@ class VPT(object):
         if type == "Angular Acceleration":
             c = np.where(np.asarray(dir) != 0)[1][0]
             if c == 0:
-                _W = np.sqrt(rz ** 2 + ry ** 2) ** 2
+                _W = np.sqrt(rz**2 + ry**2) ** 2
             elif c == 1:
-                _W = np.sqrt(rz ** 2 + rx ** 2) ** 2
+                _W = np.sqrt(rz**2 + rx**2) ** 2
             elif c == 2:
-                _W = np.sqrt(ry ** 2 + rx ** 2) ** 2
-                
+                _W = np.sqrt(ry**2 + rx**2) ** 2
+
         else:
             _W = 1
 
         return _W
 
     @staticmethod
-    def R_matrix_F(pos, desc):
+    def r_matrix_f(pos, desc):
         """
         Calculates Rf matrix based on the reference channel position/orientation.
 
@@ -258,38 +350,64 @@ class VPT(object):
 
         rx, ry, rz = pos
 
-        _R = np.asarray([[1, 0, 0],
-                         [0, 1, 0],
-                         [0, 0, 1],
-                         [0, -rz, ry],
-                         [rz, 0, -rx],
-                         [-ry, rx, 0],
-                         [rx, 0, 0],
-                         [0, ry, 0],
-                         [0, 0, rz],
-                         [0, -rx * rz, rx * ry],
-                         [ry * rz, 0, -ry * rx],
-                         [-rz * ry, rz * rx, 0],
-                         [rx * ry, 0, 0],
-                         [rx * rz, 0, 0],
-                         [0, ry * rz, 0],
-                         [0, ry * rx, 0],
-                         [0, 0, rz * rx],
-                         [0, 0, rz * ry],
-                         [-rx * ry, (rx**2) / 2, 0],
-                         [-rx * rz, 0, (rx**2) / 2],
-                         [0, -ry * rz, (ry**2) / 2],
-                         [(ry**2) / 2, -ry * rx, 0],
-                         [(rz**2) / 2, 0, -rz * rx],
-                         [0, (rz**2) / 2, -rz * ry]])
+        _R = np.asarray(
+            [
+                [1, 0, 0],
+                [0, 1, 0],
+                [0, 0, 1],
+                [0, -rz, ry],
+                [rz, 0, -rx],
+                [-ry, rx, 0],
+                [rx, 0, 0],
+                [0, ry, 0],
+                [0, 0, rz],
+                [0, -rx * rz, rx * ry],
+                [ry * rz, 0, -ry * rx],
+                [-rz * ry, rz * rx, 0],
+                [rx * ry, 0, 0],
+                [rx * rz, 0, 0],
+                [0, ry * rz, 0],
+                [0, ry * rx, 0],
+                [0, 0, rz * rx],
+                [0, 0, rz * ry],
+                [-rx * ry, (rx**2) / 2, 0],
+                [-rx * rz, 0, (rx**2) / 2],
+                [0, -ry * rz, (ry**2) / 2],
+                [(ry**2) / 2, -ry * rx, 0],
+                [(rz**2) / 2, 0, -rz * rx],
+                [0, (rz**2) / 2, -rz * ry],
+            ]
+        )
 
         # isolating desired DoF
-        columns_ = ['fx', 'fy', 'fz', 'mx', 'my', 'mz',
-                    'ex', 'ey', 'ez', 'tx', 'ty', 'tz',
-                    'sxy', 'sxz', 'syz', 'syx', 'szx', 'szy',
-                    'bxy', 'bxz', 'byz', 'byx', 'bzx', 'bzy']
+        columns_ = [
+            'fx',
+            'fy',
+            'fz',
+            'mx',
+            'my',
+            'mz',
+            'ex',
+            'ey',
+            'ez',
+            'tx',
+            'ty',
+            'tz',
+            'sxy',
+            'sxz',
+            'syz',
+            'syx',
+            'szx',
+            'szy',
+            'bxy',
+            'bxz',
+            'byz',
+            'byx',
+            'bzx',
+            'bzy',
+        ]
         _R = np.asarray(pd.DataFrame(_R.T, columns=columns_)[desc]).T
-        
+
         return _R
 
     @staticmethod
@@ -339,22 +457,21 @@ class VPT(object):
             _overlap.append(_arr_file)
         return np.concatenate(_overlap, axis=0)
 
-
-    def apply_VPT(self, freq, FRF):
+    def apply_vpt(self, freq, frf):
         """
-        Applies the Virtual Point Transformation on the FRF matrix.
+        Applies the Virtual Point Transformation on the frf matrix.
 
         :param freq: Frequency vector
         :type freq: array(float)
-        :param FRF: A matrix of Frequency Response Functions FRFs [f,out,in].
-        :type FRF: array(float)
+        :param frf: A matrix of Frequency Response Functions FRFs [f,out,in].
+        :type frf: array(float)
         """
 
-        _Y_vpt = self.Tu @ FRF @ self.Tf
+        _y_vpt = self.tu @ frf @ self.tf
 
-        self.vptData = _Y_vpt
+        self.vpt_data = _y_vpt
         self.freq = freq
-        self.FRF = FRF
+        self.frf = frf
 
     def consistency(self, grouping, ref_grouping):
         """
@@ -367,41 +484,50 @@ class VPT(object):
         """
 
         # get all groupings from the vpt
-        _ch_all = self.Channels.Grouping.to_numpy()
-        _chVP_all = self.Virtual_Channels.Grouping.to_numpy()
+        _ch_all = self.channels.Grouping.to_numpy()
+        _chVP_all = self.virtual_channels.Grouping.to_numpy()
 
-        _Rch_all = self.RefChannels.Grouping.to_numpy()
-        _RchVP_all = self.Virtual_RefChannels.Grouping.to_numpy()
+        _Rch_all = self.ref_channels.Grouping.to_numpy()
+        _RchVP_all = self.virtual_ref_channels.Grouping.to_numpy()
 
         # extract the grouping mask
         ind_ch = self.find_group(grouping, _ch_all)
         ind_Rch = self.find_group(ref_grouping, _Rch_all)
 
-        ind_NotRemovedChannels = np.nonzero(np.diag(self.Wu))[0]
-        ind_NotRemovedImpacts = np.nonzero(np.diag(self.Wf))[0]
-        
-        ind_NotRemovedChannels_Grouping = sorted(np.intersect1d(ind_NotRemovedChannels,ind_ch))
-        ind_NotRemovedImpacts_Grouping = sorted(np.intersect1d(ind_NotRemovedImpacts,ind_Rch))
-        
+        ind_NotRemovedChannels = np.nonzero(np.diag(self.wu))[0]
+        ind_NotRemovedImpacts = np.nonzero(np.diag(self.wf))[0]
+
+        ind_NotRemovedChannels_Grouping = sorted(
+            np.intersect1d(ind_NotRemovedChannels, ind_ch)
+        )
+        ind_NotRemovedImpacts_Grouping = sorted(
+            np.intersect1d(ind_NotRemovedImpacts, ind_Rch)
+        )
+
         # Calculate sensor consistency
-        sub_Y = np.transpose(self.FRF,(1,2,0))[ind_NotRemovedChannels_Grouping, :, :][:, ind_NotRemovedImpacts_Grouping, :]
-        sub_Fu = self.Fu[ind_NotRemovedChannels_Grouping, :][:, ind_NotRemovedChannels_Grouping]
+        sub_Y = np.transpose(self.frf, (1, 2, 0))[
+            ind_NotRemovedChannels_Grouping, :, :
+        ][:, ind_NotRemovedImpacts_Grouping, :]
+        sub_Fu = self.fu[ind_NotRemovedChannels_Grouping, :][
+            :, ind_NotRemovedChannels_Grouping
+        ]
 
         u_f = np.zeros((sub_Y.shape[0], 1, sub_Y.shape[2]), dtype=complex)
         u = np.zeros((sub_Y.shape[0], 1, sub_Y.shape[2]), dtype=complex)
 
         for i in range(sub_Y.shape[2]):
             # filtered response
-            u_f[:, :, i] = sub_Fu @ sub_Y[:, :, i] @ np.ones((sub_Y.shape[1], 1))
+            u_f[:, :, i] = (
+                sub_Fu @ sub_Y[:, :, i] @ np.ones((sub_Y.shape[1], 1))
+            )
             # initial response
             u[:, :, i] = sub_Y[:, :, i] @ np.ones((sub_Y.shape[1], 1))
 
-        self.u_f = u_f[:,0,:]
-        self.u = u[:,0,:]
+        self.u_f = u_f[:, 0, :]
+        self.u = u[:, 0, :]
 
         # Calculate overall sensor consistency indicator
-        self.overall_sensor = norm(self.u_f,axis = 0) / norm(self.u,axis = 0)
-
+        self.overall_sensor = norm(self.u_f, axis=0) / norm(self.u, axis=0)
 
         # Calculate specific sensor consistency indicator
         specific_sensor = []
@@ -410,30 +536,35 @@ class VPT(object):
 
         self.specific_sensor = np.asarray(specific_sensor)
 
-
         # Calculate impact consistency
-        sub_Y = np.transpose(self.FRF,(1,2,0))[ind_NotRemovedChannels_Grouping, :, :][:, ind_NotRemovedImpacts_Grouping, :]
-        sub_Ff = self.Ff[ind_NotRemovedImpacts_Grouping, :][:, ind_NotRemovedImpacts_Grouping]
+        sub_Y = np.transpose(self.frf, (1, 2, 0))[
+            ind_NotRemovedChannels_Grouping, :, :
+        ][:, ind_NotRemovedImpacts_Grouping, :]
+        sub_Ff = self.ff[ind_NotRemovedImpacts_Grouping, :][
+            :, ind_NotRemovedImpacts_Grouping
+        ]
 
         y_f = np.zeros((sub_Y.shape[1], 1, sub_Y.shape[2]), dtype=complex)
         y = np.zeros((sub_Y.shape[1], 1, sub_Y.shape[2]), dtype=complex)
 
         for i in range(sub_Y.shape[2]):
             # filtered response
-            y_f[:, :, i] = (np.ones((sub_Y.shape[0], 1)).T @ sub_Y[:, :, i] @ sub_Ff).T
+            y_f[:, :, i] = (
+                np.ones((sub_Y.shape[0], 1)).T @ sub_Y[:, :, i] @ sub_Ff
+            ).T
             # initial response
             y[:, :, i] = (np.ones((sub_Y.shape[0], 1)).T @ sub_Y[:, :, i]).T
 
-        self.y_f = y_f[:,0,:]
-        self.y = y[:,0,:]
+        self.y_f = y_f[:, 0, :]
+        self.y = y[:, 0, :]
 
         # Calculate overall impact consistency indicator
-        self.overall_impact = norm(self.y_f,axis = 0) / norm(self.y,axis = 0)
+        self.overall_impact = norm(self.y_f, axis=0) / norm(self.y, axis=0)
 
         # Calculate specific impact consistency indicator
         specific_impact = []
         for i in range(self.y.shape[0]):
-            specific_impact.append(coh_frf(self.y_f[i,:],self.y[i,:]))
+            specific_impact.append(coh_frf(self.y_f[i, :], self.y[i, :]))
 
         self.specific_impact = np.asarray(specific_impact)
 

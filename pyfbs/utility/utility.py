@@ -10,6 +10,7 @@ import altair as alt
 alt.data_transformers.enable('json')
 alt.data_transformers.enable('default', max_rows=None)
 
+
 def modeshape_sync_lstsq(mode_shape_vec):
     """
     Creates a straight line fit in the complex plane and alligns the mode shape with the real-axis.
@@ -20,11 +21,16 @@ def modeshape_sync_lstsq(mode_shape_vec):
     """
     _n = np.zeros_like(mode_shape_vec)
     for i in range(np.shape(mode_shape_vec)[1]):
-        _mode = mode_shape_vec[:,i]
-        z = np.arctan(np.average(np.imag(_mode)/np.real(_mode),weights = np.abs(_mode)**1e4))
-            
-        _n[:,i] = _mode*(np.cos(-1*z)+1j*np.sin(-1*z))
+        _mode = mode_shape_vec[:, i]
+        z = np.arctan(
+            np.average(
+                np.imag(_mode) / np.real(_mode), weights=np.abs(_mode) ** 1e4
+            )
+        )
+
+        _n[:, i] = _mode * (np.cos(-1 * z) + 1j * np.sin(-1 * z))
     return _n
+
 
 def modeshape_scaling_driving_point(mode_shape_vec, driving_point, sync=True):
     """
@@ -38,15 +44,16 @@ def modeshape_scaling_driving_point(mode_shape_vec, driving_point, sync=True):
     :type sync: bool, optional
     :return: Scalled mode shape
     """
-    
+
     _mode = mode_shape_vec
     for i in range(np.shape(mode_shape_vec)[1]):
-        _mode[:,i] = _mode[:,i]/np.sqrt(mode_shape_vec[driving_point,i])
-    
+        _mode[:, i] = _mode[:, i] / np.sqrt(mode_shape_vec[driving_point, i])
+
     if sync:
         _mode = modeshape_sync_lstsq(_mode)
 
-    return _mode        
+    return _mode
+
 
 def mcf(mod):
     """
@@ -56,11 +63,12 @@ def mcf(mod):
     :type mod: array(float)
     :return: Mode complexity factor
     """
-    sxx = np.real(mod).T@np.real(mod)
-    syy = np.imag(mod).T@np.imag(mod)
-    sxy = np.real(mod).T@np.imag(mod)
-    mcf = (1 - ((sxx-syy)**2+4*sxy**2)/((sxx+syy)**2))
+    sxx = np.real(mod).T @ np.real(mod)
+    syy = np.imag(mod).T @ np.imag(mod)
+    sxy = np.real(mod).T @ np.imag(mod)
+    mcf = 1 - ((sxx - syy) ** 2 + 4 * sxy**2) / ((sxx + syy) ** 2)
     return mcf
+
 
 def flatten_frfs(frf):
     """
@@ -74,9 +82,10 @@ def flatten_frfs(frf):
 
     _len = frf.shape[1]
     for i in range(frf.shape[0]):
-        new[_len * i:_len * (i + 1), :] = frf[i, :, :]
+        new[_len * i : _len * (i + 1), :] = frf[i, :, :]
 
     return new
+
 
 def unflatten_modes(_modes_acc, frf):
     """
@@ -88,13 +97,13 @@ def unflatten_modes(_modes_acc, frf):
     :return: Unflattened mode shape [out, in]
     """
     new_mode = np.zeros(
-        (frf.shape[0], frf.shape[1], _modes_acc.shape[1]),
-        dtype=complex
-        )
+        (frf.shape[0], frf.shape[1], _modes_acc.shape[1]), dtype=complex
+    )
     _len = frf.shape[1]
     for i in range(frf.shape[0]):
-        new_mode[i,:,:] = _modes_acc[i*_len:(i+1)*_len,:]
+        new_mode[i, :, :] = _modes_acc[i * _len : (i + 1) * _len, :]
     return new_mode
+
 
 def complex_plot(mode_shape, color="k"):
     """
@@ -105,15 +114,19 @@ def complex_plot(mode_shape, color="k"):
     :param color: Color of the plot
     :type color: str
     """
-    plt.figure(figsize = (3,3))
-    ax1 = plt.subplot(111,projection = "polar")
+    plt.figure(figsize=(3, 3))
+    ax1 = plt.subplot(111, projection="polar")
 
     for x in mode_shape:
         ax1.plot(
-            [0, np.angle(x)], [0, np.abs(x)],
-            marker='.', color=color, alpha=0.5
-            )
+            [0, np.angle(x)],
+            [0, np.abs(x)],
+            marker='.',
+            color=color,
+            alpha=0.5,
+        )
     plt.yticks([])
+
 
 def complex_plot_3d(mode_shape):
     """
@@ -125,24 +138,32 @@ def complex_plot_3d(mode_shape):
     plt.figure(figsize=(3, 3))
     ax1 = plt.subplot(111, projection="polar")
 
-    for i,color in enumerate(["tab:red", "tab:green", "tab:blue"]):
+    for i, color in enumerate(["tab:red", "tab:green", "tab:blue"]):
         for x in mode_shape[:, i]:
             ax1.plot(
-                [0,np.angle(x)], [0, np.abs(x)],
-                marker='.', color=color, alpha=0.5
-                )
+                [0, np.angle(x)],
+                [0, np.abs(x)],
+                marker='.',
+                color=color,
+                alpha=0.5,
+            )
     plt.yticks([])
 
+
 def mode_animation(
-    mode_shape, scale, no_points=60, no_of_repetitions=2,
-    abs_scale=True, secondary_mode_shape=None,
-    animate_secondary_mode_shape=False
+    mode_shape,
+    scale,
+    no_points=60,
+    no_of_repetitions=2,
+    abs_scale=True,
+    secondary_mode_shape=None,
+    animate_secondary_mode_shape=False,
 ):
     """
     Creates an animation sequence from the mode shape and scales the displacemetns.
-    It is also possible to add a secondary mode shape, which is displayed on a deformed 
+    It is also possible to add a secondary mode shape, which is displayed on a deformed
     structure using colours based on values of secondary mode shape.
-    Secondary mode shape could be rotational mode shape or strain mode shape, 
+    Secondary mode shape could be rotational mode shape or strain mode shape,
     any other parameter, which can be displayed on nodes.
 
     :param mode_shape: mode shape, must be 2D matrix
@@ -162,8 +183,10 @@ def mode_animation(
     :return: Animation sequence
     """
     if isinstance(mode_shape, np.ndarray):
-        if mode_shape.ndim==2:
-            ann = np.zeros((mode_shape.shape[0], mode_shape.shape[1], int(no_points)))
+        if mode_shape.ndim == 2:
+            ann = np.zeros(
+                (mode_shape.shape[0], mode_shape.shape[1], int(no_points))
+            )
             ann_secondary = np.zeros((mode_shape.shape[0], int(no_points)))
         else:
             raise ValueError(
@@ -172,19 +195,34 @@ def mode_animation(
                 "coordinates (x, y, z)."
             )
     else:
-        raise ValueError("To animate mode shape, a parameter mode_shape must be defined in form of 2D numpy array.")
+        raise ValueError(
+            "To animate mode shape, a parameter mode_shape must be defined in form of 2D numpy array."
+        )
 
-
-    for g, _t in enumerate(np.linspace(0, int(no_of_repetitions), int(no_points))):
-        ann[:, :, g] = (np.real(mode_shape) * np.cos(2 * np.pi * _t) - np.imag(mode_shape) * np.sin(2 * np.pi * _t))
+    for g, _t in enumerate(
+        np.linspace(0, int(no_of_repetitions), int(no_points))
+    ):
+        ann[:, :, g] = np.real(mode_shape) * np.cos(2 * np.pi * _t) - np.imag(
+            mode_shape
+        ) * np.sin(2 * np.pi * _t)
         if animate_secondary_mode_shape:
             if isinstance(secondary_mode_shape, np.ndarray):
-                if secondary_mode_shape.ndim==1:
-                    ann_secondary[:, g] = (np.real(secondary_mode_shape) * np.cos(2 * np.pi * _t) - np.imag(secondary_mode_shape) * np.sin(2 * np.pi * _t))
+                if secondary_mode_shape.ndim == 1:
+                    ann_secondary[:, g] = np.real(
+                        secondary_mode_shape
+                    ) * np.cos(2 * np.pi * _t) - np.imag(
+                        secondary_mode_shape
+                    ) * np.sin(
+                        2 * np.pi * _t
+                    )
                 else:
-                    raise ValueError("Parameter secondary_mode_shape must be 1D vector.")
+                    raise ValueError(
+                        "Parameter secondary_mode_shape must be 1D vector."
+                    )
             else:
-                raise ValueError("To animate secondary mode shape, a parameter secondary_mode_shape must be defined in form of 1D numpy array.")
+                raise ValueError(
+                    "To animate secondary mode shape, a parameter secondary_mode_shape must be defined in form of 1D numpy array."
+                )
 
     if abs_scale:
         ann = ann / np.max(ann) * scale
@@ -192,7 +230,8 @@ def mode_animation(
         ann = ann * scale
     return ann, ann_secondary
 
-def mac(phi_1, phi_2, output_type = 'matrix'):
+
+def mac(phi_1, phi_2, output_type='matrix'):
     """
     Calculates modal assurance criterion matrix.
 
@@ -207,11 +246,17 @@ def mac(phi_1, phi_2, output_type = 'matrix'):
     if phi_1.shape[0] != phi_2.shape[0]:
         raise Exception('Input dimensions are not compatible.')
     if phi_1.ndim == 1:
-        phi_1 = phi_1[:,np.newaxis]
+        phi_1 = phi_1[:, np.newaxis]
     if phi_2.ndim == 1:
-        phi_2 = phi_2[:,np.newaxis]
+        phi_2 = phi_2[:, np.newaxis]
 
-    mac_mat = (np.abs(np.einsum('ri,ik->rk',np.conj(phi_1).T,phi_2))**2 / (np.einsum('ri,ir->r',np.conj(phi_1).T,phi_1)[:,np.newaxis] * np.einsum('ri,ir->r',np.conj(phi_2).T,phi_2))).real
+    mac_mat = (
+        np.abs(np.einsum('ri,ik->rk', np.conj(phi_1).T, phi_2)) ** 2
+        / (
+            np.einsum('ri,ir->r', np.conj(phi_1).T, phi_1)[:, np.newaxis]
+            * np.einsum('ri,ir->r', np.conj(phi_2).T, phi_2)
+        )
+    ).real
     if output_type == 'matrix':
         return mac_mat
     if output_type == 'diagonal':
@@ -219,7 +264,8 @@ def mac(phi_1, phi_2, output_type = 'matrix'):
     else:
         raise Exception('Unknown output type.')
 
-def coh_frf(y_1, y_2, return_average = True):
+
+def coh_frf(y_1, y_2, return_average=True):
     """
     Calculates values of coherence between two FRFs.
 
@@ -230,7 +276,8 @@ def coh_frf(y_1, y_2, return_average = True):
     :return: coherence criterion
     """
     return coh(y_1, y_2, return_average=return_average)
-    
+
+
 def coh(x, y, return_average=True):
     """
     Compute coherence of (complex or real-valued) signals
@@ -244,18 +291,28 @@ def coh(x, y, return_average=True):
     if x.shape != y.shape:
         raise ValueError("Input arrays must have the same shape.")
     coh_xy = (
-        (
-            (x + y) * (x + y).conj()
-        ) / (
-            2 * (x.conj() * x + y.conj() * y)
-        )
+        ((x + y) * (x + y).conj()) / (2 * (x.conj() * x + y.conj() * y))
     ).real
     if return_average:
         return np.mean(coh_xy)
     else:
         return coh_xy
 
-def dict_animation(_modeshape, a_type, mesh= None, pts = None, fps = 30, r_scale = 10, no_points=60, no_of_repetitions = 2, object_list = None, abs_scale = True, secondary_mode_shape=None, animate_secondary_mode_shape = False):
+
+def dict_animation(
+    _modeshape,
+    a_type,
+    mesh=None,
+    pts=None,
+    fps=30,
+    r_scale=10,
+    no_points=60,
+    no_of_repetitions=2,
+    object_list=None,
+    abs_scale=True,
+    secondary_mode_shape=None,
+    animate_secondary_mode_shape=False,
+):
     """
     Creates a predefined dictionary for animation sequency in the 3D display.
 
@@ -281,13 +338,23 @@ def dict_animation(_modeshape, a_type, mesh= None, pts = None, fps = 30, r_scale
     :type abs_scale: bool, optional
     :param secondary_mode_shape: secondary mode shape
     :type secondary_mode_shape: array(float), optional
-    :param animate_secondary_mode_shape: If ``True``, secondary mode shape will be animated, if ``False`` still only initial mode shape will be animated
+    :param animate_secondary_mode_shape: If ``True``, secondary mode shape
+        will be animated, if ``False`` still only initial mode shape will be
+        animated
     :type animate_secondary_mode_shape: bool, optional
     :return: Dictionary of parameters for mode shape animation
     """
     mode_dict = dict()
-    
-    mode_animation_frames = mode_animation(_modeshape, r_scale, no_points = no_points, no_of_repetitions = no_of_repetitions, abs_scale = abs_scale, secondary_mode_shape = secondary_mode_shape, animate_secondary_mode_shape = animate_secondary_mode_shape)
+
+    mode_animation_frames = mode_animation(
+        _modeshape,
+        r_scale,
+        no_points=no_points,
+        no_of_repetitions=no_of_repetitions,
+        abs_scale=abs_scale,
+        secondary_mode_shape=secondary_mode_shape,
+        animate_secondary_mode_shape=animate_secondary_mode_shape,
+    )
     mode_dict["animation_pts"] = mode_animation_frames[0]
     mode_dict["animation_pts_secondary"] = mode_animation_frames[1]
     mode_dict["animate_secondary_mode_shape"] = animate_secondary_mode_shape
@@ -302,6 +369,7 @@ def dict_animation(_modeshape, a_type, mesh= None, pts = None, fps = 30, r_scale
         mode_dict["objects_list"] = object_list
 
     return mode_dict
+
 
 def cmif(frf, return_svector=False):
     """
@@ -324,14 +392,18 @@ def cmif(frf, return_svector=False):
 
     for i in range(_f):
         if return_svector:
-            u, s, vh = np.linalg.svd(frf[i, :, :], full_matrices=True, compute_uv=True)
+            u, s, vh = np.linalg.svd(
+                frf[i, :, :], full_matrices=True, compute_uv=True
+            )
             v = np.conj(vh).T
             _s[i, :] = s
             _u[i, :, :] = u
             _v[i, :, :] = v
 
         else:
-            s = np.linalg.svd(frf[i, :, :], full_matrices=True, compute_uv=False)
+            s = np.linalg.svd(
+                frf[i, :, :], full_matrices=True, compute_uv=False
+            )
             _s[i, :] = s
 
     if return_svector:
@@ -339,7 +411,8 @@ def cmif(frf, return_svector=False):
     else:
         return _s
 
-def _tsvd(matrix,reduction = 0):
+
+def _tsvd(matrix, reduction=0):
     """
     Filters a FRF matrix  with a truncated singular value decomposition (TSVD) by removing the smallest singular values.
 
@@ -361,6 +434,7 @@ def _tsvd(matrix,reduction = 0):
 
     return uk @ sk @ vk
 
+
 def tsvd(matrix, reduction=0):
     """
     Filters a FRF matrix  with a truncated singular value decomposition (TSVD)
@@ -368,7 +442,7 @@ def tsvd(matrix, reduction=0):
 
     :param matrix: Matrix to be filtered by singular value decomposition
     :type matrix: array(float)
-    :param reduction: Number of singular values not taken into account by 
+    :param reduction: Number of singular values not taken into account by
         reconstruction of the matrix
     :type reduction: int, optional
     :return: Filtered matrix
@@ -381,6 +455,7 @@ def tsvd(matrix, reduction=0):
             "Reduction value is higher than the number of singular values"
         )
     return (u[..., :n] * s[..., None, :n]) @ vh[..., :n, :]
+
 
 def tpinv(a: np.ndarray, trunc: int | None = None):
     """
@@ -400,14 +475,17 @@ def tpinv(a: np.ndarray, trunc: int | None = None):
     if trunc is None or trunc == 0:
         pass
     elif isinstance(trunc, int):
-        s[..., -trunc:] = 0.
+        s[..., -trunc:] = 0.0
     else:
         raise Exception("`trunc` type must be int or None")
     s_mask = np.where(s > 0, 0, 1)
-    s_inv = 1/(s + s_mask) - s_mask
-    a_inv = np.swapaxes(vh.conj(), -2, -1) @ (s_inv[..., None] * np.swapaxes(u.conj(), -2, -1))
+    s_inv = 1 / (s + s_mask) - s_mask
+    a_inv = np.swapaxes(vh.conj(), -2, -1) @ (
+        s_inv[..., None] * np.swapaxes(u.conj(), -2, -1)
+    )
 
     return a_inv
+
 
 def rotation_matrix(axis, theta):
     """
@@ -421,6 +499,7 @@ def rotation_matrix(axis, theta):
     """
     t = expm(cross(eye(3), axis / norm(axis) * (theta)))
     return t
+
 
 def angle(vector1, vector2):
     """
@@ -444,10 +523,11 @@ def angle(vector1, vector2):
     dot_p = min(max(dot_p, -1.0), 1.0)
     return sign * np.arccos(dot_p)
 
+
 def rotation_matrix_from_vectors(vec1, vec2, tol=1e-8):
     """
     Robust rotation matrix between two vectors.
-    
+
     :param vec1: Source vector (3D)
     :param vec2: Target vector (3D)
     :param tol: Numerical tolerance
@@ -455,7 +535,7 @@ def rotation_matrix_from_vectors(vec1, vec2, tol=1e-8):
     """
     a = vec1 / np.linalg.norm(vec1)
     b = vec2 / np.linalg.norm(vec2)
-    
+
     # Handle parallel/anti-parallel cases
     if np.allclose(a, b, atol=tol):
         return np.eye(3)
@@ -466,16 +546,15 @@ def rotation_matrix_from_vectors(vec1, vec2, tol=1e-8):
             axis = np.array([a[2], 0, -a[0]])
         axis /= np.linalg.norm(axis)
         return 2 * np.outer(axis, axis) - np.eye(3)
-    
+
     # General case (Rodrigues' formula)
     v = np.cross(a, b)
     s = np.linalg.norm(v)
     c = np.dot(a, b)
-    
-    kmat = np.array([[0, -v[2], v[1]], 
-                     [v[2], 0, -v[0]], 
-                     [-v[1], v[0], 0]])
+
+    kmat = np.array([[0, -v[2], v[1]], [v[2], 0, -v[0]], [-v[1], v[0], 0]])
     return np.eye(3) + kmat + kmat @ kmat * ((1 - c) / (s**2))
+
 
 def unit_vector(vector):
     """
@@ -487,6 +566,7 @@ def unit_vector(vector):
     """
 
     return vector / np.linalg.norm(vector)
+
 
 def angle_between(v1, v2):
     """
@@ -502,6 +582,7 @@ def angle_between(v1, v2):
     v2_u = unit_vector(v2)
     return np.arccos(np.clip(np.dot(v1_u, v2_u), -1.0, 1.0))
 
+
 def generate_channels_from_sensors(df):
     """
     Generates a set of channels based on the orientation of sensors. CUrrent implementation assumes that each sensor has
@@ -513,9 +594,16 @@ def generate_channels_from_sensors(df):
     """
 
     columns_chann = [
-        "Name", "Description", "Quantity", "Grouping",
-        "Position_1", "Position_2", "Position_3",
-        "Direction_1", "Direction_2", "Direction_3"
+        "Name",
+        "Description",
+        "Quantity",
+        "Grouping",
+        "Position_1",
+        "Position_2",
+        "Position_3",
+        "Direction_1",
+        "Direction_2",
+        "Direction_3",
     ]
     df_ch = pd.DataFrame(columns=columns_chann)
 
@@ -526,16 +614,27 @@ def generate_channels_from_sensors(df):
         r = Rotation.from_euler('xyz', angle, degrees=True)
         rot = r.as_matrix().T
         for i in range(3):
-            data_chn = np.asarray([[
-                str(df["Name"][s]) + axes[i],
-                df["Description"][s], None, df["Grouping"][s],
-                df["Position_1"][s], df["Position_2"][s], df["Position_3"][s],
-                rot[i][0], rot[i][1], rot[i][2]
-            ]])
+            data_chn = np.asarray(
+                [
+                    [
+                        str(df["Name"][s]) + axes[i],
+                        df["Description"][s],
+                        None,
+                        df["Grouping"][s],
+                        df["Position_1"][s],
+                        df["Position_2"][s],
+                        df["Position_3"][s],
+                        rot[i][0],
+                        rot[i][1],
+                        rot[i][2],
+                    ]
+                ]
+            )
             df_row = pd.DataFrame(data=data_chn, columns=columns_chann)
             df_ch = pd.concat([df_ch, df_row], ignore_index=True)
 
     return df_ch
+
 
 def generate_sensors_from_channels(df):
     """
@@ -548,49 +647,75 @@ def generate_sensors_from_channels(df):
     """
 
     columns_sen = [
-        "Name", "Description", "Quantity", "Grouping",
-        "Position_1", "Position_2", "Position_3",
-        "Orientation_1", "Orientation_2", "Orientation_3"
+        "Name",
+        "Description",
+        "Quantity",
+        "Grouping",
+        "Position_1",
+        "Position_2",
+        "Position_3",
+        "Orientation_1",
+        "Orientation_2",
+        "Orientation_3",
     ]
     df_sen = pd.DataFrame(columns=columns_sen)
 
-    for i in range(int(len(df)/3)):
-        sen_or = df[[
-            "Direction_1", "Direction_2", "Direction_3"
-        ]].to_numpy()[3 * (i):3 * (i + 1)]
-        sen_pos = df[[
-            "Position_1", "Position_2", "Position_3"
-        ]].to_numpy()[3 * (i)]
+    for i in range(int(len(df) / 3)):
+        sen_or = df[["Direction_1", "Direction_2", "Direction_3"]].to_numpy()[
+            3 * (i) : 3 * (i + 1)
+        ]
+        sen_pos = df[["Position_1", "Position_2", "Position_3"]].to_numpy()[
+            3 * (i)
+        ]
 
         r = Rotation.from_matrix(sen_or)
         r = r.inv()
         orient = r.as_euler('xyz', degrees=True)
 
-        data_chn = np.asarray([[
-            "S"+str(i+1), None, None, None,
-            sen_pos[0], sen_pos[1], sen_pos[2], 
-            orient[0], orient[1], orient[2]
-        ]])
+        data_chn = np.asarray(
+            [
+                [
+                    "S" + str(i + 1),
+                    None,
+                    None,
+                    None,
+                    sen_pos[0],
+                    sen_pos[1],
+                    sen_pos[2],
+                    orient[0],
+                    orient[1],
+                    orient[2],
+                ]
+            ]
+        )
         df_row = pd.DataFrame(data=data_chn, columns=columns_sen)
         df_sen = pd.concat([df_sen, df_row], ignore_index=True)
 
     return df_sen
 
+
 def generate_vp_from_position(df):
     """
     Generates a DataFrame for full-DoF VP based on VP position determined using interactive positioning.
     VP is orientated in the direction of the global coordinate system.
-    
+
     :param df: A DataFrame containing VPs positions
     :type df: pd.DataFrame
     :return df_vp: A Dataframe containg full DoF VPs channels
     :return df_vpref: A DataFrame containing full DoF VPs reference channels
     """
-    
+
     columns_vp = [
-        "Name", "Description", "Quantity", "Grouping",
-        "Position_1", "Position_2", "Position_3",
-        "Direction_1", "Direction_2", "Direction_3"
+        "Name",
+        "Description",
+        "Quantity",
+        "Grouping",
+        "Position_1",
+        "Position_2",
+        "Position_3",
+        "Direction_1",
+        "Direction_2",
+        "Direction_3",
     ]
 
     desc_u = ['ux', 'uy', 'uz', 'rx', 'ry', 'rz']
@@ -609,42 +734,51 @@ def generate_vp_from_position(df):
     for i in range(df.shape[0]):
 
         for j in range(6):
-            data_vp = np.asarray([[
-                df.iloc[i]['Name'],
-                desc_u[j],
-                quantity_u[j],
-                i+1,
-                df.iloc[i]['Position_1'],
-                df.iloc[i]['Position_2'],
-                df.iloc[i]['Position_3'],
-                orientation[j][0],
-                orientation[j][1],
-                orientation[j][2]
-            ]])
-            data_vpref = np.asarray([[
-                df.iloc[i]['Name'],
-                desc_f[j],
-                quantity_f[j],
-                i+1,
-                df.iloc[i]['Position_1'],
-                df.iloc[i]['Position_2'],
-                df.iloc[i]['Position_3'],
-                orientation[j][0],
-                orientation[j][1],
-                orientation[j][2]
-            ]])
+            data_vp = np.asarray(
+                [
+                    [
+                        df.iloc[i]['Name'],
+                        desc_u[j],
+                        quantity_u[j],
+                        i + 1,
+                        df.iloc[i]['Position_1'],
+                        df.iloc[i]['Position_2'],
+                        df.iloc[i]['Position_3'],
+                        orientation[j][0],
+                        orientation[j][1],
+                        orientation[j][2],
+                    ]
+                ]
+            )
+            data_vpref = np.asarray(
+                [
+                    [
+                        df.iloc[i]['Name'],
+                        desc_f[j],
+                        quantity_f[j],
+                        i + 1,
+                        df.iloc[i]['Position_1'],
+                        df.iloc[i]['Position_2'],
+                        df.iloc[i]['Position_3'],
+                        orientation[j][0],
+                        orientation[j][1],
+                        orientation[j][2],
+                    ]
+                ]
+            )
 
             df_row_vp = pd.DataFrame(data=data_vp, columns=columns_vp)
             df_row_vpref = pd.DataFrame(data=data_vpref, columns=columns_vp)
 
-            df_vp = pd.concat(
-                [df_vp, df_row_vp], ignore_index=True
-            ).apply(pd.to_numeric, errors='ignore')
+            df_vp = pd.concat([df_vp, df_row_vp], ignore_index=True).apply(
+                pd.to_numeric, errors='ignore'
+            )
             df_vpref = pd.concat(
-                [df_vpref,df_row_vpref], ignore_index=True
+                [df_vpref, df_row_vpref], ignore_index=True
             ).apply(pd.to_numeric, errors='ignore')
-        
+
     return df_vp, df_vpref
+
 
 def reciprocity(frf_matrix):
     """
@@ -666,6 +800,7 @@ def reciprocity(frf_matrix):
 
     return coh_crit
 
+
 def orient_in_global(mode, df_chn, df_acc):
     """
     Positions a response in 3D space based on the information of channel and sensor DataFrames
@@ -684,16 +819,17 @@ def orient_in_global(mode, df_chn, df_acc):
 
     empty = np.zeros((n_sen, n_ax), dtype=complex)
 
-    _dir = df_chn[[
-        "Direction_1", "Direction_2", "Direction_3"
-    ]].to_numpy(dtype=float)
+    _dir = df_chn[["Direction_1", "Direction_2", "Direction_3"]].to_numpy(
+        dtype=float
+    )
 
     for i in range(n_sen):
         for j in range(n_ax):
             sel = (i) * 3 + j
-            empty[i, :] += _dir[sel:sel + 1, :].T @ np.asarray([mode[sel]])
+            empty[i, :] += _dir[sel : sel + 1, :].T @ np.asarray([mode[sel]])
 
     return empty
+
 
 def orient_in_global_2(mode, df_imp):
     """
@@ -712,10 +848,11 @@ def orient_in_global_2(mode, df_imp):
 
     _dir = df_imp[["Direction_1", "Direction_2", "Direction_3"]].to_numpy()
     for i in range(n_sen):
-        sel = (i)
-        empty[i, :] += _dir[sel:sel + 1, :].T @ np.asarray([mode[sel]])
+        sel = i
+        empty[i, :] += _dir[sel : sel + 1, :].T @ np.asarray([mode[sel]])
 
     return empty
+
 
 def mcc(mod):
     """
@@ -726,8 +863,9 @@ def mcc(mod):
 
     s_xx = np.real(mod).T @ np.real(mod)
     s_yy = np.imag(mod).T @ np.imag(mod)
-    _mcc = s_xy ** 2 / (s_xx * s_yy)
+    _mcc = s_xy**2 / (s_xx * s_yy)
     return _mcc
+
 
 def mpc(mod, sel=0):
     """
@@ -743,8 +881,9 @@ def mpc(mod, sel=0):
     cri = _re.T @ _im
     cii = _im.T @ _im
 
-    _mpc = ((cii - crr) ** 2 + 4 * cri ** 2) / (crr + cii) ** 2
+    _mpc = ((cii - crr) ** 2 + 4 * cri**2) / (crr + cii) ** 2
     return _mpc
+
 
 def auralization(freq, frf, load_case=None):
     """
@@ -760,13 +899,14 @@ def auralization(freq, frf, load_case=None):
     """
 
     s = np.fft.irfft(frf)
-    dt = 1 / (freq[1] - freq[0])  
+    dt = 1 / (freq[1] - freq[0])
     xt = np.linspace(0, dt, len(s), endpoint=True)
     if type(load_case) == type(np.asarray([])):
-        s = (np.convolve(load_case, s, 'full').real)[:len(load_case)]
+        s = (np.convolve(load_case, s, 'full').real)[: len(load_case)]
         xt = np.linspace(0, dt, len(load_case), endpoint=False)
 
     return xt, s
+
 
 def ssa_filter(time_series, no_sel, window_size=100):
     groups = [np.arange(0, no_sel), np.arange(no_sel, window_size)]
@@ -781,22 +921,28 @@ def ssa_filter(time_series, no_sel, window_size=100):
 
     return signal, noise
 
+
 def ssa_evaluate(time_series, window_size=100):
     L = window_size
     N = len(time_series)
     K = N - L + 1
 
     # create trajectory matrix
-    x_trajectory = np.column_stack([time_series[i:i + L] for i in range(0, K)])
+    x_trajectory = np.column_stack(
+        [time_series[i : i + L] for i in range(0, K)]
+    )
 
     # compute singular values
     s = np.linalg.svd(x_trajectory, compute_uv=False)
     return s
 
+
 def prf(h1_main, n_sel):
     k = n_sel
 
-    new_arr = h1_main.reshape(h1_main.shape[0], h1_main.shape[1] * h1_main.shape[2])
+    new_arr = h1_main.reshape(
+        h1_main.shape[0], h1_main.shape[1] * h1_main.shape[2]
+    )
     u, s, vh = np.linalg.svd(new_arr, full_matrices=False)
 
     prfs = u @ np.diag(s)
@@ -807,59 +953,66 @@ def prf(h1_main, n_sel):
 
     return prfs, h1_rec
 
+
 def ods_frf(roving_responses, reference):
     '''
     roving_responses: roving responses not phase matched shaped in a form of (frequency X no. of responses)
-    
+
     reference: refernce measurement in a form of (frequency)
-    
+
 
     return ODS_FRFs: responses phase matched in a form of (frequency X no. of responses)
     '''
-    
+
     gxx = np.einsum('ij,ij->ij', roving_responses, np.conj(roving_responses))
     gxy = np.einsum('ij,j->ij', roving_responses, np.conj(reference))
-    
-    ods_frfs = np.einsum('ij,ij->ij', np.sqrt(gxx), gxy/np.abs(gxy))
-    
+
+    ods_frfs = np.einsum('ij,ij->ij', np.sqrt(gxx), gxy / np.abs(gxy))
+
     return ods_frfs
+
 
 def ods_frf_averaging(roving_responses, reference, no_of_avg):
     '''
     roving_responses: roving responses not phase matched shaped in a form of (samples X no. of responses)
-    
+
     reference: refernce measurement in a form of (samples)
-    
-    
+
+
     return ODS_FRFs: responses phase matched in a form of (frequency X no. of responses)
     '''
     N = reference.shape[0]
-    n = int(N/no_of_avg)
+    n = int(N / no_of_avg)
     gxx = np.zeros((int(n / 2) + 1, roving_responses.shape[1]), dtype=complex)
     gxy = np.zeros((int(n / 2) + 1, roving_responses.shape[1]), dtype=complex)
-    
+
     for i in range(no_of_avg):
         roving_responses_ = np.fft.rfft(
-            roving_responses[i * n:(i + 1) * n, :],axis=0
+            roving_responses[i * n : (i + 1) * n, :], axis=0
         )
-        reference_ = np.fft.rfft(reference[i * n:(i + 1) * n])
-        
-        gxx += np.einsum(
-            'ij,ij->ij', roving_responses_, np.conj(roving_responses_)
-        ) / no_of_avg
-        gxy += np.einsum(
-            'ij,i->ij', roving_responses_, np.conj(reference_)
-        ) / no_of_avg
-    
+        reference_ = np.fft.rfft(reference[i * n : (i + 1) * n])
+
+        gxx += (
+            np.einsum(
+                'ij,ij->ij', roving_responses_, np.conj(roving_responses_)
+            )
+            / no_of_avg
+        )
+        gxy += (
+            np.einsum('ij,i->ij', roving_responses_, np.conj(reference_))
+            / no_of_avg
+        )
+
     _ods_frfs = np.einsum('ij,ij->ij', np.sqrt(gxx), gxy / np.abs(gxy))
-    
+
     return _ods_frfs
 
-#if necessary, font properties can be changed
-#def font():
+
+# if necessary, font properties can be changed
+# def font():
 #    font = "Sans Serif"
 #    size = 12
-#    
+#
 #    return {
 #        "config" : {
 #             "title": {
@@ -887,12 +1040,12 @@ def ods_frf_averaging(roving_responses, reference, no_of_avg):
 #        }
 #    }
 #
-#alt.themes.register('font', font)
-#alt.themes.enable('font')
+# alt.themes.register('font', font)
+# alt.themes.enable('font')
 
 __all__ = [
-    'modeshape_sync_lstsq', 
-    'modeshape_scaling_driving_point', 
+    'modeshape_sync_lstsq',
+    'modeshape_scaling_driving_point',
     'mcf',
     'flatten_frfs',
     'unflatten_modes',
@@ -907,22 +1060,22 @@ __all__ = [
     'tsvd',
     'tpinv',
     'rotation_matrix',
-    'angle', 
+    'angle',
     'rotation_matrix_from_vectors',
     'unit_vector',
     'angle_between',
     'generate_channels_from_sensors',
-    'generate_sensors_from_channels', 
+    'generate_sensors_from_channels',
     'generate_vp_from_position',
     'reciprocity',
-    'orient_in_global', 
+    'orient_in_global',
     'orient_in_global_2',
     'mcc',
     'mpc',
     'auralization',
-    'ssa_filter', 
+    'ssa_filter',
     'ssa_evaluate',
     'prf',
     'ods_frf',
-    'ods_frf_averaging'
-    ]
+    'ods_frf_averaging',
+]
