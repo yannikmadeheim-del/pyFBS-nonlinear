@@ -632,13 +632,21 @@ class MK_model(object):
             _eig_val2 = self.eig_freq[:no_modes] ** 2
         # damping
 
-        modal_damping = np.asarray(modal_damping).ravel()
-        if modal_damping.all() == None:
+        if modal_damping is None:
             damping = np.zeros(no_modes)
-        elif len(modal_damping) == 1:
+        elif isinstance(
+            modal_damping,
+            (int, float, np.int32, np.int64, np.float32, np.float64),
+        ):
             damping = np.repeat(modal_damping, no_modes)
-        elif len(modal_damping) == no_modes:
-            damping = modal_damping
+        elif isinstance(modal_damping, (list, tuple, np.ndarray)):
+            modal_damping = np.asarray(modal_damping).ravel()
+            if len(modal_damping) == 1:
+                damping = np.repeat(modal_damping, no_modes)
+            elif len(modal_damping) == no_modes:
+                damping = modal_damping
+            else:
+                raise Exception('Input for "modal damping" not valid.')
         else:
             raise Exception('Input for "modal damping" not valid.')
 

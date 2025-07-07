@@ -1054,6 +1054,7 @@ __all__ = [
     'mode_animation',
     'mac',
     'coh_frf',
+    'coh',
     'dict_animation',
     'cmif',
     '_tsvd',
