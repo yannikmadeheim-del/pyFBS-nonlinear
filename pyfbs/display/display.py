@@ -747,6 +747,7 @@ class View3D:
             fixed_rotation=self.fixed_rotation,
             snap_outward=True,
             acc_normal=self.acc_normal,
+            grouping=self.grouping,
         )
         self.plot.add_sphere_widget(
             _gg.callback,
@@ -766,6 +767,7 @@ class View3D:
         fixed_rotation=None,
         size=10,
         acc_normal=None,
+        grouping=None,
     ):
         """
         Add a set of predefined accelerometers to the 3D display and toggle
@@ -782,6 +784,7 @@ class View3D:
         :param acc_normal: Accelerometer normal direction for snapping
         :type acc_normal: str | None. Valid options are "x", "y", "z", "-x",
             "-y", "-z", or None
+        :param grouping: Grouping for the accelerometer
         """
         self.size = size
         self.fixed_rotation = fixed_rotation
@@ -790,6 +793,7 @@ class View3D:
 
         self.toggle = "acc"
         self.acc_normal = acc_normal
+        self.grouping = grouping
 
         if isinstance(predefined, pd.DataFrame):
             for i, row in predefined.iterrows():
@@ -867,6 +871,7 @@ class View3D:
             snap_outward=False,
             fixed_rotation=self.fixed_rotation,
             toggle="impact",
+            grouping=self.grouping,
         )
         self.plot.add_sphere_widget(
             _gg.callback,
@@ -879,7 +884,13 @@ class View3D:
         self.all_imps_dynamic.append(_gg)
 
     def add_imp_dynamic(
-        self, mesh, predefined=None, scale=1, fixed_rotation=None, size=10
+        self,
+        mesh,
+        predefined=None,
+        scale=1,
+        fixed_rotation=None,
+        size=10,
+        grouping=None,
     ):
         """
         Add a set of predefined impacts to the 3D display and toggle the
@@ -893,12 +904,14 @@ class View3D:
         :type scale: float
         :param fixed_rotation: fixed rotation angle
         :type fixed_rotation: float
+        :param grouping: Grouping for the impact
         """
         self.size = size
 
         self.mesh = mesh
         self.mesh.compute_normals(auto_orient_normals=True, inplace=True)
         self.fixed_rotation = fixed_rotation
+        self.grouping = grouping
 
         self.toggle = "impact"
 
@@ -968,6 +981,7 @@ class View3D:
             size=4,
             snap_outward=False,
             fixed_rotation=self.fixed_rotation,
+            grouping=self.grouping,
         )
         self.plot.add_sphere_widget(
             _gg.callback,
@@ -982,7 +996,12 @@ class View3D:
         self.all_vps_dynamic.append(_gg)
 
     def add_vp_dynamic(
-        self, mesh, predefined=None, scale=1, fixed_rotation=None
+        self,
+        mesh,
+        predefined=None,
+        scale=1,
+        fixed_rotation=None,
+        grouping=None,
     ):
         """
         Add a set of predefined virtual points to the 3D display and toggle '
@@ -1000,6 +1019,7 @@ class View3D:
         """
 
         self.mesh = mesh
+        self.grouping = grouping
 
         if isinstance(predefined, pd.DataFrame):
 
@@ -1011,10 +1031,10 @@ class View3D:
             for pos in position:
                 self.vp_callback(pos, fixed_rotation=self.fixed_rotation)
 
-        self.plot.enable_point_picking(
-            callback=self.vp_callback,
-            color="r",
-            show_message="",
+        self.plot.disable_picking()
+        self.plot.enable_surface_point_picking(
+            callback=self.vp_surface_callback,
+            show_message=False,
             show_point=False,
         )
         self.plot.add_text(
@@ -1056,7 +1076,7 @@ class View3D:
                         "Impact " + str(1 + i),
                         None,
                         None,
-                        None,
+                        _imp.grouping,
                         pos[0],
                         pos[1],
                         pos[2],
@@ -1103,7 +1123,7 @@ class View3D:
                         "Sensor " + str(1 + i),
                         None,
                         None,
-                        None,
+                        _acc.grouping,
                         pos[0],
                         pos[1],
                         pos[2],
@@ -1150,7 +1170,7 @@ class View3D:
                         "VP " + str(1 + i),
                         None,
                         None,
-                        None,
+                        _acc.grouping,
                         pos[0],
                         pos[1],
                         pos[2],
@@ -1633,7 +1653,7 @@ class View3D:
         final_point = point_ray if len(point_ray) > 0 else None
         return final_point
 
-    def impact_surface_callback(self, point):
+    def _ray_traced_point_and_normal(self, point):
         # Ray trace to find the closest point on the mesh
         final_point = self._ray_trace(point)
         if final_point is None:
@@ -1644,19 +1664,14 @@ class View3D:
         camera_direction = self.plot.camera.direction
         if np.dot(normal, camera_direction) > 0:
             normal = -normal
+        return final_point, normal
+
+    def impact_surface_callback(self, point):
+        final_point, normal = self._ray_traced_point_and_normal(point)
         self.imp_callback(final_point, direction=-normal)
 
     def acc_surface_callback(self, point):
-        # Ray trace to find the closest point on the mesh
-        final_point = self._ray_trace(point)
-        if final_point is None:
-            return
-        # Proceed with placement
-        cell_id = self.mesh.find_closest_cell(final_point)
-        normal = self.mesh.cell_normals[cell_id]
-        camera_direction = self.plot.camera.direction
-        if np.dot(normal, camera_direction) > 0:
-            normal = -normal
+        final_point, normal = self._ray_traced_point_and_normal(point)
         rot = rotation_matrix_from_vectors(
             np.array(-normal), np.array([0.0, 0.0, 1.0])
         )
@@ -1668,6 +1683,10 @@ class View3D:
         # just added static size of the accelerometer
         final_point += np.array(+normal) / 2 * self.size
         self.acc_callback(final_point, orientation=orientation)
+
+    def vp_surface_callback(self, point):
+        final_point, normal = self._ray_traced_point_and_normal(point)
+        self.vp_callback(final_point)
 
 
 class DynamicPosition:
@@ -1709,6 +1728,7 @@ class DynamicPosition:
         fixed_rotation=None,
         toggle="acc",
         acc_normal=None,
+        grouping=None,
     ):
         # set size and static points
         self.size = size
@@ -1803,6 +1823,9 @@ class DynamicPosition:
         self.p = p
         self.toggle = toggle
         self.acc_normal = acc_normal
+
+        # define grouping number
+        self.grouping = grouping
 
     def get_pos_orient(
         self, euler_angles=False, one_dir=None, eps=1e-10, scale=1
