@@ -1,4 +1,4 @@
-from ..utility import tsvd, coh_frf
+from ..utility import tpinv, coh_frf
 from .tools import find_locations_in_data_frames
 import numpy as np
 from tqdm import tqdm
@@ -173,9 +173,9 @@ def semm(
         y_semm = (
             y_par
             - y_par
-            @ np.linalg.pinv(tsvd(y_par[:, -chn_n_b:, :], reduction=red_comp))
+            @ tpinv(y_par[:, -chn_n_b:, :], trunc=red_comp)
             @ (y_rem - y_ov)
-            @ np.linalg.pinv(tsvd(y_par[:, :, -imp_n_b:], reduction=red_eq))
+            @ tpinv(y_par[:, :, -imp_n_b:], trunc=red_eq)
             @ y_par
         )
 

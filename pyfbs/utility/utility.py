@@ -435,29 +435,49 @@ def _tsvd(matrix, reduction=0):
     return uk @ sk @ vk
 
 
-def tsvd(matrix, reduction=0):
+def tsvd(
+    matrix: np.ndarray,
+    trunc: int = 0,
+    mode: str = 'remove',
+    return_components: bool = False,
+):
     """
     Filters a FRF matrix  with a truncated singular value decomposition (TSVD)
     by removing the smallest singular values.
 
     :param matrix: Matrix to be filtered by singular value decomposition
     :type matrix: array(float)
-    :param reduction: Number of singular values not taken into account by
+    :param trunc: Number of singular values not taken into account by
         reconstruction of the matrix
     :type reduction: int, optional
+    :param mode: removal of smallest or retaining of largest singular values
+        specified by `trunc`
+    :type mode: str
+    :param return_components: If True, the right and left singular vectors
+        and singular values are returned, otherwise reconstruction of the
+        original matrix using the truncated svd is returned.
+    :type return_components: bool
     :return: Filtered matrix
     :rtype: array(float)
     """
     u, s, vh = np.linalg.svd(matrix, full_matrices=False)
-    n = s.shape[-1] - reduction
+    if mode == 'remove':
+        n = s.shape[-1] - trunc
+    elif mode == 'retain':
+        n = trunc
+    else:
+        raise ValueError("`mode` must be 'remove' or 'retain'")
     if n < 0:
         raise ValueError(
             "Reduction value is higher than the number of singular values"
         )
-    return (u[..., :n] * s[..., None, :n]) @ vh[..., :n, :]
+    if return_components:
+        return u[..., :n], s[..., :n], vh[..., :n, :]
+    else:
+        return (u[..., :n] * s[..., None, :n]) @ vh[..., :n, :]
 
 
-def tpinv(a: np.ndarray, trunc: int | None = None):
+def tpinv(a: np.ndarray, trunc: int | None = None, mode: str = 'remove'):
     """
     Compute Moore-Penrose pseudo inverse using SVD with or without truncation.
 
@@ -468,23 +488,17 @@ def tpinv(a: np.ndarray, trunc: int | None = None):
         Array to be inverted.
     trunc : int or None
         Cutoff for singular values. If None, the inverse is calculated without
-        truncation. If type(trunc) is int, trunc is the number of singular
-        values to be set to zero.
+        truncation. Trunc specifies the amount of truncation prior to the
+        inversion. If `mode` is 'remove', `trunc` specifies the number of
+        smallest singular values to be set to zero. If `mode` is 'retain',
+        `trunc` specifies the number of largest singular values to retain.
+    mode : str
+        Mode of operation, either 'remove' or 'retain'.
     """
-    u, s, vh = np.linalg.svd(a, full_matrices=False)
-    if trunc is None or trunc == 0:
-        pass
-    elif isinstance(trunc, int):
-        s[..., -trunc:] = 0.0
-    else:
-        raise Exception("`trunc` type must be int or None")
-    s_mask = np.where(s > 0, 0, 1)
-    s_inv = 1 / (s + s_mask) - s_mask
-    a_inv = np.swapaxes(vh.conj(), -2, -1) @ (
-        s_inv[..., None] * np.swapaxes(u.conj(), -2, -1)
+    tu, ts, tvh = tsvd(a, trunc=trunc, mode=mode, return_components=True)
+    return np.swapaxes(tvh.conj(), -2, -1) @ np.swapaxes(
+        tu.conj() * 1 / ts[..., None, :], -2, -1
     )
-
-    return a_inv
 
 
 def rotation_matrix(axis, theta):
