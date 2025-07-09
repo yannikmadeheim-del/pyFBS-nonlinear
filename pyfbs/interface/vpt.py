@@ -38,15 +38,26 @@ class VPT(object):
     :type wf: 2D matrix (float), optional
     :param sort_matrix: Sort transformation matrices
     :type sort_matrix: bool, optional
+    :param sort_grouping: Sort grouping numbers in the transformation matrices
+    :type sort_grouping: bool, optional
 
     Transformed admittance matrix is sorted by increasing grouping number. VP DoFs are ordered in the same manner as
     provided in the dataframe.
     """
 
     def __init__(
-        self, ch, refch, vp_ch, vp_refch, wu=None, wf=None, sort_matrix=True
+        self,
+        ch,
+        refch,
+        vp_ch,
+        vp_refch,
+        wu=None,
+        wf=None,
+        sort_matrix=True,
+        sort_grouping=True,
     ):
         self.sort_matrix = sort_matrix
+        self.sort_grouping = sort_grouping
 
         # Load the physical input-output DoFs
         self.channels = ch
@@ -132,6 +143,12 @@ class VPT(object):
             )
             Ru = Ru[:, np.argsort(_ind_vp, kind='stable')]
 
+            if not self.sort_grouping:
+                unsort_ix = self._unsort_grouping(
+                    self.channels, self.virtual_channels
+                )
+                Ru = Ru[:, unsort_ix]
+
         # definition of weighting matrix
         wu = np.eye(np.max(Ru.shape))
         if self.wu_p is not None:
@@ -209,6 +226,12 @@ class VPT(object):
                 )
             )
             Rf = Rf[:, np.argsort(_ind_vpref, kind='stable')]
+
+            if not self.sort_grouping:
+                unsort_ix = self._unsort_grouping(
+                    self.ref_channels, self.virtual_ref_channels
+                )
+                Rf = Rf[:, unsort_ix]
 
         # definition of weighting matrix
         wf = np.eye(np.max(Rf.shape))
@@ -567,6 +590,25 @@ class VPT(object):
             specific_impact.append(coh_frf(self.y_f[i, :], self.y[i, :]))
 
         self.specific_impact = np.asarray(specific_impact)
+
+    def _unsort_grouping(self, df, df_vp):
+        grouping = df['Grouping'].to_numpy()
+        virtual_grouping = df_vp['Grouping'].to_numpy()
+        grouping_unique, unique_ix = np.unique(grouping, return_index=True)
+        unsort_unique_ix = np.argsort(unique_ix)
+        grouping_unique_unsorted = grouping_unique[unsort_unique_ix]
+        vp_groups = np.unique(virtual_grouping)
+        unsorted_group_list = []
+        for group in grouping_unique_unsorted:
+            if group in vp_groups:
+                n = np.count_nonzero(virtual_grouping == group)
+            else:
+                n = np.count_nonzero(grouping == group)
+            unsorted_group_list.append(np.repeat(group, n))
+        unsorted_grouping = np.concatenate(unsorted_group_list)
+        sort_ix = np.argsort(unsorted_grouping, kind='stable')
+        unsort_ix = np.argsort(sort_ix, kind='stable')
+        return unsort_ix
 
     """
     Frequency-dependend weighting matrix - to be implemented in the pyFBS with next release
