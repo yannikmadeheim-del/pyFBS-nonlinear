@@ -111,20 +111,20 @@ class MK_model(object):
                         (
                             self.m,
                             self.k,
-                            self.eig_freq,
+                            self.angular_eig_freq,
                             self.eig_val,
                             self.eig_vec,
                             no_modes,
                         ) = pickle.load(open(p_file, "rb"))
                     # solve the problem
                 else:
-                    self.eig_freq, self.eig_val, self.eig_vec = self.eig_solve(
-                        self.m, self._k, no_modes
+                    self.angular_eig_freq, self.eig_val, self.eig_vec = (
+                        self.eig_solve(self.m, self._k, no_modes)
                     )
 
                 if same == False or recalculate == True:
-                    self.eig_freq, self.eig_val, self.eig_vec = self.eig_solve(
-                        self.m, self._k, no_modes
+                    self.angular_eig_freq, self.eig_val, self.eig_vec = (
+                        self.eig_solve(self.m, self._k, no_modes)
                     )
 
                     if allow_pickle:
@@ -132,7 +132,7 @@ class MK_model(object):
                             [
                                 self.m,
                                 self.k,
-                                self.eig_freq,
+                                self.angular_eig_freq,
                                 self.eig_val,
                                 self.eig_vec,
                                 no_modes,
@@ -151,15 +151,17 @@ class MK_model(object):
                 )  # avoid error
 
                 (
-                    self.eig_freq,
+                    self.angular_eig_freq,
                     self.eig_val,
                     self.eig_vec,
                     self.eig_vec_strain,
                 ) = self.get_values_from_rst(rst)
                 if (
-                    len(self.eig_freq) >= self.no_modes
+                    len(self.angular_eig_freq) >= self.no_modes
                 ):  # truncation of results in .rst file to match the desired number of modes in ``no_modes`` parameter
-                    self.eig_freq = self.eig_freq[: self.no_modes]
+                    self.angular_eig_freq = self.angular_eig_freq[
+                        : self.no_modes
+                    ]
                     self.eig_val = self.eig_val[: self.no_modes]
                     self.eig_vec = self.eig_vec[:, : self.no_modes]
                     try:
@@ -169,11 +171,10 @@ class MK_model(object):
                     except:  # if the strain is not included in the .rst file, then the ``self.eig_vec_strain`` is just left as an empty array
                         pass
                 else:
-                    print(
-                        f"Parameter ``no_modes`` is set to {self.no_modes}, but the .rst file from Ansys includes {len(self.eig_freq)} natural frequencies and mode shapes. \n \
-                        Therefore value of parameter ``no_modes`` is changed to {len(self.eig_freq)}."
+                    _warn_changed_no_modes_rst(
+                        self.no_modes, len(self.angular_eig_freq)
                     )
-                    self.no_modes = len(self.eig_freq)
+                    self.no_modes = len(self.angular_eig_freq)
 
         elif rst_file is not None and full_file is None:
             # if only the .rst file is defined, then the mass and stiffness matrices are not available
@@ -200,10 +201,10 @@ class MK_model(object):
                 nat_freq = (
                     (nat_freq_real + 1.0j * nat_freq_imag) * 2 * np.pi
                 )  # from Hz to rad/s
-                self.eig_freq = nat_freq
+                self.angular_eig_freq = nat_freq
                 self.eig_val = nat_freq
-                self.eig_freq_undamped = np.abs(nat_freq)
-                damping_ratio = -nat_freq.real / self.eig_freq_undamped
+                self.angular_eig_freq_undamped = np.abs(nat_freq)
+                damping_ratio = -nat_freq.real / self.angular_eig_freq_undamped
                 self.damped_modes = (damping_ratio > 1e-5) & (
                     damping_ratio < 0.999999
                 )
@@ -228,7 +229,7 @@ class MK_model(object):
                     * 2
                     * np.pi
                 )  # from Hz to rad/s
-                self.eig_freq = nat_freq
+                self.angular_eig_freq = nat_freq
                 self.eig_val = nat_freq**2
                 for i in range(1, len(nat_freq) + 1):
                     eig_vec.append(
@@ -256,12 +257,11 @@ class MK_model(object):
                 self.no_modes = len(self.nodes)
             else:
                 self.no_modes = no_modes
-            if no_modes > len(self.eig_freq):
-                print(
-                    f"Parameter ``no_modes`` is set to {self.no_modes}, but the .rst file from Ansys includes {len(self.eig_freq)} natural frequencies and mode shapes. \n \
-                            Therefore value of parameter ``no_modes`` is changed to {len(self.eig_freq)}."
+            if no_modes > len(self.angular_eig_freq):
+                _warn_changed_no_modes_rst(
+                    self.no_modes, len(self.angular_eig_freq)
                 )
-                self.no_modes = len(self.eig_freq)
+                self.no_modes = len(self.angular_eig_freq)
 
         elif (manual_mass_matrix is not None) and (
             manual_stiffness_matrix is not None
@@ -285,15 +285,15 @@ class MK_model(object):
                     (
                         self.m,
                         self.k,
-                        self.eig_freq,
+                        self.angular_eig_freq,
                         self.eig_val,
                         self.eig_vec,
                         no_modes,
                     ) = pickle.load(open(p_file, "rb"))
                 # solve the problem
                 if same == False or recalculate == True:
-                    self.eig_freq, self.eig_val, self.eig_vec = self.eig_solve(
-                        self.m, self._k, no_modes
+                    self.angular_eig_freq, self.eig_val, self.eig_vec = (
+                        self.eig_solve(self.m, self._k, no_modes)
                     )
 
                     if allow_pickle:
@@ -301,7 +301,7 @@ class MK_model(object):
                             [
                                 self.m,
                                 self.k,
-                                self.eig_freq,
+                                self.angular_eig_freq,
                                 self.eig_val,
                                 self.eig_vec,
                                 no_modes,
@@ -309,9 +309,43 @@ class MK_model(object):
                             open(p_file, "wb"),
                         )
             else:
-                self.eig_freq, self.eig_val, self.eig_vec = self.eig_solve(
-                    self.m, self._k, no_modes
+                self.angular_eig_freq, self.eig_val, self.eig_vec = (
+                    self.eig_solve(self.m, self._k, no_modes)
                 )
+
+    @property
+    def eig_freq(self):
+        """
+        Getter for eig_freq property, which is the eigenfrequency in Hz.
+
+        :return: eigenfrequency in Hz
+        """
+        return self._eig_freq
+
+    @property
+    def angular_eig_freq(self):
+        """
+        Getter for eig_freq property, which is the eigenfrequency in rad/s.
+
+        :return: eigenfrequency in Hz
+        """
+        return self._angular_eig_freq
+
+    @eig_freq.setter
+    def eig_freq(self, _eig_freq):
+        self._eig_freq = _eig_freq
+        if _eig_freq is None:
+            self._angular_eig_freq = None
+        else:
+            self._angular_eig_freq = _eig_freq * (2 * np.pi)
+
+    @angular_eig_freq.setter
+    def angular_eig_freq(self, _angular_eig_freq):
+        self._angular_eig_freq = _angular_eig_freq
+        if _angular_eig_freq is None:
+            self._eig_freq = None
+        else:
+            self._eig_freq = _angular_eig_freq / (2 * np.pi)
 
     def save(self, directory='./', file_name='file'):
         """
@@ -328,7 +362,9 @@ class MK_model(object):
         hdf5_file.create_dataset("pts", data=self.pts)
         hdf5_file.create_dataset("eig_vec", data=self.eig_vec)
         hdf5_file.create_dataset("dof_ref", data=self.dof_ref)
-        hdf5_file.create_dataset("eig_freq", data=self.eig_freq)
+        hdf5_file.create_dataset(
+            "angular_eig_freq", data=self.angular_eig_freq
+        )
         hdf5_file.create_dataset("eig_val", data=self.eig_val)
         hdf5_file.create_dataset("no_modes", data=self.no_modes)
         hdf5_file.create_dataset(
@@ -391,7 +427,7 @@ class MK_model(object):
 
         :rtype: bool
         """
-        _m, _k, _eig_freq, _eig_val, _eig_vec, _no_modes = pickle.load(
+        _m, _k, _angular_eig_freq, _eig_val, _eig_vec, _no_modes = pickle.load(
             open(p_file, "rb")
         )
         # check if the solution is the same
@@ -629,7 +665,7 @@ class MK_model(object):
         if self.damped_solver:
             _eig_val2 = self.eig_val[:no_modes]
         else:
-            _eig_val2 = self.eig_freq[:no_modes] ** 2
+            _eig_val2 = self.angular_eig_freq[:no_modes] ** 2
         # damping
 
         if modal_damping is None:
@@ -818,7 +854,7 @@ class MK_model(object):
                 _eig_val2[:no_modes, np.newaxis] - ome2
             ) + np.einsum(
                 'ij,i->ij',
-                (ome * self.eig_freq[:no_modes, np.newaxis]),
+                (ome * self.angular_eig_freq[:no_modes, np.newaxis]),
                 (2 * 1j * damping[:no_modes]),
             )
 
@@ -1045,7 +1081,7 @@ class MK_model(object):
 
     @staticmethod
     def custom_frf_synth(
-        eig_freq,
+        angular_eig_freq,
         eig_vec_chn,
         eig_vec_imp,
         f_start=1,
@@ -1059,8 +1095,8 @@ class MK_model(object):
         Synthetisation of frequency response functions using the mode superposition method.
         frfs are generated for all combinations of inputed eigen vectors.
 
-        :param eig_freq: eigen frequencies of cinsidered system in unit: rad/s
-        :type eig_freq: numpy.array
+        :param angular_eig_freq: eigen frequencies of cinsidered system in unit: rad/s
+        :type angular_eig_freq: numpy.array
         :param eig_vec_chn: eigen vectors of channels where frfs will be generated
         :type eig_vec_chn: numpy.array
         :param eig_vec_imp: eigen vectors of impacts where frfs will be generated
@@ -1079,7 +1115,7 @@ class MK_model(object):
         :type frf_type: str
         """
         if limit_modes == None:
-            no_modes = len(eig_freq)
+            no_modes = len(angular_eig_freq)
         else:
             no_modes = limit_modes
 
@@ -1103,7 +1139,7 @@ class MK_model(object):
 
         ome = 2 * np.pi * _freq
         ome2 = ome**2
-        _eig_val2 = eig_freq**2
+        _eig_val2 = angular_eig_freq**2
 
         m_p_chn = eig_vec_chn[:, :no_modes]
 
@@ -1113,7 +1149,7 @@ class MK_model(object):
 
         denominator = (_eig_val2[:no_modes, np.newaxis] - ome2) + np.einsum(
             'ij,i->ij',
-            (ome * eig_freq[:no_modes, np.newaxis]),
+            (ome * angular_eig_freq[:no_modes, np.newaxis]),
             (2 * 1j * damping[:no_modes]),
         )
 
@@ -1175,7 +1211,7 @@ class Model(MK_model):
         _k=None,
         m=None,
         eig_val=None,
-        eig_freq=None,
+        angular_eig_freq=None,
         eig_vec=None,
         eig_vec_strain=None,
         no_modes=None,
@@ -1196,7 +1232,7 @@ class Model(MK_model):
         self._k = _k
         self.m = m
         self.eig_val = eig_val
-        self.eig_freq = eig_freq
+        self.angular_eig_freq = angular_eig_freq
         self.eig_vec = eig_vec
         self.eig_vec_strain = eig_vec_strain
         self.no_modes = no_modes
@@ -1205,6 +1241,11 @@ class Model(MK_model):
         self.scale = scale
         self.units = units
         self._all = _all
+
+        if not angular_eig_freq is None:
+            self.eig_freq = angular_eig_freq / (2 * np.pi)
+        else:
+            self.eig_freq = None
 
     @classmethod
     def from_save(cls, directory='./', file_name='file'):
@@ -1272,7 +1313,7 @@ class Model(MK_model):
         _k = None
         m = None
         eig_val = None
-        eig_freq = None
+        angular_eig_freq = None
         eig_vec = None
         eig_vec_strain = None
         rotation_included = False
@@ -1324,19 +1365,30 @@ class Model(MK_model):
 
                     same = cls.pickle_check(p_file, no_modes, m, k)
                     if same:
-                        m, k, eig_freq, eig_val, eig_vec, no_modes = (
+                        m, k, angular_eig_freq, eig_val, eig_vec, no_modes = (
                             pickle.load(open(p_file, "rb"))
                         )
                     # solve the problem
                 else:
-                    eig_freq, eig_val, eig_vec = cls.eig_solve(m, _k, no_modes)
+                    angular_eig_freq, eig_val, eig_vec = cls.eig_solve(
+                        m, _k, no_modes
+                    )
 
                 if same == False or recalculate == True:
-                    eig_freq, eig_val, eig_vec = cls.eig_solve(m, _k, no_modes)
+                    angular_eig_freq, eig_val, eig_vec = cls.eig_solve(
+                        m, _k, no_modes
+                    )
 
                     if allow_pickle:
                         pickle.dump(
-                            [m, k, eig_freq, eig_val, eig_vec, no_modes],
+                            [
+                                m,
+                                k,
+                                angular_eig_freq,
+                                eig_val,
+                                eig_vec,
+                                no_modes,
+                            ],
                             open(p_file, "wb"),
                         )
             else:  # read from pyansys - from rst file
@@ -1349,13 +1401,13 @@ class Model(MK_model):
                     np.random.random(k.shape[0]) / 1e20, shape=k.shape
                 )  # avoid error
 
-                eig_freq, eig_val, eig_vec, eig_vec_strain = (
+                angular_eig_freq, eig_val, eig_vec, eig_vec_strain = (
                     cls.get_values_from_rst(rst)
                 )
                 if (
-                    len(eig_freq) >= no_modes
+                    len(angular_eig_freq) >= no_modes
                 ):  # truncation of results in .rst file to match the desired number of modes in ``no_modes`` parameter
-                    eig_freq = eig_freq[:no_modes]
+                    angular_eig_freq = angular_eig_freq[:no_modes]
                     eig_val = eig_val[:no_modes]
                     eig_vec = eig_vec[:, :no_modes]
                     try:
@@ -1363,11 +1415,8 @@ class Model(MK_model):
                     except:  # if the strain is not included in the .rst file, then the ``self.eig_vec_strain`` is just left as an empty array
                         pass
                 else:
-                    print(
-                        f"Parameter ``no_modes`` is set to {no_modes}, but the .rst file from Ansys includes {len(eig_freq)} natural frequencies and mode shapes. \n \
-                        Therefore value of parameter ``no_modes`` is changed to {len(eig_freq)}."
-                    )
-                    no_modes = len(eig_freq)
+                    _warn_changed_no_modes_rst(no_modes, len(angular_eig_freq))
+                    no_modes = len(angular_eig_freq)
 
         elif rst_file is not None and full_file is None:
             # if only the .rst file is defined, then the mass and stiffness matrices are not available
@@ -1394,10 +1443,10 @@ class Model(MK_model):
                 nat_freq = (
                     (nat_freq_real + 1.0j * nat_freq_imag) * 2 * np.pi
                 )  # from Hz to rad/s
-                eig_freq = nat_freq
+                angular_eig_freq = nat_freq
                 eig_val = nat_freq
-                eig_freq_undamped = np.abs(nat_freq)
-                damping_ratio = -nat_freq.real / eig_freq_undamped
+                angular_eig_freq_undamped = np.abs(nat_freq)
+                damping_ratio = -nat_freq.real / angular_eig_freq_undamped
                 damped_modes = (damping_ratio > 1e-5) & (
                     damping_ratio < 0.999999
                 )
@@ -1422,7 +1471,7 @@ class Model(MK_model):
                     * 2
                     * np.pi
                 )  # from Hz to rad/s
-                eig_freq = nat_freq
+                angular_eig_freq = nat_freq
                 eig_val = nat_freq**2
                 for i in range(1, len(nat_freq) + 1):
                     eig_vec.append(
@@ -1446,12 +1495,9 @@ class Model(MK_model):
             rotation_included = False
             if no_modes > len(dof_ref):
                 no_modes = len(dof_ref)
-            if no_modes > len(eig_freq):
-                print(
-                    f"Parameter ``no_modes`` is set to {no_modes}, but the .rst file from Ansys includes {len(eig_freq)} natural frequencies and mode shapes. \n \
-                            Therefore value of parameter ``no_modes`` is changed to {len(eig_freq)}."
-                )
-                no_modes = len(eig_freq)
+            if no_modes > len(angular_eig_freq):
+                _warn_changed_no_modes_rst(no_modes, len(angular_eig_freq))
+                no_modes = len(angular_eig_freq)
 
         elif (manual_mass_matrix is not None) and (
             manual_stiffness_matrix is not None
@@ -1472,20 +1518,31 @@ class Model(MK_model):
             if allow_pickle and path.exists(p_file):
                 same = cls.pickle_check(p_file, no_modes, m, k)
                 if same:
-                    m, k, eig_freq, eig_val, eig_vec, no_modes = pickle.load(
-                        open(p_file, "rb")
+                    m, k, angular_eig_freq, eig_val, eig_vec, no_modes = (
+                        pickle.load(open(p_file, "rb"))
                     )
                 # solve the problem
                 if same == False or recalculate == True:
-                    eig_freq, eig_val, eig_vec = cls.eig_solve(m, _k, no_modes)
+                    angular_eig_freq, eig_val, eig_vec = cls.eig_solve(
+                        m, _k, no_modes
+                    )
 
                     if allow_pickle:
                         pickle.dump(
-                            [m, k, eig_freq, eig_val, eig_vec, no_modes],
+                            [
+                                m,
+                                k,
+                                angular_eig_freq,
+                                eig_val,
+                                eig_vec,
+                                no_modes,
+                            ],
                             open(p_file, "wb"),
                         )
             else:
-                eig_freq, eig_val, eig_vec = cls.eig_solve(m, _k, no_modes)
+                angular_eig_freq, eig_val, eig_vec = cls.eig_solve(
+                    m, _k, no_modes
+                )
 
         return cls(
             nodes=nodes,
@@ -1496,7 +1553,7 @@ class Model(MK_model):
             _k=_k,
             m=m,
             eig_val=eig_val,
-            eig_freq=eig_freq,
+            angular_eig_freq=angular_eig_freq,
             eig_vec=eig_vec,
             eig_vec_strain=eig_vec_strain,
             no_modes=no_modes,
@@ -1578,7 +1635,7 @@ class Model(MK_model):
                 _k=None,
                 m=None,
                 eig_val=self.eig_val,
-                eig_freq=self.eig_freq,
+                angular_eig_freq=self.angular_eig_freq,
                 eig_vec=eig_vec,
                 eig_vec_strain=eig_vec_strain,
                 no_modes=self.no_modes,
@@ -1593,3 +1650,12 @@ class Model(MK_model):
                 f"Mesh type {type(self.mesh)} unsupported. Must \
                 be either a PolyData or UnstructuredGrid object."
             )
+
+
+def _warn_changed_no_modes_rst(no_modes_old, no_modes_new):
+    warnings.warn(
+        f"Parameter ``no_modes`` is set to {no_modes_old}, but the .rst "
+        f"file from Ansys includes {no_modes_new} natural frequencies "
+        f"and mode shapes. \n Therefore, ``no_modes`` is changed to "
+        f"{no_modes_new}."
+    )
