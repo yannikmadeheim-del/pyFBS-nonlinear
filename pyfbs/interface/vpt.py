@@ -77,6 +77,13 @@ class VPT(object):
         self.define_idm_u()
         self.define_idm_f()
 
+        self.channel_data_frame = self._get_vp_data_frame(
+            self.channels, self.virtual_channels
+        )
+        self.impact_data_frame = self._get_vp_data_frame(
+            self.ref_channels, self.virtual_ref_channels
+        )
+
     def define_idm_u(self):
         """
         Calculates Ru, Tu and Fu matrices based on the supplied position and orientation of Channels and Virtual
@@ -609,6 +616,30 @@ class VPT(object):
         sort_ix = np.argsort(unsorted_grouping, kind='stable')
         unsort_ix = np.argsort(sort_ix, kind='stable')
         return unsort_ix
+
+    def _get_vp_data_frame(self, df, df_vp):
+        grouping = df['Grouping'].to_numpy()
+        virtual_grouping = df_vp['Grouping'].to_numpy()
+        grouping_unique, unique_ix = np.unique(grouping, return_index=True)
+        unsort_unique_ix = np.argsort(unique_ix)
+        grouping_unique_unsorted = grouping_unique[unsort_unique_ix]
+        vp_groups = np.unique(virtual_grouping)
+        # unsorted_group_list = []
+        unsorted_df_list = []
+        for group in grouping_unique_unsorted:
+            if group in vp_groups:
+                _df = df_vp[df_vp['Grouping'] == group]
+            else:
+                _df = df[df['Grouping'] == group]
+            unsorted_df_list.append(_df)
+        if self.sort_grouping:
+            sort_ix = np.argsort(grouping_unique_unsorted)
+            df_new = pd.concat(
+                [unsorted_df_list[i] for i in sort_ix], ignore_index=True
+            )
+        else:
+            df_new = pd.concat(unsorted_df_list, ignore_index=True)
+        return df_new
 
     """
     Frequency-dependend weighting matrix - to be implemented in the pyFBS with next release
