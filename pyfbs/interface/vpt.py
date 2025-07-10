@@ -24,14 +24,14 @@ class VPT(object):
     * Bending response/load:
         bxy, bxz, byz, byx, bzx, bzy / bxy, bxz, byz, byx, bzx, bzy
 
-    :param ch: A DataFrame containing information on channels (i.e. outputs)
-    :type ch: pd.DataFrame
-    :param refch: A DataFrame containing information on reference channels (i.e. inputs)
-    :type refch: pd.DataFrame
-    :param vp_ch: A DataFrame containing information on virtual point channels
-    :type vp_ch: pd.DataFrame
-    :param vp_refch: A DataFrame containing information on virtual point loads
-    :type vp_refch: pd.DataFrame
+    :param df_chn: A DataFrame containing information on channels (i.e. outputs)
+    :type df_chn: pd.DataFrame
+    :param df_imp: A DataFrame containing information on loads (i.e. inputs)
+    :type df_imp: pd.DataFrame
+    :param df_vp_chn: A DataFrame containing information on virtual point channels
+    :type df_vp_chn: pd.DataFrame
+    :param df_vp_imp: A DataFrame containing information on virtual point loads
+    :type df_vp_imp: pd.DataFrame
     :param wu: Displacement weigting matrix for the interface channels
     :type wu: 2D matrix (float), optional
     :param wf: Force weighting matrix for the interface impact points
@@ -41,18 +41,18 @@ class VPT(object):
     :param sort_grouping: Sort grouping numbers in the transformation matrices
     :type sort_grouping: bool, optional
 
-    Transformed admittance matrix is sorted by increasing grouping number. VP DoFs are ordered in the same manner as
-    provided in the dataframe.
+    Transformed admittance matrix is sorted by increasing grouping number. VP
+    DoFs are ordered in the same manner as provided in the dataframe.
     """
 
     def __init__(
         self,
-        ch,
-        refch,
-        vp_ch,
-        vp_refch,
-        wu=None,
-        wf=None,
+        df_chn: pd.DataFrame | None = None,
+        df_imp: pd.DataFrame | None = None,
+        df_vp_chn: pd.DataFrame | None = None,
+        df_vp_imp: pd.DataFrame | None = None,
+        wu: np.ndarray | None = None,
+        wf: np.ndarray | None = None,
         sort_matrix=True,
         sort_grouping=True,
     ):
@@ -60,38 +60,39 @@ class VPT(object):
         self.sort_grouping = sort_grouping
 
         # Load the physical input-output DoFs
-        self.channels = ch
-        self.ref_channels = refch
+        self._df_chn = df_chn
+        self._df_imp = df_imp
 
         # Load virtual input-output DoFs and order by grouping number
-        self.virtual_channels = vp_ch.sort_values(["Grouping"], kind='stable')
-        self.virtual_ref_channels = vp_refch.sort_values(
-            ["Grouping"], kind='stable'
-        )
+        self._df_vp_chn = df_vp_chn.sort_values(["Grouping"], kind='stable')
+        self._df_vp_imp = df_vp_imp.sort_values(["Grouping"], kind='stable')
 
         # Load Weighting matrices: if None, no weighting is applied in the transformation
         self.wu_p = wu
         self.wf_p = wf
 
         # Define the IDM_U and IDM_F matrix
-        self.define_idm_u()
-        self.define_idm_f()
-
-        self.channel_data_frame = self._get_vp_data_frame(
-            self.channels, self.virtual_channels
-        )
-        self.impact_data_frame = self._get_vp_data_frame(
-            self.ref_channels, self.virtual_ref_channels
-        )
+        if self._df_chn is None or self._df_vp_chn is None:
+            self.tu = None
+        else:
+            self.define_idm_u()
+            self.df_chn = self._get_vp_data_frame(
+                self._df_chn, self._df_vp_chn
+            )
+        if self._df_imp is None or self._df_vp_imp is None:
+            self.tf = None
+        else:
+            self.define_idm_f()
+            self.df_imp = self._get_vp_data_frame(
+                self._df_imp, self._df_vp_imp
+            )
 
     def define_idm_u(self):
         """
         Calculates Ru, Tu and Fu matrices based on the supplied position and orientation of Channels and Virtual
         Channels.
         """
-        ov_u, _vps, mask_u = self.find_overlap(
-            self.channels, self.virtual_channels
-        )
+        ov_u, _vps, mask_u = self.find_overlap(self._df_chn, self._df_vp_chn)
 
         R_all = []
         _Warray = []
@@ -99,12 +100,12 @@ class VPT(object):
         # iterates through all unique virtual points (through grouping)
         for i in range(len(ov_u)):
             # gets the unique VP position
-            _posVP = self.virtual_channels.iloc[_vps[1][i]][
+            _posVP = self._df_vp_chn.iloc[_vps[1][i]][
                 ["Position_1", "Position_2", "Position_3"]
             ].to_numpy()
             # gets defined DoF for specific VP
-            _desc = self.virtual_channels.loc[
-                self.virtual_channels["Grouping"] == _vps[0][i]
+            _desc = self._df_vp_chn.loc[
+                self._df_vp_chn["Grouping"] == _vps[0][i]
             ]["Description"].to_list()
             # gets the current positions
             ov_c = ov_u[i]
@@ -113,15 +114,15 @@ class VPT(object):
             r = np.zeros((len(ov_c), len(_desc)))
             for j, ch in enumerate(ov_c):
                 # gets position of the single channel
-                _pos = self.channels.iloc[ch][
+                _pos = self._df_chn.iloc[ch][
                     ["Position_1", "Position_2", "Position_3"]
                 ].to_numpy()
                 # gets orientation of the single channel
-                _dir = self.channels.iloc[ch][
+                _dir = self._df_chn.iloc[ch][
                     ["Direction_1", "Direction_2", "Direction_3"]
                 ].to_numpy()
                 # gets quantity type of the single channel (either translational or angular acceleration)
-                _type = self.channels.iloc[ch]['Quantity']
+                _type = self._df_chn.iloc[ch]['Quantity']
 
                 r[j, :] = _dir @ self.r_matrix_u(
                     _pos - _posVP, _desc, type=_type
@@ -141,18 +142,18 @@ class VPT(object):
             )
             Ru = Ru[np.argsort(_ov_u, kind='stable'), :]
             # sort on VPs
-            ind_vp = self.virtual_channels['Grouping'].to_numpy()
+            ind_vp = self._df_vp_chn['Grouping'].to_numpy()
             _ind_vp = np.concatenate(
                 (
                     ind_vp,
-                    self.channels.iloc[np.where(mask_u == 1)[0]]['Grouping'],
+                    self._df_chn.iloc[np.where(mask_u == 1)[0]]['Grouping'],
                 )
             )
             Ru = Ru[:, np.argsort(_ind_vp, kind='stable')]
 
             if not self.sort_grouping:
                 unsort_ix = self._unsort_grouping(
-                    self.channels, self.virtual_channels
+                    self._df_chn, self._df_vp_chn
                 )
                 Ru = Ru[:, unsort_ix]
 
@@ -177,21 +178,19 @@ class VPT(object):
         Reference Virtual Channels.
         """
 
-        ov_f, _vps, mask_f = self.find_overlap(
-            self.ref_channels, self.virtual_ref_channels
-        )
+        ov_f, _vps, mask_f = self.find_overlap(self._df_imp, self._df_vp_imp)
 
         R_all = []
 
         # iterates through all unique virtual points (through grouping)
         for i in range(len(ov_f)):
             # gets the unique VP position
-            _posVP = self.virtual_ref_channels.iloc[_vps[1][i]][
+            _posVP = self._df_vp_imp.iloc[_vps[1][i]][
                 ["Position_1", "Position_2", "Position_3"]
             ].to_numpy()
             # gets defined DoF for specific VP
-            _desc = self.virtual_ref_channels.loc[
-                self.virtual_ref_channels["Grouping"] == _vps[0][i]
+            _desc = self._df_vp_imp.loc[
+                self._df_vp_imp["Grouping"] == _vps[0][i]
             ]["Description"].to_list()
             # gets the current positions
             ov_c = ov_f[i]
@@ -200,11 +199,11 @@ class VPT(object):
             r = np.zeros((len(ov_c), len(_desc)))
             for j, im in enumerate(ov_c):
                 # gets position of the single impact
-                _pos = self.ref_channels.iloc[im][
+                _pos = self._df_imp.iloc[im][
                     ["Position_1", "Position_2", "Position_3"]
                 ].to_numpy()
                 # gets orientation of the single impact
-                _dir = self.ref_channels.iloc[im][
+                _dir = self._df_imp.iloc[im][
                     ["Direction_1", "Direction_2", "Direction_3"]
                 ].to_numpy()
 
@@ -223,20 +222,18 @@ class VPT(object):
             )
             Rf = Rf[np.argsort(_ov_f), :]
             # sort on VPs
-            ind_vpref = self.virtual_ref_channels['Grouping'].to_numpy()
+            ind_vpref = self._df_vp_imp['Grouping'].to_numpy()
             _ind_vpref = np.concatenate(
                 (
                     ind_vpref,
-                    self.ref_channels.iloc[np.where(mask_f == 1)[0]][
-                        'Grouping'
-                    ],
+                    self._df_imp.iloc[np.where(mask_f == 1)[0]]['Grouping'],
                 )
             )
             Rf = Rf[:, np.argsort(_ind_vpref, kind='stable')]
 
             if not self.sort_grouping:
                 unsort_ix = self._unsort_grouping(
-                    self.ref_channels, self.virtual_ref_channels
+                    self._df_imp, self._df_vp_imp
                 )
                 Rf = Rf[:, unsort_ix]
 
@@ -496,12 +493,18 @@ class VPT(object):
         :param frf: A matrix of Frequency Response Functions FRFs [f,out,in].
         :type frf: array(float)
         """
+        if self.tu is not None and self.tf is not None:
+            _y_vpt = self.tu @ frf @ self.tf
+        elif self.tu is None and self.tf is not None:
+            _y_vpt = frf @ self.tf
+        elif self.tu is not None and self.tf is None:
+            _y_vpt = self.tu @ frf
+        else:
+            raise Exception("No transofmation matrices have been defined")
 
-        _y_vpt = self.tu @ frf @ self.tf
-
-        self.vpt_data = _y_vpt
+        self.frf = _y_vpt
+        self._frf = frf
         self.freq = freq
-        self.frf = frf
 
     def consistency(self, grouping, ref_grouping):
         """
@@ -514,11 +517,11 @@ class VPT(object):
         """
 
         # get all groupings from the vpt
-        _ch_all = self.channels.Grouping.to_numpy()
-        _chVP_all = self.virtual_channels.Grouping.to_numpy()
+        _ch_all = self._df_chn.Grouping.to_numpy()
+        _chVP_all = self._df_vp_chn.Grouping.to_numpy()
 
-        _Rch_all = self.ref_channels.Grouping.to_numpy()
-        _RchVP_all = self.virtual_ref_channels.Grouping.to_numpy()
+        _Rch_all = self._df_imp.Grouping.to_numpy()
+        _RchVP_all = self._df_vp_imp.Grouping.to_numpy()
 
         # extract the grouping mask
         ind_ch = self.find_group(grouping, _ch_all)
@@ -535,7 +538,7 @@ class VPT(object):
         )
 
         # Calculate sensor consistency
-        sub_Y = np.transpose(self.frf, (1, 2, 0))[
+        sub_Y = np.transpose(self._frf, (1, 2, 0))[
             ind_NotRemovedChannels_Grouping, :, :
         ][:, ind_NotRemovedImpacts_Grouping, :]
         sub_Fu = self.fu[ind_NotRemovedChannels_Grouping, :][
@@ -567,7 +570,7 @@ class VPT(object):
         self.specific_sensor = np.asarray(specific_sensor)
 
         # Calculate impact consistency
-        sub_Y = np.transpose(self.frf, (1, 2, 0))[
+        sub_Y = np.transpose(self._frf, (1, 2, 0))[
             ind_NotRemovedChannels_Grouping, :, :
         ][:, ind_NotRemovedImpacts_Grouping, :]
         sub_Ff = self.ff[ind_NotRemovedImpacts_Grouping, :][
