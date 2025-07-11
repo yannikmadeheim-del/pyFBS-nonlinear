@@ -18,31 +18,81 @@ import h5py
 import warnings
 
 
-class MK_model(object):
-    """
-    Initialization of the finite element model. Mass and stiffness matrices are imported and also nodes, DoFs and complete mesh of finite elements are defined.
-    If parameter ``recalculate`` is ``Ture`` eigenvalues and eigenvectors are calculated.
-    For faster processing by default pickle file is generated where mass and stiffness matrices are stored and also computed eigenvalues, eigenvectors and used number of modes.
-    If changes are detected in the mass or stiffness matrix with respect to the stored pickle file, the calculation of eigenvalues and eigenvectors is repeated.
-
-    :param rst_file: path of the .rst file exported from Ansys
-    :type rst_file: str
-    :param full_file: path of the .full file exported from Ansys
-    :type full_file: str
-    :param no_modes: number of modes to be included in output of the eigenvalue computation
-    :type no_modes: int
-    :param allow_pickle: if ``True``, pickle file will be generated to store data or will pickle file be used to load data
-    :type allow_pickle: bool
-    :param recalculate: if ``False`` just mass and stiffness matrices with corresponding nodes and their DoFs will be imported. If ``True`` also the eigenvalue problem will be solved.
-    :type recalculate: bool
-    :param scale: distance scaling factor
-    :type scale: float
-    :param read_rst: if ``True`` reads the eigenvalue solution directly from .rst file
-    :type read_rst: bool
-    """
-
+class Model:
     def __init__(
         self,
+        nodes=None,
+        pts=None,
+        mesh=None,
+        dof_ref=None,
+        k=None,
+        _k=None,
+        m=None,
+        eig_val=None,
+        angular_eig_freq=None,
+        eig_vec=None,
+        eig_vec_strain=None,
+        no_modes=None,
+        rotation_included=False,
+        damped_solver=False,
+        damped_modes=None,
+        scale=1,
+        units=None,
+        _all=False,
+    ):
+        """
+        Initialization of the Model.
+        """
+        self.nodes = nodes
+        self.pts = pts
+        self.mesh = mesh
+        self.dof_ref = dof_ref
+        self.k = k
+        self._k = _k
+        self.m = m
+        self.eig_val = eig_val
+        self.angular_eig_freq = angular_eig_freq
+        self.eig_vec = eig_vec
+        self.eig_vec_strain = eig_vec_strain
+        self.no_modes = no_modes
+        self.rotation_included = rotation_included
+        self.damped_solver = damped_solver
+        self.damped_modes = damped_modes
+        self.scale = scale
+        self.units = units
+        self._all = _all
+
+        if not angular_eig_freq is None:
+            self.eig_freq = angular_eig_freq / (2 * np.pi)
+        else:
+            self.eig_freq = None
+
+    @classmethod
+    def from_save(cls, directory='./', file_name='file'):
+        """
+        Load the model from .vtk and .hdf5 files.
+        """
+        vtk_file = os.path.join(directory, f"{file_name}.vtk")
+        hdf5_file = os.path.join(directory, f"{file_name}.hdf5")
+        json_file = os.path.join(directory, f"{file_name}.json")
+        if os.path.exists(json_file):
+            with open(json_file, 'r') as f:
+                units = json.load(f)
+        else:
+            units = None
+
+        # Load the mesh from the .vtk file
+        mesh = pv.read(vtk_file)
+
+        # Load the attributes from the .hdf5 file
+        with h5py.File(hdf5_file, 'r') as f:
+            data = {key: f[key][()] for key in f.keys()}
+
+        return cls(mesh=mesh, units=units, **data)
+
+    @classmethod
+    def from_ansys(
+        cls,
         rst_file=None,
         full_file=None,
         manual_mass_matrix=None,
@@ -53,11 +103,45 @@ class MK_model(object):
         scale=1,
         read_rst=False,
     ):
+        """
+        Initialization of the finite element model. Mass and stiffness matrices are imported and also nodes, DoFs and complete mesh of finite elements are defined.
+        If parameter ``recalculate`` is ``Ture`` eigenvalues and eigenvectors are calculated.
+        For faster processing by default pickle file is generated where mass and stiffness matrices are stored and also computed eigenvalues, eigenvectors and used number of modes.
+        If changes are detected in the mass or stiffness matrix with respect to the stored pickle file, the calculation of eigenvalues and eigenvectors is repeated.
 
-        warnings.warn(
-            "MK_model is deprecated and will be removed in future versions. Use Model instead.",
-            DeprecationWarning,
-        )
+        :param rst_file: path of the .rst file exported from Ansys
+        :type rst_file: str
+        :param full_file: path of the .full file exported from Ansys
+        :type full_file: str
+        :param no_modes: number of modes to be included in output of the eigenvalue computation
+        :type no_modes: int
+        :param allow_pickle: if ``True``, pickle file will be generated to store data or will pickle file be used to load data
+        :type allow_pickle: bool
+        :param recalculate: if ``False`` just mass and stiffness matrices with corresponding nodes and their DoFs will be imported. If ``True`` also the eigenvalue problem will be solved.
+        :type recalculate: bool
+        :param scale: distance scaling factor
+        :type scale: float
+        :param read_rst: if ``True`` reads the eigenvalue solution directly from .rst file
+        :type read_rst: bool
+        """
+
+        nodes = None
+        pts = None
+        mesh = None
+        dof_ref = None
+        k = None
+        _k = None
+        m = None
+        eig_val = None
+        angular_eig_freq = None
+        eig_vec = None
+        eig_vec_strain = None
+        rotation_included = False
+        damped_solver = False
+        damped_modes = None
+        _all = False
+        units = None
+
         if (
             rst_file and full_file
         ):  # check if rest and full files are defined, that mass and stiffness matrices will be importd from there
@@ -65,38 +149,32 @@ class MK_model(object):
             rst = pymapdl_reader.read_binary(rst_file)
 
             # new version of pyansys
-            self.nodes = rst.mesh.nodes * scale  # only translational dofs
-            self.mesh = rst.grid
-            self.mesh.points *= scale
-            self.pts = self.mesh.points.copy()
-            self.scale = scale
-
-            if no_modes > len(self.nodes):
-                self.no_modes = len(self.nodes)
-            else:
-                self.no_modes = no_modes
-
-            self._all = False
+            nodes = rst.mesh.nodes * scale  # only translational dofs
+            mesh = rst.grid
+            mesh.points *= scale
+            pts = mesh.points.copy()
+            _all = False
 
             full = pymapdl_reader.read_binary(full_file)
-            self.dof_ref, K_triu, M_triu = full.load_km(
+            dof_ref, k_triu, m_triu = full.load_km(
                 sort=True
             )  # dof_ref: 0-x 1-y 2-z
-            self.m = M_triu + sp.sparse.triu(M_triu, 1).T
-            self.k = K_triu + sp.sparse.triu(K_triu, 1).T
-            self._k = self.k + diags(
-                np.random.random(self.k.shape[0]) / 1e20, shape=self.k.shape
+            m = m_triu + sp.sparse.triu(m_triu, 1).T
+            k = k_triu + sp.sparse.triu(k_triu, 1).T
+            _k = k + diags(
+                np.random.random(k.shape[0]) / 1e20, shape=k.shape
             )  # avoid error
 
-            if self.dof_ref[0, 0] != 1:
-                self.dof_ref[:, 0] = self.dof_ref[:, 0] - (
-                    self.dof_ref[0, 0] - 1
-                )
+            if dof_ref[0, 0] != 1:
+                dof_ref[:, 0] = dof_ref[:, 0] - (dof_ref[0, 0] - 1)
 
-            if np.max(self.dof_ref[:, 1]) == 5:
-                self.rotation_included = True
-            elif np.max(self.dof_ref[:, 1]) == 2:
-                self.rotation_included = False
+            if no_modes > len(dof_ref):
+                no_modes = len(dof_ref)
+
+            if np.max(dof_ref[:, 1]) == 5:
+                rotation_included = True
+            elif np.max(dof_ref[:, 1]) == 2:
+                rotation_included = False
 
             # an option to read directly the .rst file
             if read_rst == False:
@@ -106,35 +184,30 @@ class MK_model(object):
                 same = False
                 if allow_pickle and path.exists(p_file):
 
-                    same = self._pickle_check(p_file, no_modes)
+                    same = cls.pickle_check(p_file, no_modes, m, k)
                     if same:
-                        (
-                            self.m,
-                            self.k,
-                            self.angular_eig_freq,
-                            self.eig_val,
-                            self.eig_vec,
-                            no_modes,
-                        ) = pickle.load(open(p_file, "rb"))
+                        m, k, angular_eig_freq, eig_val, eig_vec, no_modes = (
+                            pickle.load(open(p_file, "rb"))
+                        )
                     # solve the problem
                 else:
-                    self.angular_eig_freq, self.eig_val, self.eig_vec = (
-                        self.eig_solve(self.m, self._k, no_modes)
+                    angular_eig_freq, eig_val, eig_vec = cls.eig_solve(
+                        m, _k, no_modes
                     )
 
                 if same == False or recalculate == True:
-                    self.angular_eig_freq, self.eig_val, self.eig_vec = (
-                        self.eig_solve(self.m, self._k, no_modes)
+                    angular_eig_freq, eig_val, eig_vec = cls.eig_solve(
+                        m, _k, no_modes
                     )
 
                     if allow_pickle:
                         pickle.dump(
                             [
-                                self.m,
-                                self.k,
-                                self.angular_eig_freq,
-                                self.eig_val,
-                                self.eig_vec,
+                                m,
+                                k,
+                                angular_eig_freq,
+                                eig_val,
+                                eig_vec,
                                 no_modes,
                             ],
                             open(p_file, "wb"),
@@ -142,56 +215,46 @@ class MK_model(object):
             else:  # read from pyansys - from rst file
                 # print("Reading RST file")
 
-                self.m += sp.sparse.triu(self.m, 1).T
-                self.k += sp.sparse.triu(self.k, 1).T
+                m += sp.sparse.triu(m, 1).T
+                k += sp.sparse.triu(k, 1).T
 
-                self._k = self.k + diags(
-                    np.random.random(self.k.shape[0]) / 1e20,
-                    shape=self.k.shape,
+                _k = k + diags(
+                    np.random.random(k.shape[0]) / 1e20, shape=k.shape
                 )  # avoid error
 
-                (
-                    self.angular_eig_freq,
-                    self.eig_val,
-                    self.eig_vec,
-                    self.eig_vec_strain,
-                ) = self.get_values_from_rst(rst)
+                angular_eig_freq, eig_val, eig_vec, eig_vec_strain = (
+                    cls.get_values_from_rst(rst)
+                )
                 if (
-                    len(self.angular_eig_freq) >= self.no_modes
+                    len(angular_eig_freq) >= no_modes
                 ):  # truncation of results in .rst file to match the desired number of modes in ``no_modes`` parameter
-                    self.angular_eig_freq = self.angular_eig_freq[
-                        : self.no_modes
-                    ]
-                    self.eig_val = self.eig_val[: self.no_modes]
-                    self.eig_vec = self.eig_vec[:, : self.no_modes]
+                    angular_eig_freq = angular_eig_freq[:no_modes]
+                    eig_val = eig_val[:no_modes]
+                    eig_vec = eig_vec[:, :no_modes]
                     try:
-                        self.eig_vec_strain = self.eig_vec_strain[
-                            :, : self.no_modes
-                        ]
+                        eig_vec_strain = eig_vec_strain[:, :no_modes]
                     except:  # if the strain is not included in the .rst file, then the ``self.eig_vec_strain`` is just left as an empty array
                         pass
                 else:
-                    _warn_changed_no_modes_rst(
-                        self.no_modes, len(self.angular_eig_freq)
-                    )
-                    self.no_modes = len(self.angular_eig_freq)
+                    _warn_changed_no_modes_rst(no_modes, len(angular_eig_freq))
+                    no_modes = len(angular_eig_freq)
 
         elif rst_file is not None and full_file is None:
             # if only the .rst file is defined, then the mass and stiffness matrices are not available
             # the solution to the eigenvalue problem is read from the .rst file
             model = dpf.Model(rst_file)
             simulation = post.load_simulation(rst_file)
-            self.units = simulation.units
+            units = simulation.units
             displacement = simulation.displacement(all_sets=True, norm=False)
             if 'complex' in displacement.columns.names:
-                self.damped_solver = True
+                damped_solver = True
             else:
-                self.damped_solver = False
+                damped_solver = False
 
             nodes = simulation.mesh.coordinates.array
             eig_vec = []
             sort_ix = np.argsort(displacement.axes[0].node_ids.values)
-            if self.damped_solver:
+            if damped_solver:
                 nat_freq_imag = (
                     simulation.time_freq_support.time_frequencies.data
                 )
@@ -201,11 +264,11 @@ class MK_model(object):
                 nat_freq = (
                     (nat_freq_real + 1.0j * nat_freq_imag) * 2 * np.pi
                 )  # from Hz to rad/s
-                self.angular_eig_freq = nat_freq
-                self.eig_val = nat_freq
-                self.angular_eig_freq_undamped = np.abs(nat_freq)
-                damping_ratio = -nat_freq.real / self.angular_eig_freq_undamped
-                self.damped_modes = (damping_ratio > 1e-5) & (
+                angular_eig_freq = nat_freq
+                eig_val = nat_freq
+                angular_eig_freq_undamped = np.abs(nat_freq)
+                damping_ratio = -nat_freq.real / angular_eig_freq_undamped
+                damped_modes = (damping_ratio > 1e-5) & (
                     damping_ratio < 0.999999
                 )
                 for i in range(1, len(nat_freq) + 1):
@@ -218,19 +281,19 @@ class MK_model(object):
                     eig_vec.append(_eig_vec_real + 1.0j * _eig_vec_imag)
                 eig_vec = np.asarray(eig_vec)
                 _eig_vec = eig_vec.reshape(eig_vec.shape[0], -1).T
-                a_normalized_eig_vec = _eig_vec[:, self.damped_modes] * (
+                a_normalized_eig_vec = _eig_vec[:, damped_modes] * (
                     np.e ** (-1.0j * np.pi / 4)
-                    / np.sqrt(2 * self.eig_val[self.damped_modes].imag)
+                    / np.sqrt(2 * eig_val[damped_modes].imag)
                 )
-                _eig_vec[:, self.damped_modes] = a_normalized_eig_vec
+                _eig_vec[:, damped_modes] = a_normalized_eig_vec
             else:
                 nat_freq = (
                     simulation.time_freq_support.time_frequencies.data
                     * 2
                     * np.pi
                 )  # from Hz to rad/s
-                self.angular_eig_freq = nat_freq
-                self.eig_val = nat_freq**2
+                angular_eig_freq = nat_freq
+                eig_val = nat_freq**2
                 for i in range(1, len(nat_freq) + 1):
                     eig_vec.append(
                         displacement.select(set_ids=i).array[sort_ix]
@@ -244,74 +307,84 @@ class MK_model(object):
             _dof_ref[1::3, 1] = 1
             _dof_ref[2::3, 1] = 2
 
-            self.nodes = nodes * scale
-            self.mesh = vtk_helper.dpf_mesh_to_vtk_op(
-                model.metadata.meshed_region
-            )
-            self.mesh.points *= scale
-            self.pts = self.mesh.points.copy()
-            self.eig_vec = _eig_vec
-            self.dof_ref = _dof_ref
-            self.rotation_included = False
-            if no_modes > len(self.nodes):
-                self.no_modes = len(self.nodes)
-            else:
-                self.no_modes = no_modes
-            if no_modes > len(self.angular_eig_freq):
-                _warn_changed_no_modes_rst(
-                    self.no_modes, len(self.angular_eig_freq)
-                )
-                self.no_modes = len(self.angular_eig_freq)
+            nodes = nodes * scale
+            mesh = vtk_helper.dpf_mesh_to_vtk_op(model.metadata.meshed_region)
+            mesh.points *= scale
+            pts = mesh.points.copy()
+            eig_vec = _eig_vec
+            dof_ref = _dof_ref
+            rotation_included = False
+            if no_modes > len(dof_ref):
+                no_modes = len(dof_ref)
+            if no_modes > len(angular_eig_freq):
+                _warn_changed_no_modes_rst(no_modes, len(angular_eig_freq))
+                no_modes = len(angular_eig_freq)
 
         elif (manual_mass_matrix is not None) and (
             manual_stiffness_matrix is not None
-        ):  # if mass and stiffness matrices are manualy defined
-            self.k, self.m = manual_stiffness_matrix, manual_mass_matrix
-            self._k = self.k + diags(
-                np.random.random(self.k.shape[0]) / 1e20, shape=self.k.shape
+        ):  # if mass and stiffness matrices are manually defined
+            k, m = manual_stiffness_matrix, manual_mass_matrix
+            _k = k + diags(
+                np.random.random(k.shape[0]) / 1e20, shape=k.shape
             )  # avoid error
-            if no_modes > len(self.k):
-                self.no_modes = len(self.k)
+            if no_modes > len(k):
+                no_modes = len(k)
             else:
-                self.no_modes = no_modes
-            self._all = False
-            self.rotation_included = False
+                no_modes = no_modes
+            _all = False
+            rotation_included = False
 
             p_file = '{}.pkl'.format("mass_stiffness_matrices")
             same = False
             if allow_pickle and path.exists(p_file):
-                same = self._pickle_check(p_file, no_modes)
+                same = cls.pickle_check(p_file, no_modes, m, k)
                 if same:
-                    (
-                        self.m,
-                        self.k,
-                        self.angular_eig_freq,
-                        self.eig_val,
-                        self.eig_vec,
-                        no_modes,
-                    ) = pickle.load(open(p_file, "rb"))
+                    m, k, angular_eig_freq, eig_val, eig_vec, no_modes = (
+                        pickle.load(open(p_file, "rb"))
+                    )
                 # solve the problem
                 if same == False or recalculate == True:
-                    self.angular_eig_freq, self.eig_val, self.eig_vec = (
-                        self.eig_solve(self.m, self._k, no_modes)
+                    angular_eig_freq, eig_val, eig_vec = cls.eig_solve(
+                        m, _k, no_modes
                     )
 
                     if allow_pickle:
                         pickle.dump(
                             [
-                                self.m,
-                                self.k,
-                                self.angular_eig_freq,
-                                self.eig_val,
-                                self.eig_vec,
+                                m,
+                                k,
+                                angular_eig_freq,
+                                eig_val,
+                                eig_vec,
                                 no_modes,
                             ],
                             open(p_file, "wb"),
                         )
             else:
-                self.angular_eig_freq, self.eig_val, self.eig_vec = (
-                    self.eig_solve(self.m, self._k, no_modes)
+                angular_eig_freq, eig_val, eig_vec = cls.eig_solve(
+                    m, _k, no_modes
                 )
+
+        return cls(
+            nodes=nodes,
+            pts=pts,
+            mesh=mesh,
+            dof_ref=dof_ref,
+            k=k,
+            _k=_k,
+            m=m,
+            eig_val=eig_val,
+            angular_eig_freq=angular_eig_freq,
+            eig_vec=eig_vec,
+            eig_vec_strain=eig_vec_strain,
+            no_modes=no_modes,
+            rotation_included=rotation_included,
+            damped_solver=damped_solver,
+            damped_modes=damped_modes,
+            scale=scale,
+            units=units,
+            _all=_all,
+        )
 
     @property
     def eig_freq(self):
@@ -378,6 +451,10 @@ class MK_model(object):
                 )
         if hasattr(self, 'damped_solver'):
             hdf5_file.create_dataset("damped_solver", data=self.damped_solver)
+            if self.damped_solver:
+                hdf5_file.create_dataset(
+                    "damped_modes", data=self.damped_modes
+                )
         hdf5_file.close()
 
         # save mesh to vtk
@@ -398,20 +475,6 @@ class MK_model(object):
         else:
             print(f"Model saved to {file_name}.hdf5 and {file_name}.vtk")
 
-    def _pickle_check(self, p_file, no_modes):
-        """
-        The function checks if the defined mass and stiffness matrices are the same as were defined in the saved pickle file.
-        Will be depricated once MK_model is removed.
-
-        :param p_file: name of pickle file
-        :type p_file: array
-        :param no_modes: number of modes to be included in output of the eigenvalue computation
-        :type no_modes: int
-
-        :rtype: bool
-        """
-        return self.pickle_check(p_file, no_modes, self.m, self.k)
-
     @staticmethod
     def pickle_check(p_file, no_modes, m, k):
         """The function checks if the defined mass and stiffness matrices are the same as were defined in the saved pickle file.
@@ -420,10 +483,10 @@ class MK_model(object):
         :type p_file: array
         :param no_modes: number of modes to be included in output of the eigenvalue computation
         :type no_modes: int
-        :param M: mass matrix
-        :type M: scipy.sparse
-        :param K: stiffness matrix
-        :type K: scipy.sparse
+        :param m: mass matrix
+        :type m: scipy.sparse
+        :param k: stiffness matrix
+        :type k: scipy.sparse
 
         :rtype: bool
         """
@@ -447,7 +510,11 @@ class MK_model(object):
 
         :param grid: grid definition in form of pyvista.PolyData
         :type grid: pyvista
-        :param dof_ref: definition of DoFs inside ``MK_model`` in form of 2D matrix, dimensions nx2, where n is the dimension of square mass or stiffness matrix. The first column represents the index of node location, starting with 1, the second column represents direction of this DoF: 0-x, 1-y, 2-z.
+        :param dof_ref: definition of DoFs inside ``Model`` in form of 2D
+            matrix, dimensions nx2, where n is the dimension of square mass or
+            stiffness matrix. The first column represents the index of node
+            location, starting with 1, the second column represents direction
+            of this DoF: 0-x, 1-y, 2-z.
         :type dof_ref: array
         """
         self.mesh = grid
@@ -512,7 +579,8 @@ class MK_model(object):
 
     def find_nearest_locations(self, points, **kwargs):
         """
-        This function finds the nearest coordinate locations of defined points array in the corresponding MK model mesh.
+        This function finds the nearest coordinate locations of defined points
+        array in the corresponding Model mesh.
 
         :param points: nodal coordinates of points in 3D space
         :type points: array(float)
@@ -753,10 +821,10 @@ class MK_model(object):
 
         omega = 2 * np.pi * _freq
 
-        K_temp = np.array(self._k[np.newaxis]).repeat(len(_freq), axis=0)
-        M_temp = np.array(self.m[np.newaxis]).repeat(len(_freq), axis=0)
+        k_temp = np.array(self._k[np.newaxis]).repeat(len(_freq), axis=0)
+        m_temp = np.array(self.m[np.newaxis]).repeat(len(_freq), axis=0)
         frf_matrix = np.linalg.inv(
-            K_temp - np.einsum("i,ijk->ijk", omega**2, M_temp)
+            k_temp - np.einsum("i,ijk->ijk", omega**2, m_temp)
         )
 
         if frf_type == "receptance":
@@ -809,7 +877,7 @@ class MK_model(object):
         :type frf_type: str
         :param _all: synthetize response at all nodes - can be usefull to animate frfs
         :type _all, optional: boolean
-        :param n_dim: number of DoFs per one node in MK model (default is 3)
+        :param n_dim: number of DoFs per one node in Model (default is 3)
         :type n_dim, optional: boolean
         """
 
@@ -910,7 +978,7 @@ class MK_model(object):
         :type frf_type: str
         :param _all: synthetize response at all nodes - can be usefull to animate frfs
         :type _all, optional: boolean
-        :param n_dim: number of DoFs per one node in MK model (default is 3)
+        :param n_dim: number of DoFs per one node in Model (default is 3)
         :type n_dim, optional: boolean
         """
 
@@ -1198,371 +1266,6 @@ class MK_model(object):
         )
 
         self.frf_noise = self.frf + noise
-
-
-class Model(MK_model):
-    def __init__(
-        self,
-        nodes=None,
-        pts=None,
-        mesh=None,
-        dof_ref=None,
-        k=None,
-        _k=None,
-        m=None,
-        eig_val=None,
-        angular_eig_freq=None,
-        eig_vec=None,
-        eig_vec_strain=None,
-        no_modes=None,
-        rotation_included=False,
-        damped_solver=False,
-        scale=1,
-        units=None,
-        _all=False,
-    ):
-        """
-        Initialization of the Model.
-        """
-        self.nodes = nodes
-        self.pts = pts
-        self.mesh = mesh
-        self.dof_ref = dof_ref
-        self.k = k
-        self._k = _k
-        self.m = m
-        self.eig_val = eig_val
-        self.angular_eig_freq = angular_eig_freq
-        self.eig_vec = eig_vec
-        self.eig_vec_strain = eig_vec_strain
-        self.no_modes = no_modes
-        self.rotation_included = rotation_included
-        self.damped_solver = damped_solver
-        self.scale = scale
-        self.units = units
-        self._all = _all
-
-        if not angular_eig_freq is None:
-            self.eig_freq = angular_eig_freq / (2 * np.pi)
-        else:
-            self.eig_freq = None
-
-    @classmethod
-    def from_save(cls, directory='./', file_name='file'):
-        """
-        Load the model from .vtk and .hdf5 files.
-        """
-        vtk_file = os.path.join(directory, f"{file_name}.vtk")
-        hdf5_file = os.path.join(directory, f"{file_name}.hdf5")
-        json_file = os.path.join(directory, f"{file_name}.json")
-        if os.path.exists(json_file):
-            with open(json_file, 'r') as f:
-                units = json.load(f)
-        else:
-            units = None
-
-        # Load the mesh from the .vtk file
-        mesh = pv.read(vtk_file)
-
-        # Load the attributes from the .hdf5 file
-        with h5py.File(hdf5_file, 'r') as f:
-            data = {key: f[key][()] for key in f.keys()}
-
-        return cls(mesh=mesh, units=units, **data)
-
-    @classmethod
-    def from_ansys(
-        cls,
-        rst_file=None,
-        full_file=None,
-        manual_mass_matrix=None,
-        manual_stiffness_matrix=None,
-        no_modes=100,
-        allow_pickle=True,
-        recalculate=False,
-        scale=1,
-        read_rst=False,
-    ):
-        """
-        Initialization of the finite element model. Mass and stiffness matrices are imported and also nodes, DoFs and complete mesh of finite elements are defined.
-        If parameter ``recalculate`` is ``Ture`` eigenvalues and eigenvectors are calculated.
-        For faster processing by default pickle file is generated where mass and stiffness matrices are stored and also computed eigenvalues, eigenvectors and used number of modes.
-        If changes are detected in the mass or stiffness matrix with respect to the stored pickle file, the calculation of eigenvalues and eigenvectors is repeated.
-
-        :param rst_file: path of the .rst file exported from Ansys
-        :type rst_file: str
-        :param full_file: path of the .full file exported from Ansys
-        :type full_file: str
-        :param no_modes: number of modes to be included in output of the eigenvalue computation
-        :type no_modes: int
-        :param allow_pickle: if ``True``, pickle file will be generated to store data or will pickle file be used to load data
-        :type allow_pickle: bool
-        :param recalculate: if ``False`` just mass and stiffness matrices with corresponding nodes and their DoFs will be imported. If ``True`` also the eigenvalue problem will be solved.
-        :type recalculate: bool
-        :param scale: distance scaling factor
-        :type scale: float
-        :param read_rst: if ``True`` reads the eigenvalue solution directly from .rst file
-        :type read_rst: bool
-        """
-
-        nodes = None
-        pts = None
-        mesh = None
-        dof_ref = None
-        k = None
-        _k = None
-        m = None
-        eig_val = None
-        angular_eig_freq = None
-        eig_vec = None
-        eig_vec_strain = None
-        rotation_included = False
-        damped_solver = False
-        _all = False
-        units = None
-
-        if (
-            rst_file and full_file
-        ):  # check if rest and full files are defined, that mass and stiffness matrices will be importd from there
-
-            rst = pymapdl_reader.read_binary(rst_file)
-
-            # new version of pyansys
-            nodes = rst.mesh.nodes * scale  # only translational dofs
-            mesh = rst.grid
-            mesh.points *= scale
-            pts = mesh.points.copy()
-            _all = False
-
-            full = pymapdl_reader.read_binary(full_file)
-            dof_ref, K_triu, M_triu = full.load_km(
-                sort=True
-            )  # dof_ref: 0-x 1-y 2-z
-            m = M_triu + sp.sparse.triu(M_triu, 1).T
-            k = K_triu + sp.sparse.triu(K_triu, 1).T
-            _k = k + diags(
-                np.random.random(k.shape[0]) / 1e20, shape=k.shape
-            )  # avoid error
-
-            if dof_ref[0, 0] != 1:
-                dof_ref[:, 0] = dof_ref[:, 0] - (dof_ref[0, 0] - 1)
-
-            if no_modes > len(dof_ref):
-                no_modes = len(dof_ref)
-
-            if np.max(dof_ref[:, 1]) == 5:
-                rotation_included = True
-            elif np.max(dof_ref[:, 1]) == 2:
-                rotation_included = False
-
-            # an option to read directly the .rst file
-            if read_rst == False:
-                # print("evaluating M and K matrices")
-                p_file = '{}.pkl'.format(full_file)
-                # check if there is a .pkl file
-                same = False
-                if allow_pickle and path.exists(p_file):
-
-                    same = cls.pickle_check(p_file, no_modes, m, k)
-                    if same:
-                        m, k, angular_eig_freq, eig_val, eig_vec, no_modes = (
-                            pickle.load(open(p_file, "rb"))
-                        )
-                    # solve the problem
-                else:
-                    angular_eig_freq, eig_val, eig_vec = cls.eig_solve(
-                        m, _k, no_modes
-                    )
-
-                if same == False or recalculate == True:
-                    angular_eig_freq, eig_val, eig_vec = cls.eig_solve(
-                        m, _k, no_modes
-                    )
-
-                    if allow_pickle:
-                        pickle.dump(
-                            [
-                                m,
-                                k,
-                                angular_eig_freq,
-                                eig_val,
-                                eig_vec,
-                                no_modes,
-                            ],
-                            open(p_file, "wb"),
-                        )
-            else:  # read from pyansys - from rst file
-                # print("Reading RST file")
-
-                m += sp.sparse.triu(m, 1).T
-                k += sp.sparse.triu(k, 1).T
-
-                _k = k + diags(
-                    np.random.random(k.shape[0]) / 1e20, shape=k.shape
-                )  # avoid error
-
-                angular_eig_freq, eig_val, eig_vec, eig_vec_strain = (
-                    cls.get_values_from_rst(rst)
-                )
-                if (
-                    len(angular_eig_freq) >= no_modes
-                ):  # truncation of results in .rst file to match the desired number of modes in ``no_modes`` parameter
-                    angular_eig_freq = angular_eig_freq[:no_modes]
-                    eig_val = eig_val[:no_modes]
-                    eig_vec = eig_vec[:, :no_modes]
-                    try:
-                        eig_vec_strain = eig_vec_strain[:, :no_modes]
-                    except:  # if the strain is not included in the .rst file, then the ``self.eig_vec_strain`` is just left as an empty array
-                        pass
-                else:
-                    _warn_changed_no_modes_rst(no_modes, len(angular_eig_freq))
-                    no_modes = len(angular_eig_freq)
-
-        elif rst_file is not None and full_file is None:
-            # if only the .rst file is defined, then the mass and stiffness matrices are not available
-            # the solution to the eigenvalue problem is read from the .rst file
-            model = dpf.Model(rst_file)
-            simulation = post.load_simulation(rst_file)
-            units = simulation.units
-            displacement = simulation.displacement(all_sets=True, norm=False)
-            if 'complex' in displacement.columns.names:
-                damped_solver = True
-            else:
-                damped_solver = False
-
-            nodes = simulation.mesh.coordinates.array
-            eig_vec = []
-            sort_ix = np.argsort(displacement.axes[0].node_ids.values)
-            if damped_solver:
-                nat_freq_imag = (
-                    simulation.time_freq_support.time_frequencies.data
-                )
-                nat_freq_real = (
-                    simulation.time_freq_support.complex_frequencies.data
-                )
-                nat_freq = (
-                    (nat_freq_real + 1.0j * nat_freq_imag) * 2 * np.pi
-                )  # from Hz to rad/s
-                angular_eig_freq = nat_freq
-                eig_val = nat_freq
-                angular_eig_freq_undamped = np.abs(nat_freq)
-                damping_ratio = -nat_freq.real / angular_eig_freq_undamped
-                damped_modes = (damping_ratio > 1e-5) & (
-                    damping_ratio < 0.999999
-                )
-                for i in range(1, len(nat_freq) + 1):
-                    _eig_vec_real = displacement.select(
-                        set_ids=i, complex=0
-                    ).array[sort_ix]
-                    _eig_vec_imag = displacement.select(
-                        set_ids=i, complex=1
-                    ).array[sort_ix]
-                    eig_vec.append(_eig_vec_real + 1.0j * _eig_vec_imag)
-                eig_vec = np.asarray(eig_vec)
-                _eig_vec = eig_vec.reshape(eig_vec.shape[0], -1).T
-                a_normalized_eig_vec = _eig_vec[:, damped_modes] * (
-                    np.e ** (-1.0j * np.pi / 4)
-                    / np.sqrt(2 * eig_val[damped_modes].imag)
-                )
-                _eig_vec[:, damped_modes] = a_normalized_eig_vec
-            else:
-                nat_freq = (
-                    simulation.time_freq_support.time_frequencies.data
-                    * 2
-                    * np.pi
-                )  # from Hz to rad/s
-                angular_eig_freq = nat_freq
-                eig_val = nat_freq**2
-                for i in range(1, len(nat_freq) + 1):
-                    eig_vec.append(
-                        displacement.select(set_ids=i).array[sort_ix]
-                    )
-                eig_vec = np.asarray(eig_vec)
-                _eig_vec = eig_vec.reshape(eig_vec.shape[0], -1).T
-            _dof_ref = np.zeros(
-                (int(nodes.shape[0] * nodes.shape[1]), 2), dtype=int
-            )
-            _dof_ref[:, 0] = np.repeat(np.arange(1, nodes.shape[0] + 1), 3)
-            _dof_ref[1::3, 1] = 1
-            _dof_ref[2::3, 1] = 2
-
-            nodes = nodes * scale
-            mesh = vtk_helper.dpf_mesh_to_vtk_op(model.metadata.meshed_region)
-            mesh.points *= scale
-            pts = mesh.points.copy()
-            eig_vec = _eig_vec
-            dof_ref = _dof_ref
-            rotation_included = False
-            if no_modes > len(dof_ref):
-                no_modes = len(dof_ref)
-            if no_modes > len(angular_eig_freq):
-                _warn_changed_no_modes_rst(no_modes, len(angular_eig_freq))
-                no_modes = len(angular_eig_freq)
-
-        elif (manual_mass_matrix is not None) and (
-            manual_stiffness_matrix is not None
-        ):  # if mass and stiffness matrices are manually defined
-            K, m = manual_stiffness_matrix, manual_mass_matrix
-            _k = k + diags(
-                np.random.random(k.shape[0]) / 1e20, shape=k.shape
-            )  # avoid error
-            if no_modes > len(K):
-                no_modes = len(K)
-            else:
-                no_modes = no_modes
-            _all = False
-            rotation_included = False
-
-            p_file = '{}.pkl'.format("mass_stiffness_matrices")
-            same = False
-            if allow_pickle and path.exists(p_file):
-                same = cls.pickle_check(p_file, no_modes, m, k)
-                if same:
-                    m, k, angular_eig_freq, eig_val, eig_vec, no_modes = (
-                        pickle.load(open(p_file, "rb"))
-                    )
-                # solve the problem
-                if same == False or recalculate == True:
-                    angular_eig_freq, eig_val, eig_vec = cls.eig_solve(
-                        m, _k, no_modes
-                    )
-
-                    if allow_pickle:
-                        pickle.dump(
-                            [
-                                m,
-                                k,
-                                angular_eig_freq,
-                                eig_val,
-                                eig_vec,
-                                no_modes,
-                            ],
-                            open(p_file, "wb"),
-                        )
-            else:
-                angular_eig_freq, eig_val, eig_vec = cls.eig_solve(
-                    m, _k, no_modes
-                )
-
-        return cls(
-            nodes=nodes,
-            pts=pts,
-            mesh=mesh,
-            dof_ref=dof_ref,
-            k=k,
-            _k=_k,
-            m=m,
-            eig_val=eig_val,
-            angular_eig_freq=angular_eig_freq,
-            eig_vec=eig_vec,
-            eig_vec_strain=eig_vec_strain,
-            no_modes=no_modes,
-            rotation_included=rotation_included,
-            damped_solver=damped_solver,
-            scale=scale,
-            units=units,
-            _all=_all,
-        )
 
     def extract_surface(self):
         """
