@@ -1,4 +1,3 @@
-import matplotlib.pyplot as plt
 import numpy as np
 from numpy import cross, eye
 from scipy.linalg import expm, norm
@@ -66,8 +65,8 @@ def mcf(mod):
     sxx = np.real(mod).T @ np.real(mod)
     syy = np.imag(mod).T @ np.imag(mod)
     sxy = np.real(mod).T @ np.imag(mod)
-    mcf = 1 - ((sxx - syy) ** 2 + 4 * sxy**2) / ((sxx + syy) ** 2)
-    return mcf
+    _mcf = 1 - ((sxx - syy) ** 2 + 4 * sxy**2) / ((sxx + syy) ** 2)
+    return _mcf
 
 
 def flatten_frfs(frf):
@@ -103,51 +102,6 @@ def unflatten_modes(_modes_acc, frf):
     for i in range(frf.shape[0]):
         new_mode[i, :, :] = _modes_acc[i * _len : (i + 1) * _len, :]
     return new_mode
-
-
-def complex_plot(mode_shape, color="k"):
-    """
-    Plots a mode shape on a radial plot.
-
-    :param mode_shape: mode shape
-    :type mode_shape: array(float)
-    :param color: Color of the plot
-    :type color: str
-    """
-    plt.figure(figsize=(3, 3))
-    ax1 = plt.subplot(111, projection="polar")
-
-    for x in mode_shape:
-        ax1.plot(
-            [0, np.angle(x)],
-            [0, np.abs(x)],
-            marker='.',
-            color=color,
-            alpha=0.5,
-        )
-    plt.yticks([])
-
-
-def complex_plot_3d(mode_shape):
-    """
-    Plots a 3D mode shape on a radial plot.
-
-    :param mode_shape: 3D mode shape
-    :type mode_shape: array(float)
-    """
-    plt.figure(figsize=(3, 3))
-    ax1 = plt.subplot(111, projection="polar")
-
-    for i, color in enumerate(["tab:red", "tab:green", "tab:blue"]):
-        for x in mode_shape[:, i]:
-            ax1.plot(
-                [0, np.angle(x)],
-                [0, np.abs(x)],
-                marker='.',
-                color=color,
-                alpha=0.5,
-            )
-    plt.yticks([])
 
 
 def mode_animation(
@@ -1063,8 +1017,6 @@ __all__ = [
     'mcf',
     'flatten_frfs',
     'unflatten_modes',
-    'complex_plot',
-    'complex_plot_3d',
     'mode_animation',
     'mac',
     'coh_frf',

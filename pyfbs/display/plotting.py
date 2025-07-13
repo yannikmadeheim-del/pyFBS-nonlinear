@@ -1,6 +1,7 @@
 import altair as alt
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 
 alt.data_transformers.enable('json')
 alt.data_transformers.enable('default', max_rows=None)
@@ -111,6 +112,51 @@ def imshow(data, width=200, height=200, title='', cmap='turbo'):
     )
 
     return imshow
+
+
+def complex_plot(mode_shape, color="k"):
+    """
+    Plots a mode shape on a radial plot.
+
+    :param mode_shape: mode shape
+    :type mode_shape: array(float)
+    :param color: Color of the plot
+    :type color: str
+    """
+    plt.figure(figsize=(3, 3))
+    ax1 = plt.subplot(111, projection="polar")
+
+    for x in mode_shape:
+        ax1.plot(
+            [0, np.angle(x)],
+            [0, np.abs(x)],
+            marker='.',
+            color=color,
+            alpha=0.5,
+        )
+    plt.yticks([])
+
+
+def complex_plot_3d(mode_shape):
+    """
+    Plots a 3D mode shape on a radial plot.
+
+    :param mode_shape: 3D mode shape
+    :type mode_shape: array(float)
+    """
+    plt.figure(figsize=(3, 3))
+    ax1 = plt.subplot(111, projection="polar")
+
+    for i, color in enumerate(["tab:red", "tab:green", "tab:blue"]):
+        for x in mode_shape[:, i]:
+            ax1.plot(
+                [0, np.angle(x)],
+                [0, np.abs(x)],
+                marker='.',
+                color=color,
+                alpha=0.5,
+            )
+    plt.yticks([])
 
 
 def plot_frf(freq, frf_data, width=500, height=400, circle_size=4e3):
@@ -734,6 +780,8 @@ def runup_data(time, signal, block_lenght=1, upper_frequency=100, plot=True):
 __all__ = [
     'barchart',
     'imshow',
+    'complex_plot',
+    'complex_plot_3d',
     'plot_frf',
     'plot_frequency_response',
     'comparison_plot',
