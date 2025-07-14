@@ -36,7 +36,8 @@ class Model:
         rotation_included=False,
         damped_solver=False,
         damped_modes=None,
-        scale=1,
+        mesh_scale=1,
+        results_scale=1,
         units=None,
         _all=False,
     ):
@@ -58,7 +59,8 @@ class Model:
         self.rotation_included = rotation_included
         self.damped_solver = damped_solver
         self.damped_modes = damped_modes
-        self.scale = scale
+        self._mesh_scale = mesh_scale
+        self._results_scale = results_scale
         self.units = units
         self._all = _all
 
@@ -100,7 +102,8 @@ class Model:
         no_modes=100,
         allow_pickle=True,
         recalculate=False,
-        scale=1,
+        mesh_scale=1,
+        results_scale=1,
         read_rst=False,
     ):
         """
@@ -119,8 +122,10 @@ class Model:
         :type allow_pickle: bool
         :param recalculate: if ``False`` just mass and stiffness matrices with corresponding nodes and their DoFs will be imported. If ``True`` also the eigenvalue problem will be solved.
         :type recalculate: bool
-        :param scale: distance scaling factor
-        :type scale: float
+        :param mesh_scale: mesh scaling factor
+        :type mesh_scale: int | float
+        :param results_scale: results scaling factor (eigenvectors and FRFs, if defined)
+        :type results_scale: int | float
         :param read_rst: if ``True`` reads the eigenvalue solution directly from .rst file
         :type read_rst: bool
         """
@@ -149,9 +154,9 @@ class Model:
             rst = pymapdl_reader.read_binary(rst_file)
 
             # new version of pyansys
-            nodes = rst.mesh.nodes * scale  # only translational dofs
+            nodes = rst.mesh.nodes * mesh_scale  # only translational dofs
             mesh = rst.grid
-            mesh.points *= scale
+            mesh.points *= mesh_scale
             pts = mesh.points.copy()
             _all = False
 
@@ -307,9 +312,9 @@ class Model:
             _dof_ref[1::3, 1] = 1
             _dof_ref[2::3, 1] = 2
 
-            nodes = nodes * scale
+            nodes = nodes * mesh_scale
             mesh = vtk_helper.dpf_mesh_to_vtk_op(model.metadata.meshed_region)
-            mesh.points *= scale
+            mesh.points *= mesh_scale
             pts = mesh.points.copy()
             eig_vec = _eig_vec
             dof_ref = _dof_ref
@@ -364,6 +369,7 @@ class Model:
                 angular_eig_freq, eig_val, eig_vec = cls.eig_solve(
                     m, _k, no_modes
                 )
+        eig_vec *= results_scale
 
         return cls(
             nodes=nodes,
@@ -381,7 +387,8 @@ class Model:
             rotation_included=rotation_included,
             damped_solver=damped_solver,
             damped_modes=damped_modes,
-            scale=scale,
+            mesh_scale=mesh_scale,
+            results_scale=results_scale,
             units=units,
             _all=_all,
         )
@@ -395,6 +402,14 @@ class Model:
         """
         return self._eig_freq
 
+    @eig_freq.setter
+    def eig_freq(self, _eig_freq):
+        self._eig_freq = _eig_freq
+        if _eig_freq is None:
+            self._angular_eig_freq = None
+        else:
+            self._angular_eig_freq = _eig_freq * (2 * np.pi)
+
     @property
     def angular_eig_freq(self):
         """
@@ -404,14 +419,6 @@ class Model:
         """
         return self._angular_eig_freq
 
-    @eig_freq.setter
-    def eig_freq(self, _eig_freq):
-        self._eig_freq = _eig_freq
-        if _eig_freq is None:
-            self._angular_eig_freq = None
-        else:
-            self._angular_eig_freq = _eig_freq * (2 * np.pi)
-
     @angular_eig_freq.setter
     def angular_eig_freq(self, _angular_eig_freq):
         self._angular_eig_freq = _angular_eig_freq
@@ -419,6 +426,42 @@ class Model:
             self._eig_freq = None
         else:
             self._eig_freq = _angular_eig_freq / (2 * np.pi)
+
+    @property
+    def mesh_scale(self):
+        """
+        Getter for _mesh_scale property, which is the mesh scaling factor.
+
+        :return: mesh scaling factor
+        """
+        return self._mesh_scale
+
+    def set_mesh_scale(self, mesh_scale):
+        if hasattr(self, '_mesh_scale'):
+            rescale_mesh = mesh_scale / self._mesh_scale
+            self.pts *= rescale_mesh
+            self.nodes *= rescale_mesh
+            self.mesh.points *= rescale_mesh
+        self._mesh_scale = mesh_scale
+
+    @property
+    def results_scale(self):
+        """
+        Getter for results_scale property, which is the results scaling factor.
+
+        :return: results scaling factor
+        """
+        return self._results_scale
+
+    def set_results_scale(self, results_scale):
+        if hasattr(self, '_results_scale'):
+            rescale_results = results_scale / self._results_scale
+        else:
+            rescale_results = results_scale
+        self._results_scale = results_scale
+        self.eig_vec *= rescale_results
+        if hasattr(self, 'frf'):
+            self.frf *= rescale_results
 
     def save(self, directory='./', file_name='file'):
         """
@@ -443,7 +486,8 @@ class Model:
         hdf5_file.create_dataset(
             "rotation_included", data=self.rotation_included
         )
-        hdf5_file.create_dataset("scale", data=self.scale)
+        hdf5_file.create_dataset("mesh_scale", data=self._mesh_scale)
+        hdf5_file.create_dataset("results_scale", data=self._results_scale)
         if hasattr(self, 'eig_vec_strain'):
             if self.eig_vec_strain is not None:
                 hdf5_file.create_dataset(
@@ -1344,7 +1388,9 @@ class Model:
                 no_modes=self.no_modes,
                 rotation_included=False,
                 damped_solver=self.damped_solver,
-                scale=self.scale,
+                damped_modes=self.damped_modes,
+                mesh_scale=self._mesh_scale,
+                results_scale=self._results_scale,
                 units=self.units,
                 _all=self._all,
             )
