@@ -36,8 +36,6 @@ class VPT(object):
     :type wu: 2D matrix (float), optional
     :param wf: Force weighting matrix for the interface impact points
     :type wf: 2D matrix (float), optional
-    :param sort_matrix: Sort transformation matrices
-    :type sort_matrix: bool, optional
     :param sort_grouping: Sort grouping numbers in the transformation matrices
     :type sort_grouping: bool, optional
 
@@ -53,10 +51,8 @@ class VPT(object):
         df_vp_imp: pd.DataFrame | None = None,
         wu: np.ndarray | None = None,
         wf: np.ndarray | None = None,
-        sort_matrix=True,
         sort_grouping=True,
     ):
-        self.sort_matrix = sort_matrix
         self.sort_grouping = sort_grouping
 
         # Load the physical input-output DoFs
@@ -135,27 +131,24 @@ class VPT(object):
         Ru = block_diag(*R_all, np.eye(np.count_nonzero(mask_u)))
 
         # sorting of the Ru matrix
-        if self.sort_matrix == True:
-            # sort on channels
-            _ov_u = np.concatenate(
-                (np.concatenate(ov_u), np.where(mask_u == 1)[0])
+        # sort on channels
+        _ov_u = np.concatenate(
+            (np.concatenate(ov_u), np.where(mask_u == 1)[0])
+        )
+        Ru = Ru[np.argsort(_ov_u, kind='stable'), :]
+        # sort on VPs
+        ind_vp = self._df_vp_chn['Grouping'].to_numpy()
+        _ind_vp = np.concatenate(
+            (
+                ind_vp,
+                self._df_chn.iloc[np.where(mask_u == 1)[0]]['Grouping'],
             )
-            Ru = Ru[np.argsort(_ov_u, kind='stable'), :]
-            # sort on VPs
-            ind_vp = self._df_vp_chn['Grouping'].to_numpy()
-            _ind_vp = np.concatenate(
-                (
-                    ind_vp,
-                    self._df_chn.iloc[np.where(mask_u == 1)[0]]['Grouping'],
-                )
-            )
-            Ru = Ru[:, np.argsort(_ind_vp, kind='stable')]
+        )
+        Ru = Ru[:, np.argsort(_ind_vp, kind='stable')]
 
-            if not self.sort_grouping:
-                unsort_ix = self._unsort_grouping(
-                    self._df_chn, self._df_vp_chn
-                )
-                Ru = Ru[:, unsort_ix]
+        if not self.sort_grouping:
+            unsort_ix = self._unsort_grouping(self._df_chn, self._df_vp_chn)
+            Ru = Ru[:, unsort_ix]
 
         # definition of weighting matrix
         wu = np.eye(np.max(Ru.shape))
@@ -215,27 +208,24 @@ class VPT(object):
         Rf = block_diag(*R_all, np.eye(np.count_nonzero(mask_f)))
 
         # sorting of the Rf matrix
-        if self.sort_matrix == True:
-            # sort on impacts
-            _ov_f = np.concatenate(
-                (np.concatenate(ov_f), np.where(mask_f == 1)[0])
+        # sort on impacts
+        _ov_f = np.concatenate(
+            (np.concatenate(ov_f), np.where(mask_f == 1)[0])
+        )
+        Rf = Rf[np.argsort(_ov_f), :]
+        # sort on VPs
+        ind_vpref = self._df_vp_imp['Grouping'].to_numpy()
+        _ind_vpref = np.concatenate(
+            (
+                ind_vpref,
+                self._df_imp.iloc[np.where(mask_f == 1)[0]]['Grouping'],
             )
-            Rf = Rf[np.argsort(_ov_f), :]
-            # sort on VPs
-            ind_vpref = self._df_vp_imp['Grouping'].to_numpy()
-            _ind_vpref = np.concatenate(
-                (
-                    ind_vpref,
-                    self._df_imp.iloc[np.where(mask_f == 1)[0]]['Grouping'],
-                )
-            )
-            Rf = Rf[:, np.argsort(_ind_vpref, kind='stable')]
+        )
+        Rf = Rf[:, np.argsort(_ind_vpref, kind='stable')]
 
-            if not self.sort_grouping:
-                unsort_ix = self._unsort_grouping(
-                    self._df_imp, self._df_vp_imp
-                )
-                Rf = Rf[:, unsort_ix]
+        if not self.sort_grouping:
+            unsort_ix = self._unsort_grouping(self._df_imp, self._df_vp_imp)
+            Rf = Rf[:, unsort_ix]
 
         # definition of weighting matrix
         wf = np.eye(np.max(Rf.shape))
