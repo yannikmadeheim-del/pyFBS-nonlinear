@@ -706,7 +706,9 @@ class View3D:
 
         return sphere, vp_actor
 
-    def acc_callback(self, point, orientation=None, fixed_rotation=None):
+    def acc_callback(
+        self, point, orientation=None, fixed_rotation=None, normal=None
+    ):
         """
         Interactive accelerometer callback function.
 
@@ -755,7 +757,14 @@ class View3D:
             color=["k", "r", "g", "b"],
             radius=size / 15,
         )
-        _gg.translate(point)
+        if normal is None:
+            _gg.translate(point)
+        else:
+            _gg.snap_outward = False
+            _point = point - normal * size / 2
+            _gg.translate(_point, snap=True)
+            _gg.translate(point)
+            _gg.snap_outward = True
         _gg.turn_on = True
         self.all_accs_dynamic.append(_gg)
 
@@ -879,7 +888,7 @@ class View3D:
             color=["k", "r", "g", "b"],
             radius=self.size / 15,
         )
-        _gg.translate(point)
+        _gg.translate(point, snap=True)
         _gg.turn_on = True
         self.all_imps_dynamic.append(_gg)
 
@@ -991,7 +1000,7 @@ class View3D:
         )
 
         _gg.turn_on = True
-        _gg.translate(point)
+        _gg.translate(point, snap=True)
 
         self.all_vps_dynamic.append(_gg)
 
@@ -1657,7 +1666,7 @@ class View3D:
         # Ray trace to find the closest point on the mesh
         final_point = self._ray_trace(point)
         if final_point is None:
-            return
+            return None, None
         # Proceed with placement
         cell_id = self.mesh.find_closest_cell(final_point)
         normal = self.mesh.cell_normals[cell_id]
@@ -1668,10 +1677,14 @@ class View3D:
 
     def impact_surface_callback(self, point):
         final_point, normal = self._ray_traced_point_and_normal(point)
+        if final_point is None:
+            return
         self.imp_callback(final_point, direction=-normal)
 
     def acc_surface_callback(self, point):
         final_point, normal = self._ray_traced_point_and_normal(point)
+        if final_point is None:
+            return
         rot = rotation_matrix_from_vectors(
             np.array(-normal), np.array([0.0, 0.0, 1.0])
         )
@@ -1682,10 +1695,12 @@ class View3D:
         orientation = np.asarray(r.as_euler('xyz', degrees=True))
         # just added static size of the accelerometer
         final_point += np.array(+normal) / 2 * self.size
-        self.acc_callback(final_point, orientation=orientation)
+        self.acc_callback(final_point, orientation=orientation, normal=normal)
 
     def vp_surface_callback(self, point):
         final_point, normal = self._ray_traced_point_and_normal(point)
+        if final_point is None:
+            return
         self.vp_callback(final_point)
 
 
