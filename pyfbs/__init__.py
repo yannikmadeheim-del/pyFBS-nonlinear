@@ -1,7 +1,7 @@
 __version__ = '1.0.0'
 import importlib as _importlib
 
-submodules = [
+_submodules = [
     'data',
     'display',
     'dsp',
@@ -15,12 +15,27 @@ submodules = [
     'utility',
 ]
 
-__all__ = submodules + [
-    '__version__',
+_utility_functions = [
+    'mcf',
+    'mac',
+    'coh',
+    'lac',
+    'cmif',
+    'tsvd',
+    'tpinv',
+    'reciprocity',
 ]
 
+__all__ = (
+    _submodules
+    + _utility_functions
+    + [
+        '__version__',
+    ]
+)
 
-__new_structure_dict = {
+
+_new_structure_dict = {
     'view3D': 'display.View3D',
     'SEMM': 'expansion.semm',
     'SEREP': 'expansion.serep',
@@ -31,40 +46,40 @@ __new_structure_dict = {
     'OSI': 'tpa',
 }
 
-__new_utility_dict = {
-    'modeshape_sync_lstsq': 'modeshape_sync_lstsq',
-    'modeshape_scaling_DP': 'modeshape_scaling_dp',
+_new_utility_dict = {
+    'modeshape_sync_lstsq': 'utility.modeshape_sync_lstsq',
+    'modeshape_scaling_DP': 'utility.modeshape_scaling_dp',
     'MCF': 'mcf',
-    'flatten_FRFs': 'flatten_frfs',
-    'unflatten_modes': 'unflatten_modes',
-    'mode_animation': 'mode_animation',
+    'flatten_FRFs': 'utility.flatten_frfs',
+    'unflatten_modes': 'utility.unflatten_modes',
+    'mode_animation': 'utility.mode_animation',
     'MAC': 'mac',
-    'coh_frf': 'coh_frf',
-    'dict_animation': 'dict_animation',
+    'coh_frf': 'utility.coh_frf',
+    'dict_animation': 'utility.dict_animation',
     'CMIF': 'cmif',
     'TSVD': 'tsvd',
-    'M': 'rotation_matrix',
-    'angle': 'angle',
-    'rotation_matrix_from_vectors': 'rotation_matrix_from_vectors',
-    'unit_vector': 'unit_vector',
-    'angle_between': 'angle_between',
-    'generate_channels_from_sensors': 'generate_channels_from_sensors',
-    'generate_sensors_from_channels': 'generate_sensors_from_channels',
-    'generate_VP_from_position': 'generate_vp_from_position',
+    'M': 'utility.rotation_matrix',
+    'angle': 'utility.angle',
+    'rotation_matrix_from_vectors': 'utility.rotation_matrix_from_vectors',
+    'unit_vector': 'utility.unit_vector',
+    'angle_between': 'utility.angle_between',
+    'generate_channels_from_sensors': 'utility.generate_channels_from_sensors',
+    'generate_sensors_from_channels': 'utility.generate_sensors_from_channels',
+    'generate_VP_from_position': 'utility.generate_vp_from_position',
     'coh_on_FRF': 'reciprocity',
-    'orient_in_global': 'orient_in_global',
-    'orient_in_global_2': 'orient_in_global_2',
-    'MCC': 'mcc',
-    'MPC': 'mpc',
-    'auralization': 'auralization',
-    'SSA_filter': 'ssa_filter',
-    'SSA_evaluate': 'ssa_evaluate',
-    'PRF': 'prf',
-    'ODS_FRF': 'ods_frf',
-    'ODS_FRF_averaging': 'ods_frf_averaging',
+    'orient_in_global': 'utility.orient_in_global',
+    'orient_in_global_2': 'utility.orient_in_global_2',
+    'MCC': 'utility.mcc',
+    'MPC': 'utility.mpc',
+    'auralization': 'utility.auralization',
+    'SSA_filter': 'utility.ssa_filter',
+    'SSA_evaluate': 'utility.ssa_evaluate',
+    'PRF': 'utility.prf',
+    'ODS_FRF': 'utility.ods_frf',
+    'ODS_FRF_averaging': 'utility.ods_frf_averaging',
 }
 
-__new_display_dict = {
+_new_display_dict = {
     'barchart': 'barchart',
     'imshow': 'imshow',
     'complex_plot': 'complex_plot',
@@ -81,13 +96,13 @@ __new_display_dict = {
 }
 
 
-def __attribute_error__(name):
-    if name in __new_structure_dict:
-        new_name = __new_structure_dict[name]
-    elif name in __new_utility_dict:
-        new_name = f'utility.{__new_utility_dict[name]}'
-    elif name in __new_display_dict:
-        new_name = f'display.{__new_display_dict[name]}'
+def _attribute_error(name):
+    if name in _new_structure_dict:
+        new_name = _new_structure_dict[name]
+    elif name in _new_utility_dict:
+        new_name = f'{_new_utility_dict[name]}'
+    elif name in _new_display_dict:
+        new_name = f'display.{_new_display_dict[name]}'
     else:
         raise AttributeError(f"Module 'pyfbs' has no attribute '{name}'")
 
@@ -107,7 +122,10 @@ def __dir__():
 
 
 def __getattr__(name):
-    if name in submodules:
+    if name in _submodules:
         return _importlib.import_module(f'pyfbs.{name}')
+    elif name in _utility_functions:
+        pyfbs_utility = _importlib.import_module('pyfbs.utility')
+        return getattr(pyfbs_utility, name)
     else:
-        __attribute_error__(name)
+        _attribute_error(name)

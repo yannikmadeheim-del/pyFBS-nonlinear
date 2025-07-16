@@ -232,7 +232,7 @@ def coh_frf(y_1, y_2, return_average=True):
     return coh(y_1, y_2, return_average=return_average)
 
 
-def coh(x, y, return_average=True):
+def coh(x, y, return_average=False):
     """
     Compute coherence of (complex or real-valued) signals
     x and y.
@@ -242,8 +242,6 @@ def coh(x, y, return_average=True):
     x, y : numpy.ndarray with identical shapes or at least
         shapes such that (x + y) returns a valid result.
     """
-    if x.shape != y.shape:
-        raise ValueError("Input arrays must have the same shape.")
     coh_xy = (
         ((x + y) * (x + y).conj()) / (2 * (x.conj() * x + y.conj() * y))
     ).real
@@ -251,6 +249,26 @@ def coh(x, y, return_average=True):
         return np.mean(coh_xy)
     else:
         return coh_xy
+
+
+def lac(x, y, return_average=False):
+    """
+    Compute LAC (local assurance criterion) of (complex or
+    real-valued) signals x and y.
+    -----------
+    Parameters:
+    -----------
+    x, y : numpy.ndarray with identical shapes or at least
+        shapes such that (x + y) returns a valid result.
+    """
+
+    lac_xy = (
+        (2 * np.abs(x.conj() * y)) / ((x.conj() * x) + (y.conj() * y))
+    ).real
+    if return_average:
+        return np.mean(lac_xy)
+    else:
+        return lac_xy
 
 
 def dict_animation(
@@ -404,8 +422,8 @@ def tsvd(
     :param trunc: Number of singular values not taken into account by
         reconstruction of the matrix
     :type reduction: int, optional
-    :param mode: removal of smallest or retaining of largest singular values
-        specified by `trunc`
+    :param mode: Mode of operation, either 'remove' or 'keep'. Removal of
+        smallest or retaining of largest `trunc` singular values
     :type mode: str
     :param return_components: If True, the right and left singular vectors
         and singular values are returned, otherwise reconstruction of the
@@ -417,10 +435,10 @@ def tsvd(
     u, s, vh = np.linalg.svd(matrix, full_matrices=False)
     if mode == 'remove':
         n = s.shape[-1] - trunc
-    elif mode == 'retain':
+    elif mode == 'keep':
         n = trunc
     else:
-        raise ValueError("`mode` must be 'remove' or 'retain'")
+        raise ValueError("`mode` must be 'remove' or 'keep'")
     if n < 0:
         raise ValueError(
             "Reduction value is higher than the number of singular values"
@@ -444,10 +462,10 @@ def tpinv(a: np.ndarray, trunc: int | None = None, mode: str = 'remove'):
         Cutoff for singular values. If None, the inverse is calculated without
         truncation. Trunc specifies the amount of truncation prior to the
         inversion. If `mode` is 'remove', `trunc` specifies the number of
-        smallest singular values to be set to zero. If `mode` is 'retain',
+        smallest singular values to be set to zero. If `mode` is 'keep',
         `trunc` specifies the number of largest singular values to retain.
     mode : str
-        Mode of operation, either 'remove' or 'retain'.
+        Mode of operation, either 'remove' or 'keep'.
     """
     tu, ts, tvh = tsvd(a, trunc=trunc, mode=mode, return_components=True)
     return np.swapaxes(tvh.conj(), -2, -1) @ np.swapaxes(
@@ -1021,6 +1039,7 @@ __all__ = [
     'mac',
     'coh_frf',
     'coh',
+    'lac',
     'dict_animation',
     'cmif',
     '_tsvd',
