@@ -1,13 +1,5 @@
 import numpy as np
-from numpy import cross, eye
-from scipy.linalg import expm, norm
-import pandas as pd
-from scipy.spatial.transform import Rotation
-from pyts.decomposition import SingularSpectrumAnalysis
-import altair as alt
-
-alt.data_transformers.enable('json')
-alt.data_transformers.enable('default', max_rows=None)
+import scipy
 
 
 def modeshape_sync_lstsq(mode_shape_vec):
@@ -483,7 +475,9 @@ def rotation_matrix(axis, theta):
     :type theta: float
     :return: Rotational matrix
     """
-    t = expm(cross(eye(3), axis / norm(axis) * (theta)))
+    t = scipy.linalg.expm(
+        np.cross(np.eye(3), axis / scipy.linalg.norm(axis) * (theta))
+    )
     return t
 
 
@@ -578,6 +572,8 @@ def generate_channels_from_sensors(df):
     :type df: pd.DataFrame
     :return: A DataFrame containing information on channels
     """
+    from scipy.spatial.transform import Rotation
+    import pandas as pd
 
     columns_chann = [
         "Name",
@@ -631,6 +627,8 @@ def generate_sensors_from_channels(df):
     :type df: pd.DataFrame
     :return: A DataFrame containing information on sensors
     """
+    from scipy.spatial.transform import Rotation
+    import pandas as pd
 
     columns_sen = [
         "Name",
@@ -690,6 +688,7 @@ def generate_vp_from_position(df):
     :return df_vp: A Dataframe containg full DoF VPs channels
     :return df_vpref: A DataFrame containing full DoF VPs reference channels
     """
+    import pandas as pd
 
     columns_vp = [
         "Name",
@@ -895,6 +894,8 @@ def auralization(freq, frf, load_case=None):
 
 
 def ssa_filter(time_series, no_sel, window_size=100):
+    from pyts.decomposition import SingularSpectrumAnalysis
+
     groups = [np.arange(0, no_sel), np.arange(no_sel, window_size)]
     transformer = SingularSpectrumAnalysis(
         window_size=window_size, groups=groups
@@ -993,41 +994,6 @@ def ods_frf_averaging(roving_responses, reference, no_of_avg):
 
     return _ods_frfs
 
-
-# if necessary, font properties can be changed
-# def font():
-#    font = "Sans Serif"
-#    size = 12
-#
-#    return {
-#        "config" : {
-#             "title": {
-#                "font": font,
-#                "fontSize": size
-#            },
-#             "axis": {
-#                "labelFont": font,
-#                "titleFont": font,
-#                "labelFontSize": size,
-#                "titleFontSize": size
-#             },
-#             "header": {
-#                "labelFont": font,
-#                "titleFont": font,
-#                "labelFontSize": size,
-#                "titleFontSize": size
-#             },
-#             "legend": {
-#                "labelFont": font,
-#                "titleFont": font,
-#                "labelFontSize": size,
-#                "titleFontSize": size
-#             }
-#        }
-#    }
-#
-# alt.themes.register('font', font)
-# alt.themes.enable('font')
 
 __all__ = [
     'modeshape_sync_lstsq',

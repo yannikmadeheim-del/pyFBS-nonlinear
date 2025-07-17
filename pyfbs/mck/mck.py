@@ -1,16 +1,6 @@
-from scipy.sparse import diags
-from ansys.mapdl import reader as pymapdl_reader
-from ansys.dpf import core as dpf
-from ansys.dpf import post
-from ansys.dpf.core import vtk_helper
-from ..interface import VPT
-
 import json
-import pandas as pd
-import pyvista as pv
 import scipy as sp
 import numpy as np
-from scipy.linalg import block_diag
 import pickle
 import os
 from os import path
@@ -74,6 +64,8 @@ class Model:
         """
         Load the model from .vtk and .hdf5 files.
         """
+        import pyvista as pv
+
         vtk_file = os.path.join(directory, f"{file_name}.vtk")
         hdf5_file = os.path.join(directory, f"{file_name}.hdf5")
         json_file = os.path.join(directory, f"{file_name}.json")
@@ -150,6 +142,7 @@ class Model:
         if (
             rst_file and full_file
         ):  # check if rest and full files are defined, that mass and stiffness matrices will be importd from there
+            from ansys.mapdl import reader as pymapdl_reader
 
             rst = pymapdl_reader.read_binary(rst_file)
 
@@ -166,7 +159,7 @@ class Model:
             )  # dof_ref: 0-x 1-y 2-z
             m = m_triu + sp.sparse.triu(m_triu, 1).T
             k = k_triu + sp.sparse.triu(k_triu, 1).T
-            _k = k + diags(
+            _k = k + sp.sparse.diags(
                 np.random.random(k.shape[0]) / 1e20, shape=k.shape
             )  # avoid error
 
@@ -223,7 +216,7 @@ class Model:
                 m += sp.sparse.triu(m, 1).T
                 k += sp.sparse.triu(k, 1).T
 
-                _k = k + diags(
+                _k = k + sp.sparse.diags(
                     np.random.random(k.shape[0]) / 1e20, shape=k.shape
                 )  # avoid error
 
@@ -247,6 +240,10 @@ class Model:
         elif rst_file is not None and full_file is None:
             # if only the .rst file is defined, then the mass and stiffness matrices are not available
             # the solution to the eigenvalue problem is read from the .rst file
+            from ansys.dpf import core as dpf
+            from ansys.dpf import post
+            from ansys.dpf.core import vtk_helper
+
             model = dpf.Model(rst_file)
             simulation = post.load_simulation(rst_file)
             units = simulation.units
@@ -329,7 +326,7 @@ class Model:
             manual_stiffness_matrix is not None
         ):  # if mass and stiffness matrices are manually defined
             k, m = manual_stiffness_matrix, manual_mass_matrix
-            _k = k + diags(
+            _k = k + sp.sparse.diags(
                 np.random.random(k.shape[0]) / 1e20, shape=k.shape
             )  # avoid error
             if no_modes > len(k):
@@ -810,14 +807,14 @@ class Model:
         if _all:
             m_p_chan_all = self.eig_vec[:, :no_modes]
             m_p_chan_sensors = (
-                block_diag(*direction_nodes_chn)
+                sp.linalg.block_diag(*direction_nodes_chn)
                 @ self.eig_vec[loc1, :no_modes]
             )
             m_p_chan = np.vstack([m_p_chan_sensors, m_p_chan_all])
 
         else:
             m_p_chan = (
-                block_diag(*direction_nodes_chn)
+                sp.linalg.block_diag(*direction_nodes_chn)
                 @ self.eig_vec[loc1, :no_modes]
             )
 
@@ -833,7 +830,7 @@ class Model:
             loc2 = self.loc_definition(excitation_points)
             # excitation eigenvector reduction/transformation
             m_p_imp = (
-                block_diag(*direction_nodes_imp)
+                sp.linalg.block_diag(*direction_nodes_imp)
                 @ self.eig_vec[loc2, :no_modes]
             )
             m_p = np.einsum('ij,kj->jik', m_p_chan, m_p_imp)
@@ -1002,7 +999,7 @@ class Model:
     ):
         """
         Generate frfs on exact location of impacts and sensors by projecting frfs from three closest nodes in numercial model.
-        Modal superpostition method is used for frf generation.  Gereated are all 3 translations and three rotations for every DoFs.
+        Modal superposition method is used for frf generation.  Gereated are all 3 translations and three rotations for every DoFs.
 
         :param df_imp: locations and directions of impacts where frfs will be generated
         :type df_imp: pandas.DataFrame
@@ -1025,6 +1022,9 @@ class Model:
         :param n_dim: number of DoFs per one node in Model (default is 3)
         :type n_dim, optional: boolean
         """
+
+        from ..interface import VPT
+        import pandas as pd
 
         imp_coord = np.asarray(
             [df_imp['Position_1'], df_imp['Position_2'], df_imp['Position_3']]
@@ -1179,7 +1179,7 @@ class Model:
                 _df_chn = df_chn[df_chn['Grouping'] == res_]
                 _df_vp_chn = df_vp_chn[df_vp_chn['Grouping'] == res_]
                 vpt_ = VPT(_df_chn, _df_imp, _df_vp_chn, _df_vp_imp)
-                vpt_.apply_VPT(
+                vpt_.apply_vpt(
                     self.freq,
                     self.frf[
                         :, 9 * res_ : 9 * res_ + 9, 9 * exc_ : 9 * exc_ + 9
@@ -1187,7 +1187,7 @@ class Model:
                 )
                 frf_FDoF[
                     :, 6 * res_ : 6 * res_ + 6, 6 * exc_ : 6 * exc_ + 6
-                ] = vpt_.vptData
+                ] = vpt_.frf
 
         return frf_FDoF
 

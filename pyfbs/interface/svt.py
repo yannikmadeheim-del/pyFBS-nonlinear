@@ -1,10 +1,10 @@
 import numpy as np
-from scipy.linalg import norm
+import scipy
 from ..utility import coh_frf, cmif
 from .vpt import VPT
 
 
-class SVT(object):
+class SVT:
     """
     Singular Vector Transformation - enables transformation of measured
     responses to a singular DoFs. The left and right singular vectors are used
@@ -185,7 +185,9 @@ class SVT(object):
         self.u = u[:, 0, :]
 
         # Calculate overall sensor consistency indicator
-        self.overall_sensor = norm(self.u_f, axis=0) / norm(self.u, axis=0)
+        self.overall_sensor = scipy.linalg.norm(
+            self.u_f, axis=0
+        ) / scipy.linalg.norm(self.u, axis=0)
 
         # Calculate specific sensor consistency indicator
         specific_sensor = []
@@ -215,7 +217,9 @@ class SVT(object):
         self.y = y[:, 0, :]
 
         # Calculate overall impact consistency indicator
-        self.overall_impact = norm(self.y_f, axis=0) / norm(self.y, axis=0)
+        self.overall_impact = scipy.linalg.norm(
+            self.y_f, axis=0
+        ) / scipy.linalg.norm(self.y, axis=0)
 
         # Calculate specific impact consistency indicator
         specific_impact = []

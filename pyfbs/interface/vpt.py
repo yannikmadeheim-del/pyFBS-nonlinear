@@ -1,10 +1,10 @@
 import numpy as np
 import pandas as pd
-from scipy.linalg import block_diag, norm
+import scipy
 from ..utility import coh_frf
 
 
-class VPT(object):
+class VPT:
     """
     Virtual Point Transformation (VPT) - enables the transformation of measured responses and loads to virtual DoFs.
     Current implementation enables the use of rigid and simple flexible interface deformation modes. DoFs supported
@@ -128,7 +128,7 @@ class VPT(object):
             R_all.append(r)
 
         # add channels not belonging to any VP
-        Ru = block_diag(*R_all, np.eye(np.count_nonzero(mask_u)))
+        Ru = scipy.linalg.block_diag(*R_all, np.eye(np.count_nonzero(mask_u)))
 
         # sorting of the Ru matrix
         # sort on channels
@@ -205,7 +205,7 @@ class VPT(object):
             R_all.append(r)
 
         # add impacts not belonging to any VP
-        Rf = block_diag(*R_all, np.eye(np.count_nonzero(mask_f)))
+        Rf = scipy.linalg.block_diag(*R_all, np.eye(np.count_nonzero(mask_f)))
 
         # sorting of the Rf matrix
         # sort on impacts
@@ -550,7 +550,9 @@ class VPT(object):
         self.u = u[:, 0, :]
 
         # Calculate overall sensor consistency indicator
-        self.overall_sensor = norm(self.u_f, axis=0) / norm(self.u, axis=0)
+        self.overall_sensor = scipy.linalg.norm(
+            self.u_f, axis=0
+        ) / scipy.linalg.norm(self.u, axis=0)
 
         # Calculate specific sensor consistency indicator
         specific_sensor = []
@@ -582,7 +584,9 @@ class VPT(object):
         self.y = y[:, 0, :]
 
         # Calculate overall impact consistency indicator
-        self.overall_impact = norm(self.y_f, axis=0) / norm(self.y, axis=0)
+        self.overall_impact = scipy.linalg.norm(
+            self.y_f, axis=0
+        ) / scipy.linalg.norm(self.y, axis=0)
 
         # Calculate specific impact consistency indicator
         specific_impact = []
@@ -637,8 +641,8 @@ class VPT(object):
     """
     Frequency-dependend weighting matrix - to be implemented in the pyFBS with next release
 
-    Wu = block_diag(*_Warray)
-    Wu = block_diag(Wu, np.eye(len(np.where(mask_u != 0)[0])))
+    Wu = scipy.linalg.block_diag(*_Warray)
+    Wu = scipy.linalg.block_diag(Wu, np.eye(len(np.where(mask_u != 0)[0])))
     self.Wu = Wu
 
     # Wu_f is a 4D numpy array for each input set you use where -j refers to the freq input W[i,:,:,j]
@@ -656,7 +660,7 @@ class VPT(object):
 
     for _f in tqdm(range(n_freq)):
         for _i in range(n_imp):
-            _tW = block_diag(*np.abs(self.Y.Coherence[:, _i, _f])) ** 2
+            _tW = scipy.linalg.block_diag(*np.abs(self.Y.Coherence[:, _i, _f])) ** 2
             # print(_tW.shape)
             # for _d,diag_val in enumerate(np.diag(_tW)):
             #    if _d in [9,10,11,21,22,23,33,34,35]:
