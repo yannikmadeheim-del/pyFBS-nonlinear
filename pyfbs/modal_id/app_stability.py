@@ -975,7 +975,7 @@ class App(QtWidgets.QMainWindow):
         damp_ratio = []
 
         for index_ in self.selected_ind:
-            pole_, mpf_ = self.modal_id.pL_from_index(index_)
+            pole_, mpf_ = self.modal_id.p_l_from_index(index_)
             selected_poles_id.append(pole_)
             selected_mpf_id.append(mpf_)
 
