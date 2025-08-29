@@ -75,7 +75,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'pyFBS'
-copyright = "2021, The pyFBS Developers"
+copyright = "2025, The pyFBS Developers"
 author = "The pyFBS Developers"
 
 # The version info for the project you're documenting, acts as replacement
