@@ -42,8 +42,8 @@ Licensed under the MIT license.
 .. |pypi| image:: https://img.shields.io/pypi/v/pyfbs?style=flat-square
    :target: https://pypi.org/project/pyfbs/
 
-.. |docs| image:: https://readthedocs.org/projects/pyfbs/badge/?version=latest
-   :target: https://pyfbs.readthedocs.io/en/latest/?badge=latest
+.. |docs| image:: https://readthedocs.org/projects/pyfbs/badge/?version=master
+   :target: https://pyfbs.readthedocs.io/en/latest/?badge=master
 
 .. |MIT| image:: https://img.shields.io/badge/License-MIT-yellow.svg
    :target: https://opensource.org/licenses/MIT
