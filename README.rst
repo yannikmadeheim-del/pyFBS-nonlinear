@@ -43,7 +43,7 @@ Licensed under the MIT license.
    :target: https://pypi.org/project/pyfbs/
 
 .. |docs| image:: https://readthedocs.org/projects/pyfbs/badge/?version=master
-   :target: https://pyfbs.readthedocs.io/en/latest/?badge=master
+   :target: https://pyfbs.readthedocs.io/en/master/
 
 .. |MIT| image:: https://img.shields.io/badge/License-MIT-yellow.svg
    :target: https://opensource.org/licenses/MIT
