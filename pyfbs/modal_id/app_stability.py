@@ -250,7 +250,7 @@ class App(QtWidgets.QMainWindow):
         self.display_cmif.setChecked(True)
         self.display_cmif.stateChanged.connect(self.plot_cmif)
 
-        self.Btn_clear_frf_display = QPushButton("Clear desplayed frfs")
+        self.Btn_clear_frf_display = QPushButton("Clear displayed frfs")
         self.Btn_clear_frf_display.clicked.connect(self.clear_displayed_frf)
 
         displyfrfsuboptionsLayout.addWidget(self.display_cmif)

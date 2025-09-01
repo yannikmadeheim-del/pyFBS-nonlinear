@@ -12,7 +12,7 @@ class ModalID(object):
 
     :param freq: Frequency range.
     :type ch: array (float)
-    :param frf: Frequency response function matrix in the form of [frequency points, ouputs, inputs].
+    :param frf: Frequency response function matrix in the form of [frequency points, outputs, inputs].
     :type refch: array (complex)
 
     References:
@@ -1007,7 +1007,7 @@ class ModalID(object):
 
     def estimate_phi_from_psi(self, complex_to_normal=True):
         """
-        Tranforms a normalized complex modeshape (assuming general viscous damping model) to an approximate
+        Transforms a normalized complex modeshape (assuming general viscous damping model) to an approximate
         mass normalized modeshape via scaling. mode normalization. Before application check complexity using mode complexity factor (pyFBS.MCF).
 
         :param complex_to_normal: Compute closest real representation of the complex modeshapes.
