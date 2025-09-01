@@ -608,7 +608,7 @@ class Model:
         """
         try:
             eigen_val, eigen_vec = sp.sparse.linalg.eigsh(
-                stiff_mat, k=no_modes, m=mass_mat, sigma=0
+                stiff_mat, k=no_modes, M=mass_mat, sigma=0
             )
         except np.linalg.LinAlgError:
             # sometimes eigenvalue problems can not be solved using sparse configuration, especially for small analytical systems
