@@ -27,7 +27,7 @@ Features
 
 * Experimental Modal Analysis
 
-For more information on features, basic and application examples check out the documentation: |docs| 
+For more information on features, basic and application examples check out the _documentation
 
 Citation
 --------
@@ -37,7 +37,7 @@ License
 -------
 Licensed under the MIT license.
 
-.. _documentation: https://pyfbs.readthedocs.io/en/latest/intro.html
+.. _documentation: https://pyfbs.readthedocs.io/en/master/
 
 .. |pypi| image:: https://img.shields.io/pypi/v/pyfbs?style=flat-square
    :target: https://pypi.org/project/pyfbs/
