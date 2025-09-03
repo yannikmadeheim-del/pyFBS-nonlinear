@@ -27,7 +27,7 @@ Features
 
 * Experimental Modal Analysis
 
-For more information on features, basic and application examples check out the `documentation`_. 
+For more information on features, basic and application examples check out the documentation: |docs| 
 
 Citation
 --------
