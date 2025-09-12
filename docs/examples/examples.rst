@@ -26,49 +26,48 @@ This examples show how to use basic features of pyFBS. Explore this basic exampl
 
 .. only:: html
 
-   .. figure:: ./data/snapping.gif
-     :height: 150px
-     :target: ./basic_examples/02_interactive_display.html
+     .. figure:: ./data/snapping.gif
+         :height: 150px
+         :target: ./basic_examples/02_interactive_display.html
 
-      Interactive positioning
-
+         Interactive positioning
 
 .. toctree::
    :hidden:
 
-   basic_examples/02_interactive_display
+   ./basic_examples/02_interactive_display
 
 
 
 
 .. only:: html
 
-   .. figure:: ./data/FRF_syn-FRF-visualization.svg
-     :height: 150px
-     :target: ./basic_examples/03_FRF_synthetization.html
+     .. figure:: ./data/FRF_syn-FRF-visualization.svg
+         :height: 150px
+         :target: ./basic_examples/03_FRF_synthetization.html
 
-      FRF synthetization
+         FRF synthetization
 
 .. toctree::
    :hidden:
 
-   basic_examples/03_FRF_synthetization
+   ./basic_examples/03_FRF_synthetization
 
 
 
 
 .. only:: html
 
-   .. figure:: ./data/plot.png
-     :height: 200px
-     :target: ./basic_examples/plotting.html
+     .. figure:: ./data/plot.png
+         :height: 200px
+         :target: ./basic_examples/plotting.html
 
-      Plotting with wrapper functions
+         Plotting with wrapper functions
 
 .. toctree::
    :hidden:
 
-   basic_examples/plotting
+   ./basic_examples/plotting
 
 
 
@@ -78,31 +77,31 @@ Interface modelling
 
 .. only:: html
 
-   .. figure:: ./data/pic_vpt.png
-     :height: 200px
-     :target: ./fbs/04_VPT.html
+     .. figure:: ./data/pic_vpt.png
+         :height: 200px
+         :target: ./fbs/04_VPT.html
 
-      VPT example
+         VPT example
 
 .. toctree::
    :hidden:
 
-   fbs/04_VPT
+   ./fbs/04_VPT
 
 
 
 .. only:: html
 
-   .. figure:: ./data/SVT.png
-     :height: 200px
-     :target: ./fbs/12_SVT.html
+     .. figure:: ./data/SVT.png
+         :height: 200px
+         :target: ./fbs/12_SVT.html
 
-      SVT example
+         SVT example
 
 .. toctree::
    :hidden:
 
-   fbs/12_SVT
+   ./fbs/12_SVT
 
 
 
@@ -111,44 +110,44 @@ Frequency Based Substructuring
 
 .. only:: html
 
-   .. figure:: ./data/seven_three.png
-     :height: 200px
-     :target: ./fbs/07_coupling.html
+     .. figure:: ./data/seven_three.png
+         :height: 200px
+         :target: ./fbs/07_coupling.html
 
-      FBS Coupling with VPT
+         FBS Coupling with VPT
 
 .. toctree::
    :hidden:
 
-   fbs/07_coupling
+   ./fbs/07_coupling
 
 
 .. only:: html
 
-   .. figure:: ./data/seven_three.png
-     :height: 200px
-     :target: ./fbs/08_decoupling.html
+     .. figure:: ./data/seven_three.png
+         :height: 200px
+         :target: ./fbs/08_decoupling.html
 
-      FBS Decoupling with VPT
+         FBS Decoupling with VPT
 
 .. toctree::
    :hidden:
 
-   fbs/08_decoupling
+   ./fbs/08_decoupling
 
 
 .. only:: html
 
-   .. figure:: ./data/seven_three.png
-     :height: 200px
-     :target: ./fbs/13_SVT_decoupling.html
+     .. figure:: ./data/seven_three.png
+         :height: 200px
+         :target: ./fbs/13_SVT_decoupling.html
 
-      FBS Decoupling with SVT
+         FBS Decoupling with SVT
 
 .. toctree::
    :hidden:
 
-   fbs/13_SVT_decoupling
+   ./fbs/13_SVT_decoupling
 
 
 
@@ -157,47 +156,47 @@ Transfer Path Analysis
 
 .. only:: html
 
-   .. figure:: ./data/classical_tpa.svg
-     :height: 200px
-     :target: ./tpa/classical_tpa.html
+     .. figure:: ./data/classical_tpa.svg
+         :height: 200px
+         :target: ./tpa/classical_tpa.html
 
-      Classical TPA
+         Classical TPA
 
 .. toctree::
    :hidden:
 
-   tpa/classical_tpa
+   ./tpa/classical_tpa
 
 
 
 .. only:: html
 
-   .. figure:: ./data/component-based_tpa.svg
-     :height: 200px
-     :target: ./tpa/component-based_tpa.html
+     .. figure:: ./data/component-based_tpa.svg
+         :height: 200px
+         :target: ./tpa/component-based_tpa.html
 
-      Component-based TPA
+         Component-based TPA
 
 .. toctree::
    :hidden:
 
-   tpa/component-based_tpa
+   ./tpa/component-based_tpa
 
 
 
 
 .. only:: html
 
-   .. figure:: ./data/otpa.svg
-     :height: 200px
-     :target: ./tpa/transmissibility-based_tpa.html
+     .. figure:: ./data/otpa.svg
+         :height: 200px
+         :target: ./tpa/transmissibility-based_tpa.html
 
-      Transmissibility-based TPA
+         Transmissibility-based TPA
 
 .. toctree::
    :hidden:
 
-   tpa/transmissibility-based_tpa
+   ./tpa/transmissibility-based_tpa
 
 
 
@@ -207,31 +206,31 @@ Dynamic expansion
 
 .. only:: html
 
-   .. figure:: ./data/semm_scheme.svg
-     :height: 200px
-     :target: ./dynamic_expansion/system_equivalent_model_mixing.html
+     .. figure:: ./data/semm_scheme.svg
+         :height: 200px
+         :target: ./dynamic_expansion/system_equivalent_model_mixing.html
 
-      System Equivalent Model Mixing in Frequency Domain (SEMM)
+         System Equivalent Model Mixing in Frequency Domain (SEMM)
 
 .. toctree::
    :hidden:
 
-   dynamic_expansion/system_equivalent_model_mixing
+   ./dynamic_expansion/system_equivalent_model_mixing
 
 
 
 .. only:: html
 
-   .. figure:: ./data/serep_scheme.svg
-     :height: 200px
-     :target: ./dynamic_expansion/21_SEREP.html
+     .. figure:: ./data/serep_scheme.svg
+         :height: 200px
+         :target: ./dynamic_expansion/21_SEREP.html
 
-      System Equivalent Reduction Expansion Process (SEREP)
+         System Equivalent Reduction Expansion Process (SEREP)
 
 .. toctree::
    :hidden:
 
-   dynamic_expansion/21_SEREP
+   ./dynamic_expansion/21_SEREP
 
 
 
@@ -241,16 +240,16 @@ Modal identification
 
 .. only:: html
 
-   .. figure:: ./data/modal_id_tn.jpg
-     :height: 200px
-     :target: ./modal_id/20_EMA.html
+     .. figure:: ./data/modal_id_tn.jpg
+         :height: 200px
+         :target: ./modal_id/20_EMA.html
 
-      Experimental Modal Analysis
+         Experimental Modal Analysis
 
 .. toctree::
    :hidden:
 
-   modal_id/20_EMA
+   ./modal_id/20_EMA
 
 
 
@@ -260,44 +259,44 @@ Case studies
 
 .. only:: html
 
-   .. figure:: ./data/ods.gif
-     :height: 200px
-     :target: ./case_studies/06_ODS.html
+     .. figure:: ./data/ods.gif
+         :height: 200px
+         :target: ./case_studies/06_ODS.html
 
-      Operational Deflection Shapes
+         Operational Deflection Shapes
 
 .. toctree::
    :hidden:
 
-   case_studies/06_ODS
+   ./case_studies/06_ODS
 
 
 
 .. only:: html
 
-   .. figure:: ./data/ten_display_four.png
-     :height: 200px
-     :target: ./case_studies/10_TS.html
+     .. figure:: ./data/ten_display_four.png
+         :height: 200px
+         :target: ./case_studies/10_TS.html
 
-      Transmission Simulator
+         Transmission Simulator
 
 .. toctree::
    :hidden:
 
-   case_studies/10_TS
+   ./case_studies/10_TS
 
 
 
 
 .. only:: html
 
-   .. figure:: ./data/AJB_.png
-     :height: 200px
-     :target: ./case_studies/23_rubber_mount.html
+     .. figure:: ./data/AJB_.png
+         :height: 200px
+         :target: ./case_studies/23_rubber_mount.html
 
-      Rubber Mount Characterization
+         Rubber Mount Characterization
 
 .. toctree::
    :hidden:
 
-   case_studies/23_rubber_mount
+   ./case_studies/23_rubber_mount
