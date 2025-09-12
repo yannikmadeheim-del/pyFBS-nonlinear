@@ -15,7 +15,7 @@ Above-mentioned difficulties can be elegantly overcome using virtual point trans
 is captured using tri-axial accelerometers and excited with unidirectional forces around the interface as depicted below. The virtual point is placed 
 in the middle of the hole.
 
-.. figure:: ./../data/vp_a_b_ab.png
+.. figure:: ./data/vp_a_b_ab.png
    :width: 700px
 
 Virtual point displacements
@@ -48,14 +48,14 @@ In the following, we assume rigid IDMs
 are dominant while flexible IDMs can be neglected. 
 If we would select one point at the interface (virtual point), an arbitrary channel at :math:`i`-th sensor is then rigidly connected to that point.
 
-.. figure:: ./../data/vp_acc.svg
+.. figure:: ./data/vp_acc.svg
    :width: 200px
 
 If we treat interface as perfectly rigid, the VP has six rigid displacements :math:`\boldsymbol{q}=[q_X,q_Y,q_Z,q_{\theta_X},q_{\theta_Y},q_{\theta_Z}]^\text{T}`. 
 Displacement :math:`u_x^i` can be expressed from :math:`\boldsymbol{q}`; one musk ask himself, which movements of the VP contribute to the :math:`u_x^i` response 
 (in the VP coordinate system :math:`XYZ`):
 
-.. figure:: ./../data/disp.svg
+.. figure:: ./data/disp.svg
    :width: 600px
 
 .. math::
@@ -199,7 +199,7 @@ With both transformation matrices, virtual point FRFs can be computed using [2]_
 where :math:`\mathbf{Y}_{\text{uf}}` is the measured FRF matrix and :math:`\mathbf{Y}_{\text{qm}}` 
 is the full-DoF VP FRF matrix with perfectly collocated motions and loads. That means that the VP FRF matrix should be reciprocal. 
 
-.. figure:: ./../data/reciprocity.svg
+.. figure:: ./data/reciprocity.svg
    :width: 400px
 
 For the driving-point FRFs at the diagonal of the matrix, passivity can be evaluated since the driving-point FRF should always be minimum-phase function:
