@@ -1,35 +1,24 @@
-Methods and examples
+Examples
 ====================
 
-Here you can find a gallery of examples demonstrating the capabilities of pyFBS. 
-Besides the functionalities, already incorporated in pyFBS, you can also find basic theoretical principles of the methods used for these examples. 
-If any of the topics interests you, all methods are accompanied with several references, that lead you to more detailed theoretical backgrounds or more advanced applications. 
-Have fun exploring FBS field!
+Here you can find a gallery of examples demonstrating the capabilities of pyFBS. Have fun exploring FBS field!
 
 Basic examples
 **************
 
 This examples show how to use basic features of pyFBS. Explore this basic examples to get familiar with the pyFBS workflow.
 
-.. raw:: html
-
-    <div class="sphx-glr-thumbcontainer" tooltip="Static display">
-
 .. only:: html
 
-    .. figure:: ./data/interaction.gif	   
-       :target: ./basic_examples/01_static_display.html
+   .. figure:: ./data/interaction.gif
+      :name: basic-static-thumb
 
-       Static display
-
-.. raw:: html
-
-    </div>
+      Static display — see :doc:`the example <basic_examples/01_static_display>`.
 
 .. toctree::
    :hidden:
 
-   ./basic_examples/01_static_display
+   basic_examples/01_static_display
 
 
   
@@ -120,6 +109,59 @@ This examples show how to use basic features of pyFBS. Explore this basic exampl
 |
 |
 
+
+
+Interface modelling
+*******************
+In experimental dynamic substructuring, coupling of substructures sharing a line- or surface-like interface proves to be a challenge due to the difficulties in interface modelling. 
+Modelling a high number of degrees of freedom at the common interface can be too stringent when imposing compatibility and equilibrium conditions, thereby causing redundancy and ill-conditioning.
+These examples show state-of-the-art techniques to establish an interface model composed of significant degrees of freedom.
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="VPT example">
+
+.. only:: html
+
+    .. figure:: ./../data/pic_vpt.png 
+       :target: 04_VPT.html
+
+       VPT example
+
+.. raw:: html
+
+    </div>
+
+.. toctree::
+   :hidden:
+
+   04_VPT
+
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="SVT example">
+
+.. only:: html
+
+    .. figure:: ./../data/SVT.png 
+       :target: 12_SVT.html
+
+       SVT example
+
+.. raw:: html
+
+    </div>
+
+.. toctree::
+   :hidden:
+
+   12_SVT
+
+
+
+
 Frequency Based Substructuring
 ******************************
 Structural dynamic analyses can be carried out more efficiently if complex systems are divided into smaller subsystems, analysed separately, and later coupled using dynamic substructuring (DS) methods.
@@ -129,14 +171,14 @@ These examples show state-of-the-art techniques to successfully couple or decoup
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="General Theory">
+    <div class="sphx-glr-thumbcontainer" tooltip="Coupling">
 
 .. only:: html
 
-    .. figure:: ./data/assembly_tn.svg  
-       :target: ./fbs/frequency_based_substructuring.html
+    .. figure:: ./../data/seven_three.png   
+       :target: 07_coupling.html
 
-       General theory
+       FBS Coupling with VPT
 
 .. raw:: html
 
@@ -145,22 +187,21 @@ These examples show state-of-the-art techniques to successfully couple or decoup
 .. toctree::
    :hidden:
 
-   ./fbs/frequency_based_substructuring
+   07_coupling
 
 
-
-
-
+  
+ 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Virtual Point Transformation">
+    <div class="sphx-glr-thumbcontainer" tooltip="Decoupling">
 
 .. only:: html
 
-    .. figure:: ./data/vpt_scheme.svg   
-       :target: ./fbs/virtual_point_transformation.html
+    .. figure:: ./../data/seven_three.png   
+       :target: 08_decoupling.html
 
-       Virtual Point Transformation
+       FBS Decoupling with VPT
 
 .. raw:: html
 
@@ -169,21 +210,20 @@ These examples show state-of-the-art techniques to successfully couple or decoup
 .. toctree::
    :hidden:
 
-   ./fbs/virtual_point_transformation
+   08_decoupling
 
-   
 
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Singular Vector Transformation">
+    <div class="sphx-glr-thumbcontainer" tooltip="FBS Decoupling with SVT">
 
 .. only:: html
 
-    .. figure:: ./data/SVT.png   
-       :target: ./fbs/singular_vector_transformation.html
+    .. figure:: ./../data/seven_three.png   
+       :target: 13_SVT_decoupling.html
 
-       Singular Vector Transformation
+       FBS Decoupling with SVT
 
 .. raw:: html
 
@@ -192,7 +232,7 @@ These examples show state-of-the-art techniques to successfully couple or decoup
 .. toctree::
    :hidden:
 
-   ./fbs/singular_vector_transformation
+   13_SVT_decoupling
 
 
 
@@ -300,26 +340,26 @@ Measurements involving a limited number of points on the structure can be expand
    ./dynamic_expansion/system_equivalent_model_mixing
 
 
+..
+    .. raw:: html
 
-.. raw:: html
+        <div class="sphx-glr-thumbcontainer" tooltip="System Equivalent Model Mixing">
 
-    <div class="sphx-glr-thumbcontainer" tooltip="System Equivalent Model Mixing">
+    .. only:: html
 
-.. only:: html
+        .. figure:: ./data/semm_scheme.svg   
+        :target: ./dynamic_expansion/system_equivalent_model_mixing.html
 
-    .. figure:: ./data/semm_scheme.svg   
-       :target: ./dynamic_expansion/system_equivalent_model_mixing.html
+        System Equivalent Model Mixing in Modal Domain (M-SEMM)
 
-       System Equivalent Model Mixing in Modal Domain (M-SEMM)
+    .. raw:: html
 
-.. raw:: html
+        </div>
 
-    </div>
+    .. toctree::
+    :hidden:
 
-.. toctree::
-   :hidden:
-
-   ./dynamic_expansion/system_equivalent_model_mixing
+    ./dynamic_expansion/system_equivalent_model_mixing
 
 
 

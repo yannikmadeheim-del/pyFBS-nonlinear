@@ -7,61 +7,6 @@ If some basic requirements are met, the reduced orthonormal frequency dependent 
 The SVT can tackle challenging scenarios with flexible behaving interfaces and lightly damped systems.
 
 
-
-.. raw:: html
-
-    <div class="sphx-glr-thumbcontainer" tooltip="SVT example">
-
-.. only:: html
-
-    .. figure:: ./../data/SVT.png 
-       :target: 12_SVT.html
-
-       SVT example
-
-.. raw:: html
-
-    </div>
-
-.. toctree::
-   :hidden:
-
-   12_SVT
-
-
-
-
-
-.. raw:: html
-
-    <div class="sphx-glr-thumbcontainer" tooltip="FBS Decoupling with SVT">
-
-.. only:: html
-
-    .. figure:: ./../data/seven_three.png   
-       :target: 13_SVT_decoupling.html
-
-       FBS Decoupling with SVT
-
-.. raw:: html
-
-    </div>
-
-.. toctree::
-   :hidden:
-
-   13_SVT_decoupling
-
-
-|
-|
-|
-|
-|
-|
-|
-|
-
 Singular value decomposition
 ****************************
 
