@@ -68,9 +68,9 @@ This research can help on the path to a sustainable future by providing tools an
    ./examples/examples
    
 
+..
+   .. toctree::
+      :maxdepth: 2
+      :caption: Code Documentation
 
-.. toctree::
-   :maxdepth: 2
-   :caption: Code Documentation
-
-   ./code_documentation/core
+      ./code_documentation/core
