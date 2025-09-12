@@ -37,7 +37,7 @@ Methodology
 
 An extended (direct) decoupling problem is considered, where the goal is finding the interface forces that suppress the influence of A on AB, thus isolating the uncoupled response of subsystem B.
 
-.. figure:: ./../data/disassembly.svg
+.. figure:: ./data/disassembly.svg
    :width: 400px
    :align: center
 

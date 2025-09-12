@@ -9,6 +9,7 @@ Have fun exploring FBS field!
 .. only:: html
 
     .. figure:: ./data/assembly_tn.svg  
+       :height: 100px
        :target: ./frequency_based_substructuring.html
 
        Frequency-based Substructuring
@@ -22,6 +23,7 @@ Have fun exploring FBS field!
 .. only:: html
 
     .. figure:: ./data/vpt_scheme.svg   
+       :height: 100px
        :target: ./virtual_point_transformation.html
 
        Virtual Point Transformation
@@ -35,6 +37,7 @@ Have fun exploring FBS field!
 .. only:: html
 
     .. figure:: ./data/SVT.png   
+       :height: 100px
        :target: ./singular_vector_transformation.html
 
        Singular Vector Transformation

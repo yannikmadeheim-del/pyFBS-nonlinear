@@ -93,7 +93,7 @@ between the substructures:
 
 Let's now assume two interacting subsystems to be assembled:
 
-.. figure:: ./../data/assembly.svg
+.. figure:: ./data/assembly.svg
    :width: 300px
    :align: center
 
@@ -237,7 +237,7 @@ Here, the subsystems act like the super-elements and their dynamic properties ar
 
 Consider the simple system depicted bellow. The primally assembled impedance can be written as follows:
 
-.. figure:: ./../data/assembly.svg
+.. figure:: ./data/assembly.svg
    :width: 300px
    :align: center
 
@@ -268,7 +268,7 @@ A substructure decoupling procedure consists in the removal of the dynamic influ
 In that sense, it can be considered as the 'reverse' operation of substructure coupling.
 The reference representation of a disassembly procedure with corresponding DoFs is depicted:
 
-.. figure:: ./../data/disassembly.svg
+.. figure:: ./data/disassembly.svg
    :width: 400px
    :align: center
 
