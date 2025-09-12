@@ -5,20 +5,13 @@ Classic TPA methods describe source excitations in terms of the interface forces
 It is mainly used to troubleshoot NVH problems in existing products.
 
    
-.. raw:: html
-
-    <div class="sphx-glr-thumbcontainer" tooltip="Matrix Inverse">
-
 .. only:: html
 
-    .. figure:: ./../data/matrix_inverse.png   
-       :target: 14_matrix_inverse_TPA.html
+     .. figure:: ./../data/matrix_inverse.png
+         :height: 150px
+         :target: 14_matrix_inverse_TPA.html
 
-       Matrix Inverse
-
-.. raw:: html
-
-    </div>
+         Matrix Inverse
 
 .. toctree::
    :hidden:
