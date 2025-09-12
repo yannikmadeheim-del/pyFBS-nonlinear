@@ -19,6 +19,8 @@ Development Lead
 
 * Jure Korbar
 
+* Oliver Maximilian Zobel
+
 Contributors
 ------------
 
