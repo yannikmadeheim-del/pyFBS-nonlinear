@@ -59,7 +59,7 @@ This examples show how to use basic features of pyFBS. Explore this basic exampl
 .. only:: html
 
      .. figure:: ./data/plot.png
-         :height: 200px
+         :height: 150px
          :target: ./basic_examples/plotting.html
 
          Plotting with wrapper functions
@@ -78,7 +78,7 @@ Interface modelling
 .. only:: html
 
      .. figure:: ./data/pic_vpt.png
-         :height: 200px
+         :height: 150px
          :target: ./fbs/04_VPT.html
 
          VPT example
@@ -93,7 +93,7 @@ Interface modelling
 .. only:: html
 
      .. figure:: ./data/SVT.png
-         :height: 200px
+         :height: 150px
          :target: ./fbs/12_SVT.html
 
          SVT example
@@ -111,7 +111,7 @@ Frequency Based Substructuring
 .. only:: html
 
      .. figure:: ./data/seven_three.png
-         :height: 200px
+         :height: 150px
          :target: ./fbs/07_coupling.html
 
          FBS Coupling with VPT
@@ -125,7 +125,7 @@ Frequency Based Substructuring
 .. only:: html
 
      .. figure:: ./data/seven_three.png
-         :height: 200px
+         :height: 150px
          :target: ./fbs/08_decoupling.html
 
          FBS Decoupling with VPT
@@ -139,7 +139,7 @@ Frequency Based Substructuring
 .. only:: html
 
      .. figure:: ./data/seven_three.png
-         :height: 200px
+         :height: 150px
          :target: ./fbs/13_SVT_decoupling.html
 
          FBS Decoupling with SVT
@@ -157,7 +157,7 @@ Transfer Path Analysis
 .. only:: html
 
      .. figure:: ./data/classical_tpa.svg
-         :height: 200px
+         :height: 100px
          :target: ./tpa/classical_tpa.html
 
          Classical TPA
@@ -172,7 +172,7 @@ Transfer Path Analysis
 .. only:: html
 
      .. figure:: ./data/component-based_tpa.svg
-         :height: 200px
+         :height: 100px
          :target: ./tpa/component-based_tpa.html
 
          Component-based TPA
@@ -188,7 +188,7 @@ Transfer Path Analysis
 .. only:: html
 
      .. figure:: ./data/otpa.svg
-         :height: 200px
+         :height: 100px
          :target: ./tpa/transmissibility-based_tpa.html
 
          Transmissibility-based TPA
@@ -207,7 +207,7 @@ Dynamic expansion
 .. only:: html
 
      .. figure:: ./data/semm_scheme.svg
-         :height: 200px
+         :height: 150px
          :target: ./dynamic_expansion/system_equivalent_model_mixing.html
 
          System Equivalent Model Mixing in Frequency Domain (SEMM)
@@ -222,7 +222,7 @@ Dynamic expansion
 .. only:: html
 
      .. figure:: ./data/serep_scheme.svg
-         :height: 200px
+         :height: 150px
          :target: ./dynamic_expansion/21_SEREP.html
 
          System Equivalent Reduction Expansion Process (SEREP)
@@ -241,7 +241,7 @@ Modal identification
 .. only:: html
 
      .. figure:: ./data/modal_id_tn.jpg
-         :height: 200px
+         :height: 150px
          :target: ./modal_id/20_EMA.html
 
          Experimental Modal Analysis
@@ -260,7 +260,7 @@ Case studies
 .. only:: html
 
      .. figure:: ./data/ods.gif
-         :height: 200px
+         :height: 150px
          :target: ./case_studies/06_ODS.html
 
          Operational Deflection Shapes
@@ -275,7 +275,7 @@ Case studies
 .. only:: html
 
      .. figure:: ./data/ten_display_four.png
-         :height: 200px
+         :height: 150px
          :target: ./case_studies/10_TS.html
 
          Transmission Simulator
@@ -291,7 +291,7 @@ Case studies
 .. only:: html
 
      .. figure:: ./data/AJB_.png
-         :height: 200px
+         :height: 150px
          :target: ./case_studies/23_rubber_mount.html
 
          Rubber Mount Characterization
