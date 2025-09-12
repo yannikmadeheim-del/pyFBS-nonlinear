@@ -43,7 +43,7 @@ This examples show how to use basic features of pyFBS. Explore this basic exampl
 .. only:: html
 
      .. figure:: ./data/FRF_syn-FRF-visualization.svg
-         :height: 150px
+         :height: 120px
          :target: ./basic_examples/03_FRF_synthetization.html
 
          FRF synthetization
@@ -59,7 +59,7 @@ This examples show how to use basic features of pyFBS. Explore this basic exampl
 .. only:: html
 
      .. figure:: ./data/plot.png
-         :height: 150px
+         :height: 200px
          :target: ./basic_examples/plotting.html
 
          Plotting with wrapper functions
@@ -121,7 +121,7 @@ These examples show state-of-the-art techniques to successfully couple or decoup
 .. only:: html
 
      .. figure:: ./data/vp_a_b_ab.png
-         :height: 150px
+         :height: 180px
          :target: ./fbs/07_coupling.html
 
          FBS Coupling with VPT
@@ -171,7 +171,7 @@ the individual components of the assembly, distinguish the partial transfer-path
 .. only:: html
 
      .. figure:: ./data/classical_tpa.svg
-         :height: 100px
+         :height: 80px
          :target: ./tpa/classical_tpa.html
 
          Classical TPA
@@ -186,7 +186,7 @@ the individual components of the assembly, distinguish the partial transfer-path
 .. only:: html
 
      .. figure:: ./data/component-based_tpa.svg
-         :height: 100px
+         :height: 80px
          :target: ./tpa/component-based_tpa.html
 
          Component-based TPA
@@ -202,7 +202,7 @@ the individual components of the assembly, distinguish the partial transfer-path
 .. only:: html
 
      .. figure:: ./data/otpa.svg
-         :height: 100px
+         :height: 80px
          :target: ./tpa/transmissibility-based_tpa.html
 
          Transmissibility-based TPA
@@ -283,7 +283,7 @@ These examples show applications of the pyFBS on more complex problems. Explore 
 .. only:: html
 
      .. figure:: ./data/ods.gif
-         :height: 150px
+         :height: 180px
          :target: ./case_studies/06_ODS.html
 
          Operational Deflection Shapes
@@ -298,7 +298,7 @@ These examples show applications of the pyFBS on more complex problems. Explore 
 .. only:: html
 
      .. figure:: ./data/ten_display_four.png
-         :height: 150px
+         :height: 180px
          :target: ./case_studies/10_TS.html
 
          Transmission Simulator
@@ -314,7 +314,7 @@ These examples show applications of the pyFBS on more complex problems. Explore 
 .. only:: html
 
      .. figure:: ./data/AJB_.png
-         :height: 150px
+         :height: 180px
          :target: ./case_studies/23_rubber_mount.html
 
          Rubber Mount Characterization
