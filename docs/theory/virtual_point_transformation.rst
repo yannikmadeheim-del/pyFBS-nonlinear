@@ -24,17 +24,17 @@ Virtual point displacements
 If we observe only the interface, the modes that dominantly represent its response are the translational motions in :math:`x`, :math:`y` and :math:`z` axis, 
 as well as rotations about :math:`x`, :math:`y` and :math:`z` axis [1]_. These are named interface deformation modes (IDMs) [2]_. 
 
-.. |IDM1| image:: ./../data/IDM_1.gif
+.. |IDM1| image:: ./data/IDM_1.gif
     :width: 120px
-.. |IDM2| image:: ./../data/IDM_2.gif
+.. |IDM2| image:: ./data/IDM_2.gif
     :width: 120px
-.. |IDM3| image:: ./../data/IDM_3.gif
+.. |IDM3| image:: ./data/IDM_3.gif
     :width: 120px
-.. |IDM4| image:: ./../data/IDM_4.gif
+.. |IDM4| image:: ./data/IDM_4.gif
     :width: 120px
-.. |IDM5| image:: ./../data/IDM_5.gif
+.. |IDM5| image:: ./data/IDM_5.gif
     :width: 120px
-.. |IDM6| image:: ./../data/IDM_6.gif
+.. |IDM6| image:: ./data/IDM_6.gif
     :width: 120px
 
 .. table::         
