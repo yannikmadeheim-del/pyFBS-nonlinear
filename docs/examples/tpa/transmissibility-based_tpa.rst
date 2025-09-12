@@ -5,20 +5,13 @@ The family of transmissibility-based TPA determines sound and vibration transfer
 This approach is convinient when TPA is used solely to identify the dominant path contributions in existing products. 
 
    
-.. raw:: html
-
-    <div class="sphx-glr-thumbcontainer" tooltip="Operational TPA">
-
 .. only:: html
 
-    .. figure:: ./../data/labels.png   
-       :target: 15_operational_TPA.html
+     .. figure:: ./../data/labels.png 
+         :height: 150px
+         :target: 15_operational_TPA.html
 
-       Operational TPA
-
-.. raw:: html
-
-    </div>
+         Operational TPA
 
 .. toctree::
    :hidden:
