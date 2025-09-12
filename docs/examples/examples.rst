@@ -74,6 +74,11 @@ This examples show how to use basic features of pyFBS. Explore this basic exampl
 Interface modelling
 *******************
 
+In experimental dynamic substructuring, coupling of substructures sharing a line- or surface-like interface proves to be a challenge due to the 
+difficulties in interface modelling. Modelling a high number of degrees of freedom at the common interface can be too stringent when imposing 
+compatibility and equilibrium conditions, thereby causing redundancy and ill-conditioning. These examples show state-of-the-art techniques to 
+establish an interface model composed of significant degrees of freedom.
+
 
 .. only:: html
 
@@ -108,9 +113,14 @@ Interface modelling
 Frequency Based Substructuring
 ******************************
 
+Structural dynamic analyses can be carried out more efficiently if complex systems are divided into smaller subsystems, analysed separately, 
+and later coupled using dynamic substructuring (DS) methods. In terms of the modeling domain, a frequency-based substructuring (FBS) is often 
+preferred by experimentalists due to its ease of use and implementation with directly measured Frequency Response Functions (FRFs). 
+These examples show state-of-the-art techniques to successfully couple or decouple substructures using FBS framework.
+
 .. only:: html
 
-     .. figure:: ./data/seven_three.png
+     .. figure:: ./data/vp_a_b_ab.png
          :height: 150px
          :target: ./fbs/07_coupling.html
 
@@ -124,7 +134,7 @@ Frequency Based Substructuring
 
 .. only:: html
 
-     .. figure:: ./data/seven_three.png
+     .. figure:: ./data/decoupling.png
          :height: 150px
          :target: ./fbs/08_decoupling.html
 
@@ -138,7 +148,7 @@ Frequency Based Substructuring
 
 .. only:: html
 
-     .. figure:: ./data/seven_three.png
+     .. figure:: ./data/SVT.png
          :height: 150px
          :target: ./fbs/13_SVT_decoupling.html
 
@@ -153,6 +163,10 @@ Frequency Based Substructuring
 
 Transfer Path Analysis
 **********************
+
+Transfer-path analysis (TPA) is a reliable and effective diagnostic tool for the characterization of actively vibrating components and the 
+propagation of noise and vibrations to the connected passive substructures. TPA offers the ability to analyse the vibration transfer between 
+the individual components of the assembly, distinguish the partial transfer-path contribution and predict the receiver's response.
 
 .. only:: html
 
@@ -203,6 +217,10 @@ Transfer Path Analysis
 Dynamic expansion
 *****************
 
+A high-resolution dynamic response is important for characterizing a system's dynamic properties. Measurements involving a limited number of 
+points on the structure can be expanded to unmeasured points through approximation or model-based expansion techniques that rely on the introduction 
+of a numerical model.
+
 
 .. only:: html
 
@@ -237,6 +255,9 @@ Dynamic expansion
 Modal identification
 ********************
 
+The response of a system can often be represented by much fewer variables in the modal domain. A feature of pyFBS, multi-reference modal identification method, 
+enables you to perform experimental or operational modal analysis and identify modal parameters from experimental dynamic models.
+
 
 .. only:: html
 
@@ -255,6 +276,8 @@ Modal identification
 
 Case studies
 ************
+
+These examples show applications of the pyFBS on more complex problems. Explore this application examples to see how pyFBS can be used on more complex dynamic problems.
 
 
 .. only:: html
