@@ -5,20 +5,14 @@ For an independent characterization of the source structure, component-based TPA
 These equivalent or blocked forces are valid for any assembly with a modified passive side.
 
    
-.. raw:: html
-
-    <div class="sphx-glr-thumbcontainer" tooltip="in-situ TPA">
 
 .. only:: html
 
-    .. figure:: ./../data/tpa.png   
-       :target: 11_insitu_TPA.html
+     .. figure:: ./../data/tpa.png
+         :height: 150px
+         :target: 11_insitu_TPA.html
 
-       in-situ TPA
-
-.. raw:: html
-
-    </div>
+         in-situ TPA
 
 .. toctree::
    :hidden:
@@ -27,22 +21,13 @@ These equivalent or blocked forces are valid for any assembly with a modified pa
 
 
 
-
-
-.. raw:: html
-
-    <div class="sphx-glr-thumbcontainer" tooltip="Free velocity">
-
 .. only:: html
 
-    .. figure:: ./../data/free_velocity.PNG   
-       :target: 16_free_velocity.html
+     .. figure:: ./../data/free_velocity.PNG 
+         :height: 150px
+         :target: 16_free_velocity.html
 
-       Free velocity
-
-.. raw:: html
-
-    </div>
+         Free velocity
 
 .. toctree::
    :hidden:
@@ -51,21 +36,13 @@ These equivalent or blocked forces are valid for any assembly with a modified pa
 
 
 
-
-.. raw:: html
-
-    <div class="sphx-glr-thumbcontainer" tooltip="Pseudo-forces">
-
 .. only:: html
 
-    .. figure:: ./../data/pseudo_forces.PNG   
-       :target: 17_pseudo_forces.html
+     .. figure:: ./../data/pseudo_forces.PNG  
+         :height: 150px
+         :target: 17_pseudo_forces.html
 
-       Pseudo-forces
-
-.. raw:: html
-
-    </div>
+         Pseudo-forces
 
 .. toctree::
    :hidden:
