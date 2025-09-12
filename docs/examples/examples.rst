@@ -8,12 +8,10 @@ Basic examples
 
 This examples show how to use basic features of pyFBS. Explore this basic examples to get familiar with the pyFBS workflow.
 
-.. only:: html
+.. |thumb_static| image:: ./data/interaction.gif
+   :alt: Static display
 
-   .. figure:: ./data/interaction.gif
-      :name: basic-static-thumb
-
-      Static display — see :doc:`the example <basic_examples/01_static_display>`.
+:doc:`|thumb_static| <basic_examples/01_static_display>`
 
 .. toctree::
    :hidden:
@@ -123,7 +121,7 @@ These examples show state-of-the-art techniques to establish an interface model 
 
 .. only:: html
 
-    .. figure:: ./../data/pic_vpt.png 
+    .. figure:: ./data/pic_vpt.png 
        :target: 04_VPT.html
 
        VPT example
@@ -145,7 +143,7 @@ These examples show state-of-the-art techniques to establish an interface model 
 
 .. only:: html
 
-    .. figure:: ./../data/SVT.png 
+    .. figure:: ./data/SVT.png 
        :target: 12_SVT.html
 
        SVT example
@@ -175,7 +173,7 @@ These examples show state-of-the-art techniques to successfully couple or decoup
 
 .. only:: html
 
-    .. figure:: ./../data/seven_three.png   
+    .. figure:: ./data/seven_three.png   
        :target: 07_coupling.html
 
        FBS Coupling with VPT
@@ -198,7 +196,7 @@ These examples show state-of-the-art techniques to successfully couple or decoup
 
 .. only:: html
 
-    .. figure:: ./../data/seven_three.png   
+    .. figure:: ./data/seven_three.png   
        :target: 08_decoupling.html
 
        FBS Decoupling with VPT
@@ -220,7 +218,7 @@ These examples show state-of-the-art techniques to successfully couple or decoup
 
 .. only:: html
 
-    .. figure:: ./../data/seven_three.png   
+    .. figure:: ./data/seven_three.png   
        :target: 13_SVT_decoupling.html
 
        FBS Decoupling with SVT
