@@ -46,25 +46,31 @@ This research can help on the path to a sustainable future by providing tools an
       :caption: Why pyFBS?
 
       intro
-..
-   .. toctree::
-      :maxdepth: 2
-      :caption: About
 
-      intro
-      about
+.. toctree::
+   :maxdepth: 2
+   :caption: About
 
+   intro
+   about
 
-   .. toctree::
-      :maxdepth: 2
-      :caption: Theoretical backgrounds with examples
-      
-      ./examples/examples
-      
+.. toctree::
+   :maxdepth: 2
+   :caption: Theoretical background
+   
+   ./theory/theory
 
 
-   .. toctree::
-      :maxdepth: 2
-      :caption: Code Documentation
+.. toctree::
+   :maxdepth: 2
+   :caption: Examples
+   
+   ./examples/examples
+   
 
-      ./code_documentation/core
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Code Documentation
+
+   ./code_documentation/core
