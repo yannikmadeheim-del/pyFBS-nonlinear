@@ -11,9 +11,10 @@ This examples show how to use basic features of pyFBS. Explore this basic exampl
 .. only:: html
 
    .. figure:: ./data/interaction.gif
-      :name: basic-static-thumb
+     :height: 200px
+     :target: ./basic_examples/01_static_display.html
 
-      Static display — see :doc:`the example <basic_examples/01_static_display>`.
+      Static display
 
 .. toctree::
    :hidden:
@@ -26,9 +27,10 @@ This examples show how to use basic features of pyFBS. Explore this basic exampl
 .. only:: html
 
    .. figure:: ./data/snapping.gif
-      :name: basic-interactive-thumb
+     :height: 200px
+     :target: ./basic_examples/02_interactive_display.html
 
-      Interactive positioning — see :doc:`the example <basic_examples/02_interactive_display>`.
+      Interactive positioning
 
 
 .. toctree::
@@ -42,9 +44,10 @@ This examples show how to use basic features of pyFBS. Explore this basic exampl
 .. only:: html
 
    .. figure:: ./data/FRF_syn-FRF-visualization.svg
-      :name: basic-frf-thumb
+     :height: 200px
+     :target: ./basic_examples/03_FRF_synthetization.html
 
-      FRF synthetization — see :doc:`the example <basic_examples/03_FRF_synthetization>`.
+      FRF synthetization
 
 .. toctree::
    :hidden:
@@ -57,9 +60,10 @@ This examples show how to use basic features of pyFBS. Explore this basic exampl
 .. only:: html
 
    .. figure:: ./data/plot.png
-      :name: basic-plot-thumb
+     :height: 200px
+     :target: ./basic_examples/plotting.html
 
-      Plotting with wrapper functions — see :doc:`the example <basic_examples/plotting>`.
+      Plotting with wrapper functions
 
 .. toctree::
    :hidden:
@@ -75,28 +79,30 @@ Interface modelling
 .. only:: html
 
    .. figure:: ./data/pic_vpt.png
-      :name: vpt-thumb
+     :height: 200px
+     :target: ./fbs/04_VPT.html
 
-      VPT example — see :doc:`the example <04_VPT>`.
+      VPT example
 
 .. toctree::
    :hidden:
 
-   04_VPT
+   fbs/04_VPT
 
 
 
 .. only:: html
 
    .. figure:: ./data/SVT.png
-      :name: svt-thumb
+     :height: 200px
+     :target: ./fbs/12_SVT.html
 
-      SVT example — see :doc:`the example <12_SVT>`.
+      SVT example
 
 .. toctree::
    :hidden:
 
-   12_SVT
+   fbs/12_SVT
 
 
 
@@ -106,40 +112,43 @@ Frequency Based Substructuring
 .. only:: html
 
    .. figure:: ./data/seven_three.png
-      :name: coupling-thumb
+     :height: 200px
+     :target: ./fbs/07_coupling.html
 
-      FBS Coupling with VPT — see :doc:`the example <07_coupling>`.
+      FBS Coupling with VPT
 
 .. toctree::
    :hidden:
 
-   07_coupling
+   fbs/07_coupling
 
 
 .. only:: html
 
    .. figure:: ./data/seven_three.png
-      :name: decoupling-thumb
+     :height: 200px
+     :target: ./fbs/08_decoupling.html
 
-      FBS Decoupling with VPT — see :doc:`the example <08_decoupling>`.
+      FBS Decoupling with VPT
 
 .. toctree::
    :hidden:
 
-   08_decoupling
+   fbs/08_decoupling
 
 
 .. only:: html
 
    .. figure:: ./data/seven_three.png
-      :name: svt-dec-thumb
+     :height: 200px
+     :target: ./fbs/13_SVT_decoupling.html
 
-      FBS Decoupling with SVT — see :doc:`the example <13_SVT_decoupling>`.
+      FBS Decoupling with SVT
 
 .. toctree::
    :hidden:
 
-   13_SVT_decoupling
+   fbs/13_SVT_decoupling
 
 
 
@@ -149,9 +158,10 @@ Transfer Path Analysis
 .. only:: html
 
    .. figure:: ./data/classical_tpa.svg
-      :name: classical-tpa-thumb
+     :height: 200px
+     :target: ./tpa/classical_tpa.html
 
-      Classical TPA — see :doc:`the example <tpa/classical_tpa>`.
+      Classical TPA
 
 .. toctree::
    :hidden:
@@ -163,9 +173,10 @@ Transfer Path Analysis
 .. only:: html
 
    .. figure:: ./data/component-based_tpa.svg
-      :name: component-tpa-thumb
+     :height: 200px
+     :target: ./tpa/component-based_tpa.html
 
-      Component-based TPA — see :doc:`the example <tpa/component-based_tpa>`.
+      Component-based TPA
 
 .. toctree::
    :hidden:
@@ -178,9 +189,10 @@ Transfer Path Analysis
 .. only:: html
 
    .. figure:: ./data/otpa.svg
-      :name: transmissibility-tpa-thumb
+     :height: 200px
+     :target: ./tpa/transmissibility-based_tpa.html
 
-      Transmissibility-based TPA — see :doc:`the example <tpa/transmissibility-based_tpa>`.
+      Transmissibility-based TPA
 
 .. toctree::
    :hidden:
@@ -196,9 +208,10 @@ Dynamic expansion
 .. only:: html
 
    .. figure:: ./data/semm_scheme.svg
-      :name: semm-thumb
+     :height: 200px
+     :target: ./dynamic_expansion/system_equivalent_model_mixing.html
 
-      System Equivalent Model Mixing in Frequency Domain (SEMM) — see :doc:`the example <dynamic_expansion/system_equivalent_model_mixing>`.
+      System Equivalent Model Mixing in Frequency Domain (SEMM)
 
 .. toctree::
    :hidden:
@@ -210,9 +223,10 @@ Dynamic expansion
 .. only:: html
 
    .. figure:: ./data/serep_scheme.svg
-      :name: serep-thumb
+     :height: 200px
+     :target: ./dynamic_expansion/21_SEREP.html
 
-      System Equivalent Reduction Expansion Process (SEREP) — see :doc:`the example <dynamic_expansion/21_SEREP>`.
+      System Equivalent Reduction Expansion Process (SEREP)
 
 .. toctree::
    :hidden:
@@ -228,9 +242,10 @@ Modal identification
 .. only:: html
 
    .. figure:: ./data/modal_id_tn.jpg
-      :name: ema-thumb
+     :height: 200px
+     :target: ./modal_id/20_EMA.html
 
-      Experimental Modal Analysis — see :doc:`the example <modal_id/20_EMA>`.
+      Experimental Modal Analysis
 
 .. toctree::
    :hidden:
@@ -246,9 +261,10 @@ Case studies
 .. only:: html
 
    .. figure:: ./data/ods.gif
-      :name: ods-thumb
+     :height: 200px
+     :target: ./case_studies/06_ODS.html
 
-      Operational Deflection Shapes — see :doc:`the example <case_studies/06_ODS>`.
+      Operational Deflection Shapes
 
 .. toctree::
    :hidden:
@@ -260,9 +276,10 @@ Case studies
 .. only:: html
 
    .. figure:: ./data/ten_display_four.png
-      :name: ts-thumb
+     :height: 200px
+     :target: ./case_studies/10_TS.html
 
-      Transmission Simulator — see :doc:`the example <case_studies/10_TS>`.
+      Transmission Simulator
 
 .. toctree::
    :hidden:
@@ -275,9 +292,10 @@ Case studies
 .. only:: html
 
    .. figure:: ./data/AJB_.png
-      :name: rubber-thumb
+     :height: 200px
+     :target: ./case_studies/23_rubber_mount.html
 
-      Rubber Mount Characterization — see :doc:`the example <case_studies/23_rubber_mount>`.
+      Rubber Mount Characterization
 
 .. toctree::
    :hidden:
