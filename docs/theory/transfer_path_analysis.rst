@@ -80,7 +80,7 @@ basic properties of the individual families.
 
 
 Classical TPA
-======================
+^^^^^^^^^^^^^
 
 Classical TPA methods conduct measurements on the assembled products AB
 to obtain interface forces between the active and passive sides.
@@ -118,7 +118,7 @@ Cons (Contra)
 
 
 Component-based TPA
-======================
+^^^^^^^^^^^^^^^^^^^
 
 The main disadvantage of the classical TPA methods is the
 non-transferability of the interface forces in case the passive
@@ -170,7 +170,7 @@ Cons (Contra)
 
 
 Transmissibility-based TPA
-======================
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 If one is only interested in dominant transfer paths and source
 excitation are of no interest, the transmissibility-based TPA family is
@@ -207,7 +207,7 @@ Cons (Contra)
 
 
 Transfer path problem
-***********************
+^^^^^^^^^^^^^^^^^^^^^
 
 Consider an assembly of substructures A and B, coupled at the interface,
 as depicted below. Substructure A is an active component with the
@@ -322,7 +322,7 @@ or responses at the passive side as a consequence of an operational load
 expressed from the assembled admittance.
 
 Component-based TPA: Equivalent source concept
-======================
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Now, we assume that all operational responses as a consequence of
 :math:`\boldsymbol{f}_1` can be fully expressed by
@@ -456,7 +456,7 @@ In-Situ TPA - Measurement Campaign
 ***********************
 
 Operational measurement campaign
-======================
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
 -  Measurement of the output signal by source excitation →
@@ -481,7 +481,7 @@ the gears would be an important mechanism changing the internal loads
 taken so that this assumption is not violated.
 
 FRF measurement campaign
-======================
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 -  FRFs from hammer impacts at the interface
 
@@ -492,7 +492,7 @@ FRF measurement campaign
 
 
 VPT reconstruction
-==================
+^^^^^^^^^^^^^^^^^^
 
 
 -  Transformation of the hammer inputs to virtual loads
@@ -505,12 +505,9 @@ VPT reconstruction
 .. figure:: ./data/vp_measurement.svg
    :width: 300px
 
-Literature on VPT suggest to consider a ratio between measured forces and virtual loads ($\textit{m}>\textit{n}$) of at least a factor of $\frac{m}{n} \approx 1.5$ to improve the results of the virtual load identification. If the amount of channels is not a limitation, a factor of 2 is suggested.
-Literature on TPA suggest to use at least 9 indicator DoFs per transfer path to improve the results of source characterization.
-
 
 Limitations of in-situ TPA
-==========================
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
 -  limited to linear time-invariant systems
@@ -521,125 +518,21 @@ Limitations of in-situ TPA
 
 .. rubric:: References
 
-   .. raw:: html
+.. [1] van der Seijs MV, de Klerk D, Rixen DJ. General framework for transfer path analysis: History, theory and classification of techniques. *Mechanical Systems and Signal Processing*. 2016 Feb 1;68:217–44. doi:10.1016/j.ymssp.2015.08.004.
 
-      <ul>
+.. [2] van der Seijs MV. *Experimental dynamic substructuring: Analysis and design strategies for vehicle development*. Delft University of Technology, 2016. doi:10.4233/uuid:28b31294-8d53-49eb-b108-284b63edf670.
 
-   .. raw:: html
+.. [3] Moorhouse AT. On the characteristic power of structure-borne sound sources. *Journal of Sound and Vibration*. 2001;248(3):441–459. doi:10.1006/jsvi.2001.3797.
 
-      <li>
+.. [4] Elliott A, Moorhouse AT. Characterisation of structure-borne sound sources from measurement in-situ. *Journal of the Acoustical Society of America*. 2008 May;123(5):3176.
 
-   van der Seijs MV, de Klerk D, Rixen DJ. General framework for
-   transfer path analysis: History, theory and classification of
-   techniques. Mechanical Systems and Signal Processing. 2016 Feb
-   1;68:217-44. 10.1016/j.ymssp.2015.08.004.
+.. [5] Wernsen MWF, van der Seijs MV, de Klerk D. An indicator sensor criterion for in-situ characterisation of source vibrations. In: *Sensors and Instrumentation, Volume 5* (pp. 55–69). Springer, Cham, 2017. doi:10.1007/978-3-319-54987-3_7.
 
-   .. raw:: html
+.. [6] El Mahmoudi A, Trainotti F, Park K, Rixen DJ. In-situ TPA for NVH analysis of powertrains: an evaluation on an experimental test setup. In: *AAC 2019: Aachen Acoustics Colloquium / Aachener Akustik Kolloquium*, 2019.
 
-      </li>
+.. [7] Haeussler M, Mueller T, Pasma EA, Freund J, Westphal O, Voehringer T, ZF AG. Component TPA: benefit of including rotational degrees of freedom and over-determination. In: *ISMA 2020 – International Conference on Noise and Vibration Engineering* (pp. 1135–1148), 2020.
 
-   .. raw:: html
+.. [8] Haeussler M, Kobus DC, Rixen DJ. Parametric design optimization of e-compressor NVH using blocked forces and substructuring. *Mechanical Systems and Signal Processing*. 2021;150:107217. doi:10.1016/j.ymssp.2020.107217.
 
-      <li>
-
-   van der Seijs, MV. Experimental dynamic substructuring: Analysis and
-   design strategies for vehicle development. Delft University of
-   Technology, 2016. 10.4233/uuid:28b31294-8d53-49eb-b108-284b63edf670.
-
-   .. raw:: html
-
-      </li>
-
-   .. raw:: html
-
-      <li>
-
-   Moorhouse, A. T. On the characteristic power of structure-borne sound
-   sources. Journal of sound and vibration 248.3 (2001): 441-459.
-   10.1006/jsvi.2001.3797
-
-   .. raw:: html
-
-      </li>
-
-   .. raw:: html
-
-      <li>
-
-   Elliott A, Moorhouse AT. Characterisation of structure borne sound
-   sources from measurement in-situ. Journal of the Acoustical Society
-   of America. 2008 May;123(5):3176.
-
-   .. raw:: html
-
-      </li>
-
-   .. raw:: html
-
-      <li>
-
-   Wernsen, M. W. F., van der Seijs, M. V., & de Klerk, D. (2017). An
-   indicator sensor criterion for in-situ characterisation of source
-   vibrations. In Sensors and Instrumentation, Volume 5 (pp. 55-69).
-   Springer, Cham. 10.1007/978-3-319-54987-3_7.
-
-   .. raw:: html
-
-      </li>
-
-   .. raw:: html
-
-      <li>
-
-   El Mahmoudi, A., Trainotti, F., Park, K., & Rixen, D. J. (2019).
-   In-situ TPA for NVH analysis of powertrains: an evaluation on an
-   experimental test setup. In AAC 2019: Aachen acoustics
-   colloquium/aachener akustik kolloquium.
-
-   .. raw:: html
-
-      </li>
-
-   .. raw:: html
-
-      <li>
-
-   Haeussler, M., Mueller, T., Pasma, E. A., Freund, J., Westphal, O.,
-   Voehringer, T., & AG, Z. F. (2020). Component TPA: benefit of
-   including rotational degrees of freedom and over-determination. In
-   ISMA 2020-International Conference on Noise and Vibration Engineering
-   (pp. 1135-1148).
-
-   .. raw:: html
-
-      </li>
-
-   .. raw:: html
-
-      <li>
-
-   Haeussler, M., Kobus, D. C., & Rixen, D. J. (2021). Parametric design
-   optimization of e-compressor NVH using blocked forces and
-   substructuring. Mechanical Systems and Signal Processing, 150,
-   107217. 10.1016/j.ymssp.2020.107217.
-
-   .. raw:: html
-
-      </li>
-
-   .. raw:: html
-
-      <li>
-
-   Haeussler, M. (2021). Modular sound & vibration engineering by
-   substructuring. Technische Universität München.
-   https://mediatum.ub.tum.de/doc/1550333/1550333.pdf.
-
-   .. raw:: html
-
-      </li>
-
-   .. raw:: html
-
-      </ul>
+.. [9] Haeussler M. *Modular sound & vibration engineering by substructuring*. Technische Universität München, 2021. https://mediatum.ub.tum.de/doc/1550333/1550333.pdf
 
