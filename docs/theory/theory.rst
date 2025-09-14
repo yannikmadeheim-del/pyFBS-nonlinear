@@ -46,3 +46,16 @@ Have fun exploring FBS field!
    :hidden:
 
    ./singular_vector_transformation
+
+.. only:: html
+
+    .. figure:: ./data/tp_problem.svg  
+       :height: 150px
+       :target: ./transfer_path_analysis.html
+
+       Transfer Path Analysis
+
+.. toctree::
+   :hidden:
+
+   ./transfer_path_analysis
