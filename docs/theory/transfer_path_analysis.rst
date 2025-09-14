@@ -492,7 +492,7 @@ FRF measurement campaign
 
 
 VPT reconstruction
-======================
+==================
 
 
 -  Transformation of the hammer inputs to virtual loads
@@ -510,7 +510,7 @@ Literature on TPA suggest to use at least 9 indicator DoFs per transfer path to 
 
 
 Limitations of in-situ TPA
-======================
+==========================
 
 
 -  limited to linear time-invariant systems
