@@ -6,13 +6,13 @@ The 3D display of the pyFBS can also be used to animate any objects. Animation c
 In this example an Operational Deflection Shape (ODS) of an automotive testbench is animated.
 
 .. note:: 
-   Download example showing an application of the ODS: :download:`06_ODS.ipynb <../../../examples/06_operational_deflection_shapes_ODS.ipynb>`
+   Download example showing an application of the ODS: :download:`06_ODS.ipynb <../../../examples/04_operational_deflection_shapes_ODS.ipynb>`
 
 
 Example Datasets and 3D view
 ----------------------------
 
-As already shown in the `3D Display <../../html/examples/basic_examples/01_static_display.html>`_ one can load predefined datasets from the available examples and add a structure from STL file to the 3D view. This allows both the sensors and excitation points (impacts) to be visualized.
+As already shown in the `3D Display <https://pyfbs.readthedocs.io/en/master/examples/basic_examples/01_static_display.html>`_ one can load predefined datasets from the available examples and add a structure from STL file to the 3D view. This allows both the sensors and excitation points (impacts) to be visualized.
 
     
 .. figure:: ./../data/six_one.png

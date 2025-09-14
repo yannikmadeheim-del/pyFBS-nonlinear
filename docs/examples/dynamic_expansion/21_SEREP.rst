@@ -1,8 +1,9 @@
-System Equivalent Reduction Expansion Process
-=============================================
+#############
+SEREP
+#############
 
 .. note:: 
-   Download example showing the basic use of SEREP: :download:`21_SEREP.ipynb <../../../examples/21_expansion_methods.ipynb>`
+   Download example showing the use of model-mixing strategies: :download:`17_expansion_methods.ipynb <../../../examples/17_expansion_methods.ipynb>`
 
 Before diving into the SEREP method let us introduce two equivalent models, denoted as the parent (par) and the overlay (ov). 
 The naming convention is adopted from the original frequency-based SEMM implementation for consistency, even though the SEREP method was introduced decades earlier.

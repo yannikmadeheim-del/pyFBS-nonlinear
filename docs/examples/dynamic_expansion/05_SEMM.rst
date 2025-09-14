@@ -1,5 +1,7 @@
+#############
 SEMM example
-==============================
+#############
+
 
 System Equivalent Model Mixing (SEMM) [1]_ enables the mixing of equivalent models into a hybrid model in the frequency domain. 
 The models used can either be of numerical or experimental nature. 
@@ -7,7 +9,7 @@ The overlay model provides the dynamic properties which are expanded to the DoFs
 Therefore the overlay model is usually represented by the experimental model and parent model with the numerical model.
 
 .. note:: 
-   Download example showing the basic use of SEMM: :download:`05_SEMM.ipynb <../../../examples/05_SEMM.ipynb>`
+   Download example showing the use of model-mixing strategies: :download:`17_expansion_methods.ipynb <../../../examples/17_expansion_methods.ipynb>`
 
 ..
    DoF-set of parent model is contained from internal (i) and boundary (b) DoFs. 

@@ -7,54 +7,37 @@ Application of SEMM comprises the expansion of the experimental dynamics to the 
 
 
 
-.. raw:: html
-
-    <div class="sphx-glr-thumbcontainer" tooltip="SEMM example">
-
 .. only:: html
 
-    .. figure:: ./../data/SEMM_result.png 
-       :target: 05_SEMM.html
+     .. figure:: ./../data/SEMM_result.png 
+         :height: 150px
+         :target: 05_SEMM.html
 
-       SEMM example
-
-.. raw:: html
-
-    </div>
+         SEMM example
 
 .. toctree::
    :hidden:
 
-   05_SEMM
+   SEMM example
 
 
-
-
-
-.. raw:: html
-
-    <div class="sphx-glr-thumbcontainer" tooltip="Identification algorithm">
 
 .. only:: html
 
-    .. figure:: ./../data/id_algorithm.png 
-       :target: 22_identification_algorithm.html
+     .. figure:: ./../data/id_algorithm.png 
+         :height: 150px
+         :target: 22_identification_algorithm.html
 
-       Identification of inconsistent measurements
-
-.. raw:: html
-
-    </div>
+         Identification of inconsistent measurements
 
 .. toctree::
    :hidden:
 
    22_identification_algorithm
 
-|
-|
-|
-|
+
+
+
 |
 |
 |

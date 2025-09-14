@@ -6,7 +6,7 @@ Using free velocity concept equivalent forces can be expressed from the interfac
 while operating in free-free conditions.
 
 .. note:: 
-   Download example showing a numerical example of the free velocity: :download:`16_free_velocity.ipynb <../../../examples/15_TPA_free_velocity.ipynb>`
+   Download example showing a numerical example of the free velocity: :download:`13_free_velocity.ipynb <../../../examples/13_TPA_free_velocity.ipynb>`
 
 Free velocity concept
 *********************

@@ -5,7 +5,7 @@ Rubber mount characterization
 This example demonstrates Joint Identification with Frequency Based Substructuring techniques. 
 
 .. note:: 
-   Download example showing a Rubber Mount Characterization: :download:`23_rubber_mount_characterization.ipynb <../../../examples/23_rubber_mount_characterization.ipynb>`.
+   Download example showing a Rubber Mount Characterization: :download:`19_rubber_mount_characterization.ipynb <../../../examples/19_rubber_mount_characterization.ipynb>`.
 
 Joint identification
 ********************

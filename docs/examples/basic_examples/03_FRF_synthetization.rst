@@ -222,7 +222,7 @@ Visualization of impacts and responses
 ======================================
 
 Locations and directions of impacts and responses must be passed with a :mod:`pd.DataFrame`. 
-They can be either read from an Excel file (as shown below) or generated directly with pyFBS (see `Interactive display example <https://pyfbs.readthedocs.io/en/latest/examples/02_interactive_display.html>`_).
+They can be either read from an Excel file (as shown below) or generated directly with pyFBS (see `Interactive display example <https://pyfbs.readthedocs.io/en/master/examples/basic_examples/02_interactive_display.html>`_).
 The parameter ``df_acc`` must include the following columns header: ``Position_1``, ``Position_2``,  ``Position_3``, ``Orientation_1``, ``Orientation_2``, ``Orientation_3``. 
 The position parameters describe the location of accelerometers in the global coordinate system. 
 Orientation of coordinate systems of accelerometer regarding the global coordinate system is defined with orientation parameters which are defined with Euler angles in degrees.

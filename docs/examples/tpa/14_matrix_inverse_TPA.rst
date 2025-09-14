@@ -5,7 +5,7 @@ Matrix Inverse
 The Matrix Inverse method determines operational interface forces between active and passive side based on structural admittance and responses at the passive side.
 
 .. note:: 
-   Download example showing a numerical example of the matrix inverse method: :download:`14_TPA_matrix_inverse.ipynb <../../../examples/13_TPA_matrix_inverse.ipynb>`
+   Download example showing a numerical example of the matrix inverse method: :download:`11_TPA_matrix_inverse.ipynb <../../../examples/11_TPA_matrix_inverse.ipynb>`
 
 What is Matrix Inverse method?
 ******************************

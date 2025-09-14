@@ -5,12 +5,12 @@ SVT Decoupling
 pyFBS has implemented the novel SVD-based approach for interface reduction in LM-FBS. The SVT is the first engineering tool to tackle the issue of flexible interfaces in lightly damped system for experimental frequency-based substructuring. The methodology can be applied without any knowledge of system geometry and treat efficiently measurement error by combining reduction, filtering and regularization in a single transformation step.
 
 .. note:: 
-   Download example showing a substructure decoupling application with SVT: :download:`19_FBS_decoupling_SVT.ipynb <../../../examples/19_FBS_decoupling_SVT.ipynb>`
+   Download example showing a substructure decoupling application with SVT: :download:`09_FBS_decoupling_SVT.ipynb <../../../examples/09_FBS_decoupling_SVT.ipynb>`
     
 Example Datasets and 3D view
 ****************************
 
-Load the required predefined datasets and open the 3D viewer in the background as already shown in `3D Display <../../../html/examples/basic_examples/01_static_display.html>`_. Also for decoupling, a subplot representation, as already presented in `Coupling <../../../html/examples/fbs/07_coupling.html>`_, can be used.
+Load the required predefined datasets and open the 3D viewer in the background as already shown in `Static display example <https://pyfbs.readthedocs.io/en/master/examples/basic_examples/01_static_display.html>`_. Also for decoupling, a subplot representation, as already presented in `Coupling <../../../html/examples/fbs/07_coupling.html>`_, can be used.
     
 .. figure:: ./../data/eight_three.png
    :width: 500px

@@ -1,12 +1,14 @@
+#############
 Identification algorithm for inconsistent measurements
-======================================================
+#############
+
 
 This example introduces a comprehensive experimental method to check the consistency of individual measurements based on comparisons with the complete experimental response model [1]_.  
 The numerical model is introduced only to enable the experimental model to be expanded using the System Equivalent Model Mixing method. 
 The entire formulation is developed in the frequency domain.
 
 .. note:: 
-   Download example showing the basic use of method: :download:`22_identification_algorithm.ipynb <../../../examples/22_identification_algorithm.ipynb>`
+   Download example showing the basic use of method: :download:`18_SEMM_consistency_measurements.ipynb <../../../examples/18_SEMM_consistency_measurements.ipynb>`
 
 Example data import
 *******************

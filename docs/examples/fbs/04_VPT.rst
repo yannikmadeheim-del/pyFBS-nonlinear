@@ -7,7 +7,7 @@ Rigid IDMs can also be extended by the user with flexible interface modes.
 Current implementation of the :class:`pyFBS.VPT` additionaly supports the expansion where directly measured rotational response is included in the transformation [2]_. 
 
 .. note:: 
-   Download example showing the basic use of the VPT: :download:`04_VPT.ipynb <../../../examples/04_VPT.ipynb>`
+   Download example showing the basic use of the VPT: :download:`05_VPT.ipynb <../../../examples/05_VPT.ipynb>`
    
 Consider an example for the VPT where 9 impacts and 9 channels (3 tri-axial accelerometers) are positioned around the interface:
 

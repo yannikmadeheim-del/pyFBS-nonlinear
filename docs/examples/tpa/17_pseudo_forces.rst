@@ -7,7 +7,7 @@ The same methodology as for the equivalent forces also applies for the pseudo-fo
 They surpress the responses at the passive substructure, caused by the source running at operating conditions. 
 
 .. note:: 
-   Download example showing a numerical example of pseudo-forces: :download:`17_pseudo-forces.ipynb <../../../examples/16_TPA_pseudo_forces.ipynb>`
+   Download example showing a numerical example of pseudo-forces: :download:`14_pseudo-forces.ipynb <../../../examples/14_TPA_pseudo_forces.ipynb>`
 
 A set of negative signed pseudo-forces is acting at arbitrary locations on the active side of the assembly. 
 They counteract the operational vibrations transmitted through the interface to the passive side [1]_.

@@ -1,11 +1,11 @@
 ###################################
-Operational Transfer Path Annalysis
+Operational Transfer Path Analysis
 ###################################
 
-Operational TPA (OPTA) coming soon!
+Operational TPA coming soon!
 
 .. note:: 
-   Download example showing a numerical example of the operational TPA: :download:`15_TPA_operational.ipynb <../../../examples/17_TPA_operational.ipynb>`
+   Download example showing the operational TPA: :download:`15_TPA_operational.ipynb <../../../examples/15_TPA_operational.ipynb>`
 
 ..
    What is OPTA?

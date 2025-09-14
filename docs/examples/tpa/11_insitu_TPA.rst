@@ -6,7 +6,7 @@ The in-situ Transfer Path Analysis is a method that utilizes equivalent forces t
 With the possibility to perform operational measurements on the target assembly, dismounting of any part can be avoided.
 
 .. note:: 
-   Download example showing a numerical example of the in-situ TPA: :download:`11_insitu_TPA.ipynb <../../../examples/11_TPA_in-situ.ipynb>`
+   Download example showing a numerical example of the in-situ TPA: :download:`12_insitu_TPA.ipynb <../../../examples/12_TPA_in-situ.ipynb>`
 
 What is in-situ TPA?
 ********************

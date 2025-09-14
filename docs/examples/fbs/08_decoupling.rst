@@ -23,7 +23,7 @@ This can also be performed analogously with experimentally acquired data.
 Example Datasets and 3D view
 ****************************
 
-Load the required predefined datasets and open the 3D viewer in the background as already shown in `3D Display <../../../html/examples/basic_examples/01_static_display.html>`_. Also for decoupling, a subplot representation, as already presented in `Coupling <../../../html/examples/fbs/07_coupling.html>`_, can be used.
+Load the required predefined datasets and open the 3D viewer in the background as already shown in `Static display example <https://pyfbs.readthedocs.io/en/master/examples/basic_examples/01_static_display.html>`_. Also for decoupling, a subplot representation, as already presented in `Coupling <../../../html/examples/fbs/07_coupling.html>`_, can be used.
     
 .. figure:: ./../data/eight_three.png
    :width: 500px

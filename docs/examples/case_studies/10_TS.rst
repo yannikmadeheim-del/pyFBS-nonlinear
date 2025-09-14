@@ -9,14 +9,14 @@ The method of Transmission Simulator (TS) is primarly used direclty in the modal
 
 Example Datasests and 3D view
 *****************************
-As already shown in the `3D Display <../../../html/examples/basic_examples/01_static_display.html>`_ one can load the predefined datasets from an example and add a structure from STL file to the 3D display. This allows both the acceleration sensors and excitation points to be visualized. Also for the transmission simulator application, a subplot representation, as already presented in `Coupling <../../../html/examples/fbs/07_coupling.html>`_, can be used.
+As already shown in the `3D Display <https://pyfbs.readthedocs.io/en/master/examples/basic_examples/01_static_display.html>`_ one can load the predefined datasets from an example and add a structure from STL file to the 3D display. This allows both the acceleration sensors and excitation points to be visualized. Also for the transmission simulator application, a subplot representation, as already presented in `Coupling <https://pyfbs.readthedocs.io/en/master/examples/fbs/07_coupling.html>`_, can be used.
 	
 .. figure:: ./../data/ten_display_four.png
    :width: 500px
    
 Virtual point transformation
 ****************************
-The VPT can be performed on experimental data. See the :download:`04_VPT.ipynb <../../../examples/04_VPT.ipynb>` example for more options and details.
+The VPT can be performed on experimental data. See the :download:`05_VPT.ipynb <../../../examples/05_VPT.ipynb>` example for more options and details.
 
 .. code-block:: python
 
