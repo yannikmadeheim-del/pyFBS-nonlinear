@@ -3,7 +3,8 @@ Transfer Path Analysis
 ======================
 
 Introduction
-------------
+****************************
+
 
 Transfer path analysis (TPA) is a tool for the characterization of
 actively vibrating components and the propagation of noise and
@@ -13,7 +14,7 @@ vibrations to the connected passive substructures.
    :width: 600px
 
 When should I use TPA?
-----------------------
+****************************
 
 Typical TPA implementation in NVH problems concerns reducing undesired
 noise or vibrations in order to improve comfort, safety, or stealth.
@@ -66,7 +67,7 @@ straightforward.
    :width: 300px
 
 Which TPA methods can I use?
-----------------------------
+****************************
 
 A wide range of different TPA methods speaks for its popularity and
 applicability. In general, TPA methods are classified into three large
@@ -76,6 +77,10 @@ basic properties of the individual families.
 
 .. figure:: ./data/family.png
    :width: 1200px
+
+
+Classical TPA
+======================
 
 Classical TPA methods conduct measurements on the assembled products AB
 to obtain interface forces between the active and passive sides.
@@ -91,10 +96,6 @@ procedure can be applied to estimate interface forces that replicate
 responses around the interface. This matrix inverse method is a
 practical method, however, it requires separate measurement of the FRFs,
 followed by the measurement of the operational responses.
-
-Classical TPA
-----------------------------
-
 
 .. figure:: ./data/classical.png
    :width: 600px
@@ -115,8 +116,12 @@ Cons (Contra)
 - |con| High force transducer sensor stiffness and impractical mounting for the direct force method.
 - |con| Dismounting of the assembly.
 
+
+Component-based TPA
+======================
+
 The main disadvantage of the classical TPA methods is the
-non-transferability of the interface forces in case if passive
+non-transferability of the interface forces in case the passive
 substructure is modified in any way. This explains why classical TPA is
 mainly used on the existing products only. This drawback can be resolved
 by using component-based TPA, which describes operational excitation in
@@ -139,8 +144,6 @@ compliant, it can be accounted for with the hybrid interface method.
 In-situ and pseudo-forces methods even eliminate the need to dismount
 any part of the assembly in order to determine equivalent forces.
 
-Component-based TPA
-----------------------------
 
 .. figure:: ./data/component.png
    :width: 600px
@@ -165,6 +168,10 @@ Cons (Contra)
 - |con| Running active components at the free conditions is difficult for the free velocity method.
 
 
+
+Transmissibility-based TPA
+======================
+
 If one is only interested in dominant transfer paths and source
 excitation are of no interest, the transmissibility-based TPA family is
 a viable and simple solution. Transfer paths are characterized solely by
@@ -174,9 +181,6 @@ transmissibility matrix, which is built from responses at the passive
 side, conducted under various operational loads. Operational mount
 identification (OPAX) is a hybrid TPA method for the estimation of mount
 stiffness parameters from the operational test.
-
-Transmissibility-based TPA
-----------------------------
 
 .. figure:: ./data/transmissibility.png
    :width: 600px
@@ -200,10 +204,10 @@ Cons (Contra)
 - |con| Operational interface loads are not known.
 - |con| Results are strongly dependent on the choice of the sensor locations as some transmission paths may be missed.
 
---------------
+
 
 Transfer path problem
----------------------
+***********************
 
 Consider an assembly of substructures A and B, coupled at the interface,
 as depicted below. Substructure A is an active component with the
@@ -318,7 +322,7 @@ or responses at the passive side as a consequence of an operational load
 expressed from the assembled admittance.
 
 Component-based TPA: Equivalent source concept
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+======================
 
 Now, we assume that all operational responses as a consequence of
 :math:`\boldsymbol{f}_1` can be fully expressed by
@@ -370,7 +374,7 @@ Followed by the passive side responses:
 .. math::  \boldsymbol{u}_4 = \mathbf{Y}_{42}^{\text{B}} \underbrace{(\mathbf{Y}_{22}^{\text{A}} + \mathbf{Y}_{22}^{\text{B}})^{-1} \mathbf{Y}_{22}^{\text{A}} \boldsymbol{f}_2^{\text{eq}}}_{-\boldsymbol{\lambda}} = \mathbf{Y}_{42}^{\text{AB}} \boldsymbol{f}_2^{\text{eq}}
 
 In-situ TPA
------------
+***********************
 
 Source excitations :math:`\boldsymbol{f}_1` are often not measurable in
 practice. Equivalent forces, applied at the interface DoFs, generates
@@ -449,10 +453,10 @@ applied to the assembly with a modified passive side
    :width: 800px
 
 In-Situ TPA - Measurement Campaign
-----------------------------------
+***********************
 
 Operational measurement campaign
--------------------------------
+======================
 
 
 -  Measurement of the output signal by source excitation →
@@ -477,7 +481,7 @@ the gears would be an important mechanism changing the internal loads
 taken so that this assumption is not violated.
 
 FRF measurement campaign
--------------------------------
+======================
 
 -  FRFs from hammer impacts at the interface
 
@@ -488,7 +492,7 @@ FRF measurement campaign
 
 
 VPT reconstruction
--------------------------------
+======================
 
 
 -  Transformation of the hammer inputs to virtual loads
@@ -506,7 +510,7 @@ Literature on TPA suggest to use at least 9 indicator DoFs per transfer path to 
 
 
 Limitations of in-situ TPA
--------------------------------
+======================
 
 
 -  limited to linear time-invariant systems
@@ -514,7 +518,8 @@ Limitations of in-situ TPA
    → errors in the equivalent forces
    → transferability is limited
 
-   That’s a wrap! Want to know more?
+
+.. rubric:: References
 
    .. raw:: html
 
