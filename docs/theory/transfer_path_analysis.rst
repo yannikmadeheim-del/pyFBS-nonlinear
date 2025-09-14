@@ -98,18 +98,18 @@ practical method, however, it requires separate measurement of the FRFs,
 followed by the measurement of the operational responses.
 
 .. figure:: ./data/classical.png
-   :width: 600px
+   :width: 800px
 
 .. |pro| replace:: ✓
 .. |con| replace:: ✗
 
-Pros (Pro)
+Pros 
 ==========
 
 - |pro| Interface forces replicate operational excitation.
 - |pro| Identification of transfer path contribution.
 
-Cons (Contra)
+Cons 
 =============
 
 - |con| Interface forces are valid for the measured assembly only.
@@ -146,12 +146,12 @@ any part of the assembly in order to determine equivalent forces.
 
 
 .. figure:: ./data/component.png
-   :width: 600px
+   :width: 900px
 
 .. |pro| replace:: ✓
 .. |con| replace:: ✗
 
-Pros (Pro)
+Pros 
 ==========
 
 - |pro| Equivalent forces replicate operational excitation.
@@ -160,7 +160,7 @@ Pros (Pro)
 - |pro| Perfect for structural modifications in product development.
 
 
-Cons (Contra)
+Cons 
 =============
 
 - |con| Direct measurements of the equivalent moments.
@@ -189,7 +189,7 @@ stiffness parameters from the operational test.
 .. |pro| replace:: ✓
 .. |con| replace:: ✗
 
-Pros (Pro)
+Pros
 ==========
 
 - |pro| Description of the operational excitation is not needed.
@@ -198,7 +198,7 @@ Pros (Pro)
 - |pro| Simplistic combination of different types of sensors.
 
 
-Cons (Contra)
+Cons 
 =============
 
 - |con| Operational interface loads are not known.
@@ -207,7 +207,7 @@ Cons (Contra)
 
 
 Transfer path problem
-^^^^^^^^^^^^^^^^^^^^^
+****************************
 
 Consider an assembly of substructures A and B, coupled at the interface,
 as depicted below. Substructure A is an active component with the
