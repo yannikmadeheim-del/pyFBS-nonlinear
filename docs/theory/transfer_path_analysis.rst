@@ -27,12 +27,12 @@ excitation (far) too complex to model or measure. Just think of…well,
 any source really:
 
 .. figure:: ./data/engine.svg
-   :width: 600px
+   :width: 300px
 
 With TPA, operational loads can be measured. Well, not directly…
 
 .. figure:: ./data/engine_f_eq.svg
-   :width: 600px
+   :width: 300px
 
 2. Distinguish partial transfer paths and find most dominant one
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -41,7 +41,7 @@ Amongst all transfer paths, the most dominant one can be easily
 pinpointed.
 
 .. figure:: ./data/tp.svg
-   :width: 600px
+   :width: 300px
 
 3. Predict response at the passive side
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -50,7 +50,7 @@ With operational interface loads you can easily predict responses at the
 structure fixed to the source.
 
 .. figure:: ./data/receiver.svg
-   :width: 600px
+   :width: 300px
 
 Development can be significantly speed up in this manner, and fewer
 tests are required since it is not necessary to test all configurations.
@@ -63,7 +63,7 @@ implementation of strain or sound pressure measurements is also
 straightforward.
 
 .. figure:: ./data/pressure.svg
-   :width: 600px
+   :width: 300px
 
 Which TPA methods can I use?
 ----------------------------
@@ -93,27 +93,27 @@ practical method, however, it requires separate measurement of the FRFs,
 followed by the measurement of the operational responses.
 
 Classical TPA
-~~~~~~~~~~~~~
+----------------------------
+
 
 .. figure:: ./data/classical.png
    :width: 600px
 
-   .. rubric::     Interface forces replicate operational excitation.
-      :name: interface-forces-replicate-operational-excitation.
+.. |pro| replace:: ✓
+.. |con| replace:: ✗
 
-   .. rubric::     Identification of transfer path contribution.
-      :name: identification-of-transfer-path-contribution.
+Pros (Pro)
+==========
 
-   .. rubric::     Interface forces are valid for the measured assembly
-      only.
-      :name: interface-forces-are-valid-for-the-measured-assembly-only.
+- |pro| Interface forces replicate operational excitation.
+- |pro| Identification of transfer path contribution.
 
-   .. rubric::     High force transducer sensor stiffness and
-      impractical mounting for the direct force method.
-      :name: high-force-transducer-sensor-stiffness-and-impractical-mounting-for-the-direct-force-method.
+Cons (Contra)
+=============
 
-   .. rubric::     Dismounting of the assembly.
-      :name: dismounting-of-the-assembly.
+- |con| Interface forces are valid for the measured assembly only.
+- |con| High force transducer sensor stiffness and impractical mounting for the direct force method.
+- |con| Dismounting of the assembly.
 
 The main disadvantage of the classical TPA methods is the
 non-transferability of the interface forces in case if passive
@@ -140,41 +140,34 @@ In-situ and pseudo-forces methods even eliminate the need to dismount
 any part of the assembly in order to determine equivalent forces.
 
 Component-based TPA
-~~~~~~~~~~~~~~~~~~~
+----------------------------
 
 .. figure:: ./data/component.png
    :width: 600px
 
-   .. rubric::     Equivalent forces replicate operational excitation.
-      :name: equivalent-forces-replicate-operational-excitation.
+.. |pro| replace:: ✓
+.. |con| replace:: ✗
 
-   .. rubric::     Identification of transfer path contribution.
-      :name: identification-of-transfer-path-contribution.
+Pros (Pro)
+==========
 
-   .. rubric::     Transferability of the equivalent forces to an
+- |pro| Equivalent forces replicate operational excitation.
+- |pro| Identification of transfer path contribution.
+- |pro| Transferability of the equivalent forces to an
       assembly with a modified passive side.
-      :name: transferability-of-the-equivalent-forces-to-an-assembly-with-a-modified-passive-side.
-
-   .. rubric::     Perfect for structural modifications in product
+- |pro| Perfect for structural modifications in product
       development.
-      :name: perfect-for-structural-modifications-in-product-development.
 
-.. raw:: html
 
-   <!-- > ##### &emsp;<i class="fa fa-times-circle fa-lg"></i> &ensp; Invalid prediction of responses at the active side. -->
+Cons (Contra)
+=============
 
-..
-
-   .. rubric::     Direct measurements of the equivalent moments.
-      :name: direct-measurements-of-the-equivalent-moments.
-
-   .. rubric::     High force transducer sensor and testbench stiffness
+- |con| Direct measurements of the equivalent moments.
+- |con| High force transducer sensor and testbench stiffness
       for the blocked force method.
-      :name: high-force-transducer-sensor-and-testbench-stiffness-for-the-blocked-force-method.
-
-   .. rubric::     Running active components at the free conditions is
+- |con| Running active components at the free conditions is
       difficult for the free velocity method.
-      :name: running-active-components-at-the-free-conditions-is-difficult-for-the-free-velocity-method.
+
 
 If one is only interested in dominant transfer paths and source
 excitation are of no interest, the transmissibility-based TPA family is
@@ -187,42 +180,33 @@ identification (OPAX) is a hybrid TPA method for the estimation of mount
 stiffness parameters from the operational test.
 
 Transmissibility-based TPA
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+----------------------------
 
 .. figure:: ./data/transmissibilities.png
    :width: 600px
 
-.. raw:: html
 
-   <!-- > ##### &emsp;<i class="fa fa-check-circle fa-lg"></i> &ensp; Simplistic. -->
+.. |pro| replace:: ✓
+.. |con| replace:: ✗
 
-..
+Pros (Pro)
+==========
 
-   .. rubric::     Description of the operational excitation is not
+- |pro| Description of the operational excitation is not
       needed.
-      :name: description-of-the-operational-excitation-is-not-needed.
-
-   .. rubric::     Only measurement of the operational response is
+- |pro| Only measurement of the operational response is
       required and no FRFs.
-      :name: only-measurement-of-the-operational-response-is-required-and-no-frfs.
-
-   .. rubric::     Measurement is performed on the assembly only and no
+- |pro| Measurement is performed on the assembly only and no
       dismounting is needed.
-      :name: measurement-is-performed-on-the-assembly-only-and-no-dismounting-is-needed.
+- |pro| Simplistic combination of different types of sensors.
 
-   .. rubric::     Simplistic combination of different types of sensors.
-      :name: simplistic-combination-of-different-types-of-sensors.
 
-   .. raw:: html
+Cons (Contra)
+=============
 
-      <!-- > ##### &emsp;<i class="fa fa-check-circle fa-lg"></i> &ensp; Identification of transfer path contribution. -->
-
-   .. rubric::     Operational interface loads are not known.
-      :name: operational-interface-loads-are-not-known.
-
-   .. rubric::     Results are strongly dependent on the choice of the
+- |con| Operational interface loads are not known.
+- |con| Results are strongly dependent on the choice of the
       sensor locations as some transmission paths may be missed.
-      :name: results-are-strongly-dependent-on-the-choice-of-the-sensor-locations-as-some-transmission-paths-may-be-missed.
 
 --------------
 
@@ -238,7 +222,7 @@ are hence a consequence of the active force :math:`\boldsymbol{f}_1`
 only:
 
 .. figure:: ./data/tp_problem.svg
-   :width: 600px
+   :width: 500px
 
        :math:`\boldsymbol{u}_1\textbf{:}` internal DoFs at the active
    side in which operational excitation is present.    
@@ -263,7 +247,7 @@ practice. One can, however, express them in terms of interface forces
 notation.
 
 .. figure:: ./data/tpp_coupling.svg
-   :width: 600px
+   :width: 400px
 
 Equation of motion for both substructures are incorporated into
 matrix-diagonal form as written below. External forces are acting only
@@ -349,7 +333,7 @@ Now, we assume that all operational responses as a consequence of
 :math:`\boldsymbol{f}_2^{\text{eq}}` (yet unknown) acting on the source.
 
 .. figure:: ./data/eq_coupling.svg
-   :width: 600px
+   :width: 400px
 
 Again we can write an equation of motion for the uncoupled system along
 with compatibility and equilibrium conditions:
@@ -476,7 +460,8 @@ In-Situ TPA - Measurement Campaign
 ----------------------------------
 
 Operational measurement campaign
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-------------------------------
+
 
 -  Measurement of the output signal by source excitation →
    :math:`\boldsymbol{{u}}_{3}, \boldsymbol{{u}}_{4}`
@@ -488,12 +473,7 @@ Operational measurement campaign
 .. figure:: ./data/operational_measurement.svg
    :width: 300px
 
-.. container:: alert alert-block alert-danger
-
-   ::
-
-      <i class="fa fa-exclamation" aria-hidden="true"></i>
-      <b>Alert!</b> To ensure that the equivalent forces are independent of the receiver structure, the operating excitation must originate solely from the source structure. 
+To ensure that the equivalent forces are independent of the receiver structure, the operating excitation must originate solely from the source structure. 
 
 A potential violation of this assumption could occur with gearboxes.
 Consider a gearbox whose housing is rigidly connected to a stiff
@@ -505,7 +485,7 @@ the gears would be an important mechanism changing the internal loads
 taken so that this assumption is not violated.
 
 FRF measurement campaign
-~~~~~~~~~~~~~~~~~~~~~~~~
+-------------------------------
 
 -  FRFs from hammer impacts at the interface
 
@@ -514,15 +494,10 @@ FRF measurement campaign
 .. figure:: ./data/frf_measurement.svg
    :width: 300px
 
-.. container:: alert alert-block alert-danger
-
-   ::
-
-      <i class="fa fa-exclamation" aria-hidden="true"></i>
-      <b>Alert!</b> One should keep in mind that we assume linear systems. Especially with respect to systems with nonlinear interface properties, the limitations of the method should be kept in mind. Because the FRF determination through impact hammer is done during non-operation. 
 
 VPT reconstruction
-~~~~~~~~~~~~~~~~~~
+-------------------------------
+
 
 -  Transformation of the hammer inputs to virtual loads
 
@@ -534,22 +509,13 @@ VPT reconstruction
 .. figure:: ./data/vp_measurement.svg
    :width: 300px
 
-.. container:: alert alert-block alert-info
+Literature on VPT suggest to consider a ratio between measured forces and virtual loads ($\textit{m}>\textit{n}$) of at least a factor of $\frac{m}{n} \approx 1.5$ to improve the results of the virtual load identification. If the amount of channels is not a limitation, a factor of 2 is suggested.
+Literature on TPA suggest to use at least 9 indicator DoFs per transfer path to improve the results of source characterization.
 
-   ::
-
-      <i class="fa fa-info-circle" aria-hidden="true"></i>
-      <b>FBS TopTip:</b> Literature on VPT suggest to consider a ratio between measured forces and virtual loads ($\textit{m}>\textit{n}$) of at least a factor of $\frac{m}{n} \approx 1.5$ to improve the results of the virtual load identification. If the amount of channels is not a limitation, a factor of 2 is suggested.
-
-.. container:: alert alert-block alert-info
-
-   ::
-
-      <i class="fa fa-info-circle" aria-hidden="true"></i>
-      <b>FBS TopTip:</b> Literature on TPA suggest to use at least 9 indicator DoFs per transfer path to improve the results of source characterization.
 
 Limitations of in-situ TPA
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+-------------------------------
+
 
 -  limited to linear time-invariant systems
 -  many systems have nonlinear components

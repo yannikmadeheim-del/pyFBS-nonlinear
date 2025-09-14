@@ -50,7 +50,7 @@ Have fun exploring FBS field!
 .. only:: html
 
     .. figure:: ./data/tp_problem.svg  
-       :height: 150px
+       :height: 100px
        :target: ./transfer_path_analysis.html
 
        Transfer Path Analysis
