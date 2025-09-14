@@ -153,20 +153,16 @@ Pros (Pro)
 
 - |pro| Equivalent forces replicate operational excitation.
 - |pro| Identification of transfer path contribution.
-- |pro| Transferability of the equivalent forces to an
-      assembly with a modified passive side.
-- |pro| Perfect for structural modifications in product
-      development.
+- |pro| Transferability of the equivalent forces to an assembly with a modified passive side.
+- |pro| Perfect for structural modifications in product development.
 
 
 Cons (Contra)
 =============
 
 - |con| Direct measurements of the equivalent moments.
-- |con| High force transducer sensor and testbench stiffness
-      for the blocked force method.
-- |con| Running active components at the free conditions is
-      difficult for the free velocity method.
+- |con| High force transducer sensor and testbench stiffness for the blocked force method.
+- |con| Running active components at the free conditions is difficult for the free velocity method.
 
 
 If one is only interested in dominant transfer paths and source
@@ -182,7 +178,7 @@ stiffness parameters from the operational test.
 Transmissibility-based TPA
 ----------------------------
 
-.. figure:: ./data/transmissibilities.png
+.. figure:: ./data/transmissibility.png
    :width: 600px
 
 
@@ -192,12 +188,9 @@ Transmissibility-based TPA
 Pros (Pro)
 ==========
 
-- |pro| Description of the operational excitation is not
-      needed.
-- |pro| Only measurement of the operational response is
-      required and no FRFs.
-- |pro| Measurement is performed on the assembly only and no
-      dismounting is needed.
+- |pro| Description of the operational excitation is not needed.
+- |pro| Only measurement of the operational response is required and no FRFs.
+- |pro| Measurement is performed on the assembly only and no dismounting is needed.
 - |pro| Simplistic combination of different types of sensors.
 
 
@@ -205,8 +198,7 @@ Cons (Contra)
 =============
 
 - |con| Operational interface loads are not known.
-- |con| Results are strongly dependent on the choice of the
-      sensor locations as some transmission paths may be missed.
+- |con| Results are strongly dependent on the choice of the sensor locations as some transmission paths may be missed.
 
 --------------
 
@@ -222,7 +214,7 @@ are hence a consequence of the active force :math:`\boldsymbol{f}_1`
 only:
 
 .. figure:: ./data/tp_problem.svg
-   :width: 500px
+   :width: 400px
 
        :math:`\boldsymbol{u}_1\textbf{:}` internal DoFs at the active
    side in which operational excitation is present.    
