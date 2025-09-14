@@ -1,5 +1,5 @@
 #############
-SEREP
+System Equivalent Reduction Expansion Process
 #############
 
 .. note:: 

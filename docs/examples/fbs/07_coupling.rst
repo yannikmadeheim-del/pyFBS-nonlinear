@@ -9,7 +9,7 @@ The virtual point transformation [2]_ is applied to impose collocated matching D
 This can also be performed analogously with experimentally acquired data.
 
 .. note:: 
-   Download example showing a substructure coupling application: :download:`07_coupling.ipynb <../../../examples/07_FBS_coupling.ipynb>`
+   Download example showing a substructure coupling application: :download:`07_coupling_VPT.ipynb <../../../examples/07_FBS_coupling.ipynb>`
 
 .. tip::
     Why use virtual point when coupling substructures?

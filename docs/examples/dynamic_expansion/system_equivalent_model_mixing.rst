@@ -36,13 +36,6 @@ Application of SEMM comprises the expansion of the experimental dynamics to the 
    22_identification_algorithm
 
 
-
-
-|
-|
-|
-|
-|
 |
 
 System Equivalent Model Mixing (SEMM) was introduced by Klaassen et al [1]_ [2]_. 
