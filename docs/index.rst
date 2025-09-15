@@ -29,7 +29,7 @@ In recent years the group has been actively involved in the research of substruc
 .. raw:: html
 
 	<a href="https://www.mec.ed.tum.de/am/home/">
-		<img src="./_static/tum.svg" alt="TUM logo" title="TUM" align="right" width=200 />
+		<img src="./_static/tum.svg" alt="TUM logo" title="TUM" align="right" width=100 />
 	</a>
 
 

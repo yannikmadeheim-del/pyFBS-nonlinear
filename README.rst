@@ -32,7 +32,7 @@ For more information on features, basic and application examples check out the d
 Citation
 --------
 If you use pyFBS in your research, please consider citing our published paper in the 
-(`Journal of Open Source Software <https://joss.theoj.org/papers/10.21105/joss.03399>`_).
+`Journal of Open Source Software <https://joss.theoj.org/papers/10.21105/joss.03399>`_.
 
 License
 -------
@@ -54,3 +54,6 @@ Licensed under the MIT license.
 
 .. |codequality| image:: https://app.codacy.com/project/badge/Grade/dbb59e10c07543b6b61c083a09eac500    
    :target: https://www.codacy.com/gl/pyFBS/pyFBS/dashboard?utm_source=gitlab.com&amp;utm_medium=referral&amp;utm_content=pyFBS/pyFBS&amp;utm_campaign=Badge_Grade
+
+.. |JOSS| image:: https://joss.theoj.org/papers/10.21105/joss.03399/status.svg
+   :target: https://joss.theoj.org/papers/10.21105/joss.03399
