@@ -31,7 +31,8 @@ For more information on features, basic and application examples check out the d
 
 Citation
 --------
-A paper about the pyFBS will be submitted to the Journal of Open Source Software journal. If you will be using pyFBS in your scientific research, please consider citing the paper.
+If you use pyFBS in your research, please consider citing our published paper in the 
+(`Journal of Open Source Software <https://joss.theoj.org/papers/10.21105/joss.03399>`_).
 
 License
 -------

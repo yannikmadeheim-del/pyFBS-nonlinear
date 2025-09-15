@@ -12,7 +12,7 @@ The :mod:`pyFBS` was developed as a part of collaboration between the Laboratory
 .. raw:: html
 
 	<a href="http://ladisk.si/">
-		<img src="./_static/ladisk_logo.svg" alt="LADISK logo" title="LADISK" align="right" width=200 />
+		<img src="./_static/ulfs.png" alt="LADISK logo" title="LADISK" align="right" width=200 />
 	</a>
 
 	
@@ -28,8 +28,8 @@ In recent years the group has been actively involved in the research of substruc
 	
 .. raw:: html
 
-	<a href="https://www.mw.tum.de/">
-		<img src="./_static/tum_logo.svg" alt="TUM logo" title="TUM" align="right" width=200 />
+	<a href="https://www.mec.ed.tum.de/am/home/">
+		<img src="./_static/tum.svg" alt="TUM logo" title="TUM" align="right" width=200 />
 	</a>
 
 
