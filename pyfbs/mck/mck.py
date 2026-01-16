@@ -607,16 +607,16 @@ class Model:
         :rtype: (array(float), array(float), array(float))
         """
         try:
-            eigen_val, eigen_vec = sp.sparse.linalg.eigsh(
+            eig_val, eig_vec = sp.sparse.linalg.eigsh(
                 stiff_mat, k=no_modes, M=mass_mat, sigma=0
             )
         except np.linalg.LinAlgError:
             # sometimes eigenvalue problems can not be solved using sparse configuration, especially for small analytical systems
-            eigen_val, eigen_vec = sp.linalg.eig(stiff_mat, mass_mat)
+            eig_val, eig_vec = sp.linalg.eig(stiff_mat, mass_mat)
 
-        eigen_val.sort()
-        eigen_freq = np.sqrt(np.abs(np.real(eigen_val)))  # /(2*np.pi)
-        return (eigen_freq, eigen_val, eigen_vec)
+        eig_val.sort()
+        angular_eig_freq = np.sqrt(np.abs(np.real(eig_val)))  # /(2*np.pi)
+        return (angular_eig_freq, eig_val, eig_vec)
 
     def find_nearest_locations(self, points, **kwargs):
         """

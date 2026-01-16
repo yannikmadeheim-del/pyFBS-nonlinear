@@ -563,16 +563,15 @@ class View3D:
         :param color: Color of the impact
         :type color: str, optional
         """
-        # arrow = pv.Arrow(start=(0.0, 0.0, 0.0), direction=direction)
-        # arrow.translate(-1 * np.asarray(direction), inplace=True)
-        # arrow.points *= size
-        # arrow.translate(np.asarray(position), inplace=True)
-        # imp_actor = self.plot.add_mesh(
-        #     arrow, color=color, reset_camera=False, **kwargs
-        # )
+        arrow = pv.Arrow(start=(0.0, 0.0, 0.0), direction=direction)
+        arrow.translate(-1 * np.asarray(direction), inplace=True)
+        arrow.points *= size
+        arrow.translate(np.asarray(position), inplace=True)
+        imp_actor = self.plot.add_mesh(
+            arrow, color=color, reset_camera=False, **kwargs
+        )
 
-        # return arrow, imp_actor
-        pass
+        return arrow, imp_actor
 
     def add_channel(self, position, direction, size=10, color=BLUE, **kwargs):
         """
