@@ -154,6 +154,7 @@ class View3D:
         fps=30,
         r_scale=10,
         no_frames=60,
+        no_of_repetitions=2,
         run_animation=False,
         add_note=False,
     ):
@@ -173,6 +174,8 @@ class View3D:
         :type r_scale: int | float
         :param no_frames: Number of frames to animate.
         :type no_frames: int
+        :param no_of_repetitions: Number of repetitions to be animatied.
+        :type no_of_repetitions: int
         :param run_animation: Run animation at start.
         :type run_animation: bool
         :param add_note: Add a note to a corner of the 3D display.
@@ -222,6 +225,7 @@ class View3D:
             fps=fps,
             r_scale=r_scale,
             no_points=no_frames,
+            no_of_repetitions=no_of_repetitions,
         )
         self._add_modeshape(
             mode_dict, run_animation=run_animation, add_note=add_note
@@ -486,7 +490,13 @@ class View3D:
         """
 
         mesh = pv.PolyData(stl_path)
-        return self.add_mesh(mesh, name=name, cmap=None, **kwargs)
+        return self.add_mesh(
+            mesh,
+            name=name,
+            cmap=None,
+            scalar_bar_args={'vertical': False},
+            **kwargs
+        )
 
     def add_model(self, model, name="model", cmap="coolwarm", **kwargs):
         """
@@ -497,7 +507,10 @@ class View3D:
         :param name: Name of the mesh
         :type name: str, optional
         :param cmap: If not None, applies a colormap to the mesh.
-        :type str | None | matplotlib colormap: optional
+        :type cmap: str | None | matplotlib colormap: optional
+        :param scalar_bar_args: Dictionary of keyword arguments to pass when
+            adding the scalar bar to the scene.
+        :type scalar_bar_args: dict | None
         :param kwargs: Additional keyword arguments accepted by
             pyvista.Plotter.add_mesh()
         """
@@ -506,9 +519,22 @@ class View3D:
             raise TypeError("Model must be a pyfbs.mck.Model object.")
 
         mesh = model.mesh
-        return self.add_mesh(mesh, name=name, cmap=cmap, **kwargs)
+        return self.add_mesh(
+            mesh,
+            name=name,
+            cmap=cmap,
+            scalar_bar_args=scalar_bar_args,
+            **kwargs
+        )
 
-    def add_mesh(self, mesh, name="model", cmap="coolwarm", **kwargs):
+    def add_mesh(
+        self,
+        mesh,
+        name="model",
+        cmap="coolwarm",
+        scalar_bar_args={'vertical': False},
+        **kwargs
+    ):
         """
         Adds a mesh to the 3D display.
 
@@ -517,7 +543,10 @@ class View3D:
         :param name: Name of the mesh
         :type name: str
         :param cmap: If not None, applies a colormap to the mesh.
-        :type str | matplotlib colormap | None
+        :type cmap: str | matplotlib colormap | None
+        :param scalar_bar_args: Dictionary of keyword arguments to pass when
+            adding the scalar bar to the scene.
+        :type scalar_bar_args: dict | None
         :param kwargs: Additional keyword arguments accepted by
             pyvista.Plotter.add_mesh()
         """
@@ -537,7 +566,12 @@ class View3D:
         else:
             scalars = None
         actor = self.plot.add_mesh(
-            _mesh, name=name, scalars=scalars, cmap=cmap, **kwargs
+            _mesh,
+            name=name,
+            scalars=scalars,
+            cmap=cmap,
+            scalar_bar_args=scalar_bar_args,
+            **kwargs
         )
         self.displayed_bodies.append([name, actor])
         self.mesh_dict[name] = {
@@ -1459,7 +1493,13 @@ class View3D:
         self.vps_visible = True
 
     def show_points(
-        self, df, color=GREEN, overwrite=True, size=10, scale=1, **kwargs
+        self,
+        df_or_array,
+        color=GREEN,
+        overwrite=True,
+        size=10,
+        scale=1,
+        **kwargs
     ):
         if self.global_points is not None:
             if overwrite:
@@ -1470,9 +1510,15 @@ class View3D:
             self.add_action(
                 self.show_hide_toolbar, "Points", self.show_hide_points
             )
-        points = (
-            df[['Position_1', 'Position_2', 'Position_3']].to_numpy() * scale
-        )
+        if isinstance(df_or_array, np.ndarray):
+            points = df_or_array * scale
+        else:
+            points = (
+                df_or_array[
+                    ['Position_1', 'Position_2', 'Position_3']
+                ].to_numpy(dtype=float)
+                * scale
+            )
         point_cloud = pv.PolyData(points)
 
         self.add_mesh(
