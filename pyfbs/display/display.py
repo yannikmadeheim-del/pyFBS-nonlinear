@@ -85,6 +85,7 @@ class View3D:
         self.plot.app_window.setWindowIcon(QtGui.QIcon(icon))
 
         self.plot.background_color = BACKGROUND
+        self.arrow_source = pv.Arrow(start=(0.0, 0.0, 0.0))
 
         if show_origin:
             self.add_csys([0, 0, 0])
@@ -98,14 +99,17 @@ class View3D:
         self.global_acc = []
         self.acc_visible = False
 
-        self.global_imp = []
+        self.global_imp = None
         self.imp_visible = False
 
-        self.global_chn = []
+        self.global_chn = None
         self.imp_visible = False
 
         self.global_vps = []
         self.vps_visible = False
+
+        self.global_points = None
+        self.points_visible = False
 
         self.global_labels = []
         self.labels_visible = False
@@ -150,6 +154,7 @@ class View3D:
         fps=30,
         r_scale=10,
         no_frames=60,
+        no_of_repetitions=2,
         run_animation=False,
         add_note=False,
     ):
@@ -169,6 +174,8 @@ class View3D:
         :type r_scale: int | float
         :param no_frames: Number of frames to animate.
         :type no_frames: int
+        :param no_of_repetitions: Number of repetitions to be animatied.
+        :type no_of_repetitions: int
         :param run_animation: Run animation at start.
         :type run_animation: bool
         :param add_note: Add a note to a corner of the 3D display.
@@ -182,7 +189,7 @@ class View3D:
             points = self.mesh_dict[name]['points']
         elif isinstance(mesh_or_name, str):
             if mesh_or_name in self.mesh_dict.keys():
-                name = mesh
+                name = mesh_or_name
                 mesh = self.mesh_dict[name]['mesh']
                 ix = self.mesh_dict[name]['vtkOriginalPointIds']
                 points = self.mesh_dict[name]['points']
@@ -218,6 +225,7 @@ class View3D:
             fps=fps,
             r_scale=r_scale,
             no_points=no_frames,
+            no_of_repetitions=no_of_repetitions,
         )
         self._add_modeshape(
             mode_dict, run_animation=run_animation, add_note=add_note
@@ -482,7 +490,13 @@ class View3D:
         """
 
         mesh = pv.PolyData(stl_path)
-        return self.add_mesh(mesh, name=name, cmap=None, **kwargs)
+        return self.add_mesh(
+            mesh,
+            name=name,
+            cmap=None,
+            scalar_bar_args={'vertical': False},
+            **kwargs
+        )
 
     def add_model(self, model, name="model", cmap="coolwarm", **kwargs):
         """
@@ -493,7 +507,10 @@ class View3D:
         :param name: Name of the mesh
         :type name: str, optional
         :param cmap: If not None, applies a colormap to the mesh.
-        :type str | None | matplotlib colormap: optional
+        :type cmap: str | None | matplotlib colormap: optional
+        :param scalar_bar_args: Dictionary of keyword arguments to pass when
+            adding the scalar bar to the scene.
+        :type scalar_bar_args: dict | None
         :param kwargs: Additional keyword arguments accepted by
             pyvista.Plotter.add_mesh()
         """
@@ -502,9 +519,22 @@ class View3D:
             raise TypeError("Model must be a pyfbs.mck.Model object.")
 
         mesh = model.mesh
-        return self.add_mesh(mesh, name=name, cmap=cmap, **kwargs)
+        return self.add_mesh(
+            mesh,
+            name=name,
+            cmap=cmap,
+            scalar_bar_args=scalar_bar_args,
+            **kwargs
+        )
 
-    def add_mesh(self, mesh, name="model", cmap="coolwarm", **kwargs):
+    def add_mesh(
+        self,
+        mesh,
+        name="model",
+        cmap="coolwarm",
+        scalar_bar_args={'vertical': False},
+        **kwargs
+    ):
         """
         Adds a mesh to the 3D display.
 
@@ -513,7 +543,10 @@ class View3D:
         :param name: Name of the mesh
         :type name: str
         :param cmap: If not None, applies a colormap to the mesh.
-        :type str | matplotlib colormap | None
+        :type cmap: str | matplotlib colormap | None
+        :param scalar_bar_args: Dictionary of keyword arguments to pass when
+            adding the scalar bar to the scene.
+        :type scalar_bar_args: dict | None
         :param kwargs: Additional keyword arguments accepted by
             pyvista.Plotter.add_mesh()
         """
@@ -533,7 +566,12 @@ class View3D:
         else:
             scalars = None
         actor = self.plot.add_mesh(
-            _mesh, name=name, scalars=scalars, cmap=cmap, **kwargs
+            _mesh,
+            name=name,
+            scalars=scalars,
+            cmap=cmap,
+            scalar_bar_args=scalar_bar_args,
+            **kwargs
         )
         self.displayed_bodies.append([name, actor])
         self.mesh_dict[name] = {
@@ -583,14 +621,15 @@ class View3D:
         :type color: str, optional
         """
 
-        arrow = pv.Arrow(start=(0.0, 0.0, 0.0), direction=direction)
-        arrow.points *= size
-        arrow.points += np.asarray(position)
-        chn_actor = self.plot.add_mesh(
-            arrow, color=color, reset_camera=False, **kwargs
-        )
+        # arrow = pv.Arrow(start=(0.0, 0.0, 0.0), direction=direction)
+        # arrow.points *= size
+        # arrow.points += np.asarray(position)
+        # chn_actor = self.plot.add_mesh(
+        #     arrow, color=color, reset_camera=False, **kwargs
+        # )
 
-        return arrow, chn_actor
+        # return arrow, chn_actor
+        pass
 
     def create_accelerometer(self, position, orientation, size=10):
         """
@@ -1249,7 +1288,9 @@ class View3D:
             self.global_acc.append([acc_pts, acc_mesh, acc_actor])
         self.acc_visible = True
 
-    def show_imp(self, df, color=RED, overwrite=True, scale=1, **kwargs):
+    def show_imp(
+        self, df, color=RED, overwrite=True, scale=1, size=10, **kwargs
+    ):
         """
         Add impacts to the 3D display.
 
@@ -1264,11 +1305,11 @@ class View3D:
         :type scale: float
         """
 
-        if self.global_imp != []:
+        if self.global_imp is not None:
             if overwrite:
                 self.imp_visible = True
                 self.show_hide_impacts()
-                self.global_imp = []
+                self.global_imp = None
             else:
                 pass
         else:
@@ -1276,22 +1317,59 @@ class View3D:
                 self.show_hide_toolbar, "Impacts", self.show_hide_impacts
             )
 
-        for i, row in df.iterrows():
-            imp_mesh, imp_actor = self.add_impact(
-                (
-                    row["Position_1"] * scale,
-                    row["Position_2"] * scale,
-                    row["Position_3"] * scale,
-                ),
-                (row["Direction_1"], row["Direction_2"], row["Direction_3"]),
-                color=color,
-                **kwargs
+        points = (
+            df[["Position_1", "Position_2", "Position_3"]].to_numpy() * scale
+        )
+        directions = df[
+            ["Direction_1", "Direction_2", "Direction_3"]
+        ].to_numpy()
+        points = points - size * directions
+        points_polydata = pv.PolyData(points)
+        points_polydata['vectors'] = directions
+        _arrow = self.arrow_source.copy()
+        _arrow.points *= size
+        imp_actor_old = None
+        if self.global_imp is not None:
+            imp_mesh, imp_actor_old, color_dict = self.global_imp
+            color_key = len(color_dict)
+            color_dict[color_key] = color
+            points_polydata['categories'] = np.full(points.shape[0], color_key)
+            points_polydata = points_polydata.color_labels(
+                color_dict, scalars='categories', inplace=False
             )
-            self.global_imp.append([imp_mesh, imp_actor])
+            arrows = points_polydata.glyph(
+                orient='vectors', geom=_arrow  # , scale=False
+            )
+            arrows = imp_mesh.merge(arrows)
+        elif self.global_imp is None:
+            color_dict = {0: color}
+            points_polydata['categories'] = np.zeros(
+                points.shape[0], dtype=int
+            )
+            points_polydata = points_polydata.color_labels(
+                color_dict, scalars='categories', inplace=False
+            )
+            arrows = points_polydata.glyph(
+                orient='vectors', geom=_arrow  # , scale=False
+            )
+
+        imp_actor = self.plot.add_mesh(
+            arrows,
+            rgb=True,
+            scalars='categories_rgb',
+            reset_camera=False,
+            **kwargs
+        )
+
+        if imp_actor_old is not None:
+            self.plot.remove_actor(imp_actor_old)
+        self.global_imp = [arrows, imp_actor, color_dict]
 
         self.imp_visible = True
 
-    def show_chn(self, df, color=BLUE, overwrite=True, scale=1, **kwargs):
+    def show_chn(
+        self, df, color=BLUE, overwrite=True, scale=1, size=10, **kwargs
+    ):
         """
         Add channels to the 3D display.
 
@@ -1308,11 +1386,11 @@ class View3D:
         :type scale: float
         """
 
-        if self.global_chn != []:
+        if self.global_chn is not None:
             if overwrite:
                 self.chn_visible = True
                 self.show_hide_channels()
-                self.global_chn = []
+                self.global_chn = None
             else:
                 pass
         else:
@@ -1320,18 +1398,52 @@ class View3D:
                 self.show_hide_toolbar, "Channels", self.show_hide_channels
             )
 
-        for i, row in df.iterrows():
-            chn_mesh, chn_actor = self.add_channel(
-                (
-                    row["Position_1"] * scale,
-                    row["Position_2"] * scale,
-                    row["Position_3"] * scale,
-                ),
-                (row["Direction_1"], row["Direction_2"], row["Direction_3"]),
-                color=color,
-                **kwargs
+        points = (
+            df[["Position_1", "Position_2", "Position_3"]].to_numpy() * scale
+        )
+        directions = df[
+            ["Direction_1", "Direction_2", "Direction_3"]
+        ].to_numpy()
+        points_polydata = pv.PolyData(points)
+        points_polydata['vectors'] = directions
+        _arrow = self.arrow_source.copy()
+        _arrow.points *= size
+        chn_actor_old = None
+        if self.global_chn is not None:
+            chn_mesh, chn_actor_old, color_dict = self.global_chn
+            color_key = len(color_dict)
+            color_dict[color_key] = color
+            points_polydata['categories'] = np.full(points.shape[0], color_key)
+            points_polydata = points_polydata.color_labels(
+                color_dict, scalars='categories', inplace=False
             )
-            self.global_chn.append([chn_mesh, chn_actor])
+            arrows = points_polydata.glyph(
+                orient='vectors', geom=_arrow  # , scale=False
+            )
+            arrows = chn_mesh.merge(arrows)
+        elif self.global_chn is None:
+            color_dict = {0: color}
+            points_polydata['categories'] = np.zeros(
+                points.shape[0], dtype=int
+            )
+            points_polydata = points_polydata.color_labels(
+                color_dict, scalars='categories', inplace=False
+            )
+            arrows = points_polydata.glyph(
+                orient='vectors', geom=_arrow  # , scale=False
+            )
+
+        chn_actor = self.plot.add_mesh(
+            arrows,
+            rgb=True,
+            scalars='categories_rgb',
+            reset_camera=False,
+            **kwargs
+        )
+
+        if chn_actor_old is not None:
+            self.plot.remove_actor(chn_actor_old)
+        self.global_chn = [arrows, chn_actor, color_dict]
 
         self.chn_visible = True
 
@@ -1379,6 +1491,65 @@ class View3D:
             self.global_vps.append([vp_mesh, vp_actor])
 
         self.vps_visible = True
+
+    def show_points(
+        self,
+        df_or_array,
+        color=GREEN,
+        overwrite=True,
+        size=10,
+        scale=1,
+        **kwargs
+    ):
+        if self.global_points is not None:
+            if overwrite:
+                self.points_visible = True
+                self.show_hide_points()
+                self.global_points = None
+        else:
+            self.add_action(
+                self.show_hide_toolbar, "Points", self.show_hide_points
+            )
+        if isinstance(df_or_array, np.ndarray):
+            points = df_or_array * scale
+        else:
+            points = (
+                df_or_array[
+                    ['Position_1', 'Position_2', 'Position_3']
+                ].to_numpy(dtype=float)
+                * scale
+            )
+        point_cloud = pv.PolyData(points)
+
+        self.add_mesh(
+            mesh=point_cloud,
+            name="points",
+            render_points_as_spheres=True,
+            point_size=size,
+            style='points',
+            color=color,
+            **kwargs
+        )
+        actor = self.displayed_bodies[-1][-1]
+        self.global_points = [point_cloud, actor]
+        self.points_visible = True
+
+    def show_hide_points(self):
+        """
+        Toggles visibility of the channels in the 3D display.
+        """
+
+        if self.points_visible == False:
+            if self.global_points is not None:
+                self.plot.add_actor(self.global_points[1], reset_camera=False)
+            self.points_visible = True
+
+        else:
+            if self.global_points is not None:
+                self.plot.remove_actor(
+                    self.global_points[1], reset_camera=False
+                )
+            self.points_visible = False
 
     def label_acc(
         self, df, name="Accelerometers", font_size=12, scale=1, **kwargs
@@ -1613,13 +1784,13 @@ class View3D:
         """
 
         if self.chn_visible == False:
-            for _chn in self.global_chn:
-                self.plot.add_actor(_chn[1], reset_camera=False)
+            if self.global_chn is not None:
+                self.plot.add_actor(self.global_chn[1], reset_camera=False)
             self.chn_visible = True
 
         else:
-            for _chn in self.global_chn:
-                self.plot.remove_actor(_chn[1], reset_camera=False)
+            if self.global_chn is not None:
+                self.plot.remove_actor(self.global_chn[1], reset_camera=False)
 
             self.chn_visible = False
 
