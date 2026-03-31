@@ -1,0 +1,60 @@
+[build-system]
+requires = ["setuptools>=61", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pyFBS"
+dynamic = ["version"]
+description = "pyFBS: A Python package for Frequency Based Substructuring and Transfer Path Analysis"
+license = "MIT"
+readme = "README.rst"
+authors = [
+    {name = "Tomaž Bregar, Ahmed El Mahmoudi, Miha Kodrič, Domen Ocepek, Francesco Trainotti, Miha Pogačar, Mert Göldeli, Tim Vrtač, Jure Korbar, Oliver Zobel", email = "info.pyfbs@gmail.com"},
+]
+dependencies = [
+    "numpy",
+    "ansys-mapdl-reader",
+    "ansys-dpf-core",
+    "ansys-dpf-post",
+	"pyuff",
+	"pyvista",
+	"pyvistaqt",
+	"pandas",
+	"scipy",
+	"tqdm",
+	"keyboard",
+	"requests",
+	"openpyxl",
+	"pyts",
+	"altair",
+	"matplotlib",
+	"h5py",
+	"PyQt5",
+	"imageio",
+	"polyrat",
+]
+requires-python = ">=3.11"
+
+[project.optional-dependencies]
+dev = [
+	"pytest",
+	"pytest-cov",
+	"pytest-qt",
+	"codecov",
+	"coverage",
+	"qtpy",
+	"scooby",
+	"nbconvert",
+	"jupyterlab",
+]
+
+[project.urls]
+Homepage = "https://pyfbs.readthedocs.io/en/master/intro.html"
+
+[tool.setuptools]
+packages = ["pyFBS"]
+
+[tool.setuptools_scm]
+version_scheme = "post-release"
+local_scheme = "node-and-date"
+fallback_version = "0.0.0"
