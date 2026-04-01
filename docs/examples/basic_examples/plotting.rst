@@ -133,10 +133,6 @@ and z values in form of a 2D array with real entries.
 .. tip::
     Contour plot wrapper is perfect to use for run-up diagrams, as you can see from the example above.
 
-.. panels::
-    :column: col-12 p-3
-
-    **That's a wrap!**
-    ^^^^^^^^^^^^
+.. card:: That's a wrap!
 
     Want to know more, see a potential application? Contact us at info.pyfbs@gmail.com!

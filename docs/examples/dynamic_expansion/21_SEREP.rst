@@ -103,11 +103,7 @@ Finally, the results of the expanded hybrid model are compared to the reference 
 
    <iframe src="../../_static/serep_mac.html" height="270px" width="750px" frameborder="0"></iframe>
 
-.. panels::
-    :column: col-12 p-3
-
-    **That's a wrap!**
-    ^^^^^^^^^^^^
+.. card:: That's a wrap!
 
     Want to know more, see a potential application? Contact us at info.pyfbs@gmail.com!
    

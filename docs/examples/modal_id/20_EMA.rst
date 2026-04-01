@@ -66,11 +66,7 @@ From the LSFD, modal residues, upper- and lower-residuals are estimated.
 
    <iframe src="../../_static/modal_id_FRF.html" height="460px" width="750px" frameborder="0"></iframe>
 
-.. panels::
-    :column: col-12 p-3
-
-    **That's a wrap!**
-    ^^^^^^^^^^^^
+.. card:: That's a wrap!
 
     Want to know more, see a potential application? Contact us at info.pyfbs@gmail.com!
 

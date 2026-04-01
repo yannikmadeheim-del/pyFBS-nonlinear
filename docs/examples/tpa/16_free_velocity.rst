@@ -135,11 +135,7 @@ and admittance of the new assembly (:math:`\mathbf{Y}_{32}^{\mathrm{AB}}`):
 .. tip::
    We can see that equivalent forces are indeed independent of the passive substructure.
 
-.. panels::
-    :column: col-12 p-3
-
-    **That's a wrap!**
-    ^^^^^^^^^^^^
+.. card:: That's a wrap!
 
     Want to know more, see a potential application? Contact us at info.pyfbs@gmail.com!
 

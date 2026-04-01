@@ -109,10 +109,6 @@ The decoupled and the reference results for A can be compared:
 
    <iframe src="../../_static/decoupling_SVT.html" height="500px" width="750px" frameborder="0"></iframe>
 
-.. panels::
-    :column: col-12 p-3
-
-    **That's a wrap!**
-    ^^^^^^^^^^^^
+.. card:: That's a wrap!
 
     Want to know more, see a potential application? Contact us at info.pyfbs@gmail.com!

@@ -1,18 +1,18 @@
+# Configuration file for the Sphinx documentation builder.
+#
+# -- General configuration ---------------------------------------------------
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.intersphinx', 'sphinx.ext.todo',
               'sphinx.ext.autosummary', 'sphinx.ext.viewcode', 'sphinx.ext.coverage',
               'sphinx.ext.doctest', 'sphinx.ext.ifconfig', 'sphinx.ext.mathjax',
               'sphinx.ext.napoleon','sphinxcontrib.bibtex','sphinx.ext.autodoc',
               'sphinx.ext.doctest','sphinx.ext.autosummary','sphinx.ext.extlinks',
-              'sphinx.ext.coverage','sphinx_gallery.gen_gallery',#"sphinx_panels",
+              'sphinx.ext.coverage','sphinx_gallery.gen_gallery','sphinx_design',
               ]
 			  
 bibtex_bibfiles = ['paper.bib']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
-
-# The suffix(es) of source filenames.
-#source_suffix = '.rst'
 
 # The master toctree document.
 master_doc = 'index'
@@ -22,10 +22,6 @@ project = 'pyFBS'
 copyright = "2026, The pyFBS Developers"
 author = "The pyFBS Developers"
 language = 'en'
-
-# List of patterns, relative to source directory, that match files and
-# directories to ignore when looking for source files.
-# This patterns also effect to html_static_path and html_extra_path
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
 # The name of the Pygments (syntax highlighting) style to use.
@@ -34,39 +30,18 @@ pygments_style = 'friendly'
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = False
 
-
 # -- Options for HTML output -------------------------------------------
-
-# The theme to use for HTML and HTML Help pages.  See the documentation for
-# a list of builtin themes.
-#
-#html_theme = 'sphinx_rtd_theme'
-#html_theme = 'alabaster'
-
-import pydata_sphinx_theme
 html_theme = "pydata_sphinx_theme"
-
-# Theme options are theme-specific and customize the look and feel of a
-# theme further.  For a list of options available for each theme, see the
-# documentation.
-#
-# html_theme_options = {}
-
-# sphinx-panels shouldn't add bootstrap css since the pydata-sphinx-theme
-# already loads it
-panels_add_bootstrap_css = False
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
 
-
 # -- Options for HTMLHelp output ---------------------------------------
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'pyfbsdoc'
-
 
 # -- Options for LaTeX output ------------------------------------------
 
@@ -88,27 +63,6 @@ latex_elements = {
     'figure_align': 'htbp',
 }
 
-
-#import sphinx_rtd_theme
-#html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
-
-html_context = {
-    # Enable the "Edit in GitHub link within the header of each page.
-    'display_github': False,
-    # Set the following variables to generate the resulting github URL for each page.
-    # Format Template: https://{{ github_host|default("github.com") }}/{{ github_user }}/{{ github_repo }}/blob/{{ github_version }}{{ conf_py_path }}{{ pagename }}{{ suffix }}
-    'github_user': 'pyFBS',
-    'github_repo': 'pyFBS',
-    'github_version': 'master/docs/',
-    'menu_links_name': 'Getting Connected',
-    'menu_links': [
-        ('<i class="fa fa-comment fa-fw"></i> Support', 'https://gitlab.com/pyFBS/pyFBS_support'),
-        ('<i class="fa fa-gitlab fa-fw"></i> Source Code', 'https://gitlab.com/pyFBS/pyFBS'),
-        #('<i class="fa fa-gavel fa-fw"></i> Contributing', 'https://gitlab.com/pyFBS/pyFBS/-/graphs/master'),
-        #('<i class="fa fa-file-text fa-fw"></i> The Paper', 'https://'),
-    ],
-}
-
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass
 # [howto, manual, or own class]).
@@ -117,7 +71,6 @@ latex_documents = [
      'pyFBS Documentation',
      'pyFBS developers', 'manual'),
 ]
-
 
 # -- Options for manual page output ------------------------------------
 
@@ -154,5 +107,3 @@ texinfo_documents = [
 
 def setup(app):
     app.add_css_file("style.css")
-
-

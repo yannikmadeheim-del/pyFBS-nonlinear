@@ -224,11 +224,7 @@ The partial responses can then be displayed as a heatmap:
 .. tip::
    Using the graphical presentation above, the most dominant transfer path can be pinpointed.
 
-.. panels::
-    :column: col-12 p-3
-
-    **That's a wrap!**
-    ^^^^^^^^^^^^
+.. card:: That's a wrap!
 
     Want to know more, see a potential application? Contact us at info.pyfbs@gmail.com!
 

@@ -11,58 +11,35 @@ Getting started
     ./installation.rst 
     ./usage.rst 
 
-.. panels::
-    :column: col-lg-6 col-md-6 col-sm-12 col-xs-12 p-3
+.. grid:: 1 2 2 2
+    :gutter: 3
 
-    Credits
-    ^^^^^^^^^^^^
+    .. grid-item-card:: Credits
+        :link: credits
+        :link-type: doc
 
-    See the authors of the pyFBS project.
+        See the authors of the pyFBS project.
 
-    .. link-button:: credits
-        :type: ref
-        :text: Credits
-        :classes: btn-outline-primary btn-block stretched-link
-    
-    ---
-    License
-    ^^^^^^^^^^^^
+    .. grid-item-card:: License
+        :link: license
+        :link-type: doc
 
-    The project is under the MIT license.
+        The project is under the MIT license.
 
-    .. link-button:: license
-        :type: ref
-        :text: License
-        :classes: btn-outline-primary btn-block stretched-link
-    
-    ---
-    Contribute
-    ^^^^^^^^^^^^
+    .. grid-item-card:: Contribute
+        :link: contribute
+        :link-type: doc
 
-    Everyone can contribute to the pyFBS library, take a look at how can you do that.
+        Everyone can contribute to the pyFBS library, take a look at how can you do that.
 
-    .. link-button:: contribute
-        :type: ref
-        :text: Contribute
-        :classes: btn-outline-primary btn-block stretched-link
- 
-    ---
-    Installation
-    ^^^^^^^^^^^^
+    .. grid-item-card:: Installation
+        :link: installation
+        :link-type: doc
 
-    Installation process for Python version 3.8+.
+        Installation process for Python version 3.8+.
 
-    .. link-button:: installation
-        :type: ref
-        :text: Installation
-        :classes: btn-outline-primary btn-block stretched-link
-    ---
-    Usage
-    ^^^^^^^^^^^^
+    .. grid-item-card:: Usage
+        :link: usage
+        :link-type: doc
 
-    Get familiar with the example data and features that pyFBS offers.
-
-    .. link-button:: usage
-        :type: ref
-        :text: Usage
-        :classes: btn-outline-primary btn-block stretched-link
+        Get familiar with the example data and features that pyFBS offers.

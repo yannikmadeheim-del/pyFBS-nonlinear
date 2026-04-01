@@ -1,7 +1,5 @@
-sphinx-rtd-theme
 sphinxcontrib-bibtex
 sphinx-gallery
 sphinx
 pydata_sphinx_theme
-sphinx-panels
-mock
+sphinx-design

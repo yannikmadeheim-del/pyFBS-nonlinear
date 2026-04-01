@@ -115,11 +115,7 @@ Both channel/sensor (``vpt.specific_sensor`` and ``vpt.overall_sensor``) and imp
 .. tip::
 	Take A LOT of pictures of your experiment in case you need to correct some sensor positions or orientations later.
 
-.. panels::
-    :column: col-12 p-3
-
-    **That's a wrap!**
-    ^^^^^^^^^^^^
+.. card:: That's a wrap!
 
     Want to know more, see a potential application? Contact us at info.pyfbs@gmail.com!
 

@@ -14,9 +14,3 @@ imageio
 
 # For local build of Python package
 build
-
-# For local build of docs
-sphinx
-pydata_sphinx_theme
-sphinxcontrib-bibtex
-sphinx-gallery

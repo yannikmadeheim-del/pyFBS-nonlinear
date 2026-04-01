@@ -133,10 +133,6 @@ The updated datasets can be exported to Excel file in a simple manner with the `
 		df_chn_updated.to_excel(writer, sheet_name='Channels',index = False)
 
 
-.. panels::
-    :column: col-12 p-3
-
-    **That's a wrap!**
-    ^^^^^^^^^^^^
+.. card:: That's a wrap!
 
     Want to know more, see a potential application? Contact us at info.pyfbs@gmail.com!
