@@ -1,5 +1,4 @@
 sphinxcontrib-bibtex
-sphinx-gallery
 sphinx
 pydata_sphinx_theme
 sphinx-design
