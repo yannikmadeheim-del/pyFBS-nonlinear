@@ -7,7 +7,7 @@ Acknowledgements
 ----------------
 
 
-The :mod:`pyFBS` was developed as a part of collaboration between the Laboratory for Dynamics of Machines and Structures (`LADISK <http://ladisk.si/>`_), University of Ljubljana, Faculty of Mechanical Engineering (UL FME) and the Chair of Applied Mechanics (`AM <https://www.mw.tum.de/am/home/>`_), Technical University of Munich (TUM).
+The :mod:`pyFBS` was developed as a part of collaboration between the Laboratory for Dynamics of Machines and Structures (`LADISK <http://ladisk.si/>`_), University of Ljubljana, Faculty of Mechanical Engineering (UL FME) and the Chair of Applied Mechanics (`AM <https://www.mec.ed.tum.de/en/am/home/>`_), Technical University of Munich (TUM).
 
 .. raw:: html
 
