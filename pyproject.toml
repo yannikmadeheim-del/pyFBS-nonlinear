@@ -3,7 +3,7 @@ requires = ["setuptools>=61", "setuptools-scm"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "pyfbs"
+name = "pyFBS"
 dynamic = ["version"]
 description = "pyFBS: A Python package for Frequency Based Substructuring and Transfer Path Analysis"
 license = "MIT"
@@ -52,7 +52,7 @@ dev = [
 Homepage = "https://pyfbs.readthedocs.io/en/master/intro.html"
 
 [tool.setuptools]
-packages = ["pyFBS"]
+packages = ["pyfbs"]
 
 [tool.setuptools_scm]
 version_scheme = "post-release"
