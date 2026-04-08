@@ -449,7 +449,7 @@ class VPT:
             _overlap.append(np.where(_group_A == a)[0])
 
         # Sort channels not included in the transformation
-        mask = np.in1d(_group_A, np.unique(_group_B), invert=True).astype(int)
+        mask = np.isin(_group_A, np.unique(_group_B), invert=True).astype(int)
 
         # Sort VP by when they appear in the dataframe
         unique_VP = np.unique(_group_B, return_index=True)
