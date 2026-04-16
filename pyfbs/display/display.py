@@ -1319,11 +1319,11 @@ class View3D:
             )
 
         points = (
-            df[["Position_1", "Position_2", "Position_3"]].to_numpy() * scale
+            df[["Position_1", "Position_2", "Position_3"]].to_numpy().astype(float) * scale
         )
         directions = df[
             ["Direction_1", "Direction_2", "Direction_3"]
-        ].to_numpy()
+        ].to_numpy().astype(float)
         points = points - size * directions
         points_polydata = pv.PolyData(points)
         points_polydata['vectors'] = directions
@@ -1400,11 +1400,11 @@ class View3D:
             )
 
         points = (
-            df[["Position_1", "Position_2", "Position_3"]].to_numpy() * scale
+            df[["Position_1", "Position_2", "Position_3"]].to_numpy().astype(float) * scale
         )
         directions = df[
             ["Direction_1", "Direction_2", "Direction_3"]
-        ].to_numpy()
+        ].to_numpy().astype(float)
         points_polydata = pv.PolyData(points)
         points_polydata['vectors'] = directions
         _arrow = self.arrow_source.copy()
