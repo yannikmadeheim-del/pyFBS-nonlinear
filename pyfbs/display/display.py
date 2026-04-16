@@ -349,8 +349,10 @@ class View3D:
             nextframe += frameperiod
 
         if self.take_gif:
+            self.plot.mwriter.close()
+            self.plot.mwriter = None
             gif = imageio.mimread(self.gif_dir, memtest=False)
-            imageio.mimsave(self.gif_dir, gif, fps=30)
+            imageio.mimsave(self.gif_dir, gif, duration=round(1000 / 30))
 
     def clear_modeshape(self):
         """
@@ -435,8 +437,10 @@ class View3D:
             nextframe += frameperiod
 
         if self.take_gif:
+            self.plot.mwriter.close()
+            self.plot.mwriter = None
             gif = imageio.mimread(self.gif_dir, memtest=False)
-            imageio.mimsave(self.gif_dir, gif, fps=30)
+            imageio.mimsave(self.gif_dir, gif, duration=round(1000 / 30))
 
     def add_action(self, toolbar, key, function):
         """
