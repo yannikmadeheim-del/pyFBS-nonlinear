@@ -423,10 +423,7 @@ class View3D:
 
             for _object, loc in zip(object_list, add_val):
                 for _pts, _mesh in zip(_object[0], _object[1]):
-
-                    self.plot.update_coordinates(
-                        _pts + loc, mesh=_mesh, render=False
-                    )
+                    _mesh.points = _pts + loc
 
             self.plot.render()
             if self.take_gif:
