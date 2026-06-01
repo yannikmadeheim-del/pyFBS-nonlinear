@@ -23,17 +23,17 @@ The VPT can be performed on experimental data. See the :download:`05_VPT.ipynb <
 	df_vp = pd.read_excel(xlsx_A, sheet_name='VP Channels')
 	df_vpref = pd.read_excel(xlsx_A, sheet_name='VP RefChannels')
 
-	vpt_TS = pyFBS.VPT(df_chn_TS,df_imp_TS,df_vp,df_vpref,sort_matrix = False)
-	vpt_BTS = pyFBS.VPT(df_chn_BTS,df_imp_BTS,df_vp,df_vpref,sort_matrix = False)
-	vpt_A = pyFBS.VPT(df_chn_A,df_imp_A,df_vp,df_vpref,sort_matrix = False)
+	vpt_TS = pyfbs.interface.VPT(df_chn_TS,df_imp_TS,df_vp,df_vpref,sort_grouping = False)
+	vpt_BTS = pyfbs.interface.VPT(df_chn_BTS,df_imp_BTS,df_vp,df_vpref,sort_grouping = False)
+	vpt_A = pyfbs.interface.VPT(df_chn_A,df_imp_A,df_vp,df_vpref,sort_grouping = False)
 
-	vpt_TS.apply_VPT(freq,Y_TS)
-	vpt_BTS.apply_VPT(freq,Y_BTS)
-	vpt_A.apply_VPT(freq,Y_A)
+	vpt_TS.apply_vpt(freq,Y_TS)
+	vpt_BTS.apply_vpt(freq,Y_BTS)
+	vpt_A.apply_vpt(freq,Y_A)
 
-	Y_TS_tran = vpt_TS.vptData
-	Y_BTS_tran = vpt_BTS.vptData
-	Y_A_tran = vpt_A.vptData
+	Y_TS_tran = vpt_TS.frf
+	Y_BTS_tran = vpt_BTS.frf
+	Y_A_tran = vpt_A.frf
 	
 LM-FBS coupling and decoupling
 ==============================
@@ -79,8 +79,8 @@ Apply the LM-FBS based on the defined coompatibility and equilibrium conditions.
 
 	Y_ABn = np.zeros_like(Y_AnB,dtype = complex)
 
-	Y_int = Bu @ Y_AnB @ Bf.T
-	Y_ABn = Y_AnB - Y_AnB @ Bf.T @ np.linalg.pinv(pyFBS.TSVD(Y_int,reduction = 22)) @ Bu @ Y_AnB
+	Y_int = Bu@Y_AnB@Bf.T
+	Y_ABn = Y_AnB - Y_AnB@Bf.T@np.linalg.pinv(pyfbs.tsvd(Y_int,trunc = 22))@Bu@Y_AnB
 	
 First extract the FRFs at the reference DoFs:
 

@@ -89,10 +89,10 @@ After the reduction matrices are defined the VPT can be applied directly on an F
 
 .. code-block:: python
 
-   vpt = pyFBS.VPT(df_chn_A_up, df_imp_A_up, df_vp, df_vpref)
-   vpt.apply_VPT(MK_A.freq, MK_A.FRF)
+   vpt = pyfbs.interface.VPT(df_chn_A_up, df_imp_A_up, df_vp, df_vpref)
+   vpt.apply_vpt(MK_A.freq, MK_A.frf)
 
-For more options and details about :mod:`pyFBS.VPT` see the :download:`04_VPT.ipynb <../../../examples/04_VPT.ipynb>` example.
+For more options and details about :mod:`pyfbs.interface.VPT` see the :download:`04_VPT.ipynb <../../../examples/04_VPT.ipynb>` example.
 
 Calculation of equivalent forces
 ================================

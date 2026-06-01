@@ -26,8 +26,8 @@ You can define maximum polynomial order, order step and stabilization criterions
 
 .. code-block:: python
 
-   _id = pyFBS.modal_id(freq, Y_AB_exp)
-   _id.pLSCF(max_order=60)
+    _id = pyfbs.modal_id.ModalID(freq,Y_AB_exp)
+    _id.p_lscf(max_order=30)
 
 Stable poles are selected using stability chart. 
 Poles at each order are then presented to the user in a form of stabilization chart. 
@@ -36,7 +36,7 @@ damping ratio and modal participation factors.
 
 .. code-block:: python
 
-   _id.stabilization()
+    _id.stabilization()
 
 .. figure:: ./../data/stab_chart.png
    :width: 800px
@@ -55,7 +55,7 @@ From the LSFD, modal residues, upper- and lower-residuals are estimated.
 
 .. code-block:: python
 
-   _id.pLSFD(lower_residuals=False)
+   _id.p_lsfd(frf_type='accelerance', lower_residuals=False)
 
 .. tip::
    Within ``pLSFD`` function, you can also reconstruct FRFs directly from identified modal parameters. 

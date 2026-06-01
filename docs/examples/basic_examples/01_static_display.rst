@@ -9,11 +9,11 @@ Furthermore, the 3D display supports motion animation, where objects or mode sha
    Download example showing the basic use of the 3D display: :download:`01_static_display.ipynb <../../../examples/01_static_display.ipynb>`
 
 
-To open a blank 3D display simply make an instance of the :class:`pyFBS.view3D`.
+To open a blank 3D display simply make an instance of the :class:`pyfbs.display.View3D`.
 
 .. code-block:: python
 
-	view3D = pyFBS.view3D()
+	view3D = pyfbs.display.View3D()
 
 A rendering window will open in the background, which will not pause the code execution (for more details refer to the :class:`pyvista.BackgroundPlotter`). By default a coordinate system is placed in the origin and an orientation marker is placed in the bottom-left corner. 
 
@@ -21,7 +21,7 @@ A rendering window will open in the background, which will not pause the code ex
 Geometric objects
 *****************
 Geometric objects can be added to the 3D display in a simple manner. For simple objects (cylinders, spheres, boxes, ...) `PyVista methods <https://docs.pyvista.org/examples/00-load/create-geometric-objects.html#sphx-glr-examples-00-load-create-geometric-objects-py>`_ 
-can be used for the geometry generation. For displaying a more complex geometric objects a STL file can be loaded in the 3D display (example datasets can be downloaded with :func:`pyFBS.download_lab_testbench`).
+can be used for the geometry generation. For displaying a more complex geometric objects a STL file can be loaded in the 3D display (example datasets can be downloaded with :func:` pyfbs.io.download_lab_testbench()`).
 
 .. code-block:: python
  

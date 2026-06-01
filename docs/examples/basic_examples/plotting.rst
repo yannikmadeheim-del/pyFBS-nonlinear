@@ -19,7 +19,7 @@ following function by passing frequency vector and 3D FRF matrix:
 
 .. code-block:: python
 
-    pyFBS.plot_FRF(freq, FRF_matrix)
+    pyfbs.display.plot_frf(freq, FRF_matrix)
 
 .. raw:: html
 
@@ -36,7 +36,7 @@ and 3D FRF matrix, composed of FRFs you want to display. You can manually insert
     o = 3
     i = 0
 
-    pyFBS.plot_frequency_response(freq, 
+    pyfbs.display.plot_frequency_response(freq, 
                 np.hstack((MK.FRF_noise[:,o:o+1,i:i+1], MK.FRF[:,o:o+1,i:i+1], Y_B_exp[:,o:o+1,i:i+1])),
                 labels=('Num. FRF + noise', 'Num. FRF', 'Exp. FRF'))
 
@@ -57,7 +57,7 @@ You can use ``plot_coh`` to neatly plot frequency dependant coherence criterion 
 
 .. code-block:: python
 
-    pyFBS.plot_coh(freq, vpt.overall_impact, color='firebrick', title='Overall Impact Consistency')
+    pyfbs.display.plot_coh(freq, vpt.overall_impact, color='firebrick', title='Overall Impact Consistency')
 
 .. raw:: html
 
@@ -68,7 +68,7 @@ while on the right, frequency dependant coherence is plotted:
 
 .. code-block:: python
 
-    pyFBS.plot_coh_group(freq, coh_data)
+    pyfbs.display.plot_coh_group(freq, coh_data)
 	
 .. raw:: html
 
@@ -84,7 +84,7 @@ For simple plotting of curves on a linear scale, the following wrapper can be us
 
 .. code-block:: python
 
-    pyFBS.comparison_plot(time_data, np.expand_dims(acc_data, axis=(1,2)),
+    pyfbs.display.comparison_plot(time_data, np.expand_dims(acc_data, axis=(1,2)),
                          x_label='Time', y_label='Acceleration', labels='acc1')
 	
 .. raw:: html
@@ -96,7 +96,7 @@ How about a barchart plot with an interactive mouse tool-tip to quickly assess b
 
 .. code-block:: python
 
-    pyFBS.barchart(np.arange(1,10,1), vpt_AB.specific_impact, 
+    pyfbs.display.barchart(np.arange(1,10,1), vpt_AB.specific_impact, 
                     color='firebrick', title='Specific Impact Consistency')
 
 .. raw:: html
@@ -110,7 +110,7 @@ Another commonly used plot is an image-show plot. Pass a 2D matrix with real ent
 
 .. code-block:: python
 
-    pyFBS.imshow(coh_crit)
+    pyfbs.display.imshow(coh_crit)
 
 .. raw:: html
 
@@ -124,7 +124,7 @@ and z values in form of a 2D array with real entries.
 
 .. code-block:: python
 
-    pyFBS.contour_plot(time, freq, np.abs(Acc_f_dB))
+    pyfbs.display.contour_plot(time, freq, np.abs(Acc_f_dB))
 
 .. raw:: html
 

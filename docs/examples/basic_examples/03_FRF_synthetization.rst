@@ -146,26 +146,25 @@ Also, the FRF synthetization is user friendly and is supported with the mode sup
 MK model initialization
 ***********************
 
-First, the MK model is initialized (with class :class:`pyFBS.MK_model`) by importing ``.rst`` and ``.full`` files, 
+First, the MK model is initialized (with class :class:`pyfbs.mck.Model`) by importing ``.rst`` and ``.full`` files, 
 which contain the information on the locations of finite element nodes, their DoFs, the connection between the nodes, 
 the mass and stiffness matrix of the system.
 
 .. code-block:: python
 
-    import pyFBS
-    from pyFBS.utility import *
+    import pyfbs
 
     full_file = r"./lab_testbench/FEM/B.full"
     rst_file = r"./lab_testbench/FEM/B.rst"
 
-    MK = pyFBS.MK_model(rst_file, full_file, no_modes = 100, allow_pickle = False, recalculate = False)
+    MK = pyfbs.mck.Model.from_ansys(rst_file, full_file, no_modes = 100, allow_pickle = False, recalculate = True, mesh_scale=1000)
 
 In this step also the eigenfrequencies and eigenvectors of the system are simultaneously calculated. Eigenvectors are mass normalised. The number of calculated eigenvalues is limited by the ``no_modes`` parameter.
 
 .. tip::
 
    In the case of models with a huge number of DoFs, the process of solving the eigenproblem can take quite some time (depending on the complexity of the model and the computational power of the computer).
-   By setting ``read_rst = True`` in :class:`pyFBS.MK_model` initialization modal parameters will be imported directly from the ``.rst`` file and not calculated again inside Python.
+   By setting ``read_rst = True`` in :class:`pyfbs.mck.Model` initialization modal parameters will be imported directly from the ``.rst`` file and not calculated again inside Python.
 
 .. warning::
     The current version uses pickle module to store the modal parameters. The pickle module is not secure. Only unpickle data you trust.
@@ -185,7 +184,7 @@ The 3D display is opened in a new window and allows the user to interact with th
 .. code-block:: python
 
     stl = r"./lab_testbench/STL/B.stl"
-    view3D = pyFBS.view3D(show_origin= True)
+    view3D = pyfbs.display.View3D(show_origin= True)
     view3D.add_stl(stl,name = "engine_mount",color = "#8FB1CC",opacity = .1)   
 
 To animate mode shape, a mesh of finite elements must be added to display. 
@@ -193,19 +192,16 @@ Colormap of the model can be changed using ``cmap`` parameter, which supports al
 
 .. code-block:: python
 
-    view3D.plot.add_mesh(MK.mesh, scalars = np.ones(MK.mesh.points.shape[0]), cmap = "coolwarm", show_edges = True)
+    view3D.add_mesh(MK.mesh, name="mesh", cmap="coolwarm", show_edges=True);
 
 Mode shape can be selected with the method ``get_modeshape``. 
-Animation parameters are defined with the function ``dict_animation``, which is imported from :mod:`pyFBS.utility`. 
-Here you can set the frame rate (``fps``), the relative scale of deformation (``r_scale``) and the number of points in the animation sequence (``no_points``).
 
 .. code-block:: python
 
-    select_mode = 6
+    select_mode = 7
     _modeshape = MK.get_modeshape(select_mode)
 
-    mode_dict = dict_animation(_modeshape,"modeshape",pts = MK.pts, mesh = MK.mesh, fps=30, r_scale=10, no_points=60)
-    view3D.add_modeshape(mode_dict,run_animation = True)
+    view3D.add_modeshape(_modeshape, mesh_or_name="mesh", run_animation=True)
 
 Animation is visible in the previously defined pop-up window. The following figure shows animated 7th mode shape. 
 
@@ -259,7 +255,7 @@ FRFs can currently only be synthetized on the nodes of the numerical model.
 Therefore, it is necessary to find the nodes closest to the desired locations in the numerical model and update them. 
 The orientation of the generated FRFs is independent of the direction in the numerical model and will not change with the updated location.
 
-Locations of impacts and channels can be updated to the nodes of the numerical model with the :func:`pyFBS.MK_model.update_locations_df`:
+Locations of impacts and channels can be updated to the nodes of the numerical model with the :func:`MK.update_locations_df`:
 
 .. code-block:: python
 
@@ -287,7 +283,7 @@ FRFs for relativelly small systems can be efficiently computed using the full ha
 
 .. code-block:: python
 
-    MK.FRF_synth_full(f_start = 0, f_end = 2000, f_resolution = 1, frf_type = "accelerance")
+    MK.frf_synth_full(f_start = 0, f_end = 2000, f_resolution = 1, frf_type = "accelerance")
 
 .. warning::
 
@@ -306,10 +302,9 @@ which is defined in the ``frf_type`` parameter.
 
 .. code-block:: python
 
-    MK.FRF_synth(df_channel = df_chn, df_impact = df_imp, 
-                 f_start = 0, f_end = 2000, f_resolution = 1, 
-                 limit_modes = 50, modal_damping = 0.003, 
-                 frf_type = "accelerance")
+    MK.frf_synth(df_chn,df_imp,
+                f_start = 0,f_end =2000 ,f_resolution = 1, 
+                limit_modes = 50, modal_damping = 0.003,frf_type = "accelerance")
 
 .. tip::
     Compared to the direct harmonic, this method can be applied only to a reduced (arbitratily selected) set of DoFs and is 
@@ -334,13 +329,6 @@ FRF visualization
 =================
 
 An experimental measurement is imported to compare all FRFs.
-
-.. code-block:: python
-
-    exp_file = pyFBS.example_lab_testbench["meas"]["Y_B"]
-
-    freq, Y_B_exp = np.load(exp_file,allow_pickle = True)
-
 Comparison of different FRFs can be performed visually:
 
 .. code-block:: python
@@ -348,7 +336,7 @@ Comparison of different FRFs can be performed visually:
     o = 3
     i = 0
 
-    pyFBS.plot_frequency_response(freq, 
+    pyfbs.display.plot_frequency_response(freq, 
                 np.hstack((MK.FRF_noise[:,o:o+1,i:i+1], MK.FRF[:,o:o+1,i:i+1], Y_B_exp[:,o:o+1,i:i+1])),
                 labels=('Num. FRF + noise', 'Num. FRF', 'Exp. FRF'))
 	

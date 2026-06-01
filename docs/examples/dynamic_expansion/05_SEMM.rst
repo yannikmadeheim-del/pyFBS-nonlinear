@@ -107,17 +107,17 @@ Locations and directions for which FRFs are generated are defined in an Excel fi
    full_file = r"./lab_testbench/FEM/AB.full"
    rst_file = r"./lab_testbench/FEM/AB.rst"
 
-   MK = pyFBS.MK_model(rst_file, full_file, no_modes = 100, recalculate = False)
+   MK = pyfbs.mck.Model.from_ansys(rst_file,full_file,no_modes = 100,recalculate = False, mesh_scale=1000)
 
    df_chn = pd.read_excel(xlsx, sheet_name='Channels_AB')
    df_imp = pd.read_excel(xlsx, sheet_name='Impacts_AB')
 
-   MK.FRF_synth(df_chn,df_imp, 
-                f_start=0,
-                f_end=2002.5,
-                f_resolution=2.5,
-                modal_damping = 0.003,
-                frf_type = "accelerance")
+   MK.frf_synth(df_chn,df_imp, 
+               f_start=0,
+               f_end=2002.5,
+               f_resolution=2.5,
+               modal_damping = 0.003,
+               frf_type = "accelerance")
 
 As experimental, also the numerical model must be properly arranged. The first dimension represents the frequency depth, the second the response points, and the third excitation points. 
 Additionally, the frequency resolution of the numerical and experimental model has to be the same.
@@ -139,12 +139,13 @@ Function :mod:`pyFBS.SEMM` will automatically match corresponding DoFs.
 
 .. code-block:: python
 
-   Y_AB_SEMM = pyFBS.SEMM(MK.FRF, Y_exp[:, 0:15, 5:20],
-                          df_chn_num = df_chn, 
-                          df_imp_num = df_imp, 
-                          df_chn_exp = df_chn[0:15], 
-                          df_imp_exp = df_imp[5:20], 
-                          SEMM_type='fully-extend-svd', red_comp=10, red_eq=10)
+   Y_num_SEMM = pyfbs.expansion.semm(Y_num, Y_exp, 
+                           df_chn_num, 
+                           df_imp_num, 
+                           df_chn_exp, 
+                           df_imp_exp, 
+                           semm_type='fully-extend-svd', 
+                           red_comp=0, red_eq=0)
 
 Finally, the results of the hybrid model can be compared with the reference experimental and the numerical model.
 

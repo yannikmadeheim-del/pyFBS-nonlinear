@@ -78,16 +78,16 @@ For the VPT, positional data is required for channels (``df_chn_up``), impacts (
    df_vp = pd.read_excel(xlsx_pos, sheet_name='VP_Channels')
    df_vpref = pd.read_excel(xlsx_pos, sheet_name='VP_RefChannels')
 
-   vpt_B = pyFBS.VPT(df_chn_B, df_imp_B, df_vp, df_vpref)
+   vpt_B = pyfbs.interface.VPT(df_chn_B, df_imp_B, df_vp, df_vpref)
 
 Defined force transformation is then applied on the FRFs and requried admittance matrices :math:`\textbf{Y}_{42}^{\text{B}}` and :math:`\textbf{Y}_{32}^{\text{B}}` are extracted as follows:
 
 .. code-block:: python
 
-   Y42_B = MK_B.FRF[:,:9,:9] @ vpt_B.Tf
-   Y32_B = MK_B.FRF[:,9:12,:9] @ vpt_B.Tf
+   Y42_B = MK_B.frf[:,:9,:9] @ vpt_B.tf
+   Y32_B = MK_B.frf[:,9:12,:9] @ vpt_B.tf
 
-For more options and details about :mod:`pyFBS.VPT` see the :download:`04_VPT.ipynb <../../../examples/04_VPT.ipynb>` example.
+For more options and details about :mod:`pyfbs.interface.VPT` see the :download:`04_VPT.ipynb <../../../examples/04_VPT.ipynb>` example.
 
 Calculation of interface forces
 ================================
@@ -110,7 +110,7 @@ Completeness of the interface forces is then evaluated via comparison of predict
 
    o = 0
 
-   u3 = plot_frequency_response(freq, np.hstack((u3_tpa[:,o:o+1], u3_op[:,o:o+1])))
+   u3 = pyfbs.display.plot_frequency_response(freq, np.hstack((u3_tpa[:,o:o+1], u3_op[:,o:o+1])))
 
 .. raw:: html
 

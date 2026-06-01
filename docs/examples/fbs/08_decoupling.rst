@@ -92,23 +92,23 @@ The VPT can be performed directly on the generated data. See the :download:`04_V
     df_vp = pd.read_excel(pos_xlsx, sheet_name='VP_Channels')
     df_vpref = pd.read_excel(pos_xlsx, sheet_name='VP_RefChannels')
 
-    vpt_AB = pyFBS.VPT(df_chn_AB_up,df_imp_AB_up,df_vp,df_vpref)
-    vpt_B = pyFBS.VPT(df_chn_B_up,df_imp_B_up,df_vp,df_vpref)
+    vpt_AB = pyfbs.interface.VPT(df_chn_AB_up,df_imp_AB_up,df_vp,df_vpref)
+    vpt_B = pyfbs.interface.VPT(df_chn_B_up,df_imp_B_up,df_vp,df_vpref)
     
 Apply the defined VP transformation on the FRFs:
 
 .. code-block:: python
 
-    vpt_AB.apply_VPT(MK_AB.freq,MK_AB.FRF)
-    vpt_B.apply_VPT(MK_B.freq,MK_B.FRF)
+    vpt_AB.apply_vpt(MK_AB.freq,MK_AB.frf)
+    vpt_B.apply_vpt(MK_B.freq,MK_B.frf)
     
 Extract the requried FRFs and the frequency vector:
 
 .. code-block:: python
 
     freq = MK_AB.freq
-    Y_AB = vpt_AB.vptData
-    Y_B = vpt_B.vptData
+    Y_AB = vpt_AB.frf
+    Y_B = vpt_B.frf
     
 LM-FBS Decoupling
 *****************
