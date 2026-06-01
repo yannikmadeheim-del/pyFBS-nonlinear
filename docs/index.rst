@@ -7,22 +7,20 @@ Acknowledgements
 ----------------
 
 
-The :mod:`pyFBS` was developed as a part of collaboration between the Laboratory for Dynamics of Machines and Structures (`LADISK <http://ladisk.si/>`_), University of Ljubljana, Faculty of Mechanical Engineering (UL FME) and the Chair of Applied Mechanics (`AM <https://www.mec.ed.tum.de/en/am/home/>`_), Technical University of Munich (TUM).
+The :mod:`pyFBS` was developed as a part of collaboration between the Laboratory for Digitalization of Structural Dynamics (`LASDi <http://lasdi.si/>`_), University of Ljubljana, Faculty of Mechanical Engineering (UL FME) and the Chair of Applied Mechanics (`AM <https://www.mec.ed.tum.de/en/am/home/>`_), Technical University of Munich (TUM).
 
 .. raw:: html
 
-	<a href="http://ladisk.si/">
-		<img src="./_static/ulfs.png" alt="LADISK logo" title="LADISK" align="right" width=200 />
+	<a href="http://lasdi.si/">
+		<img src="./_static/ulfs.png" alt="LASDi logo" title="LASDi" align="right" width=200 />
 	</a>
 
 	
-Laboratory for Dynamics of Machines and Structures (LADISK), UL FME
+Laboratory for Digitalization of Structural Dynamics (LASDi), UL FME
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The LADISK research group of the Faculty of Mechanical Engineering at the University of Ljubljana is the leading research laboratory in the field of vibroacoustic and structural dynamics in Slovenia. 
-The research activities include the simulation and measurement of structural vibrations as well as the development of methods for modeling rigid-flexible multibody systems with one-sided contacts. 
-In the field of structural dynamics, research activities focus on theoretical and experimental modal analysis as well as the management of vibration fatigue. 
-Different optical and acoustic methods are researched to obtain full-field dynamic parameters of the structure.
+The Laboratory for Digitalization of Structural Dynamics (LASDi) at the Faculty of Mechanical Engineering, University of Ljubljana, conducts research in structural dynamics, vibroacoustics, experimental mechanics, and digital engineering. 
+Research activities include the simulation and measurement of structural vibrations, the development of advanced experimental and numerical methods, and the integration of digital technologies for the characterization and monitoring of complex mechanical systems.
 In recent years the group has been actively involved in the research of substructuring approaches in the frequency domain and their application for efficient noise, vibration and harshness engineering. 
 	
 	

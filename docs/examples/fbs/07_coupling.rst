@@ -27,7 +27,7 @@ Especially for the illustration of different substructures and the assembly, the
 
 .. code-block:: python
 
-    view3D = pyFBS.view3D(show_origin = False, show_axes = False,shape =  (1,3),title = "Overview")
+    view3D = pyfbs.display.View3D(show_origin = False, show_axes = False, shape = (1,3), title = "Overview")
     
 Add an STL file of substructure A to the 1-1 subplot and show the corresponding accelerometers, channels and impacts.
 
@@ -38,9 +38,9 @@ Add an STL file of substructure A to the 1-1 subplot and show the corresponding 
     view3D.plot.add_text("A structure", position='upper_left', font_size=10, color="k", font="times", name="A_structure")
 
     view3D.add_stl(stl_dir_A,color = "#83afd2",name = "A");
-    view3D.show_acc(df_acc_A)
-    view3D.show_imp(df_imp_A)
-    view3D.show_chn(df_chn_A)
+    view3D.show_acc(df_acc_A,scale = 1000)
+    view3D.show_imp(df_imp_A,scale = 1000)
+    view3D.show_chn(df_chn_A,scale = 1000)
     
 .. figure:: ./../data/seven_one.png
    :width: 500px
@@ -55,9 +55,9 @@ Add an STL file of substructure B to the 1-2 subplot and show the corresponding 
     view3D.plot.add_text("B structure", position='upper_left', font_size=10, color="k", font="times", name="B_structure")
 
     view3D.add_stl(stl_dir_B,color = "#83afd2",name = "B");
-    view3D.show_acc(df_acc_B,overwrite = False)
-    view3D.show_imp(df_imp_B,overwrite = False)
-    view3D.show_chn(df_chn_B,overwrite = False)
+    view3D.show_acc(df_acc_B,scale = 1000,overwrite = False)
+    view3D.show_imp(df_imp_B,scale = 1000,overwrite = False)
+    view3D.show_chn(df_chn_B,scale = 1000,overwrite = False)
  
 .. figure:: ./../data/seven_two.png
    :width: 500px
@@ -72,9 +72,9 @@ Add an STL file of the assembly AB to the 1-2 subplot and show the corresponding
     view3D.plot.add_text("AB structure", position='upper_left', font_size=10, color="k", font="times", name="AB_structure");
 
     view3D.add_stl(stl_dir_AB,color = "#83afd2",name = "AB");
-    view3D.show_acc(df_acc_AB,overwrite = False)
-    view3D.show_imp(df_imp_AB,overwrite = False)
-    view3D.show_chn(df_chn_AB,overwrite = False)
+    view3D.show_acc(df_acc_AB,scale = 1000,overwrite = False)
+    view3D.show_imp(df_imp_AB,scale = 1000,overwrite = False)
+    view3D.show_chn(df_chn_AB,scale = 1000,overwrite = False)
     
 .. figure:: ./../data/seven_three.png
    :width: 500px
@@ -152,23 +152,23 @@ The VPT can be performed directly on the measured/generated FRFs. See the :downl
     df_vp = pd.read_excel(pos_xlsx, sheet_name='VP_Channels')
     df_vpref = pd.read_excel(pos_xlsx, sheet_name='VP_RefChannels')
 
-    vpt_A = pyFBS.VPT(df_chn_A_up,df_imp_A_up,df_vp,df_vpref)
-    vpt_B = pyFBS.VPT(df_chn_B_up,df_imp_B_up,df_vp,df_vpref)
+    vpt_A = pyfbs.interface.VPT(df_chn_A_up,df_imp_A_up,df_vp,df_vpref)
+    vpt_B = pyfbs.interface.VPT(df_chn_B_up,df_imp_B_up,df_vp,df_vpref)
     
 Apply the defined VP transformation on the FRFs:
 
 .. code-block:: python
 
-    vpt_A.apply_VPT(MK_A.freq,MK_A.FRF)
-    vpt_B.apply_VPT(MK_B.freq,MK_B.FRF)
+    vpt_A.apply_vpt(MK_A.freq,MK_A.frf)
+    vpt_B.apply_vpt(MK_B.freq,MK_B.frf)
     
 Extract the requried FRFs and the frequency vector:
 
 .. code-block:: python
 
     freq = MK_A.freq
-    Y_A = vpt_A.vptData
-    Y_B = vpt_B.vptData
+    Y_A = vpt_A.frf
+    Y_B = vpt_B.frf
     
 LM-FBS Coupling
 ***************

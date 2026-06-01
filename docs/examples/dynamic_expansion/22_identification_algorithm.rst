@@ -45,19 +45,19 @@ Locations and directions for which FRFs are generated are defined in an Excel fi
    full_file = r"./lab_testbench/FEM/AB.full"
    rst_file = r"./lab_testbench/FEM/AB.rst"
 
-   MK = pyFBS.MK_model(rst_file, full_file, no_modes = 100, recalculate = False)
+   MK = pyfbs.mck.Model.from_ansys(rst_file,full_file,no_modes = 100,recalculate = False, mesh_scale=1000)
 
    df_chn = pd.read_excel(xlsx, sheet_name='Channels_AB')
    df_imp = pd.read_excel(xlsx, sheet_name='Impacts_AB')
 
-   MK.FRF_synth(df_chn,df_imp, 
-                f_start=0,
-                f_end=2002.5,
-                f_resolution=2.5,
-                modal_damping = 0.003,
-                frf_type = "accelerance")
+   MK.frf_synth(df_chn,df_imp, 
+               f_start=0,
+               f_end=2002.5,
+               f_resolution=2.5,
+               modal_damping = 0.003,
+               frf_type = "accelerance")
 
-   Y_num = MK.FRF
+   Y_num = MK.frf
 
    df_chn_num = df_chn
    df_imp_num = df_imp
@@ -80,14 +80,14 @@ for instance, the coherence criterion compares two different FRFs for the same i
 
 .. code-block:: python
 
-   FRF_rec, coh = pyFBS.identification_algorithm(Y_num, Y_exp, 
+   FRF_rec, coh = pyfbs.expansion.identification_algorithm(Y_num, Y_exp, 
                         df_chn_num, df_imp_num, df_chn_exp, df_imp_exp)
 
 Finally, the results of the method are inspected. Using coherence criteria, quick assessement of the measurement consistency can be obtained:
 
 .. code-block:: python
 
-   pyFBS.imshow(np.average(coh, axis=0))
+   pyfbs.display.imshow(np.average(coh, axis=0))
 
 .. raw:: html
 

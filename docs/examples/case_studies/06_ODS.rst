@@ -34,7 +34,7 @@ Checkout a single FRF:
 	select_out = 5
 	select_in = 1
 
-	Y_ODS = pyFBS.plot_frequency_response(freq, Y_ODS[:,select_out:select_out+1,select_in:select_in+1])
+	Y_ODS = pyfbs.display.plot_frequency_response(freq, Y_ODS[:,select_out:select_out+1,select_in:select_in+1])
 
 	
 .. raw:: html
@@ -54,14 +54,10 @@ When the GIF is exporting the animation can lag within the 3D display.
 	freq_sel = -1
 	select_in = 6
 
-	emp_2 = pyFBS.orient_in_global(Y_ODS[freq_sel,:,select_in],df_chn,df_acc)
+	emp_2 = pyfbs.utility.orient_in_global(Y_ODS[freq_sel,:,select_in],df_chn,df_acc)
 
-	mode_dict = pyFBS.dict_animation(emp_2,"object",object_list = view3D.global_acc,r_scale=30)
+	mode_dict = pyfbs.utility.dict_animation(emp_2,"object",object_list = view3D.global_acc,r_scale=30)
 	mode_dict["freq"] = freq[freq_sel]
-	
-	view3D.take_gif = True
-	view3D.gif_dir = "..\\pyFBS\\output.gif"
-
 	view3D.add_objects_animation(mode_dict,run_animation = True,add_note= True)
 	
 

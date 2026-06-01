@@ -108,7 +108,7 @@ Finally, pseudo-forces are evaluated through on-board validation:
 
    o = 0
 
-   u3 = plot_frequency_response(freq, np.hstack((u3_tpa[:,o:o+1], u3_op[:,o:o+1])))
+   u3 = pyfbs.display.plot_frequency_response(freq, np.hstack((u3_tpa[:,o:o+1], u3_op[:,o:o+1])))
 
 .. raw:: html
 

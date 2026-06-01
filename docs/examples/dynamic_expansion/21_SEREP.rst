@@ -63,9 +63,9 @@ cylindrical holes. Two of them used for the fixed mounting.
 .. code-block:: python
 
    eig_val_ov, xi_ov, eig_vec_ov = MK_O.transform_modal_parameters(df_chn_O, 
-                                                                limit_modes = m_ov, 
-                                                                modal_damping = dam_ov, 
-                                                                return_channel_only = True)
+                                                                  limit_modes = m_ov, 
+                                                                  modal_damping = dam_ov, 
+                                                                  return_channel_only = True)
 
 
 Parent model
@@ -77,9 +77,9 @@ A 5\% lower density and a 5\% higher Young's modulus is considered, compared to 
 .. code-block:: python
 
    eig_val_par_SEREP, xi_par_SEREP, eig_vec_par_SEREP = MK_P.transform_modal_parameters(df_chn_P,
-                                                                   limit_modes = m_par_SEREP, 
-                                                                   modal_damping = dam_par, 
-                                                                   return_channel_only = True)
+                                                                     limit_modes = m_par_SEREP, 
+                                                                     modal_damping = dam_par, 
+                                                                     return_channel_only = True)
 
 
 .. figure:: ./../data/serep.png
@@ -92,7 +92,7 @@ The resulting hybrid modeshapes represent the expanded overlay model's modeshape
 
 .. code-block:: python
 
-   eig_vec_serep = pyFBS.SEREP(eig_vec_par_SEREP, eig_vec_ov, df_chn_P, df_chn_O)
+   eig_vec_serep = pyfbs.expansion.serep(eig_vec_par_SEREP, eig_vec_ov, df_chn_P, df_chn_O)
 
 .. tip::
    Note that a generalized inverse is performed in the calculation. For good results, ensure a low condition number of the :math:`\mathbf{\Phi}_b^{(\mathrm{par})}` matrix!

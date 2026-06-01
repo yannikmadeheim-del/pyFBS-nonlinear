@@ -4,7 +4,7 @@ VPT example
 Virtual point transformation (VPT) projects measured dynamics (input and output signals) into a subspace composed by the predefined interface deformation modes (IDMs) [1]_. 
 By default, only 6 rigid IDMs are used in the transformation, thus retaining only the dynamics loading the surrounded interface in a purely rigid manner. 
 Rigid IDMs can also be extended by the user with flexible interface modes.
-Current implementation of the :class:`pyFBS.VPT` additionaly supports the expansion where directly measured rotational response is included in the transformation [2]_. 
+Current implementation of the :class:`pyfbs.interface.VPT` additionaly supports the expansion where directly measured rotational response is included in the transformation [2]_. 
 
 .. note:: 
    Download example showing the basic use of the VPT: :download:`05_VPT.ipynb <../../../examples/05_VPT.ipynb>`
@@ -48,15 +48,15 @@ Arbitrary number of VPs can be reconstructed at once if grouping numbers are pro
 .. figure:: ./../data/df_vp.PNG
    :width: 750px
 
-After the positions are defined a class instance of :class:`pyFBS.VPT` can be created.
+After the positions are defined a class instance of :class:`pyfbs.interface.VPT` can be created.
 
 .. code-block:: python
 
 	vpt = pyFBS.VPT(df_chn_up,df_imp_up,df_vp,df_vpref)
 
 
-Interface displacement reduction :func:`pyFBS.VPT.define_IDM_U` and interface force reduction :func:`pyFBS.VPT.define_IDM_F` are directly defined. 
-Both reduction matrices are avialable as class variables ``vpt.Tu`` and ``vpt.Tf``.
+Interface displacement reduction :func:`pyfbs.interface.VPT.define_idm_u` and interface force reduction :func:`pyfbs.interface.VPT.define_idm_f` are directly defined. 
+Both reduction matrices are avialable as class variables ``vpt.tu`` and ``vpt.tf``.
 
 
 **********************
@@ -66,9 +66,9 @@ After the reduction matrices are defined the VPT can be applied directly on an F
 
 .. code-block:: python
 
-		vpt.apply_VPT(freq,FRF)
+		vpt.apply_vpt(freq = MK.freq, frf = MK.frf)
 
-Transformed FRF matrix is then available as a class variable ``vpt.vptData``.
+Transformed FRF matrix is then available as a class variable ``vpt.frf``.
 
 .. raw:: html
 
@@ -81,7 +81,7 @@ Reciprocity check is also already implemented in pyFBS:
 
 .. code-block:: python
 
-	reciprocity = pyFBS.coh_on_FRF(vpt.vptData[:,:6,:6])
+	coh_crit = pyfbs.reciprocity(vpt.frf[:,:6,:6])
 
 .. raw:: html
 

@@ -19,11 +19,12 @@ Singular Vector Transformation
 
 The sensor channels (``df_chn_B``) and impacts (``df_imp_B``) involved in the transformation process must be assigned. The grouping number (``group``) is given to simplify the DoFs selection process.
 Then, the frequency vector (``freq_B``) and the FRF matrix (``FRF_B``) from which the reduced singular subspaces are extracted need to be defined. The integer (``n_svs``) defines the chosen amount of retained singular component along the frequency range of interest.
-As a result, a class instance of :class:`pyFBS.SVT` can be created.
+As a result, a class instance of :class:`pyfbs.interface.SVT` can be created.
 
 .. code-block:: python
 
-    svt = pyFBS.SVT(df_chn_B,df_imp_B,freq,FRF_B,group,n_svs)
+    k = 6
+    svt = pyfbs.interface.SVT(df_chn_up,df_imp_up, freq = MK.freq, frf = MK.frf, grouping_no = [1,10],no_svs = k)
 
 
 The reduction matrices corresponding to displacement and force transformation from the measured to the singular domain are available as class variables ``svt.Tu`` and ``svt.Tf``.
@@ -36,8 +37,7 @@ After the reduction matrices are defined, the SVT can be applied directly on the
 
 .. code-block:: python
 
-    _,_,FRF_B_sv= svt.apply_SVT(df_chn_B,df_imp_B,freq_B,FRF_B)
-    _,_,FRF_AB_sv= svt.apply_SVT(df_chn_AB,df_imp_AB,freq_AB,FRF_AB)
+     _,_,FRF_sv= svt.apply_svt(df_chn_up,df_imp_up, freq = MK.freq,frf = MK.frf)
 
 
 *****************
@@ -49,11 +49,9 @@ The filtered FRFs can be obtained by using the class variables ``svt.Fu`` and ``
 
 .. code-block:: python
 
-    FRF_B_filt=np.zeros_like(FRF_B,dtype = complex)
-    FRF_AB_filt=np.zeros_like(FRF_AB,dtype = complex)
+    FRF_filt=np.zeros_like(svt.frf,dtype = complex)
     for i in np.arange(len(svt.freq)):
-        FRF_B_filt[i,:,:]=svt.Fu[i,:,:] @ FRF_B[i,:,:]@ svt.Ff[i,:,:]
-        FRF_AB_filt[i,:,:]=svt.Fu[i,:,:] @ FRF_AB[i,:,:]@ svt.Ff[i,:,:]
+        FRF_filt[i,:,:]=svt.fu[i,:,:] @ svt.frf[i,:,:]@ svt.ff[i,:,:]
 
 .. card:: That's a wrap!
 

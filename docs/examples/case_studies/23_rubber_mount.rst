@@ -123,21 +123,19 @@ VP is first obtained for the full assembly AJB:
 
 .. code-block:: python
 
-	vpt = pyFBS.VPT(df_chn,df_imp,df_vp,df_vpref,sort_matrix=True)
-	vpt.apply_VPT(freq, FRF_AJB)
+	vpt = pyfbs.interface.VPT(df_chn,df_imp,df_vp,df_vpref,sort_grouping=True)
+	vpt.apply_vpt(freq, Y_AJB)
 
-	Y_AJB = vpt.vptData
-	Z_AJB = np.linalg.pinv(Y_AJB)
+	 Z_AJB = np.linalg.pinv(vpt.frf)
 
 followed by the VP for individual crosses, A and B:
 
 .. code-block:: python
 
-	vpt = pyFBS.VPT(df_chn,df_imp,df_vp,df_vpref,sort_matrix=True)
-	vpt.apply_VPT(freq, FRF_A_B)
+	vpt.apply_vpt(freq, Y_A_B)
 
-	Y_A = vpt.vptData[:,:6,:6]
-	Y_B = vpt.vptData[:,6:,6:]
+	Y_A = vpt.frf[:,:6,:6]
+	Y_B = vpt.frf[:,6:,6:]
 
 	Z_A = np.linalg.pinv(Y_A)
 	Z_B = np.linalg.pinv(Y_B)
@@ -157,7 +155,7 @@ Primal decoupling removes the dynamics of the crosses from the assembled dynamic
 
 .. code-block:: python
 
-	pyFBS.plot_FRF(freq, Z_J[:,:6,:6])
+	pyfbs.display.plot_frf(freq, Z_J[:,:6,:6])
 
 .. raw:: html
 

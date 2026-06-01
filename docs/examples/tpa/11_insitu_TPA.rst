@@ -112,13 +112,13 @@ but in order to define the VPT object in pyFBS, VP for displacements must also b
    df_vp = pd.read_excel(pos_xlsx, sheet_name='VP_Channels')
    df_vpref = pd.read_excel(pos_xlsx, sheet_name='VP_RefChannels')
 
-   vpt_AB = pyFBS.VPT(df_chn_AB_up,df_imp_AB_up,df_vp,df_vpref)
+   vpt_AB = pyfbs.interface.VPT(df_chn_AB_up,df_imp_AB_up,df_vp,df_vpref)
 
 Defined force transformation is then applied on the FRFs:
 
 .. code-block:: python
 
-   Y_um = Y_uf @ vpt_AB.Tf
+   Y_um = Y_uf @ vpt_AB.tf
 
 and requried admittance matrices :math:`\textbf{Y}_{42}^{\text{AB}}` and :math:`\textbf{Y}_{32}^{\text{AB}}` are extracted as follows:
 
@@ -133,8 +133,8 @@ Consistency of the VPT can be additionally evaluated using specific and overall 
 .. code-block:: python
 
    vpt_AB.consistency([1],[1])
-   barchart(np.arange(1,10,1), vpt_AB.specific_impact, title='Specific Impact Consistency')
-   plot_coh(freq, vpt_AB.overall_impact, title='Overall Impact Consistency')
+   pyfbs.display.barchart(np.arange(1,10,1), vpt_AB.specific_impact, title='Specific Impact Consistency')
+   pyfbs.display.plot_coh(freq, vpt_AB.overall_impact, title='Overall Impact Consistency')
 
 .. raw:: html
 
@@ -169,7 +169,7 @@ Finally, equivalent forces are evaluated through on-board validation:
 
    o = 0
 
-   u3 = plot_frequency_response(freq, np.hstack((u3_tpa[:,o:o+1], u3_op[:,o:o+1])))
+   u3 = pyfbs.display.plot_frequency_response(freq, np.hstack((u3_tpa[:,o:o+1], u3_op[:,o:o+1])))
 
 .. raw:: html
 
@@ -179,8 +179,8 @@ Additionally, a coherence criterion can be used to objectively evaluate interfac
 
 .. code-block:: python 
 
-   coh_data = coh(u3_tpa, u3_op)
-   plot_coh_group(freq, coh_data)
+   coh_data = pyfbs.utility.coh(u3_tpa, u3_op)
+   pyfbs.display.plot_coh_group(freq, coh_data)
 
 .. raw:: html
 

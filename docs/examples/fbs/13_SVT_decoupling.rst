@@ -42,15 +42,15 @@ The SVT can be performed directly on the measured data. Make sure that input and
 .. code-block:: python
 
 	k = 6
-	svt = pyFBS.SVT(df_chn_B,df_imp_B,freq,Y_B_exp,[1,10],k)
+	svt = pyfbs.interface.SVT(df_chn_B,df_imp_B,freq,Y_B_exp,[1,10],k)
 	
     
 Apply the defined SVT to systems B and AB:
 
 .. code-block:: python
 
-	_,_,FRF_B_sv= svt.apply_SVT(df_chn_B,df_imp_B,freq,Y_B_exp)
-	_,_,FRF_AB_sv= svt.apply_SVT(df_chn_AB,df_imp_AB,freq,Y_AB_exp)
+	_,_,FRF_B_sv= svt.apply_svt(df_chn_B,df_imp_B,freq,Y_B_exp)
+	_,_,FRF_AB_sv= svt.apply_svt(df_chn_AB,df_imp_AB,freq,Y_AB_exp)
 
 
 LM-FBS Decoupling
