@@ -349,8 +349,10 @@ class View3D:
             nextframe += frameperiod
 
         if self.take_gif:
+            self.plot.mwriter.close()
+            self.plot.mwriter = None
             gif = imageio.mimread(self.gif_dir, memtest=False)
-            imageio.mimsave(self.gif_dir, gif, fps=30)
+            imageio.mimsave(self.gif_dir, gif, duration=round(1000 / 30))
 
     def clear_modeshape(self):
         """
@@ -423,10 +425,7 @@ class View3D:
 
             for _object, loc in zip(object_list, add_val):
                 for _pts, _mesh in zip(_object[0], _object[1]):
-
-                    self.plot.update_coordinates(
-                        _pts + loc, mesh=_mesh, render=False
-                    )
+                    _mesh.points = _pts + loc
 
             self.plot.render()
             if self.take_gif:
@@ -438,8 +437,10 @@ class View3D:
             nextframe += frameperiod
 
         if self.take_gif:
+            self.plot.mwriter.close()
+            self.plot.mwriter = None
             gif = imageio.mimread(self.gif_dir, memtest=False)
-            imageio.mimsave(self.gif_dir, gif, fps=30)
+            imageio.mimsave(self.gif_dir, gif, duration=round(1000 / 30))
 
     def add_action(self, toolbar, key, function):
         """
@@ -1318,11 +1319,11 @@ class View3D:
             )
 
         points = (
-            df[["Position_1", "Position_2", "Position_3"]].to_numpy() * scale
+            df[["Position_1", "Position_2", "Position_3"]].to_numpy().astype(float) * scale
         )
         directions = df[
             ["Direction_1", "Direction_2", "Direction_3"]
-        ].to_numpy()
+        ].to_numpy().astype(float)
         points = points - size * directions
         points_polydata = pv.PolyData(points)
         points_polydata['vectors'] = directions
@@ -1399,11 +1400,11 @@ class View3D:
             )
 
         points = (
-            df[["Position_1", "Position_2", "Position_3"]].to_numpy() * scale
+            df[["Position_1", "Position_2", "Position_3"]].to_numpy().astype(float) * scale
         )
         directions = df[
             ["Direction_1", "Direction_2", "Direction_3"]
-        ].to_numpy()
+        ].to_numpy().astype(float)
         points_polydata = pv.PolyData(points)
         points_polydata['vectors'] = directions
         _arrow = self.arrow_source.copy()
