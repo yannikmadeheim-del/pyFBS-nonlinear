@@ -11,6 +11,7 @@ _submodules = [
     'io',
     'mck',
     'modal_id',
+    'nonlinearFBS'
     'tpa',
     'utility',
 ]
