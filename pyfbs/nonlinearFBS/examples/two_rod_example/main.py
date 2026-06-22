@@ -51,17 +51,17 @@ METHOD = "dlft"           # "dlft" (rigid contact) | "aft" (regularized penalty)
 FRF    = "numerical"     # "numerical" (exact M,C,K) | "experimental" (sampled + noisy)
 
 # --- rods (Vadcard Table 1) ---
-PARAMS = RodParams(F0=25e3, poly_deg=30)    # rod A
-LB_REL = 1.0             # rod B length L_B / L_A  (1.0 = identical rods)
+PARAMS = RodParams(F0=25e3, sample_number = 1000)    # rod A
+LB_REL = 1/20             # rod B length L_B / L_A  (1.0 = identical rods)
 
 # --- contact ---
 GAP         = 0.2e-3     # g0: initial tip-to-tip gap [m]
-EPSILON_REL = 1.0        # DLFT penalty = EPSILON_REL * k_rod   (DLFT only; eps-independent)
+EPSILON_REL = 100     # DLFT penalty = EPSILON_REL * k_rod   (DLFT only; eps-independent)
 K_REL       = 100.0      # AFT penalty stiffness k_c / k_rod    (AFT only)
 ALPHA       = 1e8        # AFT tanh-regularization sharpness    (np.inf = hard, nonsmooth)
 
 # --- experimental FRF (only used when FRF == "experimental") ---
-DENSITY    = 0.01        # measured-FRF density [samples/Hz]
+DENSITY    = 0.1        # measured-FRF density [samples/Hz]
 NOISE      = np.inf      # measured-FRF SNR [dB]  (np.inf = clean)
 NOISE_SEED = 1
 
@@ -89,11 +89,17 @@ SIGNAL_DESC = {"tipA": "driven tip $u_A$",
 # ============================ helpers (self-contained) ======================
 
 def linear_relative(system, omega):
-    """Linear (no-contact) relative interface response x_r = B u at frequency omega."""
-    M, C, K = system.mass_matrix, system.damping_matrix, system.stiffness_matrix
-    Z = -omega ** 2 * M + 1j * omega * C + K
+    """Linear (no-contact) relative interface response x_r = B Y f_ext at frequency
+    omega, from the system's DAMPED modal data (the same admittance the solver uses).
+
+    Below the gap the DLFT branch carries no contact force, so x_r reduces to exactly
+    this linear response -- the two curves must overlay there.  Synthesized from the
+    modal data (Omega, Phi, zeta); the system no longer carries a C matrix.
+    """
+    Om, Phi, z = system.angular_eig_freq, system.eig_vec, system.zeta
+    Y = Phi @ np.diag(1.0 / (Om ** 2 - omega ** 2 + 2j * z * Om * omega)) @ Phi.T
     F = np.zeros((system.total_dimension, 1)); F[system.rod_tip_idx, 0] = system.F0
-    return (system.B_coupling @ np.linalg.solve(Z, F))[0, 0]
+    return (system.B_coupling @ (Y @ F))[0, 0]
 
 
 def make_experimental_provider(system):
@@ -109,11 +115,13 @@ def make_experimental_provider(system):
     n_freq = max(2, int(round(DENSITY * f_max)) + 1)
     grid   = np.linspace(0.0, omega_max_hat, n_freq)
 
-    M, C, K = system.mass_matrix, system.damping_matrix, system.stiffness_matrix
-    d = M.shape[0]
-    Y = np.zeros((n_freq, d, d), complex)
-    for i, w in enumerate(grid):
-        Y[i] = np.linalg.solve(-w ** 2 * M + 1j * w * C + K, np.eye(d))
+    # damped admittance on the grid, synthesized from the modal data (no C matrix);
+    # omega_ref=1 because the system matrices are already nondimensionalized.
+    prov = NumericalFRF.from_modal(system.angular_eig_freq, system.eig_vec, system.zeta,
+                                   omega_ref=1.0)
+    d = system.total_dimension
+    all_dofs = np.arange(d)
+    Y = prov.compute_FRF(1.0, grid, all_dofs, all_dofs)   # full (n_freq, d, d)
 
     if np.isfinite(NOISE):                       # proportional jitter + additive floor
         rng = np.random.default_rng(NOISE_SEED)
@@ -141,7 +149,7 @@ def build():
         raise ValueError(f"METHOD must be 'dlft' or 'aft', got {METHOD!r}")
 
     if FRF == "numerical":
-        provider = NumericalFRF(system.mass_matrix, system.damping_matrix, system.stiffness_matrix)
+        provider = NumericalFRF.from_modal(system.angular_eig_freq, system.eig_vec, system.zeta)
     elif FRF == "experimental":
         provider = make_experimental_provider(system)
     else:
@@ -152,7 +160,7 @@ def build():
 
 def solve_branch(system, provider, method):
     """Run one arc-length DLFT/AFT-HBM branch; return (omega_phys, {signal: peak})."""
-    HarmonicBalanceMethod.update_dependencies(HARMONICS, system.polynomial_degree)
+    HarmonicBalanceMethod.update_dependencies(HARMONICS, system.sample_number)
     problem = FBSProblem(system, provider, method)
     solver = HarmonicBalanceMethod(
         harmonics=HARMONICS, freq_domain_ode=problem,

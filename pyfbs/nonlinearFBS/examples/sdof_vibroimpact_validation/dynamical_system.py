@@ -23,7 +23,7 @@ class SDOFVibroImpact(FBS_System):
         self.stiffness_matrix  = np.array([[k, 0],[0, k_rel*k]])
         self.B_coupling        = np.array([[1.0, -1.0]])      # 1 interface DOF
         self.total_dimension   = 2
-        self.dimension         = 1                       # n_int
+        self.dimension         = self.B_coupling.shape[0]   # n_int
         self.polynomial_degree = poly_deg
         self.F0 = F0
 

@@ -36,7 +36,7 @@ class HarmonicBalanceMethod:
 				step_length_adaptation: StepLengthAdaptation = ExponentialAdaptation):
 
 		ode = freq_domain_ode.ode
-		HarmonicBalanceMethod.update_dependencies(harmonics, ode.polynomial_degree)
+		HarmonicBalanceMethod.update_dependencies(harmonics, ode.sample_number)
 
 		self.freq_domain_ode = freq_domain_ode
 
@@ -50,8 +50,8 @@ class HarmonicBalanceMethod:
 		self.reference_force_level = norm(self.freq_domain_ode.external_term.coefficients)
 
 	@staticmethod
-	def update_dependencies(harmonics: np.ndarray, polynomial_degree: int):
-		Fourier.update_class_variables(harmonics, polynomial_degree)
+	def update_dependencies(harmonics: np.ndarray, sample_number: int):
+		Fourier.update_class_variables(harmonics, sample_number)
 		JacobianFourier.update_class_variables()
 
 	def solve_fixed_frequency(self, initial_guess: FourierOmegaPoint, **solver_kwargs):
@@ -199,4 +199,4 @@ class HarmonicBalanceMethod:
 		return solution_set
 
 	def zero_initialization(self, omega):
-		return FourierOmegaPoint.zero_amplitude(dimension=self.freq_domain_ode.ode.dimension, omega=omega)
+		return FourierOmegaPoint.zero_amplitude(dimension=self.freq_domain_ode.d_int, omega=omega)

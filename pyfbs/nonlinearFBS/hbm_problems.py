@@ -10,7 +10,7 @@ class FBSProblem:
     """
     HBM problem for Frequency Based Substructuring (FBS).
 
-    Newton unknown: Q_rel — interface DOFs, size n_int = fbs.dimension.
+    Newton unknown: Q_rel — interface DOFs, size n_int = fbs.B_coupling.shape[0].
     All frequency-domain operators are kept as per-harmonic stacks: the
     admittance Y is (Nh, d_total, d_total), the interface admittance
     Y_r = B Y B^T is (Nh, n_int, n_int). Dense matrices are only assembled
@@ -26,25 +26,40 @@ class FBSProblem:
         self.frf_provider = frf_provider
         self.method = method
 
-        self.d_int   = fbs.dimension                # n_int: interface DOFs (Newton unknowns)
-        self.d_total = fbs.mass_matrix.shape[0]     # full system DOF count (for FRF)
+        self.d_int   = fbs.B_coupling.shape[0]      # n_int: interface DOFs, from the Boolean matrix
+        self.d_total = frf_provider.n_dofs          # full DOF count, from the FRF/Ansys modal data
         Nh = Fourier.number_of_harmonics
         self.complex_dimension = Nh * self.d_int
         self.real_dimension    = 2 * self.complex_dimension
 
-        self.B = fbs.B_coupling                     # (n_int, d_total) signed Boolean map
-
         external_ts = fbs.external_term(Fourier.adimensional_time_samples)
         self.external_term = Fourier_Real.new_from_time_series(external_ts)
-        self.F_ext = self.external_term.coefficients          # (Nh, d_total, 1) stack
+        B_full     = fbs.B_coupling                          # (n_int, d_total)
+        F_ext_full = self.external_term.coefficients         # (Nh, d_total, 1)
+
+        # the Boolean matrix and the FRF data must agree on the full DOF count
+        assert B_full.shape[1] == self.d_total, (
+            f"B_coupling has {B_full.shape[1]} columns but the FRF provider "
+            f"exposes {self.d_total} DOFs")
+
+        # Reduce to the DoFs the interface (B columns) and excitation (F_ext rows)
+        # actually touch.  The FRF provider then synthesizes only this small
+        # (in_dofs x in_dofs) block per eval -> cost flat in mesh size.  The full
+        # response (compute_full_response) requests Y[all_dofs, in_dofs].
+        idof = np.nonzero(np.any(B_full != 0.0, axis=0))[0]              # interface DoFs
+        xdof = np.nonzero(np.any(F_ext_full[:, :, 0] != 0.0, axis=0))[0] # excitation DoFs
+        self.in_dofs  = np.union1d(idof, xdof)                           # sorted unique
+        self.all_dofs = np.arange(self.d_total)
+        self.B     = B_full[:, self.in_dofs]                             # (n_int, n_in)
+        self.F_ext = F_ext_full[:, self.in_dofs, :]                      # (Nh, n_in, 1)
 
         self.method.bind(self)
 
     def _get_FRF(self, x: FourierOmegaPoint) -> np.ndarray:
         if x.Y_cache is None:
             x.Y_cache = self.frf_provider.compute_FRF(
-                x.omega, Fourier.harmonics, self.d_total
-            )
+                x.omega, Fourier.harmonics, self.in_dofs, self.in_dofs
+            )                                                   # (Nh, n_in, n_in)
         return x.Y_cache
 
     def _get_BY(self, x: FourierOmegaPoint) -> np.ndarray:
@@ -70,7 +85,7 @@ class FBSProblem:
     def _get_dY(self, x: FourierOmegaPoint) -> np.ndarray:
         if x.dY_cache is None:
             x.dY_cache = self.frf_provider.compute_FRF_derivative(
-                x.omega, Fourier.harmonics, self.d_total, self._get_FRF(x))
+                x.omega, Fourier.harmonics, self.in_dofs, self.in_dofs, self._get_FRF(x))
         return x.dY_cache
 
     def compute_residue_RI(self, x: FourierOmegaPoint) -> np.ndarray:
@@ -95,10 +110,16 @@ class FBSProblem:
         return np.concatenate((dR.real.reshape(-1, 1), dR.imag.reshape(-1, 1)))
 
     def compute_full_response(self, fourier: Fourier, omega: float) -> Fourier:
-        """Post-processing: full response for all d_total DOFs from a converged x_r."""
+        """Post-processing: full response for all d_total DOFs from a converged x_r.
+
+        Uses Y[all_dofs, in_dofs] (one extra provider call, once per converged point)
+        so every physical DOF is recovered while the Newton loop stays reduced.
+        """
         x   = FourierOmegaPoint(fourier, omega)
         Fnl = self.method.compute_F_int(x, self.ode).reshape(
             Fourier.number_of_harmonics, self.d_int, 1)
-        Q_full = self._get_FRF(x) @ (self.F_ext - self.B.T @ Fnl)       # (Nh, d_total, 1)
+        Y_full = self.frf_provider.compute_FRF(
+            omega, Fourier.harmonics, self.all_dofs, self.in_dofs)     # (Nh, d_total, n_in)
+        Q_full = Y_full @ (self.F_ext - self.B.T @ Fnl)               # (Nh, d_total, 1)
         return Fourier(Q_full)
 

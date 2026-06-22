@@ -36,6 +36,9 @@ class NonlinearMethod(ABC):
 class AFT(NonlinearMethod):
     """Alternating Frequency-Time (AFT) scheme."""
 
+    def bind(self, problem) -> None:
+        self._problem = problem    # for n_int = problem.d_int (interface DOF count)
+
     def _get_nonlinear_term(self, x: FourierOmegaPoint, ode) -> Fourier_Real:
         if x.nonlinear_term_cache is None:
             Fourier_Real.compute_time_series(x.fourier)
@@ -65,7 +68,7 @@ class AFT(NonlinearMethod):
         )
         G    = JacobianFourier_Real.new_from_time_series(dfnldq_ts)
         Gdot = self._get_Gdot(x, ode)
-        harmonics_term = kron(diag(Fourier.harmonics), eye(ode.dimension))
+        harmonics_term = kron(diag(Fourier.harmonics), eye(self._problem.d_int))
         col_scale = x.omega * harmonics_term
         return JacobianFourier_Real(
             RR=G.RR + Gdot.RI @ col_scale,
@@ -157,7 +160,7 @@ class DLFTContact(NonlinearMethod):
 
     def compute_J_int_RI(self, x: FourierOmegaPoint, ode) -> np.ndarray:
         self._get_lambda_corrected(x)                    # populates x.contact_mask
-        n_int = ode.dimension
+        n_int = self._problem.d_int
         contact_tangent = x.contact_mask * eye(n_int)    # (Nt, n_int, n_int)
         J_mask    = JacobianFourier_Real.new_from_time_series(contact_tangent)
         J_mask_RI = block([[J_mask.RR, J_mask.RI], [J_mask.IR, J_mask.II]])
@@ -198,7 +201,7 @@ class DLFTFriction(NonlinearMethod):
 
     DOF layout (per-node ``[N, T...]`` blocks)
     ------------------------------------------
-    The ``n_int = ode.dimension`` interface relative DOFs are grouped into
+    The ``n_int`` interface relative DOFs (= number of B_coupling rows) are grouped into
     ``n_contacts`` contiguous blocks of size ``n_dir = 1 + n_tangential``::
 
         node c  ->  slice(c*n_dir, (c+1)*n_dir),  index 0 = normal,
@@ -364,7 +367,7 @@ class DLFTFriction(NonlinearMethod):
 
     def _get_lambda_corrected(self, x):
         if x.lambda_corrected is None:
-            n_int   = self._problem.ode.dimension
+            n_int   = self._problem.d_int
             eps_vec = self._get_eps_vec(n_int)
 
             # z_r = Y_r^{-1} (F_adm - x_r): the contact force the linear coupled
@@ -392,7 +395,7 @@ class DLFTFriction(NonlinearMethod):
 
     def compute_J_int_RI(self, x: FourierOmegaPoint, ode) -> np.ndarray:
         self._get_lambda_corrected(x)                    # populates x.contact_mask = Jloc(t)
-        n_int = ode.dimension
+        n_int = self._problem.d_int
         Jloc  = x.contact_mask                           # (Nt, n_int, n_int)
         J_mask    = JacobianFourier_Real.new_from_time_series(Jloc)
         J_mask_RI = block([[J_mask.RR, J_mask.RI], [J_mask.IR, J_mask.II]])

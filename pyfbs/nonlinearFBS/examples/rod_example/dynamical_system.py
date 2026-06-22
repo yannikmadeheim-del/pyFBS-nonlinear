@@ -27,7 +27,7 @@ class RodVibroImpactFlexible(FBS_System):
     """
     is_real_valued = True
 
-    def __init__(self, n_elem=70, L=0.13, E=210e9, rho=7800.0, A=15.6e-4,
+    def __init__(self, n_elem=20, L=0.13, E=210e9, rho=7800.0, A=15.6e-4,
                  F0=1.0e4, xi=7.5e-3, k_rel=1.0, poly_deg=33):
         l = L / n_elem
         n = n_elem                       # rod free DOF count (node 0 clamped)
@@ -85,7 +85,7 @@ class RodVibroImpactFlexible(FBS_System):
         B[0, self.obstacle_idx] = -1.0
         self.B_coupling = B
 
-        self.dimension        = 1        # n_int: one contact DOF
+        self.dimension        = self.B_coupling.shape[0]   # n_int: one contact DOF
         self.total_dimension  = d_tot
         self.polynomial_degree = poly_deg
         self.F0 = F0

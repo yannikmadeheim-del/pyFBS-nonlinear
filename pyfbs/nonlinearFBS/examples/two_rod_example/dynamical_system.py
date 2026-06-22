@@ -51,14 +51,14 @@ from pyfbs.nonlinearFBS import FBS_System
 @dataclass
 class RodParams:
     """Clamped-free axial bar parameters (Vadcard Table 1 defaults)."""
-    n_elem: int = 50          # number of two-node bar elements (per rod)
+    n_elem: int = 10          # number of two-node bar elements (per rod)
     L:      float = 0.13      # rod length [m]
     E:      float = 210e9     # Young's modulus [Pa]
     rho:    float = 7800.0    # density [kg/m^3]
     A:      float = 15.6e-4   # cross section [m^2]   (15.6 cm^2)
     xi:     float = 7.5e-3    # modal damping ratio
     F0:     float = 25e3      # harmonic forcing at the driven tip A [N]
-    poly_deg: int = 30        # AFT/aliasing polynomial degree
+    sample_number : int = 600        # AFT/aliasing polynomial degree
 
     @property
     def k_rod(self) -> float:
@@ -88,12 +88,12 @@ def assemble_rod(p: RodParams):
     M_rod = M_rod[1:, 1:]            # drop clamped node 0
     K_rod = K_rod[1:, 1:]
 
-    # modal damping  C = M Phi diag(2 xi w_i) Phi^T M   (Phi mass-normalized)
+    # undamped modes -> omega_ref for the nondimensionalization.  No C matrix is
+    # built: proportional damping enters later as the modal ratio zeta = xi.
     w2, Phi = eigh(K_rod, M_rod)
     omega_modes = np.sqrt(np.clip(w2, 0.0, None))
-    C_rod = M_rod @ Phi @ np.diag(2.0 * p.xi * omega_modes) @ Phi.T @ M_rod
 
-    return dict(M_rod=M_rod, K_rod=K_rod, C_rod=C_rod,
+    return dict(M_rod=M_rod, K_rod=K_rod,
                 omega_modes=omega_modes, omega_ref=omega_modes[0], n=n)
 
 
@@ -116,9 +116,8 @@ def assemble_two_rods(p: RodParams, p_B: RodParams = None):
     nA, nB = rA["n"], rB["n"]
     d = nA + nB
     M = zeros((d, d)); M[:nA, :nA] = rA["M_rod"]; M[nA:, nA:] = rB["M_rod"]
-    C = zeros((d, d)); C[:nA, :nA] = rA["C_rod"]; C[nA:, nA:] = rB["C_rod"]
     K = zeros((d, d)); K[:nA, :nA] = rA["K_rod"]; K[nA:, nA:] = rB["K_rod"]
-    return dict(M=M, C=C, K=K, n=nA, d=d,
+    return dict(M=M, K=K, n=nA, d=d,
                 tipA=nA - 1, tipB=nA + nB - 1,
                 omega_ref=rA["omega_ref"], omega_modes=rA["omega_modes"])
 
@@ -154,8 +153,14 @@ class TwoRodVibroImpact(FBS_System):
         omega_ref = a["omega_ref"]
         self.omega_ref        = omega_ref
         self.mass_matrix      = omega_ref ** 2 * a["M"]
-        self.damping_matrix   = omega_ref      * a["C"]
         self.stiffness_matrix = a["K"]
+
+        # modal data of the (nondimensional) coupled system -> NumericalFRF.from_modal.
+        # proportional damping: every mode gets the same ratio zeta = xi (no C matrix).
+        w2, Phi = eigh(self.stiffness_matrix, self.mass_matrix)   # Phi^T M Phi = I
+        self.angular_eig_freq = np.sqrt(np.clip(w2, 0.0, None))   # Omega_hat (first = 1)
+        self.eig_vec          = Phi
+        self.zeta             = p.xi
 
         self.rod_tip_idx = a["tipA"]          # driven tip A (forcing + plot signal)
         self.tipB_idx    = a["tipB"]
@@ -166,7 +171,7 @@ class TwoRodVibroImpact(FBS_System):
 
         self.dimension         = 1
         self.total_dimension   = a["d"]
-        self.polynomial_degree = p.poly_deg
+        self.sample_number = RodParams.sample_number
         self.F0 = p.F0
         self.omega_modes = a["omega_modes"]
 
@@ -241,8 +246,14 @@ class TwoRodPenaltyContact(FBS_System):
         omega_ref = a["omega_ref"]
         self.omega_ref        = omega_ref
         self.mass_matrix      = omega_ref ** 2 * a["M"]
-        self.damping_matrix   = omega_ref      * a["C"]
         self.stiffness_matrix = a["K"]
+
+        # modal data of the (nondimensional) coupled system -> NumericalFRF.from_modal.
+        # proportional damping: every mode gets the same ratio zeta = xi (no C matrix).
+        w2, Phi = eigh(self.stiffness_matrix, self.mass_matrix)   # Phi^T M Phi = I
+        self.angular_eig_freq = np.sqrt(np.clip(w2, 0.0, None))   # Omega_hat (first = 1)
+        self.eig_vec          = Phi
+        self.zeta             = p.xi
 
         self.rod_tip_idx = a["tipA"]
         self.tipB_idx    = a["tipB"]
@@ -253,7 +264,7 @@ class TwoRodPenaltyContact(FBS_System):
 
         self.dimension         = 1
         self.total_dimension   = a["d"]
-        self.polynomial_degree = p.poly_deg
+        self.sample_number = RodParams.sample_number
         self.F0 = p.F0
         self.omega_modes = a["omega_modes"]
 

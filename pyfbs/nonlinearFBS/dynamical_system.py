@@ -8,12 +8,13 @@ class FBS_System:
     Residual: R = Q_rel - B @ Y^{A|B} @ F_ext + B @ Y^{A|B} @ B^T @ F_nl = 0
 
     Attributes (set by subclass):
-        mass_matrix:       (dTotal, dTotal) — block-diagonal subsystem mass matrices
-        damping_matrix:    (dTotal, dTotal) — block-diagonal subsystem damping matrices
-        stiffness_matrix:  (dTotal, dTotal) — block-diagonal subsystem stiffness matrices
         B_coupling:        (n_int, dTotal)  — signed Boolean coupling matrix
-        dimension:         int              — n_int (number of interface DOF pairs)
-        polynomial_degree: int
+        modal data (angular_eig_freq / eig_vec / zeta) — defines the uncoupled
+            block-diagonal subsystem FRF used to build the FRF provider
+        sample_number:     int              — number of AFT time samples
+
+    The interface dimension (n_int = B rows) and total dimension (dTotal = FRF
+    DOF count) are NOT defined here — the solver (FBSProblem) derives them.
 
     Subclasses must implement:
         external_term(tau)                                   -> (Nt, dTotal, 1)
@@ -24,12 +25,8 @@ class FBS_System:
     is_real_valued: bool = True
 
     def __init__(self):
-        self.mass_matrix:      np.ndarray = np.eye(2)      # (dTotal, dTotal)
-        self.damping_matrix:   np.ndarray = np.zeros((2, 2))
-        self.stiffness_matrix: np.ndarray = np.eye(2)
         self.B_coupling:       np.ndarray = np.array([[1, -1]])  # (n_int, dTotal)
-        self.dimension:        int = 1
-        self.polynomial_degree: int = 3
+        self.sample_number: int = 400
 
     # --- Subclass interface (semantic names) ---
 

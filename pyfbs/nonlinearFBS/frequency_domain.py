@@ -11,23 +11,22 @@ from scipy.interpolate import CubicSpline, make_interp_spline
 # %%
 class Fourier(object):
     
-    harmonics = unique(array([1,3])) # list of relevant harmonics
-    polynomial_degree = 3
-    
+    harmonics = unique(array([1,3])) # list of relevant harmonics3
+    sample_number = 400
     number_of_harmonics = len(harmonics)
     harmonic_truncation_order = max(abs(harmonics))
-    number_of_time_samples = (polynomial_degree+1)*harmonic_truncation_order+1
+    number_of_time_samples = sample_number
     adimensional_time_samples = linspace(0, 2*pi, number_of_time_samples, endpoint=False)
     
     @staticmethod
-    def update_class_variables(harmonics: array, polynomial_degree: int):
+    def update_class_variables(harmonics: array, sample_number: int):
         indexes = sorted(unique(harmonics, return_index=True)[1])
         Fourier.harmonics = array(harmonics)[indexes] # list of relevant harmonics
-        Fourier.polynomial_degree = polynomial_degree
+        Fourier.sample_number = sample_number
 
         Fourier.number_of_harmonics = len(Fourier.harmonics)
         Fourier.harmonic_truncation_order = max(abs(Fourier.harmonics))
-        Fourier.number_of_time_samples = (Fourier.polynomial_degree+1)*Fourier.harmonic_truncation_order+1
+        Fourier.number_of_time_samples = sample_number
         Fourier.adimensional_time_samples = linspace(0, 2*pi, Fourier.number_of_time_samples, endpoint=False)
         
     def __init__(self, coefficients: array) -> None:
@@ -222,8 +221,7 @@ class FourierOmegaPoint(object):
 #%%
 
 class JacobianFourier(object):
-    
-    polynomial_degree = Fourier.polynomial_degree - 1
+
     harmonics_state = Fourier.harmonics[:, None] - Fourier.harmonics
     harmonics_state_conj = Fourier.harmonics[:, None] + Fourier.harmonics
     harmonics = unique(concatenate((unique(harmonics_state), unique(harmonics_state_conj))))
@@ -232,7 +230,6 @@ class JacobianFourier(object):
     
     @staticmethod
     def update_class_variables():
-        JacobianFourier.polynomial_degree = Fourier.polynomial_degree - 1
         JacobianFourier.harmonics_state = Fourier.harmonics[:, None] - Fourier.harmonics
         JacobianFourier.harmonics_state_conj = Fourier.harmonics[:, None] + Fourier.harmonics
         JacobianFourier.harmonics = unique(concatenate((unique(JacobianFourier.harmonics_state), unique(JacobianFourier.harmonics_state_conj))))

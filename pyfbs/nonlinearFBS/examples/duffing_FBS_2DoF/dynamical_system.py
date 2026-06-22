@@ -26,13 +26,6 @@ class System2DoF_FBS(FBS_System):
 		:param k: Stiffness coefficient (nearest-neighbour) [T^-2]
 		:param P: Amplitude of the external force on DOF 0 of subsystem A [L T^-2]
 		"""
-        M1 = [[1]]
-        M2 = [[1]]
-        C1 = [[c1]]
-        C2 = [[c2]]
-        K1 = [[k1]]
-        K2 = [[k2]]
-
         self.c1 = c1
         self.c2 = c2
         self.k1 = k1
@@ -41,12 +34,20 @@ class System2DoF_FBS(FBS_System):
         self.beta = beta
         self.alpha = alpha
         self.P = P
-        self.mass_matrix = sp.linalg.block_diag(M1, M2)
-        self.damping_matrix = sp.linalg.block_diag(C1, C2)
-        self.stiffness_matrix = sp.linalg.block_diag(K1, K2)
+        self.mass_matrix      = sp.linalg.block_diag([[1.0]], [[1.0]])
+        self.stiffness_matrix = sp.linalg.block_diag([[k1]], [[k2]])
+        C = sp.linalg.block_diag([[c1]], [[c2]])     # local; no C matrix is stored (modal pipeline)
+
+        # real modal data for NumericalFRF.from_modal (no C matrix kept).
+        # diagonal M,K,C -> proportional: zeta_i = (Phi^T C Phi)_ii / (2 Omega_i).
+        w2, Phi = sp.linalg.eigh(self.stiffness_matrix, self.mass_matrix)  # Phi^T M Phi = I
+        self.angular_eig_freq = np.sqrt(np.clip(w2, 0.0, None))
+        self.eig_vec          = Phi
+        self.zeta             = np.diag(Phi.T @ C @ Phi) / (2.0 * self.angular_eig_freq)
+
         self.B_coupling = np.array([[1, -1]])  # u_rel = q1 - q2
         self.total_dimension = 2
-        self.dimension = 1
+        self.dimension = self.B_coupling.shape[0]
         self.polynomial_degree = 3
 
     def external_term(self, adimensional_time: np.ndarray) -> np.ndarray:
@@ -78,9 +79,10 @@ class System2DoF_FBS(FBS_System):
 class System2DoF_FBS_experimental(System2DoF_FBS):
     """
     Experimental variant of System2DoF_FBS.
-    Pre-computes the uncoupled FRF Y(omega) = (-omega^2 * M + i*omega * C + K)^{-1}
-    from the subsystem matrices and stores it as self.omega_frf, self.Y_frf
-    for interpolation inside ExperimentalFRF (passed to FBSProblem in main.py).
+    Synthesizes a measured-style uncoupled-FRF table from the modal data and stores
+    it as self.omega_frf, self.Y_frf for interpolation inside ExperimentalFRF
+    (passed to FBSProblem in main.py).  For proportional damping this equals the
+    dense (-omega^2 M + i*omega C + K)^{-1} sample.
     """
 
     def __init__(self, c1=0.01, c2=0.01, k1=1.0, k2=1.0, k3=0.0, beta=1.0, alpha=0.0, P=1.0):
@@ -90,11 +92,8 @@ class System2DoF_FBS_experimental(System2DoF_FBS):
         ome_density = 1000.0 # points per rad/s
         n_points = int((omega_end - omega_start) * ome_density)
         omega_frf = np.linspace(omega_start, omega_end, n_points)
-        Y_frf = np.zeros((n_points, self.total_dimension, self.total_dimension), dtype=complex)
-        for i, w in enumerate(omega_frf):
-            Y_frf[i] = np.linalg.solve(
-                -w ** 2 * self.mass_matrix + 1j * w * self.damping_matrix + self.stiffness_matrix,
-                np.eye(self.total_dimension)
-            )
+        from pyfbs.mck.mck import Model
+        _, Y_frf = Model.custom_frf_synth(self.angular_eig_freq, self.eig_vec, self.eig_vec,
+                                          modal_damping=self.zeta, omegas=omega_frf)
         self.omega_frf = omega_frf
         self.Y_frf = Y_frf

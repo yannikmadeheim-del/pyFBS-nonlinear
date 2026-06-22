@@ -25,7 +25,7 @@ from dynamical_system import SDOFVibroImpact
 
 
 # ============================ parameters ====================================
-EPSILON   = 1.0   # DLFT penalty (stiffness units); converged solution is eps-independent
+EPSILON   = 5.0   # DLFT penalty (stiffness units); converged solution is eps-independent
 PARAMS = dict(m=1.0, c=0.05, k=1.0, F0=0.02)   # c=0.1 -> linear amp at res ~2*g0
 GAP       = 0.1
 HARMONICS = list(range(0, 30))
@@ -58,11 +58,11 @@ solver_kwargs = {
     "absolute_tolerance": 1e-6,
 }
 step_kwargs = {
-    "base":                      2.0,
+    "base":                      3.0,
     "initial_step_length":       0.005,
     "maximum_step_length":       1.0,
     "minimum_step_length":       1e-6,
-    "goal_number_of_iterations": 4,
+    "goal_number_of_iterations": 3,
 }
 
 print("\n" + "=" * 70)

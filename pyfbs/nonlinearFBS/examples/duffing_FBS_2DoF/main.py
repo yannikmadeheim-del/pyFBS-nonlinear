@@ -1,5 +1,11 @@
 # %%
+import sys
 from pathlib import Path
+
+try:                                    # live, UTF-8 progress prints on Windows
+    sys.stdout.reconfigure(encoding="utf-8", line_buffering=True)
+except (AttributeError, ValueError):
+    pass
 
 from dynamical_system import *
 from pyfbs.nonlinearFBS import *
@@ -7,6 +13,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
 from time import time
+from pyfbs.nonlinearFBS import (
+    FourierOmegaPoint,
+    FBSProblem, NumericalFRF,
+    HarmonicBalanceMethod,
+)
 
 c1, c2, k1, k2, k3, beta, alpha, P = 0.09, 0.09, 1.0, 1.0, 0.0, 1.0, 0.0, 1.0
 harmonics = [1, 3, 5, 7, 9]
@@ -37,7 +48,7 @@ initial_dir_fbs   = FourierOmegaPoint.zero_amplitude(dimension=fbs_numerical.dim
 t0 = time()
 fbs_num_ode    = FBSProblem(
     fbs_numerical,
-    NumericalFRF(fbs_numerical.mass_matrix, fbs_numerical.damping_matrix, fbs_numerical.stiffness_matrix),
+    NumericalFRF.from_modal(fbs_numerical.angular_eig_freq, fbs_numerical.eig_vec, fbs_numerical.zeta),
     AFT())
 fbs_num_solver = HarmonicBalanceMethod(harmonics=harmonics, freq_domain_ode=fbs_num_ode)
 solution_fbs_num = fbs_num_solver.solve_and_continue(
