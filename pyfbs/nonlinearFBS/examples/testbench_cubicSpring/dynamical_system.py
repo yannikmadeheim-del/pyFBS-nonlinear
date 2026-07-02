@@ -21,11 +21,11 @@ def build_testbench_data(k_trans=1.0e6, k_rot=1.0e3,
     its linear stiffness ``k``, plus a cubic damping coefficient ``beta`` acting
     on the relative velocity, giving the bushing law
 
-        f = k (x + alpha x^3) + beta * xdot^3.
+        f = k x + alpha x^3 + beta xdot^3.
 
     :param k_trans/k_rot:     linear stiffness [N/m] / [Nm/rad] per interface DoF.
-    :param alpha_trans/alpha_rot: cubic stiffness coefficient [1/m^2] / [1/rad^2];
-        the cubic force k*alpha*x^3 equals the linear force k*x at |x| = 1/sqrt(alpha),
+    :param alpha_trans/alpha_rot: cubic stiffness coefficient [N/m^3] / [Nm/rad^3];
+        the cubic force alpha*x^3 equals the linear force k*x at |x| = sqrt(k/alpha),
         so alpha sets the gap amplitude at which the nonlinearity becomes ~100%.
     :param beta_trans/beta_rot: cubic damping coefficient [N s^3/m^3] /
         [Nm s^3/rad^3]; the damping force beta*xdot^3 grows with the cube of the
@@ -110,7 +110,7 @@ class TestbenchCubicSpring(FBS_System):
     Cubic (hardening) bushing with cubic (nonlinear) damping on the 6-DoF VP
     interface gap  x_r = B u  and its relative velocity  xdot_r = B udot:
 
-        f_nl = K_spring (x_r + alpha * x_r^3) + beta * xdot_r^3   (elementwise per DoF)
+        f_nl = k * x_r + alpha * x_r^3 + beta * xdot_r^3   (elementwise per DoF)
 
     Same testbench, same FBS structure and the same AFT + arc-length HBM solver as
     the linear-spring example; the differences are the per-DoF cubic stiffness term
@@ -143,7 +143,7 @@ class TestbenchCubicSpring(FBS_System):
 
     # --- cubic bushing (spring + damper) on the 6-DoF VP gap x_r = B u ----------
     def interface_force(self, u_rel, udot_rel, tau):
-        # f_i = k_i (x_i + alpha_i x_i^3) + beta_i xdot_i^3; the per-DoF coefficients
+        # f_i = k_i x_i + alpha_i x_i^3 + beta_i xdot_i^3; the per-DoF coefficients
         # (6,) broadcast over the leading time axis of u_rel/udot_rel (Nt, 6, 1).
         # udot_rel is the PHYSICAL relative velocity (omega * dx/dtau).
         k     = self.k_diag[None, :, None]
@@ -152,7 +152,7 @@ class TestbenchCubicSpring(FBS_System):
         return k * u_rel + alpha * u_rel ** 3 + beta * udot_rel ** 3   # (Nt, 6, 1)
 
     def jacobian_interface_force(self, u_rel, udot_rel, tau):
-        # df_i/dx_i = k_i (1 + 3 alpha_i x_i^2); the damping term has no displacement
+        # df_i/dx_i = k_i + 3 alpha_i x_i^2; the damping term has no displacement
         # dependence. Each DoF depends only on its own gap -> diagonal (Nt, 6, 6).
         n_int = self.B_coupling.shape[0]                 # 6
         diag  = self.k_diag[None, :] + 3.0 * self.alpha_diag[None, :] * u_rel[:, :, 0] ** 2

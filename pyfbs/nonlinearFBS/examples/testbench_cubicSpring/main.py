@@ -3,7 +3,7 @@ Cubic-spring FBS coupling of the pyFBS lab testbench through the nonlinearFBS so
 
 Same testbench and same FBS structure as the linear-spring example, but substructures
 A and B are now coupled by a CUBIC hardening spring on the six virtual-point interface
-DoFs:  f_nl = K_spring (x_r + alpha x_r^3),  x_r = B u.  Because the force is nonlinear
+DoFs:  f_nl = k x_r + alpha x_r^3,  x_r = B u.  Because the force is nonlinear
 there is no closed-form LM-FBS assembly: the forced response is traced by AFT +
 arc-length HBM continuation directly in physical rad/s.
 
@@ -36,7 +36,7 @@ from dynamical_system import build_testbench_data, TestbenchCubicSpring, N_IF
 # ---------------------------------------------------------------------------
 # Coupling parameters -- tune these.
 #   k_trans / k_rot         : linear stiffness [N/m] / [Nm/rad]
-#   alpha_trans / alpha_rot : cubic stiffness coeff [1/m^2] / [1/rad^2] in f = k(x + alpha x^3)
+#   alpha_trans / alpha_rot : cubic stiffness coeff [N/m^3] / [Nm/rad^3] in f = k*x + alpha*x^3
 #   beta_trans / beta_rot   : cubic damping coeff [N s^3/m^3] / [Nm s^3/rad^3] adding
 #                             a velocity term beta * xdot^3 (0 -> no nonlinear damping;
 #                             raise it to clip the hardening peak amplitude)
