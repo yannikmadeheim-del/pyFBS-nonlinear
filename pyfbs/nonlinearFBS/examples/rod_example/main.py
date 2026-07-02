@@ -28,9 +28,6 @@ k_rel = 0.4, 4, 20, 40 (weakly -> strongly nonlinear), as a 2x2 panel grid.
 import sys
 from pathlib import Path
 
-from pyfbs.nonlinearFBS.numerical_continuation.corrector_step import ArcLengthParameterization
-from pyfbs.nonlinearFBS.numerical_continuation.predictor_step import TangentPredictorBordered
-
 # Live progress (no block buffering) + UTF-8 so the continuation's "Δω" print
 # does not crash under Windows' default cp1252 console encoding.
 sys.stdout.reconfigure(encoding="utf-8", line_buffering=True)
@@ -45,6 +42,7 @@ from pyfbs.nonlinearFBS import (
     Fourier, Fourier_Real, FourierOmegaPoint,
     FBSProblem, NumericalFRF, DLFTContact,
     HarmonicBalanceMethod,
+    ArcLengthParameterization, TangentPredictorBordered,
 )
 
 

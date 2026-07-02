@@ -28,10 +28,8 @@ import matplotlib.pyplot as plt
 import pyfbs
 from pyfbs.nonlinearFBS import (
     Fourier_Real, FourierOmegaPoint, FBSProblem, ExperimentalFRF, ModalVPFRF, AFT,
-    HarmonicBalanceMethod,
+    HarmonicBalanceMethod, ArcLengthParameterization, TangentPredictorBordered,
 )
-from pyfbs.nonlinearFBS.numerical_continuation.corrector_step import ArcLengthParameterization
-from pyfbs.nonlinearFBS.numerical_continuation.predictor_step import TangentPredictorBordered
 
 from dynamical_system import build_testbench_data, TestbenchLinearSpring, N_IF
 

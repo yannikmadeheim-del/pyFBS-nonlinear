@@ -38,9 +38,8 @@ from pyfbs.nonlinearFBS import (
     Fourier, Fourier_Real, FourierOmegaPoint,
     FBSProblem, NumericalFRF, ExperimentalFRF,
     DLFTContact, AFT, HarmonicBalanceMethod,
+    ArcLengthParameterization, TangentPredictorBordered,
 )
-from pyfbs.nonlinearFBS.numerical_continuation.corrector_step import ArcLengthParameterization
-from pyfbs.nonlinearFBS.numerical_continuation.predictor_step import TangentPredictorBordered
 
 from dynamical_system import RodParams, TwoRodVibroImpact, TwoRodPenaltyContact
 

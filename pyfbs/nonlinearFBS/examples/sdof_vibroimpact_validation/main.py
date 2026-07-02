@@ -7,8 +7,6 @@ two FRCs.
 """
 from pathlib import Path
 
-from pyfbs.nonlinearFBS.numerical_continuation.corrector_step import ArcLengthParameterization
-
 from time import time
 import numpy as np
 import pandas as pd
@@ -18,6 +16,7 @@ from pyfbs.nonlinearFBS import (
     Fourier, Fourier_Real, FourierOmegaPoint,
     FBSProblem, NumericalFRF, DLFTContact,
     HarmonicBalanceMethod,
+    ArcLengthParameterization,
 )
 
 

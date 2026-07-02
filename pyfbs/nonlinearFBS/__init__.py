@@ -34,6 +34,7 @@ from .numerical_continuation.corrector_step import (
     NewtonRaphson,
     CorrectorParameterization,
     OrthogonalParameterization,
+    ArcLengthParameterization,
 )
 
 from .numerical_continuation.predictor_step import (
@@ -41,6 +42,7 @@ from .numerical_continuation.predictor_step import (
     TangentPredictorRobust,
     TangentPredictorOne,
     TangentPredictorTwo,
+    TangentPredictorBordered,
     StepLengthAdaptation,
     ExponentialAdaptation,
     BiExponentialAdaptation,
@@ -58,8 +60,10 @@ __all__ = [
     "FRFProvider", "NumericalFRF", "ExperimentalFRF", "ModalVPFRF",
     "NonlinearMethod", "AFT", "DLFTContact", "DLFTFriction",
     "FBSProblem",
-    "NewtonRaphson", "CorrectorParameterization", "OrthogonalParameterization",
-    "Predictor", "TangentPredictorRobust", "TangentPredictorOne", "TangentPredictorTwo",
+    "NewtonRaphson", "CorrectorParameterization",
+    "OrthogonalParameterization", "ArcLengthParameterization",
+    "Predictor", "TangentPredictorRobust", "TangentPredictorOne",
+    "TangentPredictorTwo", "TangentPredictorBordered",
     "StepLengthAdaptation", "ExponentialAdaptation", "BiExponentialAdaptation",
     "SolutionSet", "HarmonicBalanceMethod",
 ]
