@@ -1230,20 +1230,26 @@ class Model:
         :param frf_type: define calculated frf type (``receptance``, ``mobility`` or ``accelerance``)
         :type frf_type: str
         """
-        if limit_modes == None:
+        if limit_modes is None:
             no_modes = len(angular_eig_freq)
         else:
             no_modes = limit_modes
 
-        modal_damping = np.asarray(modal_damping).ravel()
-        if modal_damping.all() == None:
+        # modal_damping=None means undamped. (The previous check
+        # `modal_damping.all() == None` could never trigger: np.asarray(None)
+        # is an object array holding None, its .all() is False because None is
+        # falsy, and `False == None` is False -- so a missing damping input
+        # fell through to the branches below and crashed as `complex * None`.)
+        if modal_damping is None:
             damping = np.zeros(no_modes)
-        elif len(modal_damping) == 1:
-            damping = np.repeat(modal_damping, no_modes)
-        elif len(modal_damping) == no_modes:
-            damping = modal_damping
         else:
-            raise Exception('Input for "modal damping" not valid.')
+            modal_damping = np.asarray(modal_damping, dtype=float).ravel()
+            if len(modal_damping) == 1:
+                damping = np.repeat(modal_damping, no_modes)
+            elif len(modal_damping) == no_modes:
+                damping = modal_damping
+            else:
+                raise Exception('Input for "modal damping" not valid.')
 
         if omegas is not None:
             # exact-frequency mode: omegas are angular query freqs [rad/s],
@@ -1317,15 +1323,17 @@ class Model:
         else:
             no_modes = limit_modes
 
-        modal_damping = np.asarray(modal_damping).ravel()
-        if modal_damping.all() == None:
+        # modal_damping=None means undamped; see the note in custom_frf_synth.
+        if modal_damping is None:
             damping = np.zeros(no_modes)
-        elif len(modal_damping) == 1:
-            damping = np.repeat(modal_damping, no_modes)
-        elif len(modal_damping) == no_modes:
-            damping = modal_damping
         else:
-            raise Exception('Input for "modal damping" not valid.')
+            modal_damping = np.asarray(modal_damping, dtype=float).ravel()
+            if len(modal_damping) == 1:
+                damping = np.repeat(modal_damping, no_modes)
+            elif len(modal_damping) == no_modes:
+                damping = modal_damping
+            else:
+                raise Exception('Input for "modal damping" not valid.')
 
         if omegas is not None:
             ome = np.asarray(omegas, dtype=float)

@@ -26,6 +26,16 @@ class FBSProblem:
         self.frf_provider = frf_provider
         self.method = method
 
+        # The residual R = Q_rel + Y_r F_nl - F_adm lives in displacements, so
+        # the provider must synthesize receptance; mobility/accelerance would
+        # silently solve a different (wrong) problem.
+        frf_type = getattr(frf_provider, "frf_type", "receptance")
+        if frf_type != "receptance":
+            raise ValueError(
+                f"FBSProblem requires an FRF provider with frf_type='receptance', "
+                f"got '{frf_type}'. Non-receptance synthesis is meant for "
+                f"standalone FRF evaluation, not for the FBS solver.")
+
         self.d_int   = fbs.B_coupling.shape[0]      # n_int: interface DOFs, from the Boolean matrix
         self.d_total = frf_provider.n_dofs          # full DOF count, from the FRF/Ansys modal data
         Nh = Fourier.number_of_harmonics

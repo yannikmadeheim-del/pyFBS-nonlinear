@@ -44,7 +44,10 @@ class NumericalFRF(FRFProvider):
     modal-sum receptance (and its omega-derivative) at the EXACT requested
     frequencies via pyFBS's ``custom_frf_synth`` / ``custom_dfrf_domega_synth``.
     Exact for proportional/modal damping (constant or per-mode ratio).
-    Receptance only (no frf_type argument is exposed).
+    The synthesis settings ``limit_modes`` (mode truncation) and ``frf_type``
+    (``receptance`` / ``mobility`` / ``accelerance``) are stored on the provider
+    and forwarded to every synthesis call; :class:`FBSProblem` requires the
+    default ``receptance``.
     """
 
     def __init__(self, *args, **kwargs):
@@ -55,31 +58,47 @@ class NumericalFRF(FRFProvider):
         )
 
     @classmethod
-    def from_modal(cls, angular_eig_freq, eig_vec, modal_damping):
+    def from_modal(cls, angular_eig_freq, eig_vec, modal_damping,
+                   limit_modes=None, frf_type="receptance"):
         """Build from precomputed REAL modal data + a modal damping RATIO (scalar
-        or per-mode). Skips the eigensolve -- proportional/modal damping only."""
+        or per-mode). Skips the eigensolve -- proportional/modal damping only.
+
+        :param limit_modes: number of modes used in the synthesis (``None`` = all)
+        :type limit_modes: int or None
+        :param frf_type: ``receptance``, ``mobility`` or ``accelerance``;
+            :class:`FBSProblem` requires ``receptance`` -- other types are for
+            standalone FRF evaluation
+        :type frf_type: str
+        """
         self = cls.__new__(cls)
         self._set_modal(np.asarray(angular_eig_freq, dtype=float),
-                        np.asarray(eig_vec), modal_damping)
+                        np.asarray(eig_vec), modal_damping,
+                        limit_modes=limit_modes, frf_type=frf_type)
         return self
 
     @classmethod
-    def from_ansys_model(cls, model, modal_damping):
+    def from_ansys_model(cls, model, modal_damping,
+                         limit_modes=None, frf_type="receptance"):
         """Build from a pyFBS Model (e.g. Model.from_ansys), REUSING its cached
         eigensolution (model.angular_eig_freq / model.eig_vec) instead of
-        re-solving. Proportional/modal damping only (constant ratio or per-mode)."""
+        re-solving. Proportional/modal damping only (constant ratio or per-mode).
+        ``limit_modes`` / ``frf_type`` as in :meth:`from_modal`."""
         if getattr(model, "damped_solver", False):
             raise NotImplementedError(
                 "from_ansys_model supports proportional (real-mode) damping only; "
                 "this model has a complex/damped eigensolution."
             )
         return cls.from_modal(model.angular_eig_freq, model.eig_vec,
-                              modal_damping)
+                              modal_damping,
+                              limit_modes=limit_modes, frf_type=frf_type)
 
-    def _set_modal(self, angular_eig_freq, eig_vec, modal_damping):
+    def _set_modal(self, angular_eig_freq, eig_vec, modal_damping,
+                   limit_modes=None, frf_type="receptance"):
         self.angular_eig_freq = angular_eig_freq                    # Omega (n_modes,)
         self.eig_vec = eig_vec                                      # (d, n_modes)
         self.modal_damping = modal_damping                         # ratio: scalar or (n_modes,)
+        self.limit_modes = limit_modes                             # mode truncation (None = all)
+        self.frf_type = frf_type                                   # receptance / mobility / accelerance
 
     @property
     def n_dofs(self) -> int:
@@ -90,6 +109,7 @@ class NumericalFRF(FRFProvider):
         _, frf = Model.custom_frf_synth(
             self.angular_eig_freq, self.eig_vec[out_dofs], self.eig_vec[in_dofs],
             modal_damping=self.modal_damping, omegas=omegas,
+            limit_modes=self.limit_modes, frf_type=self.frf_type,
         )
         return frf                                                 # (Nh, |out|, |in|)
 
@@ -99,6 +119,7 @@ class NumericalFRF(FRFProvider):
         _, dfrf = Model.custom_dfrf_domega_synth(
             self.angular_eig_freq, self.eig_vec[out_dofs], self.eig_vec[in_dofs],
             modal_damping=self.modal_damping, omegas=n * omega,
+            limit_modes=self.limit_modes, frf_type=self.frf_type,
         )
         return dfrf * n[:, None, None]          # (Nh, |out|, |in|)
 
@@ -126,18 +147,21 @@ class ModalVPFRF(FRFProvider):
     plain :class:`FBSProblem` consumes it unchanged (no VPT branch in the solver).
     """
 
-    def __init__(self, angular_eig_freq, eig_vec_chn, eig_vec_imp, modal_damping):
+    def __init__(self, angular_eig_freq, eig_vec_chn, eig_vec_imp, modal_damping,
+                 frf_type="receptance"):
         self.angular_eig_freq = np.asarray(angular_eig_freq, dtype=float)  # Omega (n_modes,)
         self.eig_vec_chn = np.asarray(eig_vec_chn)   # Psi_c (N_vp, n_modes): VP-projected OUTPUT modes
         self.eig_vec_imp = np.asarray(eig_vec_imp)   # Psi_i (N_vp, n_modes): VP-projected INPUT  modes
         self.modal_damping = modal_damping           # ratio: scalar or (n_modes,)
+        self.frf_type = frf_type                     # receptance / mobility / accelerance
         if self.eig_vec_chn.shape != self.eig_vec_imp.shape:
             raise ValueError(
                 "eig_vec_chn (Psi_c) and eig_vec_imp (Psi_i) must share shape "
                 f"(N_vp, n_modes); got {self.eig_vec_chn.shape} and {self.eig_vec_imp.shape}")
 
     @classmethod
-    def from_substructures(cls, subsystems, modal_damping):
+    def from_substructures(cls, subsystems, modal_damping,
+                           limit_modes=None, frf_type="receptance"):
         """Fold each substructure's VPT into its mode shapes, then block-diagonal-stack.
 
         The block-diagonal stack keeps the substructures uncoupled (a substructure's
@@ -149,20 +173,28 @@ class ModalVPFRF(FRFProvider):
             ``pyfbs.interface.VPT`` built from ``(df_chn, df_imp)``; ``df_chn``/``df_imp``
             the location-updated physical channel/impact dataframes the VPT consumes.
         :param modal_damping: modal damping ratio (scalar or per-mode) for synthesis.
+        :param limit_modes: number of modes kept PER SUBSTRUCTURE (``None`` = all).
+            Truncation must happen here, before stacking: the stacked basis lists
+            substructure A's modes first, then B's, so a global "first k" cut
+            after stacking would drop whole substructures instead of high modes.
+        :param frf_type: ``receptance`` / ``mobility`` / ``accelerance``;
+            :class:`FBSProblem` requires ``receptance``.
         """
         Psi_c, Psi_i, Omega, damp = [], [], [], []
         for model, vpt, df_chn, df_imp in subsystems:
             eigval2, d_modal, Phi_c = model.transform_modal_parameters(
-                df_chn, modal_damping=modal_damping, return_channel_only=True)
+                df_chn, limit_modes=limit_modes, modal_damping=modal_damping,
+                return_channel_only=True)
             _, _, Phi_i = model.transform_modal_parameters(
-                df_imp, modal_damping=modal_damping, return_channel_only=True)
+                df_imp, limit_modes=limit_modes, modal_damping=modal_damping,
+                return_channel_only=True)
             Psi_c.append(vpt.tu @ Phi_c)        # (N_vp_s, n_modes_s)
             Psi_i.append(vpt.tf.T @ Phi_i)      # (N_vp_s, n_modes_s)
             Omega.append(np.sqrt(eigval2))
             damp.append(np.atleast_1d(d_modal))
         return cls(np.concatenate(Omega),
                    block_diag(*Psi_c), block_diag(*Psi_i),
-                   np.concatenate(damp))
+                   np.concatenate(damp), frf_type=frf_type)
 
     @property
     def n_dofs(self) -> int:
@@ -173,6 +205,7 @@ class ModalVPFRF(FRFProvider):
         _, frf = Model.custom_frf_synth(
             self.angular_eig_freq, self.eig_vec_chn[out_dofs], self.eig_vec_imp[in_dofs],
             modal_damping=self.modal_damping, omegas=omegas,
+            frf_type=self.frf_type,
         )
         return frf                                   # (Nh, |out|, |in|), already in VP space
 
@@ -182,6 +215,7 @@ class ModalVPFRF(FRFProvider):
         _, dfrf = Model.custom_dfrf_domega_synth(
             self.angular_eig_freq, self.eig_vec_chn[out_dofs], self.eig_vec_imp[in_dofs],
             modal_damping=self.modal_damping, omegas=n * omega,
+            frf_type=self.frf_type,
         )
         return dfrf * n[:, None, None]               # (Nh, |out|, |in|)
 
