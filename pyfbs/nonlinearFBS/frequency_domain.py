@@ -253,7 +253,7 @@ class JacobianFourier_Real(JacobianFourier):
         # unlike c_k = (N_t/2) * (a_k - i b_k) for k >= 1. The Hankel doubling
         # G_{n-m} + G_{n+m} is correct for m >= 1; for m = 0 the two terms are
         # identical (G_n) and naive addition over-counts by factor 2.
-        # Identified via FD-Jacobian check in examples/sdof_vibroimpact_validation.
+        # Identified via an FD-Jacobian check on an SDOF vibro-impact test case.
         if 0 in Fourier.harmonics:
             m0 = list(Fourier.harmonics).index(0)
             plus[:, m0, :, :]  *= 0.5
