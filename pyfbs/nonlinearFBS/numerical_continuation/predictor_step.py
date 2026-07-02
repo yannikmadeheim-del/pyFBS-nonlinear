@@ -190,9 +190,7 @@ class ExponentialAdaptation(StepLengthAdaptation):
         delta_iterations = self.goal_number_of_iterations - iterations
         if delta_iterations == 0: return 0
         self.step_length = self.step_length * (self.base**delta_iterations)
-        
-        # self.step_length = min(max(new_step_length, self.min_step_length), self.max_step_length)
-        
+
         if self.step_length > self.max_step_length:
             self.step_length = self.max_step_length
         
@@ -231,9 +229,7 @@ class BiExponentialAdaptation(StepLengthAdaptation):
             self.step_length = self.step_length * (self.base_increase**(delta_iterations))
         else:
             self.step_length = self.step_length / (self.base_decrease**(-delta_iterations))
-            
-        # self.step_length = min(max(new_step_length, self.min_step_length), self.max_step_length)
-        
+
         if self.step_length > self.max_step_length:
             self.step_length = self.max_step_length
         

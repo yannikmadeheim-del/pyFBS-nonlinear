@@ -2,11 +2,8 @@
 # Original Fourier/HBM machinery by Tiago Martins; see https://github.com/tiagomrns/pyhbm.
 from __future__ import annotations
 import numpy as np
-import warnings
 from numpy import array, concatenate, unique, hstack, array_split, vstack, einsum, pi, linspace, zeros, eye, kron, diag, where, block, zeros_like, vdot, sqrt
 from numpy.fft import rfft, irfft, fft, ifft
-
-from scipy.interpolate import CubicSpline, make_interp_spline
 
 # %%
 class Fourier(object):
@@ -37,8 +34,6 @@ class Fourier(object):
             f"Number of harmonics is {Fourier.number_of_harmonics}, but {len(coefficients)} coefficients were provided."
 
         self.coefficients = coefficients
-        # self.real_part = coefficients.real
-        # self.imaginary_part = coefficients.imag
         self.time_series = None
         self.adimensional_time_derivative = None
 
@@ -56,17 +51,11 @@ class Fourier(object):
     def compute_time_series(self):
         pass
 
-    def compute_time_series_derivative(self, x: FourierOmegaPoint):
-        pass
-
     def __add__(self, other):
         return Fourier(coefficients = self.coefficients + other.coefficients)
 
     def __sub__(self, other):
         return Fourier(coefficients = self.coefficients - other.coefficients)
-
-    def matmul(self, other):
-        return Fourier(coefficients = self.coefficients @ other.coefficients)
 
     def __mul__(self, other: float):
         return Fourier(coefficients = self.coefficients * other)
@@ -149,7 +138,6 @@ class FourierOmegaPoint(object):
         self.omega: float = omega
         self.RI = None
         self.time_series_derivative = None
-        self.second_adimensional_time_derivative = None
         self.Gdot = None
         self.Y_cache = None
         self.dY_cache = None         # dY/dω — reused by dR/dω and DLFT dF_int/dω
@@ -212,11 +200,6 @@ class FourierOmegaPoint(object):
             Fourier_Real.compute_time_series(qdot_fourier)
             self.time_series_derivative = qdot_fourier.time_series
         return self.time_series_derivative
-
-    def compute_second_adimensional_time_derivative(self):
-        if self.second_adimensional_time_derivative is None:
-            self.second_adimensional_time_derivative = einsum('i,ijk->ijk', Fourier.harmonics**2, self.fourier.coefficients) * -1
-        return self.second_adimensional_time_derivative
 
 #%%
 
