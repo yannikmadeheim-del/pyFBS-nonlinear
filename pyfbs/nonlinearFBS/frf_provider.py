@@ -2,6 +2,7 @@ import numpy as np
 from numpy import zeros, eye, array
 from numpy.fft import rfft, irfft
 from scipy.interpolate import CubicSpline
+from scipy.linalg import block_diag
 from abc import ABC, abstractmethod
 from ..mck.mck import Model
 from .frequency_domain import Fourier, FourierOmegaPoint
@@ -54,16 +55,16 @@ class NumericalFRF(FRFProvider):
         )
 
     @classmethod
-    def from_modal(cls, angular_eig_freq, eig_vec, modal_damping, omega_ref=None):
+    def from_modal(cls, angular_eig_freq, eig_vec, modal_damping):
         """Build from precomputed REAL modal data + a modal damping RATIO (scalar
         or per-mode). Skips the eigensolve -- proportional/modal damping only."""
         self = cls.__new__(cls)
         self._set_modal(np.asarray(angular_eig_freq, dtype=float),
-                        np.asarray(eig_vec), modal_damping, omega_ref)
+                        np.asarray(eig_vec), modal_damping)
         return self
 
     @classmethod
-    def from_ansys_model(cls, model, modal_damping, omega_ref=None):
+    def from_ansys_model(cls, model, modal_damping):
         """Build from a pyFBS Model (e.g. Model.from_ansys), REUSING its cached
         eigensolution (model.angular_eig_freq / model.eig_vec) instead of
         re-solving. Proportional/modal damping only (constant ratio or per-mode)."""
@@ -73,30 +74,19 @@ class NumericalFRF(FRFProvider):
                 "this model has a complex/damped eigensolution."
             )
         return cls.from_modal(model.angular_eig_freq, model.eig_vec,
-                              modal_damping, omega_ref=omega_ref)
+                              modal_damping)
 
-    def _set_modal(self, angular_eig_freq, eig_vec, modal_damping, omega_ref):
+    def _set_modal(self, angular_eig_freq, eig_vec, modal_damping):
         self.angular_eig_freq = angular_eig_freq                    # Omega (n_modes,)
         self.eig_vec = eig_vec                                      # (d, n_modes)
         self.modal_damping = modal_damping                         # ratio: scalar or (n_modes,)
-        # auto reference: first non-rigid (nonzero) natural frequency, so the
-        # continuation runs in nondimensional omega_hat = omega / omega_ref
-        # (O(1) axis -> arc-length conditioning). eigh returns Omega ascending.
-        if omega_ref is None:
-            mx = float(angular_eig_freq.max()) if angular_eig_freq.size else 0.0
-            nz = angular_eig_freq[angular_eig_freq > 1e-6 * mx] if mx > 0 else angular_eig_freq
-            self.omega_ref = float(nz[0]) if nz.size else 1.0
-        else:
-            self.omega_ref = float(omega_ref)
 
     @property
     def n_dofs(self) -> int:
         return self.eig_vec.shape[0]                 # modal basis is (d, n_modes)
 
     def compute_FRF(self, omega: float, harmonics, out_dofs, in_dofs) -> array:
-        # synthesize only Y[out_dofs, in_dofs] at nu_n = n * omega * omega_ref
-        # (omega is the nondimensional omega_hat) -> cost flat in mesh size.
-        omegas = np.asarray(harmonics, dtype=float) * omega * self.omega_ref
+        omegas = np.asarray(harmonics, dtype=float) * omega
         _, frf = Model.custom_frf_synth(
             self.angular_eig_freq, self.eig_vec[out_dofs], self.eig_vec[in_dofs],
             modal_damping=self.modal_damping, omegas=omegas,
@@ -105,13 +95,95 @@ class NumericalFRF(FRFProvider):
 
     def compute_FRF_derivative(self, omega: float, harmonics, out_dofs, in_dofs,
                                Y_cache: array) -> array:
-        # dY_n/d(omega_hat) = (n * omega_ref) * dH/d(nu) at nu = n*omega*omega_ref
         n = np.asarray(harmonics, dtype=float)
         _, dfrf = Model.custom_dfrf_domega_synth(
             self.angular_eig_freq, self.eig_vec[out_dofs], self.eig_vec[in_dofs],
-            modal_damping=self.modal_damping, omegas=n * omega * self.omega_ref,
+            modal_damping=self.modal_damping, omegas=n * omega,
         )
-        return dfrf * (n * self.omega_ref)[:, None, None]          # (Nh, |out|, |in|)
+        return dfrf * n[:, None, None]          # (Nh, |out|, |in|)
+
+
+class ModalVPFRF(FRFProvider):
+    """
+    Virtual-point admittance by mode superposition, with the Virtual Point
+    Transformation (VPT) FOLDED INTO THE MODE SHAPES.
+
+    Because the VPT (Tu on responses, Tf on loads) is a constant spatial
+    projection and the modal denominator is diagonal in the modes and
+    independent of DoF, Tu/Tf commute through the modal sum::
+
+        Y_vp = Tu (Phi_c D(w) Phi_i^T) Tf = (Tu Phi_c) D(w) (Tf^T Phi_i)^T
+             =     Psi_c            D(w)      Psi_i^T
+
+    So we store the VP-projected participation matrices ``Psi_c = Tu @ Phi_c``
+    (outputs) and ``Psi_i = Tf^T @ Phi_i`` (inputs); the poles ``angular_eig_freq``
+    and ``modal_damping`` are the UNCHANGED physical ones (the VPT moves mode
+    shapes, not poles). Each query synthesizes DIRECTLY in the N_vp virtual-point
+    space -- the physical admittance ``Phi_c D Phi_i^T`` is never assembled, so the
+    cost is O(n_modes * N_vp^2), flat in mesh size and below even forming Y_phys.
+
+    ``n_dofs == N_vp`` equals the column count of the FBS Boolean matrix, so a
+    plain :class:`FBSProblem` consumes it unchanged (no VPT branch in the solver).
+    """
+
+    def __init__(self, angular_eig_freq, eig_vec_chn, eig_vec_imp, modal_damping):
+        self.angular_eig_freq = np.asarray(angular_eig_freq, dtype=float)  # Omega (n_modes,)
+        self.eig_vec_chn = np.asarray(eig_vec_chn)   # Psi_c (N_vp, n_modes): VP-projected OUTPUT modes
+        self.eig_vec_imp = np.asarray(eig_vec_imp)   # Psi_i (N_vp, n_modes): VP-projected INPUT  modes
+        self.modal_damping = modal_damping           # ratio: scalar or (n_modes,)
+        if self.eig_vec_chn.shape != self.eig_vec_imp.shape:
+            raise ValueError(
+                "eig_vec_chn (Psi_c) and eig_vec_imp (Psi_i) must share shape "
+                f"(N_vp, n_modes); got {self.eig_vec_chn.shape} and {self.eig_vec_imp.shape}")
+
+    @classmethod
+    def from_substructures(cls, subsystems, modal_damping):
+        """Fold each substructure's VPT into its mode shapes, then block-diagonal-stack.
+
+        The block-diagonal stack keeps the substructures uncoupled (a substructure's
+        modes get zero participation on the others' VP DoFs), exactly mirroring the
+        block-diagonal ``Y = diag(Y_A, Y_B)`` assembled in the current example.
+
+        :param subsystems: list of ``(model, vpt, df_chn, df_imp)`` per substructure:
+            ``model`` a pyFBS Model with a REAL modal solution; ``vpt`` a
+            ``pyfbs.interface.VPT`` built from ``(df_chn, df_imp)``; ``df_chn``/``df_imp``
+            the location-updated physical channel/impact dataframes the VPT consumes.
+        :param modal_damping: modal damping ratio (scalar or per-mode) for synthesis.
+        """
+        Psi_c, Psi_i, Omega, damp = [], [], [], []
+        for model, vpt, df_chn, df_imp in subsystems:
+            eigval2, d_modal, Phi_c = model.transform_modal_parameters(
+                df_chn, modal_damping=modal_damping, return_channel_only=True)
+            _, _, Phi_i = model.transform_modal_parameters(
+                df_imp, modal_damping=modal_damping, return_channel_only=True)
+            Psi_c.append(vpt.tu @ Phi_c)        # (N_vp_s, n_modes_s)
+            Psi_i.append(vpt.tf.T @ Phi_i)      # (N_vp_s, n_modes_s)
+            Omega.append(np.sqrt(eigval2))
+            damp.append(np.atleast_1d(d_modal))
+        return cls(np.concatenate(Omega),
+                   block_diag(*Psi_c), block_diag(*Psi_i),
+                   np.concatenate(damp))
+
+    @property
+    def n_dofs(self) -> int:
+        return self.eig_vec_chn.shape[0]             # N_vp
+
+    def compute_FRF(self, omega: float, harmonics, out_dofs, in_dofs) -> array:
+        omegas = np.asarray(harmonics, dtype=float) * omega
+        _, frf = Model.custom_frf_synth(
+            self.angular_eig_freq, self.eig_vec_chn[out_dofs], self.eig_vec_imp[in_dofs],
+            modal_damping=self.modal_damping, omegas=omegas,
+        )
+        return frf                                   # (Nh, |out|, |in|), already in VP space
+
+    def compute_FRF_derivative(self, omega: float, harmonics, out_dofs, in_dofs,
+                               Y_cache: array) -> array:
+        n = np.asarray(harmonics, dtype=float)
+        _, dfrf = Model.custom_dfrf_domega_synth(
+            self.angular_eig_freq, self.eig_vec_chn[out_dofs], self.eig_vec_imp[in_dofs],
+            modal_damping=self.modal_damping, omegas=n * omega,
+        )
+        return dfrf * n[:, None, None]               # (Nh, |out|, |in|)
 
 
 class ExperimentalFRF(FRFProvider):
@@ -180,3 +252,5 @@ class ExperimentalFRF(FRFProvider):
         h = self.fd_step
         return (self.compute_FRF(omega + h, harmonics, out_dofs, in_dofs)
                 - self.compute_FRF(omega - h, harmonics, out_dofs, in_dofs)) / (2 * h)
+
+

@@ -48,7 +48,7 @@ from dynamical_system import RodParams, TwoRodVibroImpact, TwoRodPenaltyContact
 # ============================ configuration =================================
 # --- which model to solve ---
 METHOD = "dlft"           # "dlft" (rigid contact) | "aft" (regularized penalty)
-FRF    = "numerical"     # "numerical" (exact M,C,K) | "experimental" (sampled + noisy)
+FRF    = "numerical"     # "numerical" (exacM,C,K) | "experimental" (sampled + noisy)
 
 # --- rods (Vadcard Table 1) ---
 PARAMS = RodParams(F0=25e3, sample_number = 1000)    # rod A
@@ -56,7 +56,7 @@ LB_REL = 1/20             # rod B length L_B / L_A  (1.0 = identical rods)
 
 # --- contact ---
 GAP         = 0.2e-3     # g0: initial tip-to-tip gap [m]
-EPSILON_REL = 100     # DLFT penalty = EPSILON_REL * k_rod   (DLFT only; eps-independent)
+EPSILON_REL = 0.5     # DLFT penalty = EPSILON_REL * k_rod   (DLFT only; eps-independent)
 K_REL       = 100.0      # AFT penalty stiffness k_c / k_rod    (AFT only)
 ALPHA       = 1e8        # AFT tanh-regularization sharpness    (np.inf = hard, nonsmooth)
 
@@ -65,12 +65,16 @@ DENSITY    = 0.1        # measured-FRF density [samples/Hz]
 NOISE      = np.inf      # measured-FRF SNR [dB]  (np.inf = clean)
 NOISE_SEED = 1
 
-# --- frequency window + solver (nondimensional omega_hat = omega / omega_1) ---
-HARMONICS     = list(range(0, 21))           # 0..20 -> H = 20
-OMEGA_START   = 1.2
-OMEGA_END     = 0.9
+# --- frequency window + solver (PHYSICAL omega [rad/s]) ---
+# Window is given as fractions of the first coupled mode omega_1 and scaled to rad/s
+# where the system is available (solve_branch / main).  STEP_KWARGS is UNCHANGED: the
+# solver metric scaling Dscale[-1] = omega_ref makes a step advance ~step_length * omega_1,
+# so 0.002 still yields ~150 points across the window whether omega is dimensional or not.
+HARMONICS       = list(range(0, 21))         # 0..20 -> H = 20
+OMEGA_START_REL = 1.2                         # sweep 1.2*omega_1 ...
+OMEGA_END_REL   = 0.9                         # ... down to 0.9*omega_1
 SOLVER_KWARGS = {"maximum_iterations": 300, "absolute_tolerance": 1e-6}
-STEP_KWARGS   = {"base": 4.0, "initial_step_length": 0.002, "maximum_step_length": 0.0005,
+STEP_KWARGS   = {"base": 4.0, "initial_step_length": 0.002, "maximum_step_length": 0.005,
                  "minimum_step_length": 1e-8, "goal_number_of_iterations": 3}
 MAX_SOLUTIONS = 10000
 
@@ -108,17 +112,16 @@ def make_experimental_provider(system):
     Mirrors studies/frf.py: grid spacing is 1/DENSITY Hz on the physical axis up to
     the top queried harmonic; optional pyFBS-style measurement noise at SNR=NOISE.
     """
-    h_max         = int(np.max(HARMONICS))
-    omega_hi      = max(abs(OMEGA_START), abs(OMEGA_END))
-    omega_max_hat = h_max * omega_hi * 1.05
-    f_max  = omega_max_hat * system.omega_ref / (2.0 * np.pi)
-    n_freq = max(2, int(round(DENSITY * f_max)) + 1)
-    grid   = np.linspace(0.0, omega_max_hat, n_freq)
+    h_max     = int(np.max(HARMONICS))
+    omega_hi  = max(abs(OMEGA_START_REL), abs(OMEGA_END_REL)) * system.omega_ref  # rad/s
+    omega_max = h_max * omega_hi * 1.05
+    f_max     = omega_max / (2.0 * np.pi)
+    n_freq    = max(2, int(round(DENSITY * f_max)) + 1)
+    grid      = np.linspace(0.0, omega_max, n_freq)                               # rad/s grid
 
-    # damped admittance on the grid, synthesized from the modal data (no C matrix);
-    # omega_ref=1 because the system matrices are already nondimensionalized.
-    prov = NumericalFRF.from_modal(system.angular_eig_freq, system.eig_vec, system.zeta,
-                                   omega_ref=1.0)
+    # physical damped admittance on the grid, synthesized from the modal data (no C
+    # matrix); the modal data is already physical so no omega_ref rescaling is needed.
+    prov = NumericalFRF.from_modal(system.angular_eig_freq, system.eig_vec, system.zeta)
     d = system.total_dimension
     all_dofs = np.arange(d)
     Y = prov.compute_FRF(1.0, grid, all_dofs, all_dofs)   # full (n_freq, d, d)
@@ -167,8 +170,13 @@ def solve_branch(system, provider, method):
         corrector_parameterization=ArcLengthParameterization,
         predictor=TangentPredictorBordered)
 
-    Q1 = np.array([[linear_relative(system, OMEGA_START)]])
-    ig = FourierOmegaPoint.new_from_first_harmonic(Q1, omega=OMEGA_START)
+
+    # PHYSICAL sweep window: fractions of the first coupled mode -> rad/s
+    w1 = system.omega_ref
+    w_start, w_end = OMEGA_START_REL * w1, OMEGA_END_REL * w1
+
+    Q1 = np.array([[linear_relative(system, w_start)]])
+    ig = FourierOmegaPoint.new_from_first_harmonic(Q1, omega=w_start)
     rd = FourierOmegaPoint.new_from_first_harmonic(np.zeros((1, 1), complex), omega=-1.0)
 
     t0 = perf_counter()
@@ -176,12 +184,12 @@ def solve_branch(system, provider, method):
         initial_guess                 = ig,
         initial_reference_direction   = rd,
         maximum_number_of_solutions   = MAX_SOLUTIONS,
-        angular_frequency_range       = [OMEGA_START, OMEGA_END],
+        angular_frequency_range       = [w_start, w_end],
         solver_kwargs                 = SOLVER_KWARGS,
         step_length_adaptation_kwargs = STEP_KWARGS,
         jacobian_update_frequency     = 1,
     )
-    omega_phys = np.array(ss.omega) * system.omega_ref
+    omega_phys = np.array(ss.omega)
     peak = {s: np.zeros(len(omega_phys)) for s in SIGNALS}
     for i, (four, o_hat) in enumerate(zip(ss.fourier, ss.omega)):
         full = problem.compute_full_response(four, o_hat)
@@ -216,14 +224,14 @@ def main():
 
     # linear (no-contact) backdrop: rod B is unforced without contact (u_B = 0), so
     # the same curve backs both the u_A and the x_r window.
-    wh_lin   = np.linspace(OMEGA_START, OMEGA_END, 600)
-    peak_lin = np.array([abs(linear_relative(system, w)) for w in wh_lin])
-    om_lin   = wh_lin * omega_1
+    om_lin   = np.linspace(OMEGA_START_REL * omega_1, OMEGA_END_REL * omega_1, 600)
+    peak_lin = np.array([abs(linear_relative(system, w)) for w in om_lin])
+
 
     ref = load_reference()
 
     SCALE = 1.0e-4
-    XLIM  = tuple(sorted((OMEGA_START * omega_1, OMEGA_END * omega_1)))
+    XLIM  = tuple(sorted((OMEGA_START_REL * omega_1, OMEGA_END_REL * omega_1)))
     YLIM  = (0.0, 5.5)
 
     for sig in SIGNALS:

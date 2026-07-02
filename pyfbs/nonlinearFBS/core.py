@@ -49,6 +49,8 @@ class HarmonicBalanceMethod:
 
 		self.reference_force_level = norm(self.freq_domain_ode.external_term.coefficients)
 
+		self.Dscale = getattr(freq_domain_ode, "Dscale", np.ones(self.freq_domain_ode.real_dimension + 1))
+
 	@staticmethod
 	def update_dependencies(harmonics: np.ndarray, sample_number: int):
 		Fourier.update_class_variables(harmonics, sample_number)
@@ -109,6 +111,7 @@ class HarmonicBalanceMethod:
 			**solver_kwargs,
 			jacobian_update_frequency = jacobian_update_frequency,
 			jacobian_reuse_delta_threshold = jacobian_reuse_delta_threshold,
+			column_scale = self.Dscale
 		)
 
 		step_length_adaptation = self.step_length_adaptation(**step_length_adaptation_kwargs)
@@ -139,6 +142,7 @@ class HarmonicBalanceMethod:
 			predictor_vector: np.ndarray = self.predictor.compute_predictor_vector(
 				jacobian = jacobian[:self.freq_domain_ode.real_dimension],
 				reference_direction = reference_direction,
+				dscale = self.Dscale,
     			**predictor_kwargs,
           	)
    
@@ -159,6 +163,7 @@ class HarmonicBalanceMethod:
 					predicted_solution=asarray(predicted_solution),
 					last_solution=asarray(previous_solution),
 					step_size=step_length_adaptation.step_length,
+					dscale = self.Dscale
 				)
 
 				solution, iterations, success, jacobian = solver.solve(predicted_solution, return_jacobian=True)

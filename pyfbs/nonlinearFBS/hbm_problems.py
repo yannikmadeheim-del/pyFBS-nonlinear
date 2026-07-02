@@ -31,6 +31,9 @@ class FBSProblem:
         Nh = Fourier.number_of_harmonics
         self.complex_dimension = Nh * self.d_int
         self.real_dimension    = 2 * self.complex_dimension
+        omega_ref = float(getattr(fbs, 'omega_ref', 1.0))
+        self.Dscale = np.ones(self.real_dimension + 1)
+        self.Dscale[-1] = omega_ref
 
         external_ts = fbs.external_term(Fourier.adimensional_time_samples)
         self.external_term = Fourier_Real.new_from_time_series(external_ts)

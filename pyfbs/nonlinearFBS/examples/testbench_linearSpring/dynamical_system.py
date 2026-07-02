@@ -6,7 +6,7 @@ from pyfbs.nonlinearFBS import FBS_System
 N_IF = 6   # virtual-point interface DoFs: [ux, uy, uz, rx, ry, rz]
 
 def build_testbench_data(k_trans=1.0e6, k_rot=1.0e3, c_trans=0.0, c_rot=0.0,
-                         f_resolution=1.0):
+                         f_resolution=1.0, modal_damping=0.003):
     """
     :param f_resolution: FRF frequency resolution Delta f [Hz], passed to frf_synth
         and preserved by the VPT (which re-projects per frequency, never resamples).
@@ -22,6 +22,10 @@ def build_testbench_data(k_trans=1.0e6, k_rot=1.0e3, c_trans=0.0, c_rot=0.0,
         k_diag, c_diag (6,)       per-DoF spring stiffness / damping
         out_full  int             response DoF (first A reference DoF = 0)
         inp_full  int             force DoF    (first B reference DoF = nA + 6)
+        MK_A, MK_B                pyFBS Models (FE modes) for the numerical pipeline
+        vpt_A, vpt_B              VPT objects (Tu/Tf) per substructure
+        df_chn_A/df_imp_A/...     location-updated channel/impact dataframes
+        modal_damping  float      modal damping ratio used in the synthesis
     """
     pyfbs.io.download_lab_testbench()
     pos_xlsx = r"./lab_testbench/Measurements/coupling_example.xlsx"
@@ -37,14 +41,20 @@ def build_testbench_data(k_trans=1.0e6, k_rot=1.0e3, c_trans=0.0, c_rot=0.0,
                                       no_modes=100, allow_pickle=True, recalculate=False, mesh_scale=1)
     MK_B = pyfbs.mck.Model.from_ansys(r"./lab_testbench/FEM/B.rst", r"./lab_testbench/FEM/B.full",
                                       no_modes=100, allow_pickle=True, recalculate=False, mesh_scale=1)
-
+    print(MK_A.nodes.shape)
+    print(MK_B.nodes.shape)
     df_chn_A = MK_A.update_locations_df(df_chn_A, scale=1)
     df_imp_A = MK_A.update_locations_df(df_imp_A, scale=1)
     df_chn_B = MK_B.update_locations_df(df_chn_B, scale=1)
     df_imp_B = MK_B.update_locations_df(df_imp_B, scale=1)
 
-    MK_A.frf_synth(df_chn_A, df_imp_A, f_start=0, f_resolution=f_resolution, modal_damping=0.003)
-    MK_B.frf_synth(df_chn_B, df_imp_B, f_start=0, f_resolution=f_resolution, modal_damping=0.003)
+    MK_A.frf_synth(df_chn_A, df_imp_A, f_start=0, f_resolution=f_resolution, modal_damping=modal_damping)
+    MK_B.frf_synth(df_chn_B, df_imp_B, f_start=0, f_resolution=f_resolution, modal_damping=modal_damping)
+
+    print(df_imp_B.shape)
+    print(df_imp_A.shape)
+    print(df_chn_B.shape)
+    print(df_imp_A.shape)
 
     freq  = MK_A.freq
     omega = 2 * np.pi * freq
@@ -82,7 +92,12 @@ def build_testbench_data(k_trans=1.0e6, k_rot=1.0e3, c_trans=0.0, c_rot=0.0,
 
     return dict(freq=freq, omega=omega, Y=Y, Y_A=Y_A, Y_B=Y_B,
                 nA=nA, nB=nB, N=N, Bc=Bc, k_diag=k_diag, c_diag=c_diag,
-                out_full=out_full, inp_full=inp_full)
+                out_full=out_full, inp_full=inp_full,
+                # modal + VPT objects for the numerical ModalVPFRF pipeline
+                MK_A=MK_A, MK_B=MK_B, vpt_A=vpt_A, vpt_B=vpt_B,
+                df_chn_A=df_chn_A, df_imp_A=df_imp_A,
+                df_chn_B=df_chn_B, df_imp_B=df_imp_B,
+                modal_damping=modal_damping)
 
 
 class TestbenchLinearSpring(FBS_System):
@@ -97,6 +112,7 @@ class TestbenchLinearSpring(FBS_System):
     def __init__(self, data, F0=1.0, sample_number=256):
         self.B_coupling    = data["Bc"]                 # (6, N)
         self.K_spring      = np.diag(data["k_diag"])    # (6, 6)
+        self.C_spring      = np.diag(data["c_diag"])    # (6, 6) viscous bushing damping
         self.F0            = F0
         self.sample_number = sample_number
         self.out_full      = data["out_full"]
@@ -108,10 +124,14 @@ class TestbenchLinearSpring(FBS_System):
         f[:, self.inp_full, 0] = self.F0 * np.cos(tau)
         return f
 
-    # --- linear bushing spring on the 6-DoF VP gap x_r = B u --------------------
+    # --- linear bushing spring + viscous damper on the 6-DoF VP gap x_r = B u ----
+    #     F_nl = K_spring x_r + C_spring xdot_r.  udot_rel is the PHYSICAL velocity
+    #     du/dt (the framework scales by omega), so the first-harmonic interface
+    #     impedance is K + i*omega*C -> Gamma = 1/(k + i*omega*c), matching the
+    #     analytical LM-FBS reference exactly.
     def interface_force(self, u_rel, udot_rel, tau):
-        # K_spring (6,6) broadcasts over the leading time axis of u_rel (Nt,6,1)
-        return self.K_spring @ u_rel                     # (Nt, 6, 1)
+        # K_spring/C_spring (6,6) broadcast over the leading time axis of u_rel (Nt,6,1)
+        return self.K_spring @ u_rel + self.C_spring @ udot_rel   # (Nt, 6, 1)
 
     def jacobian_interface_force(self, u_rel, udot_rel, tau):
         n_int = self.B_coupling.shape[0]                 # 6 (interface dim, from B)
@@ -119,4 +139,4 @@ class TestbenchLinearSpring(FBS_System):
 
     def jacobian_interface_force_qdot(self, u_rel, udot_rel, tau):
         n_int = self.B_coupling.shape[0]
-        return np.zeros((len(tau), n_int, n_int))
+        return np.broadcast_to(self.C_spring, (len(tau), n_int, n_int))

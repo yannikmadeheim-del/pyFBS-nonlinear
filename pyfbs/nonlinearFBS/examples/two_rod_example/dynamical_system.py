@@ -151,14 +151,14 @@ class TwoRodVibroImpact(FBS_System):
         self.kB_rod = (params_B or p).k_rod          # rod B static stiffness E*A/L_B
 
         omega_ref = a["omega_ref"]
-        self.omega_ref        = omega_ref
-        self.mass_matrix      = omega_ref ** 2 * a["M"]
+        self.omega_ref        = omega_ref          # physical 1st mode -> arc-length Dscale only
+        self.mass_matrix      = a["M"]             # PHYSICAL M (no omega_ref^2 nondimensionalization)
         self.stiffness_matrix = a["K"]
 
-        # modal data of the (nondimensional) coupled system -> NumericalFRF.from_modal.
+        # modal data of the PHYSICAL coupled system -> NumericalFRF.from_modal.
         # proportional damping: every mode gets the same ratio zeta = xi (no C matrix).
         w2, Phi = eigh(self.stiffness_matrix, self.mass_matrix)   # Phi^T M Phi = I
-        self.angular_eig_freq = np.sqrt(np.clip(w2, 0.0, None))   # Omega_hat (first = 1)
+        self.angular_eig_freq = np.sqrt(np.clip(w2, 0.0, None))   # physical omega_r [rad/s]
         self.eig_vec          = Phi
         self.zeta             = p.xi
 
@@ -174,6 +174,7 @@ class TwoRodVibroImpact(FBS_System):
         self.sample_number = RodParams.sample_number
         self.F0 = p.F0
         self.omega_modes = a["omega_modes"]
+        self.omega_ref = a["omega_ref"]
 
     def external_term(self, tau):
         f = zeros((len(tau), self.total_dimension, 1))
@@ -244,14 +245,14 @@ class TwoRodPenaltyContact(FBS_System):
         self.alpha  = alpha
 
         omega_ref = a["omega_ref"]
-        self.omega_ref        = omega_ref
-        self.mass_matrix      = omega_ref ** 2 * a["M"]
+        self.omega_ref        = omega_ref          # physical 1st mode -> arc-length Dscale only
+        self.mass_matrix      = a["M"]             # PHYSICAL M (no omega_ref^2 nondimensionalization)
         self.stiffness_matrix = a["K"]
 
-        # modal data of the (nondimensional) coupled system -> NumericalFRF.from_modal.
+        # modal data of the PHYSICAL coupled system -> NumericalFRF.from_modal.
         # proportional damping: every mode gets the same ratio zeta = xi (no C matrix).
         w2, Phi = eigh(self.stiffness_matrix, self.mass_matrix)   # Phi^T M Phi = I
-        self.angular_eig_freq = np.sqrt(np.clip(w2, 0.0, None))   # Omega_hat (first = 1)
+        self.angular_eig_freq = np.sqrt(np.clip(w2, 0.0, None))   # physical omega_r [rad/s]
         self.eig_vec          = Phi
         self.zeta             = p.xi
 
@@ -267,6 +268,7 @@ class TwoRodPenaltyContact(FBS_System):
         self.sample_number = RodParams.sample_number
         self.F0 = p.F0
         self.omega_modes = a["omega_modes"]
+        self.omega_ref = a["omega_ref"]
 
     def external_term(self, tau):
         f = zeros((len(tau), self.total_dimension, 1))

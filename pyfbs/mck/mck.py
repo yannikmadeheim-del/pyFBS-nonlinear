@@ -184,9 +184,10 @@ class Model:
 
                     same = cls.pickle_check(p_file, no_modes, m, k)
                     if same:
-                        m, k, angular_eig_freq, eig_val, eig_vec, no_modes = (
-                            pickle.load(open(p_file, "rb"))
-                        )
+                        with open(p_file, "rb") as _pf:
+                            m, k, angular_eig_freq, eig_val, eig_vec, no_modes = (
+                                pickle.load(_pf)
+                            )
                     # solve the problem
                 else:
                     angular_eig_freq, eig_val, eig_vec = cls.eig_solve(
@@ -531,9 +532,10 @@ class Model:
 
         :rtype: bool
         """
-        _m, _k, _angular_eig_freq, _eig_val, _eig_vec, _no_modes = pickle.load(
-            open(p_file, "rb")
-        )
+        with open(p_file, "rb") as _pf:
+            _m, _k, _angular_eig_freq, _eig_val, _eig_vec, _no_modes = pickle.load(
+                _pf
+            )
         # check if the solution is the same
         if _k.shape == k.shape and _m.shape == m.shape:
             check_mas = (_m != m).nnz == 0
@@ -983,117 +985,6 @@ class Model:
             )
 
         self.frf = _temp
-        self.freq = freq
-
-    def dfrf_domega_synth(
-        self,
-        df_channel,
-        df_impact,
-        f_start=1,
-        f_end=2000,
-        f_resolution=1,
-        limit_modes=None,
-        modal_damping=None,
-        frf_type="receptance",
-        _all=False,
-        n_dim=3,
-    ):
-        """
-        Synthetisation of derivative of frequency response functions with respect to omega using the mode superposition method.
-
-        :param df_channel: locations and directions of responses where frfs will be generated
-        :type df_channel: pandas.DataFrame
-        :param df_impact: locations and directions of impacts where frfs will be generated
-        :type df_impact: pandas.DataFrame
-        :param f_start: starting point of the frequency range
-        :type f_start: int or float
-        :param f_end: endpoint of the frequency range
-        :type f_end: int or float
-        :param f_resolution: resolution of frequency range
-        :type f_resolution: int or float
-        :param limit_modes: number of modes used for frf synthesis
-        :type limit_modes: int
-        :param modal_damping: viscose modal damping ratio (constant for whole frequency range or ``None``)
-        :type modal_damping: float or None
-        :param frf_type: define calculated frf type (``receptance``, ``mobility`` or ``accelerance``)
-        :type frf_type: str
-        :param _all: synthetize response at all nodes - can be usefull to animate frfs
-        :type _all, optional: boolean
-        :param n_dim: number of DoFs per one node in Model (default is 3)
-        :type n_dim, optional: boolean
-        """
-
-        no_modes, _eig_val2, damping, m_p = self.transform_modal_parameters(
-            df_channel=df_channel,
-            df_impact=df_impact,
-            limit_modes=limit_modes,
-            modal_damping=modal_damping,
-            _all=_all,
-            n_dim=n_dim,
-        )
-
-        if f_start == 0:
-            # approximation at 0Hz
-            _freq = np.arange(f_start + 1e-3, f_end, f_resolution)
-        else:
-            _freq = np.arange(f_start, f_end, f_resolution)
-
-        freq = np.arange(f_start, f_end, f_resolution)
-
-        ome = 2 * np.pi * _freq
-        ome2 = ome ** 2
-
-        if self.damped_solver:
-            m_p_undamped = m_p[~self.damped_modes[:no_modes]]
-            m_p = m_p[self.damped_modes[:no_modes]]
-            _eig_val2 = _eig_val2[self.damped_modes[:no_modes]]
-            m_p_conj = np.conj(m_p)
-            den_1 = 1.0j * ome - _eig_val2[:no_modes, np.newaxis]
-            den_2 = 1.0j * ome - _eig_val2[:no_modes, np.newaxis].conj()
-
-            # receptance H and its omega-derivative dH/dome
-            frf_H = np.einsum('ijk,il->ljk', m_p, 1 / den_1) + np.einsum(
-                'ijk,il->ljk', m_p_conj, 1 / den_2
-            )
-            # d/dome (1/(j*ome - lambda)) = -j / (j*ome - lambda)**2
-            dfrf = np.einsum('ijk,il->ljk', m_p, -1.0j / den_1 ** 2) + np.einsum(
-                'ijk,il->ljk', m_p_conj, -1.0j / den_2 ** 2
-            )
-            if not np.all(self.damped_modes[:no_modes]):
-                frf_H += np.einsum('ijk,l->ljk', m_p_undamped, -1 / ome2)
-                # d/dome (-1/ome**2) = 2/ome**3
-                dfrf += np.einsum('ijk,l->ljk', m_p_undamped, 2 / (ome2 * ome))
-
-        else:
-            denominator = (
-                                  _eig_val2[:no_modes, np.newaxis] - ome2
-                          ) + np.einsum(
-                'ij,i->ij',
-                (ome * self.angular_eig_freq[:no_modes, np.newaxis]),
-                (2 * 1j * damping[:no_modes]),
-            )
-
-            # receptance H and dH/dome.
-            # D = Omega^2 - ome^2 + 2j*zeta*Omega*ome  ->  dD/dome = -2*ome + 2j*zeta*Omega
-            frf_H = np.einsum('ijk,il->ljk', m_p, 1 / denominator)
-            damping_term = 2.0 * 1j * damping[:no_modes] * self.angular_eig_freq[:no_modes]
-            dD_dome = -2.0 * ome[np.newaxis, :] + damping_term[:, np.newaxis]
-            dfrf = np.einsum('ijk,il->ljk', m_p, -dD_dome / denominator ** 2)
-
-        # FRF-type conversion. The factor (j*ome / -ome^2) is omega-dependent, so the
-        # derivative needs the product rule (NOT the same post-multiply as frf_synth):
-        #   receptance:  d/dome (H)         = dH
-        #   mobility:    d/dome (j*ome*H)   = j*H + j*ome*dH
-        #   accelerance: d/dome (-ome^2*H)  = -2*ome*H - ome^2*dH
-        if frf_type == "receptance":
-            _temp = dfrf
-        elif frf_type == "mobility":
-            _temp = 1j * frf_H + np.einsum('ljk,l->ljk', dfrf, 1j * ome)
-        elif frf_type == "accelerance":
-            _temp = (np.einsum('ljk,l->ljk', frf_H, -2.0 * ome)
-                     + np.einsum('ljk,l->ljk', dfrf, -ome2))
-
-        self.dfrf_domega = _temp
         self.freq = freq
 
 

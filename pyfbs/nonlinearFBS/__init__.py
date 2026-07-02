@@ -18,6 +18,7 @@ from .frf_provider import (
     FRFProvider,
     NumericalFRF,
     ExperimentalFRF,
+    ModalVPFRF,
 )
 
 from .nonlinear_method import (
@@ -54,10 +55,11 @@ __all__ = [
     "FBS_System",
     "Fourier", "Fourier_Real", "FourierOmegaPoint",
     "JacobianFourier", "JacobianFourier_Real", "block_diag_stack_to_RI",
-    "FRFProvider", "NumericalFRF", "ExperimentalFRF",
+    "FRFProvider", "NumericalFRF", "ExperimentalFRF", "ModalVPFRF",
     "NonlinearMethod", "AFT", "DLFTContact", "DLFTFriction",
     "FBSProblem",
     "NewtonRaphson", "CorrectorParameterization", "OrthogonalParameterization",
     "Predictor", "TangentPredictorRobust", "TangentPredictorOne", "TangentPredictorTwo",
     "StepLengthAdaptation", "ExponentialAdaptation", "BiExponentialAdaptation",
+    "SolutionSet", "HarmonicBalanceMethod",
 ]

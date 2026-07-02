@@ -7,7 +7,7 @@ from numpy.linalg import norm, solve
 class NewtonRaphson(object):
 	def __init__(self, func, jacobian, maximum_iterations: int, absolute_tolerance: float,
 				 jacobian_update_frequency: int = 3,
-				 jacobian_reuse_delta_threshold: float = 1e-3, relative_tolerance: float = 0.0, stagnation_tolerance: float = 0.0):
+				 jacobian_reuse_delta_threshold: float = 1e-3, relative_tolerance: float = 0.0, stagnation_tolerance: float = 0.0, column_scale=None):
 		self.compute_residue = func
 		self.compute_jacobian = jacobian
 		self.maximum_iterations = maximum_iterations
@@ -18,6 +18,9 @@ class NewtonRaphson(object):
 		self.relative_tolerance = relative_tolerance
 		self.stagnation_tolerance = stagnation_tolerance
 		self._residue0_norm = None
+		# Optional column scaling D for the extended Newton solve: solve (J*D) y = R,
+		# delta = D*y. Conditions the omega column to O(1). None -> plain solve.
+		self.column_scale = None if column_scale is None else asarray(column_scale).reshape(-1, 1)
 
 	def is_converged(self) -> bool:
 		if norm(self.residue) < self.absolute_tolerance:
@@ -45,7 +48,11 @@ class NewtonRaphson(object):
 		return norm(self.delta) >= self.jacobian_reuse_delta_threshold * norm(self.x)
 	
 	def compute_increment(self):
-		self.delta = solve(self.jacobian, self.residue)
+		if self.column_scale is None:
+			self.delta = solve(self.jacobian, self.residue)
+		else:
+			y = solve(self.jacobian * self.column_scale.T, self.residue) # (J*D) y = R
+			self.delta = self.column_scale * y							# delta = D*y
 	
 	def update_solution(self):
 		"""Backtracking line search (Armijo-style). Falls back to full step
@@ -117,11 +124,12 @@ class CorrectorParameterization(object):
 		"""
 
 	def __init__(self, *, predictor_vector=None, predicted_solution=None,
-	             last_solution=None, step_size=None, **_):
+	             last_solution=None, step_size=None, dscale = None, **_):
 		self.predictor_vector = predictor_vector
 		self.predicted_solution = predicted_solution
 		self.last_solution = last_solution
 		self.step_size = step_size
+		self.dinv2 = None if dscale is None else (1.0 / asarray(dscale).reshape(-1, 1)) ** 2
 
 	def compute_parameterization(**kwargs):
 		pass
@@ -138,10 +146,16 @@ class OrthogonalParameterization(CorrectorParameterization):
 	g(x) = <predictor_vector, x - predicted_solution>
 	"""
 	def compute_parameterization(self, point, *args):
-		return vdot(self.predictor_vector, point - self.predicted_solution)
+		delta = point - self.predicted_solution
+		if self.dinv2 is None:
+			return vdot(self.predictor_vector, delta)
+		# orthogonality in the scaled metric: t^T D^{-2} (x - x_pred) = 0
+		return float((self.predictor_vector * self.dinv2 * delta).sum())
 
 	def compute_jacobian_parameterization(self, *args):
-		return self.predictor_vector.T
+		if self.dinv2 is None:
+			return self.predictor_vector.T
+		return (self.dinv2 * self.predictor_vector).T
 
 class ArcLengthParameterization(CorrectorParameterization):
 	"""
@@ -153,8 +167,12 @@ class ArcLengthParameterization(CorrectorParameterization):
 	"""
 	def compute_parameterization(self, point, *args):
 		delta = point - self.last_solution
-		return vdot(delta, delta) - self.step_size**2
+		if self.dinv2 is None:
+			return vdot(delta, delta) - self.step_size**2
+		return float((delta*self.dinv2*delta).sum()) - self.step_size**2
 
 	def compute_jacobian_parameterization(self, point, *args):
 		delta = point - self.last_solution
-		return 2 * delta.T
+		if self.dinv2 is None:
+			return 2 * delta.T
+		return 2 * (self.dinv2 * delta).T

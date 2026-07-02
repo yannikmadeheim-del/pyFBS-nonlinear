@@ -27,6 +27,7 @@ class FBS_System:
     def __init__(self):
         self.B_coupling:       np.ndarray = np.array([[1, -1]])  # (n_int, dTotal)
         self.sample_number: int = 400
+        self.omega_ref: float = 1.0
 
     # --- Subclass interface (semantic names) ---
 
