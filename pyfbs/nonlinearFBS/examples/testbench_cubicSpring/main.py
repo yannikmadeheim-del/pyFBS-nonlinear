@@ -47,7 +47,7 @@ k_trans, k_rot         = 1.0e3, 1.0e3
 alpha_trans, alpha_rot = 1.0e4, 1.0e04
 beta_trans, beta_rot   = 1.0e0, 1.0e0
 F0                     = 50.0
-F_RESOLUTION           = 0.01          # FRF resolution Delta f [Hz] (see linear example)
+F_RESOLUTION           = 0.1           # FRF resolution Delta f [Hz] (see linear example)
 HARMONICS              = [1, 3, 5, 7]     # cubic forcing generates odd harmonics
 
 # --- full-mesh response animation (Route B) ---------------------------------
