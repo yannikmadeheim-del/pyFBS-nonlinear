@@ -5,6 +5,23 @@ from numpy import vdot, asarray
 from numpy.linalg import norm, solve
 
 class NewtonRaphson(object):
+	"""Damped Newton with lazy Jacobian reuse for the (extended) continuation
+	system.
+
+	:param func: residue callable R(x).
+	:param jacobian: Jacobian callable J(x).
+	:param maximum_iterations: hard iteration cap (failure when hit).
+	:param absolute_tolerance: exit when ||R|| drops below this.
+	:param jacobian_update_frequency: recompute the Jacobian only every k-th
+		iteration (modified Newton) ...
+	:param jacobian_reuse_delta_threshold: ... but refresh immediately while
+		||delta|| >= threshold * ||x||, i.e. reuse only near convergence.
+	:param relative_tolerance: optional exit on ||R|| < tol * ||R_0|| (0 = off).
+	:param stagnation_tolerance: optional exit on ||delta|| < tol * ||x|| (0 = off).
+	:param column_scale: right preconditioner D -- solve (J D) y = R and take
+		delta = D y; conditions the omega column to O(1) without changing the
+		solution.  None = plain solve.
+	"""
 	def __init__(self, func, jacobian, maximum_iterations: int, absolute_tolerance: float,
 				 jacobian_update_frequency: int = 3,
 				 jacobian_reuse_delta_threshold: float = 1e-3, relative_tolerance: float = 0.0, stagnation_tolerance: float = 0.0, column_scale=None):
@@ -18,8 +35,6 @@ class NewtonRaphson(object):
 		self.relative_tolerance = relative_tolerance
 		self.stagnation_tolerance = stagnation_tolerance
 		self._residue0_norm = None
-		# Optional column scaling D for the extended Newton solve: solve (J*D) y = R,
-		# delta = D*y. Conditions the omega column to O(1). None -> plain solve.
 		self.column_scale = None if column_scale is None else asarray(column_scale).reshape(-1, 1)
 
 	def is_converged(self) -> bool:
@@ -55,8 +70,9 @@ class NewtonRaphson(object):
 			self.delta = self.column_scale * y							# delta = D*y
 	
 	def update_solution(self):
-		"""Backtracking line search (Armijo-style). Falls back to full step
-		    if no improvement is found within max_backtracks tries."""
+		"""Backtracking line search: halve the step until the residue norm
+		decreases; after max_backtracks halvings without improvement, take the
+		full step."""
 		alpha = 1.0
 		norm_old = norm(self.residue)
 		max_backtracks = 10
@@ -91,6 +107,15 @@ class NewtonRaphson(object):
 		
 		for iteration in range(self.maximum_iterations):
 			self.residue = self.compute_residue(self.x)
+
+			if not np.isfinite(norm(self.residue)):
+				# Overflow -> Inf -> (rfft) -> NaN contamination. Every exit test
+				# below compares with '<', which NaN/Inf can never satisfy, so the
+				# remaining iteration budget would be burned on NaN arithmetic.
+				if iteration == 0:
+					self.jacobian = self.compute_jacobian(self.x)
+				print(f"Newton-Raphson: non-finite residue at iteration {iteration}, aborting corrector step")
+				return self.get_failed_result(return_jacobian)
 			
 			if self._residue0_norm is None:
 				self._residue0_norm = norm(self.residue)
@@ -107,8 +132,6 @@ class NewtonRaphson(object):
 		
 		print(f"Newton-Raphson: maximum iterations reached ({self.maximum_iterations})")
 		return self.get_failed_result(return_jacobian)
-
-#%%
 
 class CorrectorParameterization(object):
 	"""
