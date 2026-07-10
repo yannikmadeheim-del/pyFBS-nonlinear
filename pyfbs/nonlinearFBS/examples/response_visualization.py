@@ -19,9 +19,15 @@ side onto the mesh: replace the VP-projected output modes used by
 keeping the same VP-projected INPUT modes ``Psi_i = Tf^T Phi_i`` and the same modal
 poles/damping.  This is the identical modal sum, so the mesh field stays consistent
 with the reduced solution the solver actually converged.
+
+The excitation and output DoFs are marked in the scene as red (impact-style) and
+blue (channel-style) arrows.  Because the re-synthesis is modal, a solve driven by an
+:class:`ExperimentalFRF` is animated as the modal reconstruction consistent with the
+converged interface load (a splined admittance grid carries no mesh information).
 """
 
 import numpy as np
+import pandas as pd
 
 from ..frequency_domain import Fourier, Fourier_Real, FourierOmegaPoint
 from ...mck.mck import Model
@@ -99,8 +105,43 @@ def _coeffs_to_node_frames(U):
     return np.moveaxis(ts, 0, 2)                       # (n_nodes, 3, Nt)
 
 
+def _dof_to_substructure(substructures, dof):
+    """Map a global reduced DoF index to ``(substructure dict, local row index)``."""
+    offset = 0
+    for sub in substructures:
+        if dof < offset + sub["n_reduced"]:
+            return sub, dof - offset
+        offset += sub["n_reduced"]
+    raise IndexError(f"reduced DoF {dof} outside the {offset} stacked DoFs")
+
+
+def _show_io_arrows(view, problem, substructures, output_dof, size):
+    """Mark the excitation and output DoFs in the 3D scene.
+
+    Red impact-style arrows: position/direction of every excited input DoF (the
+    nonzero harmonics of ``problem.F_ext``).  Blue channel-style arrow: position/
+    direction of the plotted output DoF.  Rows are taken from the VPT-transformed
+    dataframes ``vpt.df_imp`` / ``vpt.df_chn``, whose row order matches the reduced
+    FRF DoFs; rows without direction data (virtual-point DoFs) are skipped.
+    """
+    dir_cols = ["Direction_1", "Direction_2", "Direction_3"]
+    excited = problem.in_dofs[np.any(problem.F_ext[:, :, 0] != 0.0, axis=0)]
+    if excited.size:
+        rows = [_dof_to_substructure(substructures, int(d)) for d in excited]
+        df_exc = pd.concat([sub["vpt"].df_imp.iloc[[k]] for sub, k in rows])
+        df_exc = df_exc[df_exc[dir_cols].notna().all(axis=1)]
+        if len(df_exc):
+            view.show_imp(df_exc, size=size)
+    if output_dof is not None:
+        sub, k = _dof_to_substructure(substructures, int(output_dof))
+        df_out = sub["vpt"].df_chn.iloc[[k]]
+        if df_out[dir_cols].notna().all(axis=None):
+            view.show_chn(df_out, size=size)
+
+
 def animate_response_at_frequency(view, problem, solution_set, substructures,
                                   target_frequency, modal_damping,
+                                  output_dof=None, show_io=True, io_arrow_size=None,
                                   r_scale=0.08, no_frames=60, no_of_repetitions=2,
                                   fps=30, run_animation=True,
                                   cmap="turbo", show_edges=False, opacity=1.0,
@@ -117,6 +158,11 @@ def animate_response_at_frequency(view, problem, solution_set, substructures,
     :param target_frequency: desired excitation frequency [Hz]; the nearest converged
         branch point is animated.
     :param modal_damping: modal damping ratio used to build the FRF provider.
+    :param output_dof: global reduced DoF index of the plotted response channel,
+        marked as a blue channel arrow (None = no output arrow).
+    :param show_io: mark the excitation (red) and output (blue) positions/directions.
+    :param io_arrow_size: arrow length in model units; None = 0.08 x the merged
+        bounding-box diagonal.
     :param r_scale: largest animated nodal displacement as a fraction of the model
         bounding-box diagonal (visual scaling only; relative motion is preserved).
     :param no_frames: frames sampled across one period.
@@ -162,6 +208,10 @@ def animate_response_at_frequency(view, problem, solution_set, substructures,
     if mesh_kwargs:
         add_kwargs.update(mesh_kwargs)
     view.plot.add_mesh(combined, name=mesh_name, **add_kwargs)
+
+    if show_io:
+        _show_io_arrows(view, problem, substructures, output_dof,
+                        io_arrow_size if io_arrow_size is not None else 0.08 * diag)
 
     mode_dict = {
         "animation_pts": frames,
