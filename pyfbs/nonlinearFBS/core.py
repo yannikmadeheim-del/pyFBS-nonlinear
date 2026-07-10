@@ -1,6 +1,5 @@
 # Ported into pyFBS from pyhbm (branch vandcard_DLFT, commit 462a081).
 # Original Fourier/HBM machinery by Tiago Martins; see https://github.com/tiagomrns/pyhbm.
-#%%
 import numpy as np
 from numpy import array, vstack, hstack, asarray, sqrt
 from numpy.linalg import norm
@@ -11,6 +10,9 @@ from .numerical_continuation.predictor_step import *
 from .frequency_domain import *
 
 class SolutionSet(object):
+	"""Converged branch points as index-aligned lists: interface Fourier
+	coefficients, angular frequency omega [rad/s], Newton iteration count and
+	the continuation step length that produced each point."""
 	def __init__(self, solution: FourierOmegaPoint, iterations: int, step_length: float):
 		self.fourier = [solution.fourier]
 		self.omega = [solution.omega]
@@ -28,6 +30,16 @@ class SolutionSet(object):
 
 
 class HarmonicBalanceMethod:
+	"""Multi-harmonic balance driver with predictor-corrector continuation.
+
+	Wires a frequency-domain problem (freq_domain_ode, e.g. FBSProblem) to a
+	Newton corrector, a corrector parameterization (orthogonal / arc-length),
+	a tangent predictor and a step-length adaptation.  The constructor
+	(re)sizes the shared Fourier / JacobianFourier class tables via
+	update_dependencies.  Dscale (from the problem's omega_ref) only
+	conditions the omega column of the extended system -- it does not change
+	the branch itself.
+	"""
 	def __init__(self, harmonics: np.ndarray,
 				freq_domain_ode,
 				corrector_solver = NewtonRaphson,
@@ -57,6 +69,12 @@ class HarmonicBalanceMethod:
 		JacobianFourier.update_class_variables()
 
 	def solve_fixed_frequency(self, initial_guess: FourierOmegaPoint, **solver_kwargs):
+		"""Newton-solve R(x) = 0 at fixed omega (no continuation).
+
+		:returns: (solution, iterations, success, extended_jacobian) with
+			extended_jacobian = [dR/dx | dR/domega], reused as the first
+			predictor input.
+		"""
 		solution, iterations, success, jacobian = self.solver(
 			func = self.freq_domain_ode.compute_residue_RI, 
 			jacobian = self.freq_domain_ode.compute_jacobian_of_residue_RI, 
@@ -73,11 +91,14 @@ class HarmonicBalanceMethod:
 		
 
 	def extended_residue(self, x: FourierOmegaPoint):
+		"""Residue stacked with the scalar parameterization row that closes the
+		(N+1)-unknown continuation system."""
 		residue = self.freq_domain_ode.compute_residue_RI(x)
 		parameterization = self.parameterization.compute_parameterization(asarray(x))
 		return vstack((residue, parameterization))
 
 	def extended_jacobian(self, x: FourierOmegaPoint):
+		"""[dR/dx | dR/domega] stacked with the parameterization's Jacobian row."""
 		jacobian = self.freq_domain_ode.compute_jacobian_of_residue_RI(x)
 		derivative_omega = self.freq_domain_ode.compute_derivative_wrt_omega_RI(x)
 		parameterization = self.parameterization.compute_jacobian_parameterization(asarray(x))
@@ -97,6 +118,33 @@ class HarmonicBalanceMethod:
 		maximum_predictor_corrector_loops_per_solution: int = 10,
 		verbose: bool = True
 	) -> SolutionSet:
+		"""Trace a branch across angular_frequency_range by predictor-corrector
+		continuation, appending every converged point to a SolutionSet.
+
+		Stops when the branch leaves the frequency window, the corrector fails
+		with the step length locked at its minimum, the predictor fails, or
+		maximum_number_of_solutions is reached.
+
+		:param angular_frequency_range: [w_a, w_b] in rad/s (sorted in place).
+		:param solver_kwargs: NewtonRaphson settings (maximum_iterations,
+			absolute_tolerance, optional relative_tolerance /
+			stagnation_tolerance).  absolute_tolerance is rescaled by
+			sqrt(2)/Nt so it acts as a time-domain-equivalent tolerance.
+		:param step_length_adaptation_kwargs: base, initial/maximum/
+			minimum_step_length, goal_number_of_iterations.
+		:param predictor_kwargs: forwarded to the predictor (e.g. rcond).
+		:param initial_guess: starting FourierOmegaPoint; None = zero amplitude
+			at w_a.
+		:param initial_reference_direction: orients the first tangent, e.g.
+			omega=-1.0 to sweep downward.
+		:param jacobian_update_frequency: corrector recomputes the Jacobian
+			only every k-th iteration (see NewtonRaphson).
+		:param jacobian_reuse_delta_threshold: corrector refreshes the Jacobian
+			anyway while the step is large relative to x (see NewtonRaphson).
+		:param maximum_predictor_corrector_loops_per_solution: step-halving
+			retries per branch point before terminating the continuation.
+		:returns: SolutionSet (possibly partial on early termination).
+		"""
 
 		t0 = time()
     

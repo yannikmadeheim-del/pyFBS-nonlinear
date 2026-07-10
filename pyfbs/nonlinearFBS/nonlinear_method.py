@@ -104,6 +104,9 @@ class DLFTContact(NonlinearMethod):
     Correction:  λ   = max(0, λ_p)
     Force:       λ̃   = DFT[λ]
 
+    The converged force is ε-independent: at the solution λ_p > 0 exactly where
+    the interface penetrates, so ε only conditions the iteration, not the branch.
+
     Bound to an FBSProblem at construction; reads B, F_ext, the per-harmonic
     admittance caches, and the FRF provider through that reference.
     """
@@ -351,6 +354,7 @@ class DLFTFriction(NonlinearMethod):
                             p_hat = p / p_norm
                             lam[k, nN, 0] = s
                             lam[k, sT, 0] = mu * s * p_hat
+                            # advance the carried state by the slipped fraction (Nacivet Eq. 29)
                             lamx_prev_T   +=  p * (1.0 - mu * s / p_norm)
                             Jloc[k, nN, nN] = 1.0
                             Jloc[k, sT, nN] = mu * p_hat

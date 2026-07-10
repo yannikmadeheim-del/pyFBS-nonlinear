@@ -43,7 +43,7 @@ class FBS_System:
     def jacobian_interface_force_qdot(self, u_rel: ArrayLike, u_rel_dot: ArrayLike, tau: ArrayLike) -> np.ndarray:
         raise NotImplementedError("Subclasses must implement jacobian_interface_force_qdot.")
 
-    # --- Framework wrappers (nicht überschreiben) ---
+    # --- Framework wrappers (do not override) ---
 
     def nonlinear_term(self, u_rel: ArrayLike, u_rel_dot: ArrayLike, tau: ArrayLike) -> np.ndarray:
         return self.interface_force(u_rel, u_rel_dot, tau)

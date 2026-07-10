@@ -5,10 +5,16 @@ import numpy as np
 from numpy import array, concatenate, unique, hstack, array_split, vstack, einsum, pi, linspace, zeros, eye, kron, diag, where, block, zeros_like, vdot, sqrt
 from numpy.fft import rfft, irfft, fft, ifft
 
-# %%
 class Fourier(object):
-    
-    harmonics = unique(array([1,3])) # list of relevant harmonics3
+    """Multi-harmonic Fourier coefficient container, shape (Nh, d, 1) complex,
+    in the rfft convention: c_0 = Nt*a_0 (no factor 2) and
+    c_k = (Nt/2)*(a_k - i*b_k) for k >= 1.  The harmonic set, sample count and
+    adimensional time grid are CLASS-level tables shared by every instance --
+    size them via update_class_variables (normally through
+    HarmonicBalanceMethod.update_dependencies) before building problems.
+    """
+
+    harmonics = unique(array([1,3]))
     sample_number = 400
     number_of_harmonics = len(harmonics)
     harmonic_truncation_order = max(abs(harmonics))
@@ -18,7 +24,7 @@ class Fourier(object):
     @staticmethod
     def update_class_variables(harmonics: array, sample_number: int):
         indexes = sorted(unique(harmonics, return_index=True)[1])
-        Fourier.harmonics = array(harmonics)[indexes] # list of relevant harmonics
+        Fourier.harmonics = array(harmonics)[indexes]
         Fourier.sample_number = sample_number
 
         Fourier.number_of_harmonics = len(Fourier.harmonics)
@@ -96,6 +102,9 @@ class Fourier(object):
         return Fourier(array(zz_fill))
     
 class Fourier_Real(Fourier):
+    """Real-signal specialization: new_from_time_series samples via the rFFT
+    and keeps only the retained harmonics; compute_time_series zero-pads the
+    coefficients and inverse-rFFTs back to one period of Nt samples."""
     def new_from_time_series(time_series: array):
         """
         Computes the Fourier coefficients (Fourier instance) of a time series by executing the Real Fast Fourier transform (rFFT)
@@ -115,7 +124,6 @@ class Fourier_Real(Fourier):
             self.time_series = irfft(new_coeff, axis=0, n=Fourier.number_of_time_samples)
         return self.time_series
 
-#%%
 
 def block_diag_stack_to_RI(blocks: array) -> array:
     """Embed a block-diagonal complex operator, given as a (Nh, a, b) stack of
@@ -133,15 +141,21 @@ def block_diag_stack_to_RI(blocks: array) -> array:
 
 
 class FourierOmegaPoint(object):
+    """One continuation point (x, omega): multi-harmonic interface coefficients
+    plus angular frequency [rad/s].  Doubles as a per-point memo -- the
+    attributes initialized to None below cache frequency-domain operators and
+    DLFT states evaluated at this point, so residue, Jacobian and dR/domega
+    share one evaluation.  A fresh point is created for every Newton trial, so
+    the caches never need invalidation.
+    """
     def __init__(self, fourier: Fourier, omega: float):
         self.fourier: Fourier = fourier
         self.omega: float = omega
         self.RI = None
         self.time_series_derivative = None
-        self.Gdot = None
-        self.Y_cache = None
+        self.Gdot = None             # AFT: JacobianFourier of df_nl/dqdot
+        self.Y_cache = None          # Y(n*omega) on in_dofs, (Nh, n_in, n_in) stack
         self.dY_cache = None         # dY/dω — reused by dR/dω and DLFT dF_int/dω
-        self.Z_cache = None
         self.nonlinear_term_cache = None
         self.BY_cache = None        # B @ Y  (FBSProblem: (Nh, n_int, d_total) stack; legacy classes: dense)
         self.BYBT_RI_cache = None   # dense RI form of B @ Y @ B.T  (reused by Jacobian + dR/dω)
@@ -201,9 +215,15 @@ class FourierOmegaPoint(object):
             self.time_series_derivative = qdot_fourier.time_series
         return self.time_series_derivative
 
-#%%
-
 class JacobianFourier(object):
+    """Real 2x2-block form of the AFT force Jacobian
+    d(DFT[g(q(t))]) / d(Fourier coefficients):
+    RR = dRe/dRe, RI = dRe/dIm, IR = dIm/dRe, II = dIm/dIm.
+    The class tables harmonics_state = n - m (Toeplitz) and
+    harmonics_state_conj = n + m (Hankel) index which FFT bins of the
+    time-domain tangent enter block (n, m); rebuilt by update_class_variables
+    whenever Fourier.harmonics changes.
+    """
 
     harmonics_state = Fourier.harmonics[:, None] - Fourier.harmonics
     harmonics_state_conj = Fourier.harmonics[:, None] + Fourier.harmonics
@@ -220,10 +240,10 @@ class JacobianFourier(object):
         JacobianFourier.harmonic_truncation_order = max(JacobianFourier.harmonics)
 
     def __init__(self, RR: array, RI: array, IR: array, II: array) -> None:
-        self.RR = RR # Derivative of real part wrt real part
-        self.RI = RI # Derivative of real part wrt imag part
-        self.IR = IR # Derivative of imag part wrt real part
-        self.II = II # Derivative of imag part wrt imag part
+        self.RR = RR
+        self.RI = RI
+        self.IR = IR
+        self.II = II
         
     def new_from_time_series(time_series: array):
         pass
@@ -248,12 +268,11 @@ class JacobianFourier_Real(JacobianFourier):
         plus  = state + state_conj
         minus = state - state_conj
 
-        # Fix: halve the DC column (harmonic m=0). With the rfft convention used
-        # throughout pyhbm, the DC bin c_0 = N_t * a_0 has NO factor of 2,
-        # unlike c_k = (N_t/2) * (a_k - i b_k) for k >= 1. The Hankel doubling
-        # G_{n-m} + G_{n+m} is correct for m >= 1; for m = 0 the two terms are
-        # identical (G_n) and naive addition over-counts by factor 2.
-        # Identified via an FD-Jacobian check on an SDOF vibro-impact test case.
+        # Halve the DC column (harmonic m=0): in the rfft convention the DC bin
+        # c_0 = N_t * a_0 has NO factor of 2, unlike c_k = (N_t/2)*(a_k - i b_k)
+        # for k >= 1.  The Hankel doubling G_{n-m} + G_{n+m} is correct for
+        # m >= 1; for m = 0 the two terms are identical (G_n) and naive addition
+        # would over-count by a factor of 2.
         if 0 in Fourier.harmonics:
             m0 = list(Fourier.harmonics).index(0)
             plus[:, m0, :, :]  *= 0.5

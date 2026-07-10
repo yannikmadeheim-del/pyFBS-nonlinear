@@ -22,6 +22,14 @@ class FBSProblem:
     """
 
     def __init__(self, fbs, frf_provider: FRFProvider, method: NonlinearMethod):
+        """
+        :param fbs: FBS_System subclass supplying B_coupling, external_term and
+            (with AFT) the interface force law + Jacobians.
+        :param frf_provider: FRFProvider with frf_type='receptance' (enforced);
+            its n_dofs must match the B_coupling column count.
+        :param method: NonlinearMethod (AFT / DLFTContact / DLFTFriction);
+            method.bind(self) lets the DLFT methods read the admittance caches.
+        """
         self.ode = fbs
         self.frf_provider = frf_provider
         self.method = method

@@ -165,13 +165,16 @@ class TangentPredictorBordered(Predictor):
 
 
 
-#%%
-
 class StepLengthAdaptation(object):
     def update_step_length() -> int:
+        """Adapt the step length from the last corrector's iteration count.
+        Returns 1 when the step is clamped at minimum_step_length, else 0 --
+        the driver counts consecutive 1s to declare continuation failure."""
         pass
 
 class ExponentialAdaptation(StepLengthAdaptation):
+    """Multiply the step by base**(goal_number_of_iterations - iterations)
+    after every corrector solve, clamped to [minimum, maximum] step length."""
     def __init__(self, base, maximum_step_length, minimum_step_length, goal_number_of_iterations, initial_step_length=None):
 
         assert base > 1.0, "base must be greater than 1"
@@ -201,6 +204,8 @@ class ExponentialAdaptation(StepLengthAdaptation):
         return 0
         
 class BiExponentialAdaptation(StepLengthAdaptation):
+    """ExponentialAdaptation with separate growth (base_increase) and shrink
+    (base_decrease) bases."""
     def __init__(self, base_increase, maximum_step_length, minimum_step_length, goal_number_of_iterations, initial_step_length=None, base_decrease=None):
 
         assert base_increase > 1.0, "bases must be greater than 1"
