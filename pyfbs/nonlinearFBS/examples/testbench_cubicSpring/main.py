@@ -7,12 +7,9 @@ DoFs:  f_nl = k x_r + alpha x_r^3,  x_r = B u.  Because the force is nonlinear
 there is no closed-form LM-FBS assembly: the forced response is traced by AFT +
 arc-length HBM continuation directly in physical rad/s.
 
-The SAME cubic coupling is solved twice, through both FRF providers, to verify the
-pipeline against itself:
-  - ExperimentalFRF : measured-style admittance grid (prior VPT) + spline interpolation,
-  - ModalVPFRF      : VPT folded into the FE mode shapes, synthesized at the exact n*omega.
-Their forced-response curves must overlay. The linear (alpha=0) LM-FBS receptance is
-drawn faintly as a backbone so the hardening bend is visible.
+The admittance enters through the FRF provider selected by FRF_SOURCE:
+  - "modal"        : ModalVPFRF -- VPT folded into the FE mode shapes, synthesized at the exact n*omega,
+  - "experimental" : ExperimentalFRF -- measured-style admittance grid (prior VPT) + spline interpolation.
 """
 
 import sys
@@ -44,18 +41,21 @@ from dynamical_system import build_testbench_data, TestbenchCubicSpring, N_IF
 #                             cubic strength -- raise F0 and/or alpha to bend harder)
 # ---------------------------------------------------------------------------
 k_trans, k_rot         = 1.0e3, 1.0e3
-alpha_trans, alpha_rot = 1.0e4, 1.0e04
-beta_trans, beta_rot   = 1.0e0, 1.0e0
+alpha_trans, alpha_rot = 1.0e8, 1.0e6
+beta_trans, beta_rot   = 0, 0
 F0                     = 50.0
 F_RESOLUTION           = 0.1           # FRF resolution Delta f [Hz] (see linear example)
 HARMONICS              = [1, 3, 5, 7]     # cubic forcing generates odd harmonics
 
-# --- full-mesh response animation (Route B) ---------------------------------
+FRF_SOURCE = "modal"    # "modal":        ModalVPFRF -- VPT folded into the FE modes, exact at n*omega
+                        # "experimental": ExperimentalFRF -- presampled admittance grid + spline
+
+# --- full-mesh response animation -------------------------------------------
 # Animate the full nonlinear periodic motion (all harmonics) of the coupled A+B
 # meshes at one excitation frequency, exactly like the mode-shape display.
 ANIMATE_RESPONSE = True      # set False to skip the 3D animation
-TARGET_FREQ_HZ   = 1000      # [Hz] visualize the converged point nearest this;
-                             # None -> use the peak-amplitude point of the branch
+ANIMATE_FREQ_HZ  = None      # [Hz] animate the converged point nearest this frequency;
+                             # None -> the peak-amplitude point of the branch
 R_SCALE          = 0.08      # max animated displacement as a fraction of the model diagonal
 
 # ---------------------------------------------------------------------------
@@ -65,120 +65,88 @@ data = build_testbench_data(k_trans, k_rot, alpha_trans, alpha_rot,
                             beta_trans, beta_rot, f_resolution=F_RESOLUTION)
 freq, omega, Y = data["freq"], data["omega"], data["Y"]
 nA, nB, N      = data["nA"], data["nB"], data["N"]
-Bc, k_diag     = data["Bc"], data["k_diag"]
 
 # ---------------------------------------------------------------------------
-# 2) Linear (alpha=0) LM-FBS spring receptance -- backbone for the window + plot.
-#    Pure spring, so Gamma = K_spring^-1 (real, diagonal).
+# 2) Continuation window: wide enough that the hardening peak (which shifts to
+#    higher frequency) stays inside the band.
 # ---------------------------------------------------------------------------
-Gamma = np.zeros((len(freq), N_IF, N_IF))
-d = np.arange(N_IF)
-Gamma[:, d, d] = 1.0 / k_diag
-
-BY   = Bc @ Y
-YBt  = Y @ Bc.T
-Yint = Bc @ YBt
-Y_spring = Y - YBt @ pyfbs.tpinv(Yint + Gamma, trunc=0) @ BY
-
-ref = np.r_[np.arange(0, nA - N_IF), np.arange(nA + N_IF, N)]
-Y_spring_ref = Y_spring[:, ref][:, :, ref]
-out, inp = 0, nA - N_IF
-mag_lin  = np.abs(Y_spring_ref[:, out, inp])           # linear cross-FRF magnitude [m/N]
-
-# ---------------------------------------------------------------------------
-# 3) Continuation window: centre on the linear resonance, extend upward so the
-#    hardening peak (which shifts to higher frequency) stays inside the band.
-# ---------------------------------------------------------------------------
-             # skip rigid-body / DC
-
-f_lo, f_hi = 20, 1000
+f_lo, f_hi = 15, 1000
 w_lo, w_hi = 2.0 * np.pi * f_lo, 2.0 * np.pi * f_hi
-width = w_hi - w_lo
-f_ref = float(freq[np.argmax(np.where(freq>20, mag_lin, 0.0))])
-print(f"Continuation window: {f_lo:.1f}..{f_hi:.1f} Hz around f_ref = {f_ref:.1f} Hz")
+print(f"Continuation window: {f_lo:.1f}..{f_hi:.1f} Hz")
 
 system = TestbenchCubicSpring(data, F0=F0)
 HarmonicBalanceMethod.update_dependencies(HARMONICS, system.sample_number)
 
+# ---------------------------------------------------------------------------
+# 3) FRF provider (FRF_SOURCE) and AFT + arc-length HBM continuation.
+# ---------------------------------------------------------------------------
+if FRF_SOURCE == "modal":
+    provider = ModalVPFRF.from_substructures(
+        [(data["MK_A"], data["vpt_A"], data["df_chn_A"], data["df_imp_A"]),
+         (data["MK_B"], data["vpt_B"], data["df_chn_B"], data["df_imp_B"])],
+        modal_damping=data["modal_damping"])
+elif FRF_SOURCE == "experimental":
+    provider = ExperimentalFRF(omega, Y)
+else:
+    raise ValueError(f"FRF_SOURCE must be 'modal' or 'experimental', got {FRF_SOURCE!r}")
 
-def run_nfrc(provider, label):
-    """AFT + arc-length HBM continuation for one FRF provider; returns (f_Hz, amplitude)
-    along the converged branch. Identical solver settings for every provider, so any
-    difference in the curve is the FRF pipeline alone. Amplitude = peak |u_out(t)| over
-    the period (the nonlinear forced response at this F0)."""
-    problem = FBSProblem(system, provider, AFT())      # asserts B cols == provider.n_dofs (= N)
-    solver  = HarmonicBalanceMethod(
-        harmonics=HARMONICS, freq_domain_ode=problem,
-        corrector_parameterization=ArcLengthParameterization,
-        predictor=TangentPredictorBordered)
+problem = FBSProblem(system, provider, AFT())      # asserts B cols == provider.n_dofs (= N)
+solver  = HarmonicBalanceMethod(
+    harmonics=HARMONICS, freq_domain_ode=problem,
+    corrector_parameterization=ArcLengthParameterization,
+    predictor=TangentPredictorBordered)
 
-    # cold zero start at the top of the window; reference direction sweeps omega downward.
-    ig = FourierOmegaPoint.zero_amplitude(dimension=N_IF, omega=w_hi)
-    rd = FourierOmegaPoint.new_from_first_harmonic(np.zeros((N_IF, 1), complex), omega=-1.0)
+# cold zero start at the top of the window; reference direction sweeps omega downward.
+ig = FourierOmegaPoint.zero_amplitude(dimension=N_IF, omega=w_hi)
+rd = FourierOmegaPoint.new_from_first_harmonic(np.zeros((N_IF, 1), complex), omega=-1.0)
 
-    print(f"\n[{label}] continuation:")
-    ss = solver.solve_and_continue(
-        initial_guess                 = ig,
-        initial_reference_direction   = rd,
-        maximum_number_of_solutions   = 10000,
-        angular_frequency_range       = [w_lo, w_hi],
-        solver_kwargs                 = {"maximum_iterations": 300, "absolute_tolerance": 1e-6},
-        step_length_adaptation_kwargs = {"base": 4.0,
-                                         "initial_step_length": 0.1*2*np.pi,
-                                         "maximum_step_length": 5*2*np.pi,
-                                         "minimum_step_length": 1e-7,
-                                         "goal_number_of_iterations": 3},
-        jacobian_update_frequency     = 1,
-    )
+print(f"\n[{FRF_SOURCE} FRF] continuation:")
+ss = solver.solve_and_continue(
+    initial_guess                 = ig,
+    initial_reference_direction   = rd,
+    maximum_number_of_solutions   = 30000,
+    angular_frequency_range       = [w_lo, w_hi],
+    solver_kwargs                 = {"maximum_iterations": 300, "absolute_tolerance": 1e-6},
+    step_length_adaptation_kwargs = {"base": 3.0,
+                                     "initial_step_length": 0.01*2*np.pi,
+                                     "maximum_step_length": 0.1*2*np.pi,
+                                     "minimum_step_length": 1e-7,
+                                     "goal_number_of_iterations": 3},
+    jacobian_update_frequency     = 1,
+)
 
-    f_solver = np.array(ss.omega) / (2.0 * np.pi)       # rad/s -> Hz
-    amp      = np.zeros(len(f_solver))
-    for i, (four, w) in enumerate(zip(ss.fourier, ss.omega)):
-        full = problem.compute_full_response(four, w)
-        Fourier_Real.compute_time_series(full)
-        amp[i] = float(np.max(np.abs(full.time_series[:, system.out_full, 0])))
-    return f_solver, amp, problem, ss
-
-
-# (a) ExperimentalFRF: prior VPT pre-applied to the whole grid, then splined.
-f_exp, amp_exp, _, _ = run_nfrc(ExperimentalFRF(omega, Y), "ExperimentalFRF + prior VPT")
-
-# (b) ModalVPFRF: VPT folded into the FE mode shapes, synthesized at the EXACT n*omega.
-provider_num = ModalVPFRF.from_substructures(
-    [(data["MK_A"], data["vpt_A"], data["df_chn_A"], data["df_imp_A"]),
-     (data["MK_B"], data["vpt_B"], data["df_chn_B"], data["df_imp_B"])],
-    modal_damping=data["modal_damping"])
-f_num, amp_num, problem_num, ss_num = run_nfrc(provider_num, "ModalVPFRF (numerical fold)")
+# per converged point: peak |u_out(t)| over one period (the nonlinear forced
+# response at this F0)
+f_sol = np.array(ss.omega) / (2.0 * np.pi)          # rad/s -> Hz
+amp   = np.zeros(len(f_sol))
+for i, (four, w) in enumerate(zip(ss.fourier, ss.omega)):
+    full = problem.compute_full_response(four, w)
+    Fourier_Real.compute_time_series(full)
+    amp[i] = float(np.max(np.abs(full.time_series[:, system.out_full, 0])))
 
 # ---------------------------------------------------------------------------
-# 4) Figure: both solver curves overlaid, with the linear receptance (* F0) backbone.
+# 4) Figure: nonlinear forced-response curve.
 # ---------------------------------------------------------------------------
 fig, ax = plt.subplots(figsize=(9, 5))
-ax.semilogy(freq, mag_lin * F0, '-', color="#999999", lw=1.2,
-            label=f"linear spring (alpha=0) x F0={F0:g} N")
-ax.semilogy(f_exp, amp_exp, 'o', color="#E8820C", ms=4.0, mfc="none",
-            label="ExperimentalFRF + prior VPT (solver)")
-ax.semilogy(f_num, amp_num, '-', color="#2ca02c", ms=5.0,
-            label="ModalVPFRF numerical fold (solver)")
+ax.semilogy(f_sol, amp, '-', color="#2ca02c",
+            label=f"nonlinearFBS solver ({FRF_SOURCE} FRF)")
 ax.set_xlim(f_lo, f_hi)
 ax.set_xlabel("Frequency [Hz]")
 ax.set_ylabel("Amplitude |q|  [m]")
-ax.set_title("Cubic-spring FBS coupling of testbench A + B (experimental vs numerical VPT)")
+ax.set_title("Cubic-spring FBS coupling of testbench A + B")
 ax.grid(True, which="both", alpha=0.3)
 ax.legend()
 fig.tight_layout()
 
 # ---------------------------------------------------------------------------
-# 5) Full-mesh response animation (Route B): the full nonlinear periodic motion
-#    of the coupled A+B meshes at one excitation frequency, exactly like the
-#    mode-shape display but reconstructed from all retained harmonics.
+# 5) Full-mesh response animation: the full nonlinear periodic motion of the
+#    coupled A+B meshes at one excitation frequency, reconstructed from all
+#    retained harmonics; excitation (red) and output (blue) DoFs are marked.
 # ---------------------------------------------------------------------------
 if ANIMATE_RESPONSE:
-    import pyfbs
     from pyfbs.nonlinearFBS.examples.response_visualization import animate_response_at_frequency
 
-    # default target: the peak-amplitude point of the numerical branch
-    target = TARGET_FREQ_HZ if TARGET_FREQ_HZ is not None else float(f_num[np.argmax(amp_num)])
+    target = ANIMATE_FREQ_HZ if ANIMATE_FREQ_HZ is not None else float(f_sol[np.argmax(amp)])
     substructures = [
         {"model": data["MK_A"], "vpt": data["vpt_A"], "df_imp": data["df_imp_A"], "n_reduced": nA},
         {"model": data["MK_B"], "vpt": data["vpt_B"], "df_imp": data["df_imp_B"], "n_reduced": nB},
@@ -189,8 +157,9 @@ if ANIMATE_RESPONSE:
     view = pyfbs.display.View3D(title="Cubic-spring coupling -- response animation",
                                 show_origin=False)
     animate_response_at_frequency(
-        view, problem_num, ss_num, substructures,
+        view, problem, ss, substructures,
         target_frequency=target, modal_damping=data["modal_damping"],
+        output_dof=system.out_full,
         r_scale=R_SCALE, run_animation=True)
 
 plt.show()

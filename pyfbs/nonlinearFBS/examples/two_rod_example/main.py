@@ -6,22 +6,9 @@ Configure ONE system here (contact method, FRF source, parameters), solve its
 nonlinear frequency response, and plot the driven tip u_A and the relative
 approach x_r = u_A + u_B.
 
-
-External reference (off by default)
------------------------------------
-Set ``REFERENCE_CSV`` to the name of a CSV file placed in THIS folder to overlay an
-external reference NFRC on the plots.  Expected columns:
-
-    omega        physical angular frequency [rad/s]
-    A_tipA       (optional) peak |u_A(t)| [m]
-    A_xr         (optional) peak |x_r(t)| [m]
-
-Only the signals whose column is present are overlaid.
-
 Run:  python main.py
 """
 import sys
-from pathlib import Path
 
 try:                                    # live, UTF-8 progress prints on Windows
     sys.stdout.reconfigure(encoding="utf-8", line_buffering=True)
@@ -35,7 +22,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from pyfbs.nonlinearFBS import (
-    Fourier, Fourier_Real, FourierOmegaPoint,
+    Fourier_Real, FourierOmegaPoint,
     FBSProblem, NumericalFRF, ExperimentalFRF,
     DLFTContact, AFT, HarmonicBalanceMethod,
     ArcLengthParameterization, TangentPredictorBordered,
@@ -46,12 +33,12 @@ from dynamical_system import RodParams, TwoRodVibroImpact, TwoRodPenaltyContact
 
 # ============================ configuration =================================
 # --- which model to solve ---
-METHOD = "dlft"           # "dlft" (rigid contact) | "aft" (regularized penalty)
-FRF    = "numerical"     # "numerical" (exacM,C,K) | "experimental" (sampled + noisy)
+METHOD     = "dlft"        # "dlft" (rigid contact) | "aft" (regularized penalty)
+FRF_SOURCE = "numerical"   # "numerical" (modal synthesis) | "experimental" (sampled + noisy)
 
 # --- rods (Vadcard Table 1) ---
 PARAMS = RodParams(F0=25e3, sample_number = 1000)    # rod A
-LB_REL = 1/20             # rod B length L_B / L_A  (1.0 = identical rods)
+LB_REL = 1/20            # rod B length L_B / L_A  (1.0 = identical rods)
 
 # --- contact ---
 GAP         = 0.2e-3     # g0: initial tip-to-tip gap [m]
@@ -59,16 +46,16 @@ EPSILON_REL = 0.5     # DLFT penalty = EPSILON_REL * k_rod   (DLFT only; eps-ind
 K_REL       = 100.0      # AFT penalty stiffness k_c / k_rod    (AFT only)
 ALPHA       = 1e8        # AFT tanh-regularization sharpness    (np.inf = hard, nonsmooth)
 
-# --- experimental FRF (only used when FRF == "experimental") ---
+# --- experimental FRF (only used when FRF_SOURCE == "experimental") ---
 DENSITY    = 0.1        # measured-FRF density [samples/Hz]
 NOISE      = np.inf      # measured-FRF SNR [dB]  (np.inf = clean)
 NOISE_SEED = 1
 
 # --- frequency window + solver (PHYSICAL omega [rad/s]) ---
 # Window is given as fractions of the first coupled mode omega_1 and scaled to rad/s
-# where the system is available (solve_branch / main).  STEP_KWARGS is UNCHANGED: the
-# solver metric scaling Dscale[-1] = omega_ref makes a step advance ~step_length * omega_1,
-# so 0.002 still yields ~150 points across the window whether omega is dimensional or not.
+# where the system is available (solve_branch / main).  STEP_KWARGS lives in the
+# solver's scaled metric: Dscale[-1] = omega_ref makes a step advance
+# ~step_length * omega_1, so 0.002 yields ~150 points across the window.
 HARMONICS       = list(range(0, 21))         # 0..20 -> H = 20
 OMEGA_START_REL = 1.2                         # sweep 1.2*omega_1 ...
 OMEGA_END_REL   = 0.9                         # ... down to 0.9*omega_1
@@ -76,10 +63,6 @@ SOLVER_KWARGS = {"maximum_iterations": 300, "absolute_tolerance": 1e-6}
 STEP_KWARGS   = {"base": 4.0, "initial_step_length": 0.002, "maximum_step_length": 0.005,
                  "minimum_step_length": 1e-8, "goal_number_of_iterations": 3}
 MAX_SOLUTIONS = 10000
-
-# --- output ---
-SAVE_PNG      = False    # set True to write the figures to disk
-REFERENCE_CSV = None     # e.g. "reference_two_rod.csv" (in this folder) to overlay; None = off
 
 
 # response signals: driven tip u_A and relative approach x_r = u_A + u_B
@@ -97,7 +80,7 @@ def linear_relative(system, omega):
 
     Below the gap the DLFT branch carries no contact force, so x_r reduces to exactly
     this linear response -- the two curves must overlay there.  Synthesized from the
-    modal data (Omega, Phi, zeta); the system no longer carries a C matrix.
+    system's modal data (Omega, Phi, zeta).
     """
     Om, Phi, z = system.angular_eig_freq, system.eig_vec, system.zeta
     Y = Phi @ np.diag(1.0 / (Om ** 2 - omega ** 2 + 2j * z * Om * omega)) @ Phi.T
@@ -108,8 +91,8 @@ def linear_relative(system, omega):
 def make_experimental_provider(system):
     """Sample the system admittance on a measurement grid (+ optional noise).
 
-    Mirrors studies/frf.py: grid spacing is 1/DENSITY Hz on the physical axis up to
-    the top queried harmonic; optional pyFBS-style measurement noise at SNR=NOISE.
+    Grid spacing is 1/DENSITY Hz on the physical axis up to the top queried
+    harmonic; optional pyFBS-style measurement noise at SNR=NOISE.
     """
     h_max     = int(np.max(HARMONICS))
     omega_hi  = max(abs(OMEGA_START_REL), abs(OMEGA_END_REL)) * system.omega_ref  # rad/s
@@ -150,12 +133,12 @@ def build():
     else:
         raise ValueError(f"METHOD must be 'dlft' or 'aft', got {METHOD!r}")
 
-    if FRF == "numerical":
+    if FRF_SOURCE == "numerical":
         provider = NumericalFRF.from_modal(system.angular_eig_freq, system.eig_vec, system.zeta)
-    elif FRF == "experimental":
+    elif FRF_SOURCE == "experimental":
         provider = make_experimental_provider(system)
     else:
-        raise ValueError(f"FRF must be 'numerical' or 'experimental', got {FRF!r}")
+        raise ValueError(f"FRF_SOURCE must be 'numerical' or 'experimental', got {FRF_SOURCE!r}")
 
     return system, provider, method
 
@@ -201,22 +184,10 @@ def solve_branch(system, provider, method):
     return omega_phys, peak
 
 
-def load_reference():
-    """External reference NFRC from a CSV in this folder, or None if off/missing."""
-    if not REFERENCE_CSV:
-        return None
-    import pandas as pd
-    path = Path(__file__).parent / REFERENCE_CSV
-    if not path.exists():
-        print(f"WARNING: reference CSV not found: {path}  -- overlay skipped")
-        return None
-    return pd.read_csv(path)
-
-
 def main():
     system, provider, method = build()
     omega_1 = system.omega_ref
-    print(f"two-rod {METHOD.upper()} / {FRF}  |  L_B = {LB_REL:g} L_A,  "
+    print(f"two-rod {METHOD.upper()} / {FRF_SOURCE}  |  L_B = {LB_REL:g} L_A,  "
           f"omega_1 = {omega_1:.1f} rad/s ({omega_1/2/np.pi:.1f} Hz)")
 
     omega_phys, peak = solve_branch(system, provider, method)
@@ -225,9 +196,6 @@ def main():
     # the same curve backs both the u_A and the x_r window.
     om_lin   = np.linspace(OMEGA_START_REL * omega_1, OMEGA_END_REL * omega_1, 600)
     peak_lin = np.array([abs(linear_relative(system, w)) for w in om_lin])
-
-
-    ref = load_reference()
 
     SCALE = 1.0e-4
     XLIM  = tuple(sorted((OMEGA_START_REL * omega_1, OMEGA_END_REL * omega_1)))
@@ -240,11 +208,8 @@ def main():
                 label="Linear FRF (no contact)")
         ax.axhline(GAP / SCALE, color="red", ls="--", lw=1.2,
                    label=r"Contact threshold $g_0$")
-        if ref is not None and f"A_{sig}" in ref:
-            ax.plot(ref["omega"], ref[f"A_{sig}"] / SCALE, '-', color="0.6", lw=3.0,
-                    zorder=1, label=f"reference ({REFERENCE_CSV})")
         ax.plot(omega_phys, peak[sig] / SCALE, '-', color="#E8820C", lw=1.8,
-                label=f"pyhbm {METHOD.upper()}-FBS ({FRF})")
+                label=f"nonlinearFBS {METHOD.upper()} ({FRF_SOURCE})")
 
         ax.set_title(f"NFRC: two-rod vibro-impact -- {SIGNAL_DESC[sig]}", fontsize=11)
         ax.set_xlim(*XLIM); ax.set_ylim(*YLIM)
@@ -253,11 +218,6 @@ def main():
         ax.set_ylabel(rf"$\|{tex}(t)\|_\infty$  [$\times 10^{{-4}}$ m]")
         ax.set_xlabel(r"$\omega$  [rad$\cdot$s$^{-1}$]")
         fig.tight_layout()
-
-        if SAVE_PNG:
-            out = Path(__file__).parent / f"two_rod_frc_{sig}.png"
-            fig.savefig(out, dpi=150)
-            print(f"Figure saved: {out}")
 
     plt.show()
 
