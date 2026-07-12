@@ -232,12 +232,14 @@ class HarmonicBalanceMethod:
 
 			solution_set.append(solution, iterations, step_length_adaptation.step_length)
 
-			progress = max(\
-        			(solution.omega-angular_frequency_range[0])/(angular_frequency_range[-1]-angular_frequency_range[0]), \
-				solution_number/maximum_number_of_solutions)
+			sweep_upward = initial_reference_direction is None or initial_reference_direction.omega > 0
+			if sweep_upward:
+				progress = (solution.omega-angular_frequency_range[0])/(angular_frequency_range[-1]-angular_frequency_range[0])
+			else:
+				progress = (angular_frequency_range[-1]-solution.omega)/(angular_frequency_range[-1]-angular_frequency_range[0])
 
 			if verbose:
-				print("progress {:.3f} %".format(100*progress), f"\titerations {iterations}", "\tΔω {:.2e}".format(predictor_vector[-1,0]), end="\r")
+				print("progress {:.3f} %".format(100*progress), f"\tsolution points: {solution_number}/{maximum_number_of_solutions}", f"\titerations {iterations}", "\tΔω {:.2e}".format(predictor_vector[-1,0]), end="\r")
 
 			if  not (angular_frequency_range[0] <= solution.omega <= angular_frequency_range[-1]):
 				print(f"\nTerminate: outside frequency range after {solution_number+1} solutions")
