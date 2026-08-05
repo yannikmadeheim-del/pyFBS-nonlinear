@@ -1,0 +1,18 @@
+run_id,k_trans,k_rot,alpha_trans,alpha_rot,beta_trans,beta_rot,comment
+B0,1e3,1e3,1e6,1e6,0,0,Baseline (main.py-Parameter)
+L0,1e3,1e3,0,0,0,0,linearer Grenzfall
+C1,1e3,0,0,0,0,0,nur translatorisch linear
+C2,0,1e3,0,0,0,0,nur rotatorisch linear
+C3,1e3,0,1e6,0,0,0,nur translatorisch kubisch
+C4,0,1e3,0,1e6,0,0,nur rotatorisch kubisch
+A1,1e3,1e3,1e4,1e6,0,0,alpha_trans schwach
+A2,1e3,1e3,1e8,1e6,0,0,alpha_trans stark
+A3,1e3,1e3,1e6,0,0,0,alpha_rot aus
+A4,1e3,1e3,1e6,1e8,0,0,alpha_rot stark
+K1,1e2,1e3,1e6,1e6,0,0,k_trans weich
+K2,1e5,1e3,1e6,1e6,0,0,k_trans steif
+K3,1e3,1e2,1e6,1e6,0,0,k_rot weich
+K4,1e3,1e5,1e6,1e6,0,0,k_rot steif
+D1,1e3,1e3,1e6,1e6,3.811e-01,0,beta_trans moderat (kalibriert aus B0)
+D2,1e3,1e3,1e6,1e6,1.906e+00,1.525e-02,beta stark (kalibriert aus B0)
+D3,1e3,1e3,1e6,1e6,0,3.050e-03,beta_rot moderat (kalibriert aus B0)

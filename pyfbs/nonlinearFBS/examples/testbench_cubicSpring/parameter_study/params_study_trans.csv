@@ -1,0 +1,7 @@
+run_id,k_trans,k_rot,alpha_trans,alpha_rot,beta_trans,beta_rot,comment
+T1,1e3,0,1e4,0,0,0,alpha schwach ohne beta
+T2,1e3,0,1e6,0,0,0,alpha mittel ohne beta
+T3,1e3,0,1e8,0,0,0,alpha stark ohne beta
+T4,1e3,0,1e4,0,1e-1,0,alpha schwach mit beta
+T5,1e3,0,1e6,0,1e-1,0,alpha mittel mit beta
+T6,1e3,0,1e8,0,1e-1,0,alpha stark mit beta
