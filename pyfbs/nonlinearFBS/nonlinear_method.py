@@ -194,8 +194,7 @@ class DLFTFriction(NonlinearMethod):
 
     The primary Newton unknown is the multiharmonic relative-displacement vector
     ``x_r`` (NOT the contact force, which is slaved to ``x_r`` by a
-    prediction-correction at every residue evaluation, exactly as in
-    :class:`DLFTContact`).
+    prediction-correction at every residue evaluation, cf. :class:`DLFTContact`).
 
     DOF layout (per-node ``[N, T...]`` blocks)
     ------------------------------------------
@@ -221,20 +220,24 @@ class DLFTFriction(NonlinearMethod):
     -----------------
         Z_r u_r-rhs:        z = solve(Y_r, F_adm - x_r)  = f_r - Z_r u_r
         predictor (time):   lambda_u = IDFT[z] + eps*u_r,   normal -= eps_N*g0
-        corrector (time):   sequential stick/slip/separation sweep (see below)
+        corrector (time):   incremental lambda^cor sweep, Eqs. (21)-(33) (see below)
         force:              lambda~  = DFT[lambda]
         residue (FBS):      r(x_r) = x_r + Y_r lambda~ - F_adm   (assembled by FBSProblem)
-        Jacobian:           df_c/dx_r = (Gamma+ Jloc Gamma) (E - Z_r)
+        Jacobian:           df_c/dx_r = (Gamma+ Jloc Gamma) (diag(eps) - Z_r)
 
-    Friction is path-dependent (``lambda_x^{k,T}`` depends on the previous
-    sample), so the corrector is a SEQUENTIAL sweep over time samples. Following
-    Nacivet Fig. 2 / Eqs. (21)-(33), the default is a SINGLE forward sweep per
-    residue evaluation, initialized with ``lambda_x^{-1} = 0`` (Eq. 23); the
+    The corrector is Nacivet's incremental corrective-force formulation: the
+    contact force at sample n is ``lambda_n = lambda_u,n - lambda^cor_n``
+    (Eq. 21), with the carried state ``lambda^cor`` updated per state --
+    separation imposes ``lambda^cor = lambda_u`` (force = 0, Eq. 24), stick
+    freezes it (``Delta_n lambda^cor = 0``, Eq. 25; the normal component also
+    during slip, Eq. 26), and slip advances the tangential part by
+    ``Delta_n lambda^cor_T = p (1 - mu*s/|p|)`` (Eqs. 31-33). Friction is
+    path-dependent, so the corrector is a SEQUENTIAL sweep over time samples:
+    ONE forward pass per residue evaluation, initialized with
+    ``lambda^cor_{-1} = 0`` (Eq. 23), exactly as Nacivet Fig. 2; the
     period-boundary consistency is left for the outer nonlinear solver to drive
-    out (at convergence ``X_r = U_r``, Eq. 16). Setting ``n_sweep > 1`` iterates
-    the sweep toward an exactly-periodic tangential force -- a refinement BEYOND
-    the paper, useful with plain Newton in heavier slip. The analytical ``Jloc``
-    drops the history / periodicity coupling (standard practice,
+    out (at convergence ``X_r = U_r``, Eq. 16). The analytical ``Jloc`` drops
+    the history / periodicity coupling (standard practice,
     Nacivet/Salles/Petrov): the residue is still evaluated exactly, only the
     Newton contraction rate softens.
 
@@ -251,24 +254,16 @@ class DLFTFriction(NonlinearMethod):
     :param mu:        Coulomb friction coefficient.
     :param g_zero:    normal gap offset g0 (contact when x_r^N > g0).
     :param n_tangential: tangential components per contact node (1 or 2).
-    :param n_sweep:   max periodicity passes of the sequential corrector.
-        Default 1 = single sweep, exactly as Nacivet Fig. 2. >1 iterates the
-        sweep toward a periodic tangential force (refinement beyond the paper).
-    :param sweep_tol: convergence tolerance for the carried tangential state
-        (only relevant when n_sweep > 1).
     """
 
     def __init__(self, epsilon_N: float = 1.0, epsilon_T: float = 1.0,
-                 mu: float = 0.0, g_zero: float = 0.0, n_tangential: int = 1,
-                 n_sweep: int = 1, sweep_tol: float = 1e-10):
+                 mu: float = 0.0, g_zero: float = 0.0, n_tangential: int = 1):
         self.epsilon_N    = epsilon_N
         self.epsilon_T    = epsilon_T
         self.mu           = mu
         self.g_zero       = g_zero
         self.n_tangential = n_tangential
         self.n_dir        = 1 + n_tangential
-        self.n_sweep      = n_sweep
-        self.sweep_tol    = sweep_tol
         self._problem     = None    # populated by bind()
         self._eps_vec     = None    # per-DOF penalty vector, built lazily
 
@@ -308,12 +303,13 @@ class DLFTFriction(NonlinearMethod):
         return x.Zr_rhs
 
     def _corrector_sweep(self, lambda_u):
-        """Sequential time-domain stick/slip/separation corrector.
+        """Sequential time-domain stick/slip/separation corrector (Nacivet Eqs. 21-33).
 
         :param lambda_u: predicted multiplier in time, shape (Nt, n_int, 1).
         :returns: (lam, Jloc) with lam shape (Nt, n_int, 1) the corrected
             contact force, and Jloc shape (Nt, n_int, n_int) the block-diagonal
-            per-sample contact tangent dlambda/dlambda_u (history coupling dropped).
+            per-sample contact tangent dlambda/dlambda_u (the carried lambda^cor
+            is treated as frozen, i.e. history coupling dropped).
         """
         Nt, n_int, _ = lambda_u.shape
         n_dir = self.n_dir
@@ -330,38 +326,29 @@ class DLFTFriction(NonlinearMethod):
         for c in range(n_contacts):
             nN = c * n_dir                      # normal slot
             sT = slice(nN + 1, nN + n_dir)      # tangential slots
-            lamx_prev_T = zeros(n_tan)          # carried tangential state
+            lamcor_N = 0.0                      # corrective force lambda^cor,
+            lamcor_T = zeros(n_tan)             # initialized at n = -1 (Eq. 23)
 
-            for _pass in range(self.n_sweep):
-                lamx_start = lamx_prev_T.copy()
-                for k in range(Nt):
-                    s = lu[k, nN]                       # predicted normal (>0 == contact)
-                    p = lu[k, sT] - lamx_prev_T         # predicted tangential
-                    if s <= 0.0:                        # SEPARATION
-                        lam[k, nN, 0]   = 0.0
-                        lam[k, sT, 0]   = 0.0
-                        lamx_prev_T     = lu[k, sT].copy()
-                        # Jloc block stays 0
-                    else:
-                        p_norm = np.sqrt(p @ p)
-                        if p_norm < mu * s:             # STICK
-                            lam[k, nN, 0] = s
-                            lam[k, sT, 0] = p
-                            # lamx_prev_T unchanged
-                            Jloc[k, nN, nN] = 1.0
-                            Jloc[k, sT, sT] = I_t
-                        else:                           # SLIP
-                            p_hat = p / p_norm
-                            lam[k, nN, 0] = s
-                            lam[k, sT, 0] = mu * s * p_hat
-                            # advance the carried state by the slipped fraction (Nacivet Eq. 29)
-                            lamx_prev_T   +=  p * (1.0 - mu * s / p_norm)
-                            Jloc[k, nN, nN] = 1.0
-                            Jloc[k, sT, nN] = mu * p_hat
-                            Jloc[k, sT, sT] = (mu * s / p_norm) * (I_t - np.outer(p_hat, p_hat))
-                # periodicity check: state entering sample 0 == state leaving Nt-1
-                if np.max(np.abs(lamx_prev_T - lamx_start)) < self.sweep_tol:
-                    break
+            for k in range(Nt):
+                s = lu[k, nN] - lamcor_N        # trial normal force (Delta_n lambda^cor_N = 0, Eqs. 25/26)
+                p = lu[k, sT] - lamcor_T        # trial tangential force (Eq. 27 with Delta_n = 0)
+                if s <= 0.0:                    # SEPARATION: lambda^cor := lambda_u => lambda = 0 (Eq. 24)
+                    lamcor_N = lu[k, nN]
+                    lamcor_T = lu[k, sT].copy()
+                    # lam and Jloc blocks stay 0
+                else:
+                    lam[k, nN, 0]   = s
+                    Jloc[k, nN, nN] = 1.0
+                    p_norm = np.sqrt(p @ p)
+                    if p_norm < mu * s:         # STICK: Delta_n lambda^cor = 0 (Eq. 25)
+                        lam[k, sT, 0] = p
+                        Jloc[k, sT, sT] = I_t
+                    else:                       # SLIP: |lambda_T| = mu*s along p (Eq. 31)
+                        p_hat = p / p_norm
+                        lam[k, sT, 0] = mu * s * p_hat
+                        lamcor_T     += p * (1.0 - mu * s / p_norm)   # Delta_n lambda^cor_T (Eqs. 32-33)
+                        Jloc[k, sT, nN] = mu * p_hat
+                        Jloc[k, sT, sT] = (mu * s / p_norm) * (I_t - np.outer(p_hat, p_hat))
         return lam, Jloc
 
     def _get_lambda_corrected(self, x):
