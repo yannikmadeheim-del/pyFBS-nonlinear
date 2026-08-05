@@ -10,6 +10,7 @@ N_IF = 6   # virtual-point interface DoFs: [ux, uy, uz, rx, ry, rz]
 def build_testbench_data(k_trans=1.0e6, k_rot=1.0e3,
                          alpha_trans=1.0e6, alpha_rot=0.0,
                          beta_trans=0.0, beta_rot=0.0,
+                         c_trans=0.0, c_rot=0.0,
                          f_resolution=1.0, modal_damping=0.003):
     """
     Build the pyFBS lab-testbench FBS data for a CUBIC interface spring with
@@ -19,9 +20,10 @@ def build_testbench_data(k_trans=1.0e6, k_rot=1.0e3,
     block-diagonal admittance Y = diag(Y_A, Y_B)); the change is that each
     interface DoF carries a cubic hardening coefficient ``alpha`` in addition to
     its linear stiffness ``k``, plus a cubic damping coefficient ``beta`` acting
-    on the relative velocity, giving the bushing law
+    on the relative velocity and a linear viscous damper ``c``, giving the
+    bushing law
 
-        f = k x + alpha x^3 + beta xdot^3.
+        f = k x + c xdot + alpha x^3 + beta xdot^3.
 
     :param k_trans/k_rot:     linear stiffness [N/m] / [Nm/rad] per interface DoF.
     :param alpha_trans/alpha_rot: cubic stiffness coefficient [N/m^3] / [Nm/rad^3];
@@ -30,6 +32,9 @@ def build_testbench_data(k_trans=1.0e6, k_rot=1.0e3,
     :param beta_trans/beta_rot: cubic damping coefficient [N s^3/m^3] /
         [Nm s^3/rad^3]; the damping force beta*xdot^3 grows with the cube of the
         relative interface velocity (0 -> no nonlinear damping).
+    :param c_trans/c_rot: linear viscous damping [N s/m] / [Nm s/rad]; the joint
+        (rigid-body-vs-spring) modes carry no substructure modal damping, so
+        only this damper limits their resonances (0 -> undamped joint modes).
     :param f_resolution: FRF frequency resolution Delta f [Hz] (smaller = denser).
     :param modal_damping: modal damping ratio used in the synthesis.
     :returns: dict with freq/omega/Y, DoF counts, the signed-Boolean coupling Bc,
@@ -56,8 +61,8 @@ def build_testbench_data(k_trans=1.0e6, k_rot=1.0e3,
     df_chn_B = MK_B.update_locations_df(df_chn_B, scale=1)
     df_imp_B = MK_B.update_locations_df(df_imp_B, scale=1)
 
-    MK_A.frf_synth(df_chn_A, df_imp_A, f_start=0, f_end=8*1000, f_resolution=f_resolution, modal_damping=modal_damping)
-    MK_B.frf_synth(df_chn_B, df_imp_B, f_start=0, f_end=8*1000, f_resolution=f_resolution, modal_damping=modal_damping)
+    MK_A.frf_synth(df_chn_A, df_imp_A, f_start=0, f_end=8*2500, f_resolution=f_resolution, modal_damping=modal_damping)
+    MK_B.frf_synth(df_chn_B, df_imp_B, f_start=0, f_end=8*2500, f_resolution=f_resolution, modal_damping=modal_damping)
 
     freq  = MK_A.freq
     omega = 2 * np.pi * freq
@@ -86,6 +91,7 @@ def build_testbench_data(k_trans=1.0e6, k_rot=1.0e3,
     Bc[np.arange(N_IF), B_if] = -1.0
 
     k_diag     = np.array([k_trans, k_trans, k_trans, k_rot, k_rot, k_rot])
+    c_diag     = np.array([c_trans, c_trans, c_trans, c_rot, c_rot, c_rot])
     alpha_diag = np.array([alpha_trans, alpha_trans, alpha_trans, alpha_rot, alpha_rot, alpha_rot])
     beta_diag  = np.array([beta_trans, beta_trans, beta_trans, beta_rot, beta_rot, beta_rot])
 
@@ -96,7 +102,7 @@ def build_testbench_data(k_trans=1.0e6, k_rot=1.0e3,
 
     return dict(freq=freq, omega=omega, Y=Y, Y_A=Y_A, Y_B=Y_B,
                 nA=nA, nB=nB, N=N, Bc=Bc, k_diag=k_diag, alpha_diag=alpha_diag,
-                beta_diag=beta_diag,
+                beta_diag=beta_diag, c_diag=c_diag,
                 out_full=out_full, inp_full=inp_full,
                 # modal + VPT objects for the numerical ModalVPFRF pipeline
                 MK_A=MK_A, MK_B=MK_B, vpt_A=vpt_A, vpt_B=vpt_B,
@@ -107,10 +113,11 @@ def build_testbench_data(k_trans=1.0e6, k_rot=1.0e3,
 
 class TestbenchCubicSpring(FBS_System):
     """
-    Cubic (hardening) bushing with cubic (nonlinear) damping on the 6-DoF VP
-    interface gap  x_r = B u  and its relative velocity  xdot_r = B udot:
+    Cubic (hardening) bushing with linear viscous and cubic (nonlinear) damping
+    on the 6-DoF VP interface gap  x_r = B u  and its relative velocity
+    xdot_r = B udot:
 
-        f_nl = k * x_r + alpha * x_r^3 + beta * xdot_r^3   (elementwise per DoF)
+        f_nl = k * x_r + c * xdot_r + alpha * x_r^3 + beta * xdot_r^3   (elementwise per DoF)
 
     Same testbench, same FBS structure and the same AFT + arc-length HBM solver as
     the linear-spring example; the differences are the per-DoF cubic stiffness term
@@ -128,6 +135,7 @@ class TestbenchCubicSpring(FBS_System):
     def __init__(self, data, F0=1.0, sample_number=256):
         self.B_coupling    = data["Bc"]                  # (6, N)
         self.k_diag        = data["k_diag"]              # (6,)
+        self.c_diag        = data["c_diag"]              # (6,)
         self.alpha_diag    = data["alpha_diag"]          # (6,)
         self.beta_diag     = data["beta_diag"]           # (6,)
         self.F0            = F0
@@ -143,13 +151,14 @@ class TestbenchCubicSpring(FBS_System):
 
     # --- cubic bushing (spring + damper) on the 6-DoF VP gap x_r = B u ----------
     def interface_force(self, u_rel, udot_rel, tau):
-        # f_i = k_i x_i + alpha_i x_i^3 + beta_i xdot_i^3; the per-DoF coefficients
-        # (6,) broadcast over the leading time axis of u_rel/udot_rel (Nt, 6, 1).
-        # udot_rel is the PHYSICAL relative velocity (omega * dx/dtau).
+        # f_i = k_i x_i + c_i xdot_i + alpha_i x_i^3 + beta_i xdot_i^3; the per-DoF
+        # coefficients (6,) broadcast over the leading time axis of u_rel/udot_rel
+        # (Nt, 6, 1). udot_rel is the PHYSICAL relative velocity (omega * dx/dtau).
         k     = self.k_diag[None, :, None]
+        c     = self.c_diag[None, :, None]
         alpha = self.alpha_diag[None, :, None]
         beta  = self.beta_diag[None, :, None]
-        return k * u_rel + alpha * u_rel ** 3 + beta * udot_rel ** 3   # (Nt, 6, 1)
+        return k * u_rel + c * udot_rel + alpha * u_rel ** 3 + beta * udot_rel ** 3   # (Nt, 6, 1)
 
     def jacobian_interface_force(self, u_rel, udot_rel, tau):
         # df_i/dx_i = k_i + 3 alpha_i x_i^2; the damping term has no displacement
@@ -162,10 +171,10 @@ class TestbenchCubicSpring(FBS_System):
         return J
 
     def jacobian_interface_force_qdot(self, u_rel, udot_rel, tau):
-        # df_i/dxdot_i = 3 beta_i xdot_i^2; each DoF depends only on its own relative
-        # velocity -> diagonal (Nt, 6, 6). Zero when all beta = 0 (pure spring).
+        # df_i/dxdot_i = c_i + 3 beta_i xdot_i^2; each DoF depends only on its own
+        # relative velocity -> diagonal (Nt, 6, 6). Zero when c = beta = 0.
         n_int = self.B_coupling.shape[0]                 # 6
-        diag  = 3.0 * self.beta_diag[None, :] * udot_rel[:, :, 0] ** 2
+        diag  = self.c_diag[None, :] + 3.0 * self.beta_diag[None, :] * udot_rel[:, :, 0] ** 2
         J = np.zeros((len(tau), n_int, n_int))
         d = np.arange(n_int)
         J[:, d, d] = diag
