@@ -42,7 +42,7 @@ from dynamical_system import build_testbench_data, TestbenchLinearSpring, N_IF
 #   c_rot   : rotational    viscous damping [Nms/rad]
 # ---------------------------------------------------------------------------
 k_trans, k_rot = 1.0e6, 1.0e3
-c_trans, c_rot = 1e2, 1e2
+c_trans, c_rot = 1e-2, 1e-2
 
 # FRF frequency resolution Delta f [Hz]: SMALLER = finer (density = 1/F_RESOLUTION
 # samples per Hz). The pyFBS default 1 Hz renders the lightly-damped resonances
