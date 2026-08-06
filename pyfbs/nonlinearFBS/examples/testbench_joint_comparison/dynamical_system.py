@@ -64,7 +64,8 @@ def _resolve_data_dir():
     return HERE / "lab_testbench"
 
 
-def build_testbench_data(f_resolution=1.0, modal_damping=0.003, f_end=20000.0):
+def build_testbench_data(f_resolution=1.0, modal_damping=0.003, f_end=20000.0,
+                         limit_modes=None, no_modes=100):
     """
     Build the joint-INDEPENDENT FBS data of the pyFBS lab testbench.
 
@@ -81,6 +82,13 @@ def build_testbench_data(f_resolution=1.0, modal_damping=0.003, f_end=20000.0):
     :param f_end: end frequency [Hz] of the synthesized grid. It must cover the
         highest harmonic the continuation will ask for (max(harmonics) * f_hi)
         when the experimental provider is used.
+    :param limit_modes: number of free-interface modes per substructure kept in
+        the mode superposition that builds Y (None = all computed ones). The
+        ModalVPFRF provider does its own truncation and takes the same number in
+        main.build_data_and_provider.
+    :param no_modes: size of the eigensolve. Kept constant across a mode-count
+        study: the .full.pkl cache is keyed on it, so a varying no_modes would
+        re-solve the 20370-DoF eigenproblem for every run.
     :returns: dict with freq/omega/Y, the DoF counts nA/nB/N, the coupling Bc,
         the out/inp DoFs and the modal + VPT objects the ModalVPFRF pipeline needs.
     """
@@ -95,10 +103,14 @@ def build_testbench_data(f_resolution=1.0, modal_damping=0.003, f_end=20000.0):
     df_vpref = pd.read_excel(pos_xlsx, sheet_name="VP_RefChannels")
 
     fem = root / "FEM"
+    # pyFBS truncates a too-large limit_modes against the modes that EXIST and
+    # says nothing, so asking for more than were computed would silently give a
+    # different curve than the one the run is labelled with.
+    n_modes = no_modes if limit_modes is None else max(no_modes, int(limit_modes))
     MK_A = pyfbs.mck.Model.from_ansys(str(fem / "A.rst"), str(fem / "A.full"),
-                                      no_modes=100, allow_pickle=True, recalculate=False, mesh_scale=1)
+                                      no_modes=n_modes, allow_pickle=True, recalculate=False, mesh_scale=1)
     MK_B = pyfbs.mck.Model.from_ansys(str(fem / "B.rst"), str(fem / "B.full"),
-                                      no_modes=100, allow_pickle=True, recalculate=False, mesh_scale=1)
+                                      no_modes=n_modes, allow_pickle=True, recalculate=False, mesh_scale=1)
 
     df_chn_A = MK_A.update_locations_df(df_chn_A, scale=1)
     df_imp_A = MK_A.update_locations_df(df_imp_A, scale=1)
@@ -106,9 +118,11 @@ def build_testbench_data(f_resolution=1.0, modal_damping=0.003, f_end=20000.0):
     df_imp_B = MK_B.update_locations_df(df_imp_B, scale=1)
 
     MK_A.frf_synth(df_chn_A, df_imp_A, f_start=0, f_end=f_end,
-                   f_resolution=f_resolution, modal_damping=modal_damping)
+                   f_resolution=f_resolution, modal_damping=modal_damping,
+                   limit_modes=limit_modes)
     MK_B.frf_synth(df_chn_B, df_imp_B, f_start=0, f_end=f_end,
-                   f_resolution=f_resolution, modal_damping=modal_damping)
+                   f_resolution=f_resolution, modal_damping=modal_damping,
+                   limit_modes=limit_modes)
 
     freq  = MK_A.freq
     omega = 2 * np.pi * freq
@@ -140,7 +154,9 @@ def build_testbench_data(f_resolution=1.0, modal_damping=0.003, f_end=20000.0):
     out_full = 0
     inp_full = nA + N_IF
 
-    print(f"testbench data: nA={nA}, nB={nB}, {len(freq)} FRF lines up to {f_end:g} Hz")
+    print(f"testbench data: nA={nA}, nB={nB}, {len(freq)} FRF lines up to "
+          f"{f_end:g} Hz, {n_modes} modes computed, "
+          f"{limit_modes if limit_modes is not None else n_modes} used in Y")
     return dict(freq=freq, omega=omega, Y=Y, Y_A=Y_A, Y_B=Y_B,
                 nA=nA, nB=nB, N=N, Bc=Bc,
                 out_full=out_full, inp_full=inp_full,

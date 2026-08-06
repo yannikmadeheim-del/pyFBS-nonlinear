@@ -65,6 +65,8 @@ CONFIG = dict(
 
     # --- solver -----------------------------------------------------------
     frf_source = "modal",          # "modal" | "experimental"
+    limit_modes = None,            # free-interface modes per substructure in Y (None = all)
+    no_modes = 100,                # modes the eigensolve computes (>= limit_modes)
     f_resolution = 0.1,            # only consumed by the "experimental" provider
     harmonics = [1, 3, 5, 7], sample_number = 256,
     f_lo = 1.0, f_hi = 2500.0, sweep = "down",       # "down" | "up"
@@ -111,16 +113,20 @@ def build_data_and_provider(cfg):
     """Testbench data + the FRF provider selected by ``cfg["frf_source"]``.
 
     This is the expensive part and depends on the joint only through the
-    frequency window, so study.py builds it once per group of runs.
+    frequency window and the mode count, so study.py builds it once per group
+    of runs -- ``group_key`` there lists both.
     """
     data = build_testbench_data(f_resolution=cfg["f_resolution"],
                                 modal_damping=cfg["modal_damping"],
-                                f_end=synthesis_f_end(cfg))
+                                f_end=synthesis_f_end(cfg),
+                                limit_modes=cfg.get("limit_modes"),
+                                no_modes=cfg.get("no_modes", 100))
     if cfg["frf_source"] == "modal":
         provider = ModalVPFRF.from_substructures(
             [(data["MK_A"], data["vpt_A"], data["df_chn_A"], data["df_imp_A"]),
              (data["MK_B"], data["vpt_B"], data["df_chn_B"], data["df_imp_B"])],
-            modal_damping=data["modal_damping"])
+            modal_damping=data["modal_damping"],
+            limit_modes=cfg.get("limit_modes"))
     elif cfg["frf_source"] == "experimental":
         # accuracy is bounded by f_resolution here: the branch is only as sharp
         # as the spline through the sampled admittance grid.

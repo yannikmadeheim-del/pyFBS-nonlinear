@@ -43,41 +43,39 @@ from pyfbs.nonlinearFBS.examples.testbench_joint_comparison import main as run
 HERE = Path(__file__).resolve().parent
 
 # ---------------------------------------------------------------------------
-STUDY_NAME = "s2_diag_maxstep025"
+STUDY_NAME = "mode_tuncation"
 
 BASE = dict(
     joints = [],                   # filled per run from JOINT_SETS
+    limit_modes = None,            # modes per substructure kept in Y_ij; swept below
+    no_modes = 500,                # eigensolve size, constant so the .pkl cache survives
     F0 = 800.0, modal_damping = 0.005,
     solver = "pyfbs-nlfbs",
-    frf_source = "experimental",
-    f_resolution = 3.0,            # the grid whose branch turns around
+    # modal synthesizes at the exact n*omega, so the only approximation left in
+    # Y_ij is the mode truncation itself -- with the experimental provider the
+    # spline error of the f_resolution grid would sit on top of it
+    frf_source = "modal",
+    f_resolution = 5.0,            # only the VPT synthesis grid here, not Y_ij
     harmonics = [1, 3, 5, 7], sample_number = 256,
     f_lo = 1.0, f_hi = 1000.0, sweep = "down",
     parameterization = "ArcLengthParameterization",
     predictor = "TangentPredictorBordered",
     step_adaptation = "ExponentialAdaptation",
     solver_kwargs = {"maximum_iterations": 300, "absolute_tolerance": 1e-5},
-    # the only change: half of what the folder uses. The question this answers is
-    # whether the turnaround at 44.7 Hz belongs to the interpolated FRF (then it
-    # survives any step) or to the step control (then it disappears here).
     step_kwargs = {"base": 2.0, "initial_step_length": 0.01,
-                   "maximum_step_length": 0.25, "minimum_step_length": 1e-6,
+                   "maximum_step_length": 0.5, "minimum_step_length": 1e-6,
                    "goal_number_of_iterations": 3},
-    # at 0.5 these two wrote 27422 and 29848 points, so halving the step again
-    # would run into the usual 50000 cap and end the run before it answers the
-    # question -- the cap must not be the thing that stops it
     maximum_number_of_solutions = 60000, jacobian_update_frequency = 1,
 )
 
 ALL6 = ("ux", "uy", "uz", "rx", "ry", "rz")
 JOINT_SETS = [
     [dict(type="linear", k=1.0e6, c=0.5, dofs=ALL6),
-     dict(type="cubic",  alpha=[0, 1.0e8], dofs=ALL6)],
+     dict(type="cubic",  alpha=1.0e8, dofs=ALL6)],
 ]
 
-# diagnosis only -- these two curves do NOT go into cubic_resolution_800N,
-# they differ from it in maximum_step_length
-GLOBAL_SWEEP = dict(f_resolution=[3.0])
+# one fixed joint, one axis: the number of free-interface modes behind Y_ij
+GLOBAL_SWEEP = dict(limit_modes=[20, 50, 100, 150, 200, 500])
 # ---------------------------------------------------------------------------
 
 SWEEP_EXEMPT = ("dofs", "spin_dof")   # tuples/strings, not sweepable value lists
@@ -130,7 +128,8 @@ def group_key(cfg):
     """Everything the testbench build depends on -- runs sharing it reuse one
     data set and one FRF provider."""
     return (cfg["f_resolution"], cfg["modal_damping"],
-            run.synthesis_f_end(cfg), cfg["frf_source"])
+            run.synthesis_f_end(cfg), cfg["frf_source"],
+            cfg.get("limit_modes"), cfg.get("no_modes", 100))
 
 
 def append_manifest(path, row):
@@ -176,7 +175,8 @@ def main():
 
         print(f"\nbuilding testbench data for f_resolution={key[0]:g}, "
               f"modal_damping={key[1]:g}, f_end={key[2]:g} Hz, "
-              f"frf_source={key[3]} ({len(pending)} run(s)) ...")
+              f"frf_source={key[3]}, limit_modes={key[4]} "
+              f"({len(pending)} run(s)) ...")
         t0 = time.perf_counter()
         data, provider = run.build_data_and_provider(pending[0][1])
         print(f"build done in {time.perf_counter() - t0:.0f} s")
