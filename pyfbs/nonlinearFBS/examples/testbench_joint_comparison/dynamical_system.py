@@ -93,7 +93,12 @@ def build_testbench_data(f_resolution=1.0, modal_damping=0.003, f_end=20000.0,
         the out/inp DoFs and the modal + VPT objects the ModalVPFRF pipeline needs.
     """
     root = _resolve_data_dir()
-    pos_xlsx = str(root / "Measurements" / "coupling_example.xlsx")
+    # The FE data is shared with the cubic-spring example, the workbook is NOT:
+    # this example's copy has collocated interface rows (Channels_<X> and
+    # Impacts_<X> both hold the union of the two sheets' Grouping==10 rows), so
+    # Tf == Tu.T and the VPT sees the same interface DoF set as the pyhbm
+    # RBE_rigid / RBE_average condensations it is compared against.
+    pos_xlsx = str(HERE / "coupling_example.xlsx")
 
     df_chn_A = pd.read_excel(pos_xlsx, sheet_name="Channels_A")
     df_imp_A = pd.read_excel(pos_xlsx, sheet_name="Impacts_A")
