@@ -886,18 +886,111 @@ class Model:
         self.frf = _temp
         self.freq = freq
 
+    def _projected_static_flexibility(
+            self,
+            df_channel,
+            df_impact,
+            n_dim=3,
+            _all=False,
+            rigid_modes=None,
+    ):
+        """Calculate static flexibility in modal-synthesis coordinates."""
+        if self.k is None:
+            raise ValueError(
+                "Static correction requires the physical stiffness matrix k"
+            )
+
+        stiffness = sp.sparse.csc_matrix(self._k)
+        if stiffness.shape[0] != stiffness.shape[1]:
+            raise ValueError("The stiffness matrix must be square")
+
+        augmented_size = 0
+        system_matrix = stiffness
+        if rigid_modes is not None and rigid_modes.shape[1] > 0:
+            if self.m is None:
+                raise ValueError(
+                    "Free-free static correction requires the mass matrix"
+                )
+            mass = sp.sparse.csc_matrix(self.m)
+            constraint = mass @ rigid_modes
+            augmented_size = rigid_modes.shape[1]
+            system_matrix = sp.sparse.bmat(
+                [
+                    [stiffness, constraint],
+                    [constraint.conj().T, None],
+                ],
+                format="csc",
+            )
+
+        try:
+            stiffness_factor = sp.sparse.linalg.splu(system_matrix)
+        except RuntimeError as error:
+            raise ValueError(
+                "Static correction requires a nonsingular constrained "
+                "stiffness system"
+            ) from error
+
+        unique_impacts, impact_directions = self.data_preparation(
+            df_impact, n_dim
+        )
+        impact_nodes = self.find_nearest_locations(unique_impacts) + 1
+        impact_dofs = np.asarray(
+            [
+                dof
+                for node_id in impact_nodes
+                for dof in self.loc_definition(node_id)[:n_dim]
+            ],
+            dtype=int,
+        )
+        impact_projection = sp.linalg.block_diag(*impact_directions)
+        right_hand_side = np.zeros(
+            (
+                stiffness.shape[0] + augmented_size,
+                impact_projection.shape[0],
+            ),
+            dtype=np.result_type(stiffness.dtype, rigid_modes),
+        )
+        right_hand_side[impact_dofs] = impact_projection.T
+        static_displacement = stiffness_factor.solve(right_hand_side)[
+            : stiffness.shape[0]
+        ]
+
+        unique_channels, channel_directions = self.data_preparation(
+            df_channel, n_dim
+        )
+        channel_nodes = self.find_nearest_locations(unique_channels) + 1
+        channel_dofs = np.asarray(
+            [
+                dof
+                for node_id in channel_nodes
+                for dof in self.loc_definition(node_id)[:n_dim]
+            ],
+            dtype=int,
+        )
+        channel_projection = sp.linalg.block_diag(*channel_directions)
+        projected_flexibility = (
+                channel_projection @ static_displacement[channel_dofs]
+        )
+
+        if _all:
+            projected_flexibility = np.vstack(
+                [projected_flexibility, static_displacement]
+            )
+        return projected_flexibility
+
     def frf_synth(
-        self,
-        df_channel,
-        df_impact,
-        f_start=1,
-        f_end=2000,
-        f_resolution=1,
-        limit_modes=None,
-        modal_damping=None,
-        frf_type="receptance",
-        _all=False,
-        n_dim=3,
+            self,
+            df_channel,
+            df_impact,
+            f_start=1,
+            f_end=2000,
+            f_resolution=1,
+            limit_modes=None,
+            modal_damping=None,
+            frf_type="receptance",
+            _all=False,
+            n_dim=3,
+            static_correction=False,
     ):
         """
         Synthetisation of frequency response functions using the mode superposition method.
@@ -922,7 +1015,18 @@ class Model:
         :type _all, optional: boolean
         :param n_dim: number of DoFs per one node in Model (default is 3)
         :type n_dim, optional: boolean
+        :param static_correction: apply a residual-flexibility correction so
+            that the truncated modal receptance has the exact static response
+        :type static_correction: bool, optional
         """
+
+        if not isinstance(static_correction, (bool, np.bool_)):
+            raise TypeError("static_correction must be True or False")
+        if static_correction and self.damped_solver:
+            raise ValueError(
+                "Static correction is not supported for state-space damped "
+                "modes"
+            )
 
         no_modes, _eig_val2, damping, m_p = self.transform_modal_parameters(
             df_channel=df_channel,
@@ -942,7 +1046,7 @@ class Model:
         freq = np.arange(f_start, f_end, f_resolution)
 
         ome = 2 * np.pi * _freq
-        ome2 = ome**2
+        ome2 = ome ** 2
 
         if self.damped_solver:
             m_p_undamped = m_p[~self.damped_modes[:no_modes]]
@@ -962,14 +1066,40 @@ class Model:
 
         else:
             denominator = (
-                _eig_val2[:no_modes, np.newaxis] - ome2
-            ) + np.einsum(
+                                  _eig_val2[:no_modes, np.newaxis] - ome2
+                          ) + np.einsum(
                 'ij,i->ij',
                 (ome * self.angular_eig_freq[:no_modes, np.newaxis]),
                 (2 * 1j * damping[:no_modes]),
             )
 
             frf_matrix = np.einsum('ijk,il->ljk', m_p, 1 / denominator)
+
+        if static_correction:
+            retained_eigenvalues = _eig_val2[:no_modes]
+            all_eigenvalues = np.abs(self.angular_eig_freq) ** 2
+            eigenvalue_tolerance = (
+                    np.sqrt(np.finfo(float).eps) * np.max(all_eigenvalues)
+            )
+            all_rigid_modes = all_eigenvalues <= eigenvalue_tolerance
+            retained_flexible_modes = (
+                    retained_eigenvalues > eigenvalue_tolerance
+            )
+            rigid_modes = self.eig_vec[:, all_rigid_modes]
+
+            exact_static = self._projected_static_flexibility(
+                df_channel,
+                df_impact,
+                n_dim=n_dim,
+                _all=_all,
+                rigid_modes=rigid_modes,
+            )
+            retained_static = np.einsum(
+                'ijk,i->jk',
+                m_p[retained_flexible_modes],
+                1 / retained_eigenvalues[retained_flexible_modes],
+            )
+            frf_matrix += (exact_static - retained_static)[np.newaxis]
 
         if frf_type == "receptance":
             _temp = frf_matrix
