@@ -21,6 +21,14 @@ class FBS_System:
         interface_force(u_rel, u_rel_dot, tau)               -> (Nt, n_int, 1)
         jacobian_interface_force(u_rel, u_rel_dot, tau)      -> (Nt, n_int, n_int)
         jacobian_interface_force_qdot(u_rel, u_rel_dot, tau) -> (Nt, n_int, n_int)
+
+    With DLFTContactAFT the four above stay the AFT law f^nl,A on the FULL interface
+    (return zeros if the joint has none), and the friction law f^F on the n_F DOFs
+    selected by L_F comes from the four below, f_normal being the DLFT normal force:
+        friction_force(u_F_rel, u_F_rel_dot, f_normal, tau)                 -> (Nt, n_F, 1)
+        jacobian_friction_force(u_F_rel, u_F_rel_dot, f_normal, tau)        -> (Nt, n_F, n_F)
+        jacobian_friction_force_qdot(u_F_rel, u_F_rel_dot, f_normal, tau)   -> (Nt, n_F, n_F)
+        jacobian_friction_force_normal(u_F_rel, u_F_rel_dot, f_normal, tau) -> (Nt, n_F, n_N)
     """
     is_real_valued: bool = True
 
@@ -42,6 +50,22 @@ class FBS_System:
 
     def jacobian_interface_force_qdot(self, u_rel: ArrayLike, u_rel_dot: ArrayLike, tau: ArrayLike) -> np.ndarray:
         raise NotImplementedError("Subclasses must implement jacobian_interface_force_qdot.")
+
+    def friction_force(self, u_F_rel: ArrayLike, u_F_rel_dot: ArrayLike,
+                       f_normal: ArrayLike, tau: ArrayLike) -> np.ndarray:
+        raise NotImplementedError("Subclasses must implement friction_force.")
+
+    def jacobian_friction_force(self, u_F_rel: ArrayLike, u_F_rel_dot: ArrayLike,
+                                f_normal: ArrayLike, tau: ArrayLike) -> np.ndarray:
+        raise NotImplementedError("Subclasses must implement jacobian_friction_force.")
+
+    def jacobian_friction_force_qdot(self, u_F_rel: ArrayLike, u_F_rel_dot: ArrayLike,
+                                     f_normal: ArrayLike, tau: ArrayLike) -> np.ndarray:
+        raise NotImplementedError("Subclasses must implement jacobian_friction_force_qdot.")
+
+    def jacobian_friction_force_normal(self, u_F_rel: ArrayLike, u_F_rel_dot: ArrayLike,
+                                       f_normal: ArrayLike, tau: ArrayLike) -> np.ndarray:
+        raise NotImplementedError("Subclasses must implement jacobian_friction_force_normal.")
 
     # --- Framework wrappers (do not override) ---
 

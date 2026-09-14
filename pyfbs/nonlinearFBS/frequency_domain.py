@@ -164,6 +164,11 @@ class FourierOmegaPoint(object):
         self.Zr_rhs = None           # solve(Y_r, F_adm − Q_rel)  ((Nh, n_int, 1) stack in DLFT methods)
         self.lambda_corrected = None # corrected contact force λ̃ = DFT[max(0, λ_p)]
         self.contact_mask = None     # time-domain Boolean mask m = (λ_p > 0)
+        self.F_int_cache = None      # DLFT+AFT: assembled L^N,T F^N + L^F,T F^F + F^nl,A
+        self.f_normal = None         # DLFT+AFT: truncated normal force f^N(t), (Nt, n_N, 1)
+        self.H_kernel = None         # DLFT+AFT: JacobianFourier of the contact indicator b_k
+        self.P_kernel = None         # DLFT+AFT: JacobianFourier of df^F/df^N
+        self.GdotF = None            # DLFT+AFT: JacobianFourier of df^F/dqdot^F,rel
 
     @staticmethod
     def new_from_RI_omega(RI_omega: array):

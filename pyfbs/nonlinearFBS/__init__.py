@@ -26,6 +26,7 @@ from .nonlinear_method import (
     AFT,
     DLFTContact,
     DLFTFriction,
+    DLFTContactAFT,
 )
 
 from .hbm_problems import FBSProblem
@@ -58,7 +59,7 @@ __all__ = [
     "Fourier", "Fourier_Real", "FourierOmegaPoint",
     "JacobianFourier", "JacobianFourier_Real", "block_diag_stack_to_RI",
     "FRFProvider", "NumericalFRF", "ExperimentalFRF", "ModalVPFRF",
-    "NonlinearMethod", "AFT", "DLFTContact", "DLFTFriction",
+    "NonlinearMethod", "AFT", "DLFTContact", "DLFTFriction", "DLFTContactAFT",
     "FBSProblem",
     "NewtonRaphson", "CorrectorParameterization",
     "OrthogonalParameterization", "ArcLengthParameterization",

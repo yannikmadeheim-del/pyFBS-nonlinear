@@ -148,10 +148,12 @@ class ModalVPFRF(FRFProvider):
         self.eig_vec_imp = np.asarray(eig_vec_imp)   # Psi_i (N_vp, n_modes): VP-projected INPUT  modes
         self.modal_damping = modal_damping           # ratio: scalar or (n_modes,)
         self.frf_type = "receptance"
-        if self.eig_vec_chn.shape != self.eig_vec_imp.shape:
+        # Only the mode count has to agree. The DoF dimension may differ: with
+        # non-collocated channel/impact grids the admittance is rectangular.
+        if self.eig_vec_chn.shape[1] != self.eig_vec_imp.shape[1]:
             raise ValueError(
-                "eig_vec_chn (Psi_c) and eig_vec_imp (Psi_i) must share shape "
-                f"(N_vp, n_modes); got {self.eig_vec_chn.shape} and {self.eig_vec_imp.shape}")
+                "eig_vec_chn (Psi_c) and eig_vec_imp (Psi_i) must share the mode "
+                f"count; got {self.eig_vec_chn.shape} and {self.eig_vec_imp.shape}")
 
     @classmethod
     def from_substructures(cls, subsystems, modal_damping,
@@ -190,7 +192,15 @@ class ModalVPFRF(FRFProvider):
 
     @property
     def n_dofs(self) -> int:
-        return self.eig_vec_chn.shape[0]             # N_vp
+        return self.eig_vec_chn.shape[0]             # N_vp, alias of n_dofs_out
+
+    @property
+    def n_dofs_out(self) -> int:
+        return self.eig_vec_chn.shape[0]             # channels (rows)
+
+    @property
+    def n_dofs_in(self) -> int:
+        return self.eig_vec_imp.shape[0]             # impacts (columns)
 
     def compute_FRF(self, omega: float, harmonics, out_dofs, in_dofs) -> array:
         omegas = np.asarray(harmonics, dtype=float) * omega
@@ -234,7 +244,15 @@ class ExperimentalFRF(FRFProvider):
 
     @property
     def n_dofs(self) -> int:
-        return self.Y.shape[1]                       # Y is (N_freq, d, d)
+        return self.Y.shape[1]                       # alias of n_dofs_out
+
+    @property
+    def n_dofs_out(self) -> int:
+        return self.Y.shape[1]                       # channels (rows)
+
+    @property
+    def n_dofs_in(self) -> int:
+        return self.Y.shape[2]                       # impacts (columns)
 
     def _splines(self, out_dofs, in_dofs):
         # project-then-interpolate: spline ONLY the requested Y[:, out, in] channels
