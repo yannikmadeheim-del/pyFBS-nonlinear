@@ -34,14 +34,7 @@ import matplotlib.pyplot as plt
 
 from pyfbs.nonlinearFBS.examples.testbench_joint_comparison import plotting
 
-COMPARE_DIRS = ["cubic_80N",
-                "cubic_800N",
-                "cubic_resolution_80N",
-                "cubic_resolution_800N",
-                "excitation_amplitude",
-                "friction_80N",
-                "friction_800N",
-                "mode_tuncation"] # folder name(s) inside results/
+COMPARE_DIRS = ["doe_static_correction_linear",] # folder name(s) inside results/
 
 STYLE_FILE   = "plot_styles.csv"     # style spec inside each of them
 XLIM         = (1, 1000)             # displayed frequency range [Hz]

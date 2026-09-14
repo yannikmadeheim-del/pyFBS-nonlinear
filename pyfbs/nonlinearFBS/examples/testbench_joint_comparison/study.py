@@ -39,43 +39,43 @@ except (AttributeError, ValueError):
     pass
 
 from pyfbs.nonlinearFBS.examples.testbench_joint_comparison import main as run
+from pyfbs.nonlinearFBS.examples.testbench_joint_comparison import measurements
 
 HERE = Path(__file__).resolve().parent
 
 # ---------------------------------------------------------------------------
-STUDY_NAME = "mode_tuncation"
+STUDY_NAME = "collocated_impacts_static_correction_linear"
 
 BASE = dict(
     joints = [],                   # filled per run from JOINT_SETS
-    limit_modes = None,            # modes per substructure kept in Y_ij; swept below
-    no_modes = 500,                # eigensolve size, constant so the .pkl cache survives
-    F0 = 800.0, modal_damping = 0.005,
+    F0 = 80.0, modal_damping = 0.005,        # F0 swept below
     solver = "pyfbs-nlfbs",
-    # modal synthesizes at the exact n*omega, so the only approximation left in
-    # Y_ij is the mode truncation itself -- with the experimental provider the
-    # spline error of the f_resolution grid would sit on top of it
-    frf_source = "modal",
-    f_resolution = 5.0,            # only the VPT synthesis grid here, not Y_ij
+    workbook = "collocated_impact_locations",
+    # limit_modes / no_modes deliberately absent -> None / 100 in
+    # build_data_and_provider (the run's config_json has no such keys)
+    frf_source = "experimental",
+    limit_modes = 100,
+    f_resolution = 0.1,            # only the VPT synthesis grid, modal ignores it
     harmonics = [1, 3, 5, 7], sample_number = 256,
     f_lo = 1.0, f_hi = 1000.0, sweep = "down",
     parameterization = "ArcLengthParameterization",
     predictor = "TangentPredictorBordered",
     step_adaptation = "ExponentialAdaptation",
-    solver_kwargs = {"maximum_iterations": 300, "absolute_tolerance": 1e-5},
+    solver_kwargs = {"maximum_iterations": 300, "absolute_tolerance": 1e-6},
     step_kwargs = {"base": 2.0, "initial_step_length": 0.01,
                    "maximum_step_length": 0.5, "minimum_step_length": 1e-6,
                    "goal_number_of_iterations": 3},
-    maximum_number_of_solutions = 60000, jacobian_update_frequency = 1,
+    maximum_number_of_solutions = 50000, jacobian_update_frequency = 1,
 )
 
 ALL6 = ("ux", "uy", "uz", "rx", "ry", "rz")
 JOINT_SETS = [
     [dict(type="linear", k=1.0e6, c=0.5, dofs=ALL6),
-     dict(type="cubic",  alpha=1.0e8, dofs=ALL6)],
+     dict(type="cubic",  alpha=[0],
+          dofs=ALL6)],
 ]
 
-# one fixed joint, one axis: the number of free-interface modes behind Y_ij
-GLOBAL_SWEEP = dict(limit_modes=[20, 50, 100, 150, 200, 500])
+GLOBAL_SWEEP = dict(F0=[80])
 # ---------------------------------------------------------------------------
 
 SWEEP_EXEMPT = ("dofs", "spin_dof")   # tuples/strings, not sweepable value lists
@@ -129,7 +129,9 @@ def group_key(cfg):
     data set and one FRF provider."""
     return (cfg["f_resolution"], cfg["modal_damping"],
             run.synthesis_f_end(cfg), cfg["frf_source"],
-            cfg.get("limit_modes"), cfg.get("no_modes", 100))
+            cfg.get("limit_modes"), cfg.get("no_modes", 100),
+            cfg.get("workbook", measurements.DEFAULT),
+            cfg.get("static_correction", True))
 
 
 def append_manifest(path, row):

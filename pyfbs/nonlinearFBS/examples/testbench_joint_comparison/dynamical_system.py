@@ -34,6 +34,7 @@ import pandas as pd
 
 import pyfbs
 from pyfbs.nonlinearFBS import FBS_System
+from pyfbs.nonlinearFBS.examples.testbench_joint_comparison import measurements
 
 HERE = Path(__file__).resolve().parent
 
@@ -65,7 +66,8 @@ def _resolve_data_dir():
 
 
 def build_testbench_data(f_resolution=1.0, modal_damping=0.003, f_end=20000.0,
-                         limit_modes=None, no_modes=100):
+                         limit_modes=None, no_modes=100,
+                         workbook=measurements.DEFAULT, static_correction=True):
     """
     Build the joint-INDEPENDENT FBS data of the pyFBS lab testbench.
 
@@ -89,16 +91,27 @@ def build_testbench_data(f_resolution=1.0, modal_damping=0.003, f_end=20000.0,
     :param no_modes: size of the eigensolve. Kept constant across a mode-count
         study: the .full.pkl cache is keyed on it, so a varying no_modes would
         re-solve the 20370-DoF eigenproblem for every run.
+    :param workbook: measurement table to read, named by its file name without
+        the extension. ``measurements.available()`` lists the choices.
+    :param static_correction: add the residual-flexibility term so the truncated
+        modal receptance is statically exact, which is what lets a low mode count
+        match the pyhbm Craig-Bampton reference. It only reaches the solver
+        through the ExperimentalFRF provider; ModalVPFRF synthesizes its own
+        admittance and ignores it.
     :returns: dict with freq/omega/Y, the DoF counts nA/nB/N, the coupling Bc,
         the out/inp DoFs and the modal + VPT objects the ModalVPFRF pipeline needs.
     """
     root = _resolve_data_dir()
-    # The FE data is shared with the cubic-spring example, the workbook is NOT:
-    # this example's copy has collocated interface rows (Channels_<X> and
-    # Impacts_<X> both hold the union of the two sheets' Grouping==10 rows), so
-    # Tf == Tu.T and the VPT sees the same interface DoF set as the pyhbm
-    # RBE_rigid / RBE_average condensations it is compared against.
-    pos_xlsx = str(HERE / "coupling_example.xlsx")
+    # The FE data is shared with the cubic-spring example, the workbooks are
+    # NOT: the copies in measurements/ have collocated interface rows --
+    # Channels_<X> and Impacts_<X> both hold the union of the two sheets'
+    # Grouping==10 rows, so the VPT sees the same interface DoF set as the pyhbm
+    # RBE_rigid / RBE_average condensations it is compared against. The two
+    # sheets list that set in a different row order (channels+impacts against
+    # impacts+channels), so Tf equals Tu.T only up to that permutation. Both
+    # pipelines apply the permutation consistently, which is what keeps the
+    # coupled virtual-point admittance reciprocal.
+    pos_xlsx = str(measurements.resolve(workbook))
 
     df_chn_A = pd.read_excel(pos_xlsx, sheet_name="Channels_A")
     df_imp_A = pd.read_excel(pos_xlsx, sheet_name="Impacts_A")
@@ -124,10 +137,10 @@ def build_testbench_data(f_resolution=1.0, modal_damping=0.003, f_end=20000.0,
 
     MK_A.frf_synth(df_chn_A, df_imp_A, f_start=0, f_end=f_end,
                    f_resolution=f_resolution, modal_damping=modal_damping,
-                   limit_modes=limit_modes)
+                   limit_modes=limit_modes, static_correction=static_correction)
     MK_B.frf_synth(df_chn_B, df_imp_B, f_start=0, f_end=f_end,
                    f_resolution=f_resolution, modal_damping=modal_damping,
-                   limit_modes=limit_modes)
+                   limit_modes=limit_modes, static_correction=static_correction)
 
     freq  = MK_A.freq
     omega = 2 * np.pi * freq

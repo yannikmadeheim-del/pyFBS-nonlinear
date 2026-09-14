@@ -21,6 +21,7 @@ runs parameter permutations without duplicating any of this.
 import json
 import sys
 import time
+import warnings
 from pathlib import Path
 
 try:                                    # live, UTF-8 progress prints on Windows
@@ -39,6 +40,7 @@ from pyfbs.nonlinearFBS import (
 )
 
 from pyfbs.nonlinearFBS.examples.testbench_joint_comparison import plotting
+from pyfbs.nonlinearFBS.examples.testbench_joint_comparison import measurements
 from pyfbs.nonlinearFBS.examples.testbench_joint_comparison.dynamical_system import (
     build_testbench_data, make_joints, TestbenchJoint, N_IF, VP_DOFS,
 )
@@ -62,9 +64,12 @@ CONFIG = dict(
     F0 = 200.0,                    # harmonic excitation amplitude [N]
     modal_damping = 0.005,         # modal damping ratio of both substructures
     solver = "pyfbs-nlfbs",        # names the pipeline in mixed comparisons
+    # measurement table, by file name without extension in measurements/
+    workbook = measurements.DEFAULT,
 
     # --- solver -----------------------------------------------------------
-    frf_source = "modal",          # "modal" | "experimental"
+    frf_source = "experimental",   # "modal" | "experimental"
+    static_correction = True,      # residual flexibility; "experimental" path only
     limit_modes = None,            # free-interface modes per substructure in Y (None = all)
     no_modes = 100,                # modes the eigensolve computes (>= limit_modes)
     f_resolution = 0.1,            # only consumed by the "experimental" provider
@@ -120,8 +125,16 @@ def build_data_and_provider(cfg):
                                 modal_damping=cfg["modal_damping"],
                                 f_end=synthesis_f_end(cfg),
                                 limit_modes=cfg.get("limit_modes"),
-                                no_modes=cfg.get("no_modes", 100))
+                                no_modes=cfg.get("no_modes", 100),
+                                workbook=cfg.get("workbook",
+                                                 measurements.DEFAULT),
+                                static_correction=cfg.get("static_correction", True))
     if cfg["frf_source"] == "modal":
+        if cfg.get("static_correction", True):
+            # the correction sits in data["Y"], which ModalVPFRF never reads
+            warnings.warn("static_correction is set but the 'modal' provider "
+                          "ignores it -- use frf_source='experimental' for the "
+                          "residual-flexibility corrected admittance")
         provider = ModalVPFRF.from_substructures(
             [(data["MK_A"], data["vpt_A"], data["df_chn_A"], data["df_imp_A"]),
              (data["MK_B"], data["vpt_B"], data["df_chn_B"], data["df_imp_B"])],
@@ -230,6 +243,7 @@ def export_header(cfg, system, solve_time, n_points, labels, meta, out_label,
         f"solve_time_s: {solve_time:.6f}",
         f"n_points: {n_points}",
         f"harmonics: {list(cfg['harmonics'])}",
+        f"measurement table: {cfg.get('workbook', measurements.DEFAULT)}",
         f"joint: {len(system.joints)} element(s) on the 6-DoF VP gap "
         f"x_rel = VP_A - VP_B, forces summed",
     ]
