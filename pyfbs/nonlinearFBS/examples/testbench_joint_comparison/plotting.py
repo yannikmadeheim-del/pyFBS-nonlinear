@@ -456,6 +456,7 @@ def read_style_spec(folder, style_file="plot_styles.csv"):
         with open(spec_path, newline="", encoding="utf-8") as fh:
             rows = list(csv.DictReader(fh))
         entries = []
+        listed = set()
         for line_no, row in enumerate(rows, start=2):      # 1 = header row
             name = (row.get("file") or "").strip()
             if not name:
@@ -463,8 +464,11 @@ def read_style_spec(folder, style_file="plot_styles.csv"):
             if not (folder / name).exists():
                 raise FileNotFoundError(
                     f"{spec_path}, line {line_no}: '{name}' is not in {folder}")
+            listed.add(name)
+            include = (row.get("include") or "true").strip().lower()
+            if include in {"0", "false", "no", "off"}:
+                continue
             entries.append((name, row))
-        listed = {name for name, _ in entries}
         extra = [p.name for p in files if p.name not in listed]
         if extra:
             print(f"note: not listed in {style_file}, appended at the end: "
@@ -479,6 +483,16 @@ def read_style_spec(folder, style_file="plot_styles.csv"):
     out = []
     for i, (name, row) in enumerate(entries):
         width = (row.get("linewidth") or "").strip()
+        # Optional marker settings; absent columns preserve existing styles.
+        marker_style = {}
+        for key in ("marker", "markerfacecolor", "markeredgecolor"):
+            value = (row.get(key) or "").strip()
+            if value:
+                marker_style[key] = value
+        for key in ("markersize", "markeredgewidth"):
+            value = (row.get(key) or "").strip()
+            if value:
+                marker_style[key] = float(value)
         out.append((
             folder / name,
             (row.get("label") or "").strip() or auto[name],
@@ -486,7 +500,8 @@ def read_style_spec(folder, style_file="plot_styles.csv"):
                        or DEFAULT_COLORS[i % len(DEFAULT_COLORS)],
                  linestyle=_linestyle((row.get("linestyle") or "").strip()
                                       or DEFAULT_LINESTYLES[i % len(DEFAULT_LINESTYLES)]),
-                 linewidth=float(width) if width else DEFAULT_LINEWIDTH),
+                 linewidth=float(width) if width else DEFAULT_LINEWIDTH,
+                 **marker_style),
             (row.get("panel") or "").strip(),
             _scale((row.get("normalize") or "").strip(), configs[name], name),
         ))

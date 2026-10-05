@@ -33,12 +33,14 @@ becomes selectable by name immediately, with no change to any caller.
 """
 import csv
 import json
+import re
 from pathlib import Path
 
 import numpy as np
 from numpy.fft import irfft
 
 from pyfbs.nonlinearFBS import Fourier, FourierOmegaPoint
+from pyfbs.nonlinearFBS.examples import thesis_plot_style as thesis_style
 
 from .dynamical_system import DOF_LABELS, IF_LABELS
 
@@ -52,7 +54,15 @@ FORCE_LABELS = ("f_N", "f_T")
 ALL_LABELS = LABELS + list(FORCE_LABELS)
 OUT_LABEL = "q1"          # the plotted output channel: axial tip of element 1
 
+# thesis notation of the interface coordinates; the CSV columns keep IF_LABELS.
+# x_rel_N = q5 - q2 is the NEGATIVE of the thesis q^{N,rel} = q2 - q5, so the
+# label only fits the |.| plots; the gap function is formed explicitly below.
+IF_TEX = {"x_rel_N": r"q^{N,\mathrm{rel}}", "x_rel_T": r"q^{F,\mathrm{rel}}"}
+SHOW_LEGEND = False       # the thesis sets the legend in LaTeX, below the caption
+
 PERIOD_SAMPLES = 1024     # resampling of one period for the time-domain panels
+THESIS_WIDTH = 6.3        # inches, the 16 cm thesis text width
+OMEGA_LABEL = r"$\omega$ [rad/s]"
 
 STYLE_COLUMNS = ("file", "label", "color", "linestyle", "linewidth")
 SKIP_CSV = ("manifest.csv",)
@@ -231,12 +241,29 @@ def read_config(path):
     return None
 
 
+def gap_width(path, config):
+    """The initial gap eps between the tips, or None if the file does not state it.
+
+    Taken from config_json; first-order CSVs carry no config_json and state it
+    only in the force-law line of the header.
+    """
+    if config:
+        return float(config["params"]["eps"])
+    for line in read_header(path):
+        match = re.search(r"\beps=([-+.\deE]+)", line)
+        if match:
+            return float(match.group(1))
+    return None
+
+
 def read_result(path):
     """One result CSV into the arrays the figures need.
 
     :returns: dict with ``omega``, ``out_max``/``out_h1`` (the output channel),
         ``gap_max``/``gap_h1`` (the two interface relative coordinates, period
-        maximum and 1st-harmonic amplitude), ``force_amp`` (the (n, Nh, 2)
+        maximum and 1st-harmonic amplitude), ``h_min`` (the smallest value of
+        the gap function h(t) = q2 - q5 + h0 over one period, h0 = eps; 0 =
+        touching, NaN if the file does not state eps), ``force_amp`` (the (n, Nh, 2)
         complex amplitudes of the interface force, or None for a CSV written
         before the force block existed), ``harmonics``, ``config``.
     """
@@ -255,17 +282,27 @@ def read_result(path):
                                 + 1j * df[f"im_h{h}_{label}"].to_numpy()
                                 for h in harmonics])
 
-    def period_max(label):
-        """max_t |u(t)| over one period, from the physical amplitudes a_h."""
+    def time_series(label):
+        """(n, n_t) one period of u(t), from the physical amplitudes a_h."""
         a = amplitudes(label)
         # undo the a_h scaling to get rFFT bins back, then one irfft per row
         scale = np.array([(1.0 if h == 0 else 2.0) / n_t for h in harmonics])
         padded = np.zeros((len(df), max(harmonics) + 1), dtype=complex)
         padded[:, harmonics] = a / scale[None, :]
-        return np.abs(irfft(padded, n=n_t, axis=1)).max(axis=1)
+        return irfft(padded, n=n_t, axis=1)
+
+    def period_max(label):
+        """max_t |u(t)| over one period."""
+        return np.abs(time_series(label)).max(axis=1)
 
     i_h1 = harmonics.index(1)
-    gap_labels = list(IF_LABELS)
+    eps = gap_width(path, config)
+    if eps is None:
+        print(f"note: {path.name} states no gap width eps -- no gap curve")
+        h_min = np.full(len(df), np.nan)
+    else:
+        # h = q2 - q5 + eps = eps - x_rel_N; signed, so a penetration shows as h < 0
+        h_min = eps - time_series(IF_LABELS[0]).max(axis=1)
     # results written before the force block exists (and the external pyhbm
     # references) simply have no force columns -- the force panels skip them
     has_forces = all(f"re_h{harmonics[0]}_{l}" in df.columns for l in FORCE_LABELS)
@@ -274,9 +311,10 @@ def read_result(path):
         out_max=df["uout_time_max"].to_numpy(),
         out_h1=df["uout_h1_abs"].to_numpy(),
         q4_max=period_max("q4"),
-        gap_max=np.column_stack([period_max(l) for l in gap_labels]),
-        gap_h1=np.column_stack([np.abs(amplitudes(l)[:, i_h1]) for l in gap_labels]),
-        gap_labels=gap_labels,
+        gap_max=np.column_stack([period_max(l) for l in IF_LABELS]),
+        gap_h1=np.column_stack([np.abs(amplitudes(l)[:, i_h1]) for l in IF_LABELS]),
+        h_min=h_min,
+        gap_labels=[IF_TEX[l] for l in IF_LABELS],
         force_amp=(np.stack([amplitudes(l) for l in FORCE_LABELS], axis=2)
                    if has_forces else None),
         force_labels=list(FORCE_LABELS),
@@ -501,7 +539,34 @@ def _draw_series(axes, rows, curves, labels, styles):
             values = curve[key] if column is None else curve[key][:, column]
             ax.plot(curve["omega"], values, label=label, **style)
         ax.set_ylabel(ylabel)
-        ax.grid(True, which="both", alpha=0.3)
+
+
+def _thesis_figure(fig, window_title, legend_from):
+    """Thesis look (TUM font, sizes, grid, spines) and layout.
+
+    Constrained layout sizes every gap between panels by what is actually in
+    it, so a panel with hidden tick labels reserves no room for them. The
+    legend is set in LaTeX; SHOW_LEGEND draws it above the panels for screen
+    use. The folder name goes to the window title.
+    """
+    thesis_style.finish(fig)
+    # finish() ends in tight_layout, which spaces all rows by the largest gap
+    fig.set_layout_engine("constrained", h_pad=3 / 72, w_pad=3 / 72,
+                          hspace=0, wspace=0)
+    fig.align_ylabels()
+    if SHOW_LEGEND:
+        fig.legend(*legend_from.get_legend_handles_labels(),
+                   loc="outside upper center", ncol=1, frameon=False,
+                   fontsize=8, handlelength=2.8)
+    fig.canvas.manager.set_window_title(window_title)
+
+
+def _power_axis(ax, exponent):
+    """y tick labels as mantissas with one x10^exponent above the axis."""
+    from matplotlib.ticker import ScalarFormatter
+    formatter = ScalarFormatter(useMathText=True, useOffset=False)
+    formatter.set_powerlimits((exponent, exponent))
+    ax.yaxis.set_major_formatter(formatter)
 
 
 def overlay(curves, labels, styles, series, title, xlim=None):
@@ -509,30 +574,28 @@ def overlay(curves, labels, styles, series, title, xlim=None):
     import matplotlib.pyplot as plt
 
     rows = _series_rows(curves, series)
-    fig, axes = plt.subplots(len(rows), 1, figsize=(9, 2.8 * len(rows)),
+    fig, axes = plt.subplots(len(rows), 1, figsize=(THESIS_WIDTH, 2.4 * len(rows)),
                              sharex=True, squeeze=False)
     axes = axes[:, 0]
     _draw_series(axes, rows, curves, labels, styles)
-    axes[-1].set_xlabel(r"$\omega$  [rad/s]")
+    axes[-1].set_xlabel(OMEGA_LABEL)
     if xlim:
         axes[-1].set_xlim(*xlim)
-    axes[0].set_title(title)
-    axes[0].legend(fontsize=8, loc="best")
-    fig.tight_layout()
+    _thesis_figure(fig, title, axes[0])
     return fig
 
 
 @plot_method("rel_disp_max")
 def plot_rel_disp_max(curves, labels, styles, title="", xlim=None, force_omega=None):
-    """Maximum time-domain relative displacement, max_t |x_rel(t)|.
+    """Maximum time-domain relative displacement, max_t |q^rel(t)|.
 
-    One row per interface DOF: the normal gap coordinate x_rel_N and the
-    tangential sliding coordinate x_rel_T. This is the period maximum of the
+    One row per interface DOF: the normal coordinate q^{N,rel} and the
+    tangential sliding coordinate q^{F,rel}. This is the period maximum of the
     reconstructed signal, NOT a harmonic amplitude, so it includes every
     retained harmonic and the static offset.
     """
     return overlay(curves, labels, styles,
-                   [("gap_max", r"$\max_t |${}$(t)|$")],
+                   [("gap_max", r"$\max_t |{}(t)|$")],
                    title=f"{title} -- max time-domain relative displacement",
                    xlim=xlim)
 
@@ -541,7 +604,7 @@ def plot_rel_disp_max(curves, labels, styles, title="", xlim=None, force_omega=N
 def plot_rel_disp_h1(curves, labels, styles, title="", xlim=None, force_omega=None):
     """First-harmonic amplitude of the interface relative displacement."""
     return overlay(curves, labels, styles,
-                   [("gap_h1", r"$|${}$^{{(1)}}|$")],
+                   [("gap_h1", r"$|{{{}}}^{{(1)}}|$")],
                    title=f"{title} -- 1st-harmonic relative displacement",
                    xlim=xlim)
 
@@ -587,13 +650,14 @@ def _force_omega(curves, force_omega=None):
 @plot_method("rel_disp_forces")
 def plot_rel_disp_forces(curves, labels, styles, title="", xlim=None,
                          force_omega=None):
-    """Max time-domain relative displacement, plus the contact forces at one omega.
+    """Normal gap and tangential displacement, plus the contact forces at one omega.
 
-    Upper rows: max_t |x_rel(t)| over the swept branch, one row per interface
-    DOF, with a dashed marker at the frequency the force panels are taken at and
-    a dot on the point each curve contributes there.
+    Upper rows, over the swept branch: the smallest normal gap per period,
+    min_t h(t) of the gap function h = q2 - q5 + h0 (0 = the tips touch), and
+    the tangential sliding max_t |q^{F,rel}(t)|; a dashed marker at the frequency the
+    force panels are taken at and a dot on the point each curve contributes there.
 
-    Lower rows: the normal force N(t) and the friction force f_T(t) over one
+    Lower rows: the normal force f^N(t) and the friction force f^F(t) over one
     period at that frequency, as the solver converged them -- so the rigid DLFT
     contact and the regularized AFT law are compared as they were actually
     evaluated, not as they would be re-derived from the displacements.
@@ -604,12 +668,12 @@ def plot_rel_disp_forces(curves, labels, styles, title="", xlim=None,
 
     omega_star = _force_omega(curves, force_omega)
     # each branch is sampled where the continuation happened to step, so every
-    # curve contributes its OWN nearest point; the deviation goes into the legend
+    # curve contributes its OWN nearest point, marked by a dot in the sweep panels
     picks = [int(np.argmin(np.abs(curve["omega"] - omega_star))) for curve in curves]
 
-    rows = _series_rows(curves, [("gap_max", r"$\max_t |${}$(t)|$")])
-    fig, axes = plt.subplots(len(rows) + 2, 1,
-                             figsize=(9, 2.6 * (len(rows) + 2)))
+    rows = [("h_min", None, r"$\min_t\, h(t)$"),
+            ("gap_max", 1, rf"$\max_t |{IF_TEX['x_rel_T']}(t)|$")]
+    fig, axes = plt.subplots(len(rows) + 2, 1, figsize=(THESIS_WIDTH, 6.3))
     sweep_axes, force_axes = axes[:len(rows)], axes[len(rows):]
 
     _draw_series(sweep_axes, rows, curves, labels, styles)
@@ -623,9 +687,11 @@ def plot_rel_disp_forces(curves, labels, styles, title="", xlim=None,
             ax.set_xlim(*xlim)
     for ax in sweep_axes[:-1]:
         ax.tick_params(labelbottom=False)
-    sweep_axes[-1].set_xlabel(r"$\omega$  [rad/s]")
-    sweep_axes[0].set_title(f"{title} -- max time-domain relative displacement")
-    sweep_axes[0].legend(fontsize=8, loc="best")
+    sweep_axes[-1].set_xlabel(OMEGA_LABEL)
+    sweep_axes[0].set_title("(a) Gap function")
+    sweep_axes[1].set_title("(b) Tangential sliding")
+    # the gap is O(1e-3); one x10^-3 above the axis instead of 0.0005 steps
+    _power_axis(sweep_axes[0], -3)
 
     missing = [c["name"] for c in curves if c["force_amp"] is None]
     if missing:
@@ -639,26 +705,23 @@ def plot_rel_disp_forces(curves, labels, styles, title="", xlim=None,
             continue
         tau, normal = period_signal(curve["force_amp"][i, :, 0], curve["harmonics"])
         _, friction = period_signal(curve["force_amp"][i, :, 1], curve["harmonics"])
-        force_axes[0].plot(tau, normal, **style,
-                           label=rf"{label}  ($\omega$ = {curve['omega'][i]:.4f})")
+        force_axes[0].plot(tau, normal, **style)
         force_axes[1].plot(tau, friction, **style)
         drawn += 1
 
-    for ax, ylabel in zip(force_axes, [r"$N(t)$", r"$f_T(t)$"]):
+    for ax, ylabel in zip(force_axes, [r"$f^N(t)$", r"$f^F(t)$"]):
         ax.set_xlim(0.0, 1.0)
         ax.set_ylabel(ylabel)
-        ax.grid(True, which="both", alpha=0.3)
         # the normal contact is quasi-static: N stays close to the clamping
         # preload, and an offset-notation axis would show only its ripple and
         # read as if the force itself were tiny
         ax.ticklabel_format(axis="y", useOffset=False)
     force_axes[0].tick_params(labelbottom=False)
     force_axes[1].set_xlabel(r"$t / T$")
-    force_axes[0].set_title(rf"contact forces at $\omega$ = {omega_star:.4f}")
-    if drawn:
-        force_axes[0].legend(fontsize=8, loc="best")
-    else:
+    force_axes[0].set_title(rf"(c) Normal force at $\omega$ = {omega_star:.4f}")
+    force_axes[1].set_title("(d) Friction force")
+    if not drawn:
         force_axes[0].text(0.5, 0.5, "no force data in this folder",
                            ha="center", va="center", transform=force_axes[0].transAxes)
-    fig.tight_layout()
+    _thesis_figure(fig, title, sweep_axes[0])
     return fig

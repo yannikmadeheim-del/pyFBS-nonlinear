@@ -10,10 +10,10 @@ Two selections, both at the top of this file:
 The plot methods themselves live in ``plotting_saving.PLOT_METHODS``. Currently
 registered:
 
-    rel_disp_forces  max_t |x_rel(t)| over the sweep, plus the normal force N(t)
-                     and the friction force f_T(t) over one period at FORCE_OMEGA
-                     as subplots  [default]
-    rel_disp_max     max_t |x_rel(t)| alone, one row per interface DOF
+    rel_disp_forces  min_t h(t) and max_t |q^{F,rel}(t)| over the sweep, plus the
+                     normal force f^N(t) and the friction force f^F(t) over one
+                     period at FORCE_OMEGA as subplots  [default]
+    rel_disp_max     max_t |q^rel(t)| alone, one row per interface DOF
     rel_disp_h1      first-harmonic amplitude of the same
     tip_response     axial tip response q1 and q4
 
@@ -45,12 +45,15 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 
+from pyfbs.nonlinearFBS.examples import thesis_plot_style as thesis_style
 from pyfbs.nonlinearFBS.examples.two_bar_beam_friction import plotting_saving as io
 
-COMPARE_DIRS = ["."]        # folder name(s) inside results/
+thesis_style.configure()
+
+COMPARE_DIRS = ["."]                # folder name(s) inside results/
 PLOT_METHODS_TO_DRAW = ["rel_disp_forces"]  # names from plotting_saving.PLOT_METHODS
 STYLE_FILE = "plot_styles.csv"              # style spec inside each folder
-XLIM = (0.85, 1.09)                         # displayed omega range [rad/s]
+XLIM = (0.5, 2)                         # displayed omega range [rad/s]
 FORCE_OMEGA = None                          # force panels at this omega;
                                             # None -> the DLFT branch's resonance
 

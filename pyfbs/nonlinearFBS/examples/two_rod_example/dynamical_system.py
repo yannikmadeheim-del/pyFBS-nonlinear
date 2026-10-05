@@ -25,7 +25,9 @@ rod example, so DLFTContact / AFT / the runner / the plots carry over unchanged.
 
 Two models of the SAME physics:
 
-    TwoRodVibroImpact    -- DLFT, rigid unilateral tip-to-tip contact (x_r <= g0).
+    TwoRodVibroImpact    -- DLFT, rigid unilateral tip-to-tip contact (x_r <= g0),
+                            solved with DLFTContact or with the DLFT part of
+                            DLFTContactAFT (localisation L_N, L_F below).
                             No penalty spring.  Both tips are compliant (finite
                             k_rod), so the interface admittance is well conditioned
                             and this converges cold; the dense run is the reference.
@@ -51,14 +53,14 @@ from pyfbs.nonlinearFBS import FBS_System
 @dataclass
 class RodParams:
     """Clamped-free axial bar parameters (Vadcard Table 1 defaults)."""
-    n_elem: int = 10          # number of two-node bar elements (per rod)
+    n_elem: int = 100          # number of two-node bar elements (per rod)
     L:      float = 0.13      # rod length [m]
     E:      float = 210e9     # Young's modulus [Pa]
     rho:    float = 7800.0    # density [kg/m^3]
     A:      float = 15.6e-4   # cross section [m^2]   (15.6 cm^2)
     xi:     float = 7.5e-3    # modal damping ratio
     F0:     float = 25e3      # harmonic forcing at the driven tip A [N]
-    sample_number : int = 600        # AFT/aliasing polynomial degree
+    sample_number : int = 1000        # AFT/aliasing polynomial degree
 
     @property
     def k_rod(self) -> float:
@@ -131,6 +133,12 @@ def _zero_interface(dimension):
 
 # ============================ DLFT: rigid tip-to-tip contact ================
 
+# Localisation of DLFTContactAFT for this interface: its single DOF x_r is the
+# normal contact DOF, and there are no friction DOFs (L_F has zero rows).
+L_N = np.ones((1, 1))
+L_F = np.zeros((0, 1))
+
+
 class TwoRodVibroImpact(FBS_System):
     """Two identical rods coupled by FBS; rigid unilateral DLFT contact on x_r.
 
@@ -140,6 +148,10 @@ class TwoRodVibroImpact(FBS_System):
     DLFTContact enforces x_r <= g0 exactly (no penalty spring).  Because both tips
     are compliant FE rods (not a rigid wall) the contact is numerically benign and
     converges from a cold linear start; the dense run is the ground-truth NFRC.
+
+    With DLFTContactAFT(L_N, L_F) the friction law acts on zero DOFs: the four
+    friction methods return empty arrays and the combined solver reduces to its
+    DLFT normal-contact part.
     """
     is_real_valued = True
 
@@ -171,7 +183,7 @@ class TwoRodVibroImpact(FBS_System):
 
         self.dimension         = 1
         self.total_dimension   = a["d"]
-        self.sample_number = RodParams.sample_number
+        self.sample_number = p.sample_number
         self.F0 = p.F0
         self.omega_modes = a["omega_modes"]
         self.omega_ref = a["omega_ref"]
@@ -184,6 +196,19 @@ class TwoRodVibroImpact(FBS_System):
     interface_force               = _zero_interface(1)
     jacobian_interface_force      = lambda self, u, ud, tau: zeros((len(tau), 1, 1))
     jacobian_interface_force_qdot = lambda self, u, ud, tau: zeros((len(tau), 1, 1))
+
+    # DLFTContactAFT friction law on its n_F = 0 friction DOFs
+    def friction_force(self, u_F_rel, u_F_rel_dot, f_normal, tau):
+        return zeros((len(tau), 0, 1))
+
+    def jacobian_friction_force(self, u_F_rel, u_F_rel_dot, f_normal, tau):
+        return zeros((len(tau), 0, 0))
+
+    def jacobian_friction_force_qdot(self, u_F_rel, u_F_rel_dot, f_normal, tau):
+        return zeros((len(tau), 0, 0))
+
+    def jacobian_friction_force_normal(self, u_F_rel, u_F_rel_dot, f_normal, tau):
+        return zeros((len(tau), 0, 1))
 
 
 # ============================ AFT: regularized penalty contact ==============
@@ -265,7 +290,7 @@ class TwoRodPenaltyContact(FBS_System):
 
         self.dimension         = 1
         self.total_dimension   = a["d"]
-        self.sample_number = RodParams.sample_number
+        self.sample_number = p.sample_number
         self.F0 = p.F0
         self.omega_modes = a["omega_modes"]
         self.omega_ref = a["omega_ref"]
