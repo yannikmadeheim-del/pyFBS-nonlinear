@@ -25,7 +25,6 @@ from .nonlinear_method import (
     NonlinearMethod,
     AFT,
     DLFTContact,
-    DLFTFriction,
     DLFTContactAFT,
 )
 
@@ -59,7 +58,7 @@ __all__ = [
     "Fourier", "Fourier_Real", "FourierOmegaPoint",
     "JacobianFourier", "JacobianFourier_Real", "block_diag_stack_to_RI",
     "FRFProvider", "NumericalFRF", "ExperimentalFRF", "ModalVPFRF",
-    "NonlinearMethod", "AFT", "DLFTContact", "DLFTFriction", "DLFTContactAFT",
+    "NonlinearMethod", "AFT", "DLFTContact", "DLFTContactAFT",
     "FBSProblem",
     "NewtonRaphson", "CorrectorParameterization",
     "OrthogonalParameterization", "ArcLengthParameterization",

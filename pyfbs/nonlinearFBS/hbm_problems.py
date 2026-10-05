@@ -29,7 +29,7 @@ class FBSProblem:
             B_coupling_f; otherwise B_coupling serves both roles.
         :param frf_provider: FRFProvider with frf_type='receptance' (enforced);
             its n_dofs must match the B_coupling column count.
-        :param method: NonlinearMethod (AFT / DLFTContact / DLFTFriction);
+        :param method: NonlinearMethod (AFT / DLFTContact / DLFTContactAFT);
             method.bind(self) lets the DLFT methods read the admittance caches.
         """
         self.ode = fbs

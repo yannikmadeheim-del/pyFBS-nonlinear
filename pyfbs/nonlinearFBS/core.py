@@ -127,8 +127,7 @@ class HarmonicBalanceMethod:
 
 		:param angular_frequency_range: [w_a, w_b] in rad/s (sorted in place).
 		:param solver_kwargs: NewtonRaphson settings (maximum_iterations,
-			absolute_tolerance, optional relative_tolerance /
-			stagnation_tolerance).  absolute_tolerance is rescaled by
+			absolute_tolerance).  absolute_tolerance is rescaled by
 			sqrt(2)/Nt so it acts as a time-domain-equivalent tolerance.
 		:param step_length_adaptation_kwargs: base, initial/maximum/
 			minimum_step_length, goal_number_of_iterations.
