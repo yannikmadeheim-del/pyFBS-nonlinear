@@ -52,22 +52,19 @@ from . import plotting_saving as io
 # ---------------------------------------------------------------------------
 CONFIG = dict(
     # --- system (thesis case study 6.4 values) ----------------------------
-    params = BarBeamParams().to_dict(),
+    # thesis Table 5.3: permanently closed contact under the static clamping force P5
+    params = BarBeamParams(alpha2=1000.0, P1=0.02, P2=0.02, P5=0.05).to_dict(),
     solver = "pyfbs-nlfbs",         # names the pipeline in mixed comparisons
 
     # --- method ------------------------------------------------------------
     method = "aft",                 # "aft" | "dlft_aft"; study.py sweeps it
-    dlft_epsilon = 1.0,             # DLFT penalty/Lagrangian factor; conditions the
+    dlft_epsilon = 5.0,             # DLFT penalty/Lagrangian factor; conditions the
                                     # iteration only, the converged force is eps-independent.
-                                    # Now that the contact opens and closes every period the
-                                    # conditioning decides how far the branch gets: 0.1 reaches
-                                    # omega ~ 0.98, 1.0 stalls at 0.85, 100 at 0.90, and 10 and
-                                    # 1000 fail at the very first point.
 
     # --- solver ------------------------------------------------------------
     # harmonic 0 is MANDATORY: the contact rectifies, so the response has a mean.
-    harmonics = list(range(0, 16)),
-    sample_number = 512,            # >= 4H+1 = 61, else the analytic Jacobian is inexact
+    harmonics = list(range(0, 26)),
+    sample_number = 512,            # >= 4H+1 = 101, else the analytic Jacobian is inexact
     omega_lo = 0.85, omega_hi = 1.09, sweep = "up",     # thesis figure 6.15 window
     omega_resolution = 0.002,       # only consumed by the "experimental" provider
     parameterization = "ArcLengthParameterization",  # | OrthogonalParameterization
