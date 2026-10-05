@@ -259,7 +259,7 @@ def solve_branch(system, provider, method, verbose=True):
 def epsilon_values():
     """The eps / k_rod values to solve: the EPSILON_REL list for the DLFT
     methods, a single None for AFT, which has no eps."""
-    return list(EPSILON_REL) if METHOD in ("dlft_aft", "dlft") else [None]
+    return [float(e) for e in EPSILON_REL] if METHOD in ("dlft_aft", "dlft") else [None]
 
 
 def result_name(epsilon_rel):
