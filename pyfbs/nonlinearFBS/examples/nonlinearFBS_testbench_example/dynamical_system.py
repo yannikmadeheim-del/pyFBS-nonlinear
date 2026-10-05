@@ -22,15 +22,15 @@ from pyfbs.nonlinearFBS import FBS_System
 
 # --- Data ---------------------------------------------------------------------
 HERE = Path(__file__).resolve().parent
+LAB = HERE.parents[1] / "lab_testbench"   # shared copy in pyfbs/nonlinearFBS
 
 cwd = os.getcwd()
-os.chdir(HERE)                          # download_lab_testbench writes to the cwd
+os.chdir(LAB.parent)                    # download_lab_testbench writes to the cwd
 try:
     pyfbs.io.download_lab_testbench()   # skips files that are already there
 finally:
     os.chdir(cwd)
 
-LAB = HERE / "lab_testbench"
 fem = LAB / "FEM"
 xlsx = LAB / "Measurements" / "coupling_example.xlsx"
 

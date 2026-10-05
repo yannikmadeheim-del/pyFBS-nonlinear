@@ -50,7 +50,7 @@ from pyfbs.nonlinearFBS.examples.testbench_joint_comparison.dynamical_system \
 
 HERE = Path(__file__).resolve().parent
 
-# The FE data is the shared lab_testbench copy next to the cubic-spring example
+# The FE data is the shared lab_testbench copy in pyfbs/nonlinearFBS
 # and the workbooks are this example's own measurements/ -- the exact two sources
 # build_testbench_data reads, so the descriptor cannot end up describing a
 # different mesh or a different table than the pyFBS run it is compared against.

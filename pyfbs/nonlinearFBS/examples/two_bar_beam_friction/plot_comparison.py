@@ -47,7 +47,7 @@ import matplotlib.pyplot as plt
 
 from pyfbs.nonlinearFBS.examples.two_bar_beam_friction import plotting_saving as io
 
-COMPARE_DIRS = ["DLFT"]      # folder name(s) inside results/
+COMPARE_DIRS = ["."]        # folder name(s) inside results/
 PLOT_METHODS_TO_DRAW = ["rel_disp_forces"]  # names from plotting_saving.PLOT_METHODS
 STYLE_FILE = "plot_styles.csv"              # style spec inside each folder
 XLIM = (0.85, 1.09)                         # displayed omega range [rad/s]

@@ -42,14 +42,14 @@ N_IF = 6                                                # virtual-point interfac
 VP_DOFS = ("ux", "uy", "uz", "rx", "ry", "rz")          # their names, in row order
 ALL_DOFS = VP_DOFS                                      # default assignment of an element
 
-# The lab testbench data is ~280 MB. The constant points at the copy that already
-# sits next to the cubic-spring example so it is not duplicated a fifth time;
-# every FE/xlsx path below is built from it, never from the current directory.
-DATA_DIR = HERE.parent / "testbench_cubicSpring" / "lab_testbench"
+# The lab testbench data (~280 MB) is shared by all examples and the notebook and
+# lives once in pyfbs/nonlinearFBS/lab_testbench; every FE/xlsx path below is
+# built from it, never from the current directory.
+DATA_DIR = HERE.parents[1] / "lab_testbench"
 
 
 def _resolve_data_dir():
-    """DATA_DIR if it is there, otherwise download the testbench into this folder.
+    """DATA_DIR if it is there, otherwise download the testbench into its parent folder.
 
     ``download_lab_testbench()`` always writes ``./lab_testbench`` relative to the
     current working directory, so the call is bracketed by a chdir.
@@ -57,12 +57,12 @@ def _resolve_data_dir():
     if DATA_DIR.exists():
         return DATA_DIR
     cwd = os.getcwd()
-    os.chdir(HERE)
+    os.chdir(DATA_DIR.parent)
     try:
         pyfbs.io.download_lab_testbench()
     finally:
         os.chdir(cwd)
-    return HERE / "lab_testbench"
+    return DATA_DIR
 
 
 def build_testbench_data(f_resolution=1.0, modal_damping=0.003, f_end=20000.0,
@@ -102,7 +102,7 @@ def build_testbench_data(f_resolution=1.0, modal_damping=0.003, f_end=20000.0,
         the out/inp DoFs and the modal + VPT objects the ModalVPFRF pipeline needs.
     """
     root = _resolve_data_dir()
-    # The FE data is shared with the cubic-spring example, the workbooks are
+    # The FE data is the shared lab_testbench copy, the workbooks are
     # NOT: the copies in measurements/ have collocated interface rows --
     # Channels_<X> and Impacts_<X> both hold the union of the two sheets'
     # Grouping==10 rows, so the VPT sees the same interface DoF set as the pyhbm
