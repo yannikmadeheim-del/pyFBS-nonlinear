@@ -1,13 +1,18 @@
 """
-Nichtlineare FBS-Analyse: Subframe + ControlArm ueber zwei Gummibuchsen.
+Nonlinear FBS: Subframe + ControlArm, coupled by two rubber bushings.
 
-Anregung am ControlArm, Antwort am Subframe. Ergebnis ist die FRF uy/F0 [mm/N].
-Einheiten wie im FE-Modell: mm, N.
+Both substructures come from Ansys (.full). Each bushing is condensed to one virtual
+point with 6 DoF (VPT), so the bushing law acts on 12 interface DoFs:
+
+    f = k u + c v + alpha u^3 + beta v^3        (diagonal, per DoF)
+
+Excitation on the ControlArm (impact group 20), response at the sensor on the
+Subframe (group 10). Result: first-harmonic accelerance for the sensor channels x, y, z.
+Units as in the FE model: mm, N.
 """
 
-import time
-
 import numpy as np
+import matplotlib.pyplot as plt
 
 import dynamical_system as ds
 from pyfbs.nonlinearFBS import (
@@ -15,74 +20,69 @@ from pyfbs.nonlinearFBS import (
     HarmonicBalanceMethod, ArcLengthParameterization, TangentPredictorBordered,
 )
 
-# --- Parameter -------------------------------------------------------------------
-F_LO, F_HI = 10.0, 2000.0    # Kontinuationsfenster [Hz]
-HARMONICS = [1]              # Buchsengesetz ist linear -> hoehere Harmonische loesen zu 0
-SAMPLE_NUMBER = 128
+# --- Parameters ------------------------------------------------------------------
+F_LO, F_HI = 1.0, 1000.0             # continuation window [Hz]
+HARMONICS = [1, 3, 5, 7, 9]
+SAMPLE_NUMBER = 37
 
-# Buchsenparameter in SI; ds.bushing_parameters_from_si rechnet ins mm-Modell um
-K_TRANS, K_ROT = 1e8, 1e2             # N/m, N*m/rad   -- Platzhalter
-Alpha_TRANS, Alpha_ROT = 1e14, 1e2    # N/m^3, N*m/rad^3
-C_TRANS, C_ROT = 1.0, 1e-6            # N*s/m, N*m*s/rad
-Beta_TRANS, Beta_ROT = 1e6, 1e-6      # N*s^3/m^3, N*m*s^3/rad^3
+# bushing parameters in SI; ds.bushing_parameters_from_si converts them to mm
+K_TRANS, K_ROT = 2e5, 1e2                # N/m, N*m/rad
+C_TRANS, C_ROT = 4e2, 2e-1               # N*s/m, N*m*s/rad
+ALPHA_TRANS, ALPHA_ROT = -5e9, -5e2      # N/m^3, N*m/rad^3
+BETA_TRANS, BETA_ROT = 1e3, 1e-3         # N*s^3/m^3, N*m*s^3/rad^3
 
-F0 = 100.0                      # N am Anregungspunkt
+F0 = 1000.0                          # excitation amplitude [N]
+OUT_CH = {"x": 12, "y": 13, "z": 14}     # output sensor channels (Subframe, group 10)
 
-OUT_UY = 13                  # Antwort-Sensor Gruppe 10: x,y,z auf 12,13,14
-
-# --- System und Solver -----------------------------------------------------------
+# --- System and solver -----------------------------------------------------------
 bushing = ds.bushing_parameters_from_si(K_TRANS, K_ROT, C_TRANS, C_ROT,
-                                        Alpha_TRANS, Alpha_ROT, Beta_TRANS, Beta_ROT)
+                                        ALPHA_TRANS, ALPHA_ROT, BETA_TRANS, BETA_ROT)
 w_lo, w_hi = 2 * np.pi * F_LO, 2 * np.pi * F_HI
 
 provider = ExperimentalFRF(ds.omega, ds.Y)
 system = ds.Subframe_ControlArm(**bushing, F0=F0, sample_number=SAMPLE_NUMBER, omega_ref=w_hi)
 
-HarmonicBalanceMethod.update_dependencies(HARMONICS, SAMPLE_NUMBER)   # VOR FBSProblem
+HarmonicBalanceMethod.update_dependencies(HARMONICS, SAMPLE_NUMBER)   # before FBSProblem
 problem = FBSProblem(system, provider, AFT())
 solver = HarmonicBalanceMethod(harmonics=HARMONICS, freq_domain_ode=problem,
                                corrector_parameterization=ArcLengthParameterization,
                                predictor=TangentPredictorBordered)
 
-# Abwaerts sweepen: Start bei w_hi, Referenzrichtung mit omega = -1
+# downward sweep: start at w_hi, reference direction omega = -1
 ig = FourierOmegaPoint.zero_amplitude(dimension=ds.N_IF, omega=w_hi)
 rd = FourierOmegaPoint.new_from_first_harmonic(np.zeros((ds.N_IF, 1), complex), omega=-1.0)
 
-t0 = time.perf_counter()
 ss = solver.solve_and_continue(
     initial_guess=ig, initial_reference_direction=rd,
     maximum_number_of_solutions=10000,
     angular_frequency_range=[w_lo, w_hi],
     solver_kwargs={"maximum_iterations": 200, "absolute_tolerance": 1e-8},
     step_length_adaptation_kwargs={"base": 2.0, "initial_step_length": 0.01,
-                                   "maximum_step_length": 0.05,
+                                   "maximum_step_length": 5.0,
                                    "minimum_step_length": 1e-6,
                                    "goal_number_of_iterations": 3},
     jacobian_update_frequency=1, verbose=True)
-print(f"{len(ss)} Punkte in {time.perf_counter() - t0:.1f} s")
 
-# --- Physikalische DoFs zurueckgewinnen ------------------------------------------
-# Der Newton-Unbekannte ist nur der Interface-Spalt Q_rel (12 DoF). compute_full_response
-# rechnet daraus die Antwort aller N reduzierten DoFs beider Substrukturen zurueck.
+# --- Output sensor ---------------------------------------------------------------
+# compute_full_response recovers all channels from the interface gap (Newton unknown)
 Nt = Fourier.number_of_time_samples
 i_h1 = [int(h) for h in Fourier.harmonics].index(1)
 
-f_sol = np.asarray(ss.omega) / (2 * np.pi)
-uy = np.empty(len(f_sol), dtype=complex)
-for i, (four, w) in enumerate(zip(ss.fourier, ss.omega)):
-    full = problem.compute_full_response(four, w)          # (Nh, N, 1)
-    uy[i] = 2.0 / Nt * full.coefficients[i_h1, OUT_UY, 0]  # 1. Harmonische, physikalisch
+omega = np.asarray(ss.omega)
+u1 = np.array([problem.compute_full_response(four, w).coefficients[i_h1, list(OUT_CH.values()), 0]
+               for four, w in zip(ss.fourier, ss.omega)]) * 2.0 / Nt     # 1st harmonic [mm]
+accelerance = omega[:, None] ** 2 * u1 * 1e-3 / F0                         # [m/s^2/N]
 
-frf = uy / F0                                              # Rezeptanz [mm/N]
-
-# --- Ergebnis --------------------------------------------------------------------
-order = np.argsort(f_sol)
-np.savetxt(ds.HERE / "frf_uy.csv",
-           np.column_stack([f_sol[order], np.abs(frf)[order],
-                            np.angle(frf)[order], np.abs(uy)[order]])[:, :4],
-           delimiter=",", header="freq_hz,frf_abs_mm_per_N,frf_phase_rad,uy_abs_mm",
-           comments="")
-
-peak = order[np.argmax(np.abs(frf)[order])]
-print(f"FRF uy/F0: max |H| = {np.abs(frf)[peak]:.3e} mm/N bei {f_sol[peak]:.1f} Hz")
-print(f"gespeichert: frf_uy.csv")
+# --- Plot ------------------------------------------------------------------------
+# continuation order, not sorted: a nonlinear response can fold over
+fig, ax = plt.subplots(figsize=(8, 5))
+for j, name in enumerate(OUT_CH):
+    ax.semilogy(omega / (2 * np.pi), np.abs(accelerance[:, j]), label=name)
+ax.set_title("Accelerance: excitation ControlArm -> sensor Subframe")
+ax.set_xlabel("f [Hz]")
+ax.set_ylabel(r"$|\omega^2 Q_{1}\, /\, F_0|$  [m s$^{-2}$ N$^{-1}$]")
+ax.set_xlim(F_LO, F_HI)
+ax.grid(True, which="both", alpha=0.3)
+ax.legend()
+fig.tight_layout()
+plt.show()
