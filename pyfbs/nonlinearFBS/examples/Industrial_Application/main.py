@@ -21,7 +21,7 @@ from pyfbs.nonlinearFBS import (
 )
 
 # --- Parameters ------------------------------------------------------------------
-F_LO, F_HI = 1.0, 1000.0             # continuation window [Hz]
+F_LO, F_HI = 5.0, 1000.0             # continuation window [Hz]
 HARMONICS = [1, 3, 5, 7, 9]
 SAMPLE_NUMBER = 37
 
@@ -40,7 +40,7 @@ bushing = ds.bushing_parameters_from_si(K_TRANS, K_ROT, C_TRANS, C_ROT,
 w_lo, w_hi = 2 * np.pi * F_LO, 2 * np.pi * F_HI
 
 provider = ExperimentalFRF(ds.omega, ds.Y)
-system = ds.Subframe_ControlArm(**bushing, F0=F0, sample_number=SAMPLE_NUMBER, omega_ref=w_hi)
+system = ds.Subframe_ControlArm(**bushing, F0=F0, sample_number=SAMPLE_NUMBER)
 
 HarmonicBalanceMethod.update_dependencies(HARMONICS, SAMPLE_NUMBER)   # before FBSProblem
 problem = FBSProblem(system, provider, AFT())
@@ -58,7 +58,7 @@ ss = solver.solve_and_continue(
     angular_frequency_range=[w_lo, w_hi],
     solver_kwargs={"maximum_iterations": 200, "absolute_tolerance": 1e-8},
     step_length_adaptation_kwargs={"base": 2.0, "initial_step_length": 0.01,
-                                   "maximum_step_length": 5.0,
+                                   "maximum_step_length": .0,
                                    "minimum_step_length": 1e-6,
                                    "goal_number_of_iterations": 3},
     jacobian_update_frequency=1, verbose=True)

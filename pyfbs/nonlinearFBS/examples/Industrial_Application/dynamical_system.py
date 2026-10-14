@@ -28,7 +28,7 @@ N_IF = 12            # 2 bushings x 6 DoF
 # f_end must cover max(harmonics) * f_hi
 no_modes = 100
 modal_damping = 0.01
-f_start, f_end, f_resolution = 0.1, 10000.0, 0.1
+f_start, f_end, f_resolution = 0.1, 10000.0, 1.0
 
 # --- Substructures ---------------------------------------------------------------
 MK_SF = pyfbs.mck.Model.from_ansys(str(fem / "Subframe.rst"), str(fem / "Subframe.full"),
