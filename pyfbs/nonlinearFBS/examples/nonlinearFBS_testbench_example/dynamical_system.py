@@ -22,7 +22,7 @@ from pyfbs.nonlinearFBS import FBS_System
 
 # --- Data ---------------------------------------------------------------------
 HERE = Path(__file__).resolve().parent
-LAB = HERE.parents[1] / "lab_testbench"   # shared copy in pyfbs/nonlinearFBS
+LAB = HERE / "lab_testbench"   # shared copy in pyfbs/nonlinearFBS
 
 cwd = os.getcwd()
 os.chdir(LAB.parent)                    # download_lab_testbench writes to the cwd
