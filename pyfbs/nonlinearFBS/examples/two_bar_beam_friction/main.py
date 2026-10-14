@@ -1,238 +1,117 @@
-"""Two bar+beam elements with frictional contact -- AFT vs DLFT contact + AFT friction.
-
-Tiago Martins' MSc thesis case study 6.4 (figure 6.13), solved as a two-substructure
-FBS problem: each cantilever bar+beam element is one substructure, they are uncoupled
-in the linear system, and a single contact element couples them across a 2-DOF
-interface (normal + tangential).
-
-Every run traces the SAME physics twice:
-
-    "aft"       -- regularized unilateral spring (normal) + regularized dry friction,
-                   exactly the thesis model, solved with AFT().
-    "dlft_aft"  -- RIGID normal contact by DLFT prediction/correction, friction by
-                   the IDENTICAL regularized tanh law, solved with DLFTContactAFT.
-
-and does so for the modal FRF provider (always) and the experimental one (when
-RUN_EXPERIMENTAL is set). The experimental provider is synthesized from the same
-modal data, so its branches must reproduce the modal ones up to interpolation and
-finite-difference error.
-
-Run with::
-
-    python -m pyfbs.nonlinearFBS.examples.two_bar_beam_friction.main
 """
-import sys
-import time
-from copy import deepcopy
+Two bar+beam elements with normal contact and dry friction (sketch: system.png).
+
+Each cantilever bar+beam element is one substructure. They are coupled at their tips
+by rigid unilateral normal contact (DLFT) and regularized Coulomb friction (AFT),
+solved together with DLFTContactAFT. The static clamping force P5 keeps the contact
+closed over the whole period.
+
+Plot: (a) minimum gap min_t h(t) and (b) tangential sliding max_t |x_T(t)| over the
+excitation frequency; (c) normal force and (d) friction force over one period at the
+resonance.
+"""
 
 import numpy as np
+from numpy.fft import irfft
+import matplotlib.pyplot as plt
 
-try:                                    # live, UTF-8 progress prints on Windows
-    sys.stdout.reconfigure(encoding="utf-8", line_buffering=True)
-except (AttributeError, ValueError):
-    pass
-
+import dynamical_system as ds
 from pyfbs.nonlinearFBS import (
-    AFT, ArcLengthParameterization, BiExponentialAdaptation, DLFTContactAFT,
-    ExperimentalFRF, ExponentialAdaptation, FBSProblem, Fourier, Fourier_Real,
-    FourierOmegaPoint, HarmonicBalanceMethod, NumericalFRF,
-    OrthogonalParameterization, TangentPredictorBordered, TangentPredictorOne,
-    TangentPredictorRobust, TangentPredictorTwo,
+    Fourier, Fourier_Real, FourierOmegaPoint, FBSProblem, NumericalFRF, DLFTContactAFT,
+    HarmonicBalanceMethod, ArcLengthParameterization, TangentPredictorBordered,
 )
 
-from .dynamical_system import (
-    N_IF, L_F, L_N, BarBeamParams, SYSTEM_TYPES, modal_model,
-)
-from . import plotting_saving as io
+# --- Parameters ------------------------------------------------------------------
+PARAMS = ds.BarBeamParams(P1=0.02, P2=0.02, P5=0.05)
+EPSILON = 5.0                        # DLFT penalty factor
+HARMONICS = list(range(0, 26))       # harmonic 0 required: the contact force has a mean
+SAMPLE_NUMBER = 1000
+W_LO, W_HI = 0.5, 2.0                # continuation window [rad/s]
+
+# --- System and solver -----------------------------------------------------------
+HarmonicBalanceMethod.update_dependencies(HARMONICS, SAMPLE_NUMBER)   # before FBSProblem
+system = ds.BarBeamDLFT(PARAMS, sample_number=SAMPLE_NUMBER)
+provider = NumericalFRF.from_modal(system.angular_eig_freq, system.eig_vec, system.zeta)
+problem = FBSProblem(system, provider,
+                     DLFTContactAFT(ds.L_N, ds.L_F, epsilon=EPSILON, g_zero=PARAMS.eps))
+solver = HarmonicBalanceMethod(harmonics=HARMONICS, freq_domain_ode=problem,
+                               corrector_parameterization=ArcLengthParameterization,
+                               predictor=TangentPredictorBordered)
+
+# initial guess: contact-free response at W_LO, clipped at the gap
+zero = FourierOmegaPoint.zero_amplitude(dimension=ds.N_IF, omega=W_LO)
+free = Fourier(problem._get_Fadm(zero).copy())
+Fourier_Real.compute_time_series(free)
+x_free = free.time_series.copy()
+x_free[:, 0, 0] = np.minimum(x_free[:, 0, 0], PARAMS.eps)
+ig = FourierOmegaPoint(Fourier_Real.new_from_time_series(x_free), W_LO)
+
+# upward sweep: reference direction omega = +1
+rd = FourierOmegaPoint.new_from_first_harmonic(np.zeros((ds.N_IF, 1), complex), omega=1.0)
+
+ss = solver.solve_and_continue(
+    initial_guess=ig, initial_reference_direction=rd,
+    maximum_number_of_solutions=50000,
+    angular_frequency_range=[W_LO, W_HI],
+    solver_kwargs={"maximum_iterations": 300, "absolute_tolerance": 1e-8},
+    step_length_adaptation_kwargs={"base": 2.0, "initial_step_length": 0.01,
+                                   "maximum_step_length": 0.05,
+                                   "minimum_step_length": 1e-9,
+                                   "goal_number_of_iterations": 4},
+    jacobian_update_frequency=1, verbose=True)
+
+# --- Time signals ----------------------------------------------------------------
+hlist = [int(h) for h in Fourier.harmonics]
+Nt = Fourier.number_of_time_samples
+omega = np.asarray(ss.omega)
 
 
-# ---------------------------------------------------------------------------
-# CONFIG -- system, then solver, then output. Plain JSON types only: the whole
-# dict is written into every result CSV header and read back by the plotters.
-# ---------------------------------------------------------------------------
-CONFIG = dict(
-    # --- system (thesis case study 6.4 values) ----------------------------
-    # thesis Table 5.3: permanently closed contact under the static clamping force P5
-    params = BarBeamParams(alpha2=1000.0, P1=0.02, P2=0.02, P5=0.05).to_dict(),
-    solver = "pyfbs-nlfbs",         # names the pipeline in mixed comparisons
-
-    # --- method ------------------------------------------------------------
-    method = "aft",                 # "aft" | "dlft_aft"; study.py sweeps it
-    dlft_epsilon = 5.0,             # DLFT penalty/Lagrangian factor; conditions the
-                                    # iteration only, the converged force is eps-independent.
-
-    # --- solver ------------------------------------------------------------
-    # harmonic 0 is MANDATORY: the contact rectifies, so the response has a mean.
-    harmonics = list(range(0, 26)),
-    sample_number = 512,            # >= 4H+1 = 101, else the analytic Jacobian is inexact
-    omega_lo = 0.85, omega_hi = 1.09, sweep = "up",     # thesis figure 6.15 window
-    omega_resolution = 0.002,       # only consumed by the "experimental" provider
-    parameterization = "ArcLengthParameterization",  # | OrthogonalParameterization
-    predictor = "TangentPredictorBordered",          # | TangentPredictorOne
-                                                     # | TangentPredictorTwo
-                                                     # | TangentPredictorRobust
-    step_adaptation = "ExponentialAdaptation",       # | BiExponentialAdaptation
-    solver_kwargs = {"maximum_iterations": 300, "absolute_tolerance": 1e-8},
-    step_kwargs = {"base": 2.0, "initial_step_length": 0.01,
-                   "maximum_step_length": 0.05, "minimum_step_length": 1e-9,
-                   "goal_number_of_iterations": 4},
-    maximum_number_of_solutions = 50000, jacobian_update_frequency = 1,
-)
-
-# --- output ---------------------------------------------------------------
-# main.py traces ONE configuration per method. For parameter permutations use
-# study.py, which sweeps any list-valued entry of the parameter block.
-METHODS = ["aft", "dlft_aft"]   # both are run, always
-RUN_EXPERIMENTAL = False        # True -> also run every method on ExperimentalFRF
-
-# solver parts addressable by name from CONFIG (and hence from a CSV header)
-SOLVER_PARTS = {cls.__name__: cls for cls in (
-    ArcLengthParameterization, OrthogonalParameterization,
-    TangentPredictorBordered, TangentPredictorOne, TangentPredictorTwo,
-    TangentPredictorRobust, ExponentialAdaptation, BiExponentialAdaptation)}
+def period(coefficients):
+    """One period of a signal from its rFFT coefficients of the retained harmonics."""
+    padded = np.zeros(Nt // 2 + 1, dtype=complex)
+    padded[hlist] = coefficients
+    return irfft(padded, n=Nt)
 
 
-def params_of(cfg):
-    return BarBeamParams(**cfg["params"])
+h_min, slide_max, q1_max = [], [], []
+for four, w in zip(ss.fourier, ss.omega):
+    x_N = period(four.coefficients[:, 0, 0])               # x_N = q5 - q2
+    x_T = period(four.coefficients[:, 1, 0])               # x_T = q1 - q4
+    q1 = period(problem.compute_full_response(four, w).coefficients[:, ds.Q1, 0])
+    h_min.append(PARAMS.eps - x_N.max())                   # gap function h = eps - x_N
+    slide_max.append(np.abs(x_T).max())
+    q1_max.append(np.abs(q1).max())
 
+# contact forces at the resonance (peak of the axial tip response q1), as converged by DLFT
+i_star = int(np.argmax(q1_max))
+point = FourierOmegaPoint(ss.fourier[i_star], ss.omega[i_star])
+F_int = problem.method.compute_F_int(point, problem.ode).reshape(len(hlist), ds.N_IF)
+f_N, f_T = period(F_int[:, 0]), period(F_int[:, 1])
+t = np.arange(Nt) / Nt
 
-def synthesis_omega_end(cfg):
-    """End of the synthesized FRF grid [rad/s].
+# --- Plot ------------------------------------------------------------------------
+fig, axes = plt.subplots(4, 1, figsize=(7, 9))
+for ax, y, title, ylabel in [(axes[0], h_min, "(a) Gap function", r"$\min_t h(t)$"),
+                             (axes[1], slide_max, "(b) Tangential sliding",
+                              r"$\max_t |x_T(t)|$")]:
+    ax.plot(omega, y, "k")
+    ax.plot(omega[i_star], y[i_star], "ko", markersize=4)
+    ax.axvline(omega[i_star], color="0.45", linestyle="--", linewidth=1.0)
+    ax.set_title(title)
+    ax.set_ylabel(ylabel)
+    ax.set_xlabel(r"$\omega$ [rad/s]")
+    ax.set_xlim(W_LO, W_HI)
 
-    The solver queries Y at every harmonic multiple n*omega, so the grid must
-    reach the highest harmonic of the highest swept frequency; 2% of margin
-    keeps the top of the window off the extrapolation warning.
-    """
-    return max(cfg["harmonics"]) * cfg["omega_hi"] * 1.02
+for ax, y, title, ylabel in [(axes[2], f_N, rf"(c) Normal force at $\omega$ = {omega[i_star]:.4f}",
+                              r"$f^N(t)$"),
+                             (axes[3], f_T, "(d) Friction force", r"$f^F(t)$")]:
+    ax.plot(t, y, "k")
+    ax.set_title(title)
+    ax.set_ylabel(ylabel)
+    ax.set_xlabel(r"$t / T$")
+    ax.set_xlim(0.0, 1.0)
 
-
-def build_provider(cfg, frf_source):
-    """The FRF provider selected by ``frf_source``, from the same modal data.
-
-    Six DOFs give six modes, so the modal basis is COMPLETE and the "modal"
-    provider is exact. The "experimental" one samples that same synthesis on a
-    grid and splines it back, which is what introduces a representation error.
-    """
-    p = params_of(cfg)
-    Omega, Phi, zeta = modal_model(p)
-    modal = NumericalFRF.from_modal(Omega, Phi, zeta)
-    if frf_source == "modal":
-        return modal
-    if frf_source == "experimental":
-        # compute_FRF evaluates at harmonics*omega, so omega=1 with the grid as
-        # "harmonics" synthesizes the whole grid in one vectorized call.
-        grid = np.arange(0.0, synthesis_omega_end(cfg) + cfg["omega_resolution"],
-                         cfg["omega_resolution"])
-        dofs = np.arange(6)
-        Y = modal.compute_FRF(1.0, grid, dofs, dofs)          # (N_freq, 6, 6)
-        return ExperimentalFRF(grid, Y)
-    raise ValueError(f"frf_source must be 'modal' or 'experimental', got {frf_source!r}")
-
-
-def initial_guess(problem, omega_start):
-    """Cold start from the contact-free linear response, CLIPPED AT THE GAP.
-
-    The excitation is purely harmonic now, so there is no static contact state
-    left to seed into harmonic 0. Neither obvious cold start works on its own:
-    zero amplitude ignores a response that runs several gaps deep, and the
-    contact-free response itself violates the constraint by just as much -- both
-    leave the first Newton solve too far away to converge.
-
-    Clipping the free response at x_N = eps is the rigid-contact KINEMATIC
-    estimate: the free motion wherever the tips are apart, the gap wherever they
-    would have interpenetrated. It satisfies the constraint by construction and
-    only gets the contact force wrong, which is what Newton is good at fixing.
-    """
-    zero = FourierOmegaPoint.zero_amplitude(dimension=N_IF, omega=omega_start)
-    free = Fourier(problem._get_Fadm(zero).copy())   # contact-free: Q_rel = F_adm
-    Fourier_Real.compute_time_series(free)
-    time_series = free.time_series.copy()
-    time_series[:, 0, 0] = np.minimum(time_series[:, 0, 0], problem.ode.p.eps)
-    return FourierOmegaPoint(Fourier_Real.new_from_time_series(time_series),
-                             omega_start)
-
-
-def solve_config(cfg, provider, method=None):
-    """Trace the forced-response branch of ``cfg``; ``method`` defaults to cfg's.
-
-    The wiring order is load-bearing: ``Fourier`` state is class-level and
-    ``FBSProblem.__init__`` snapshots ``Fourier.number_of_harmonics``, so
-    ``update_dependencies`` must run BEFORE the problem is constructed, and
-    again for every run whose harmonics or sample_number differ.
-
-    :returns: (system, problem, solution_set, solve_time_s)
-    """
-    method = method or cfg["method"]
-    harmonics = list(cfg["harmonics"])
-    if 0 not in harmonics:
-        raise ValueError("harmonic 0 is required: the contact rectifies, so the "
-                         "response carries a non-zero mean")
-    HarmonicBalanceMethod.update_dependencies(harmonics, cfg["sample_number"])
-
-    p = params_of(cfg)
-    system = SYSTEM_TYPES[method](p, sample_number=cfg["sample_number"])
-    if method == "aft":
-        nonlinear_method = AFT()
-    elif method == "dlft_aft":
-        nonlinear_method = DLFTContactAFT(L_N, L_F, epsilon=cfg["dlft_epsilon"],
-                                          g_zero=p.eps)
-    else:
-        raise ValueError(f"method must be one of {list(SYSTEM_TYPES)}, got {method!r}")
-
-    problem = FBSProblem(system, provider, nonlinear_method)
-    solver = HarmonicBalanceMethod(
-        harmonics=harmonics, freq_domain_ode=problem,
-        corrector_parameterization=SOLVER_PARTS[cfg["parameterization"]],
-        predictor=SOLVER_PARTS[cfg["predictor"]],
-        step_length_adaptation=SOLVER_PARTS[cfg["step_adaptation"]])
-
-    w_lo, w_hi = cfg["omega_lo"], cfg["omega_hi"]
-    if cfg["sweep"] == "up":
-        w_start, direction = w_lo, +1.0
-    elif cfg["sweep"] == "down":
-        w_start, direction = w_hi, -1.0
-    else:
-        raise ValueError(f"sweep must be 'up' or 'down', got {cfg['sweep']!r}")
-
-    ig = initial_guess(problem, w_start)
-    rd = FourierOmegaPoint.new_from_first_harmonic(np.zeros((N_IF, 1), complex),
-                                                   omega=direction)
-
-    t0 = time.perf_counter()
-    ss = solver.solve_and_continue(
-        initial_guess                 = ig,
-        initial_reference_direction   = rd,
-        maximum_number_of_solutions   = cfg["maximum_number_of_solutions"],
-        angular_frequency_range       = [w_lo, w_hi],
-        solver_kwargs                 = dict(cfg["solver_kwargs"]),
-        step_length_adaptation_kwargs = dict(cfg["step_kwargs"]),
-        jacobian_update_frequency     = cfg["jacobian_update_frequency"],
-        verbose                       = True,
-    )
-    return system, problem, ss, time.perf_counter() - t0
-
-
-if __name__ == "__main__":
-    frf_sources = ["modal"] + (["experimental"] if RUN_EXPERIMENTAL else [])
-    print(f"Continuation window: omega in [{CONFIG['omega_lo']}, {CONFIG['omega_hi']}]"
-          f" ({CONFIG['sweep']}ward sweep), harmonics {CONFIG['harmonics'][0]}"
-          f"..{CONFIG['harmonics'][-1]}")
-
-    written = []
-    for frf_source in frf_sources:
-        provider = build_provider(CONFIG, frf_source)
-        for method in METHODS:
-            print(f"\n=== {method} | {frf_source} FRF ===")
-            cfg = deepcopy(CONFIG)
-            cfg["method"] = method
-            system, problem, ss, solve_time = solve_config(cfg, provider)
-            out_csv = io.result_path(cfg, method, frf_source)
-            io.save_solution(out_csv, cfg, ss, problem, system, method,
-                             frf_source, solve_time)
-            written.append(out_csv)
-
-    print("\nwritten:")
-    for path in written:
-        print(f"  {path}")
-    print("\nplot with:  python -m pyfbs.nonlinearFBS.examples"
-          ".two_bar_beam_friction.plot_comparison")
+for ax in axes:
+    ax.grid(True, alpha=0.3)
+fig.tight_layout()
+plt.show()
