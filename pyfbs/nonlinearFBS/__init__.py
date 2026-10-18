@@ -50,6 +50,7 @@ from .numerical_continuation.predictor_step import (
 
 from .core import (
     SolutionSet,
+    FrequencySweepResult,
     HarmonicBalanceMethod,
 )
 
@@ -65,5 +66,5 @@ __all__ = [
     "Predictor", "TangentPredictorRobust", "TangentPredictorOne",
     "TangentPredictorTwo", "TangentPredictorBordered",
     "StepLengthAdaptation", "ExponentialAdaptation", "BiExponentialAdaptation",
-    "SolutionSet", "HarmonicBalanceMethod",
+    "SolutionSet", "FrequencySweepResult", "HarmonicBalanceMethod",
 ]

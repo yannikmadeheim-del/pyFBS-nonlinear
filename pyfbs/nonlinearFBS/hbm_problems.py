@@ -86,6 +86,29 @@ class FBSProblem:
 
         self.method.bind(self)
 
+    def linear_initialization(self, omega, joint_stiffness, joint_damping=None):
+        """Seed a fixed-frequency solve with the linearized joint response.
+
+        Stiffness/damping may be diagonal vectors or interface-sized matrices.
+        Coefficients use the same unnormalised FFT convention as the residual.
+        This evaluates only FRFs, never their frequency derivatives.
+        """
+        def matrix(values):
+            result = np.asarray(values, dtype=float)
+            if result.ndim == 1:
+                result = np.diag(result)
+            if result.shape != (self.d_int, self.d_int) or not np.all(np.isfinite(result)):
+                raise ValueError("Joint matrices must be finite and interface-sized")
+            return result
+        stiffness = matrix(joint_stiffness)
+        damping = np.zeros_like(stiffness) if joint_damping is None else matrix(joint_damping)
+        point = FourierOmegaPoint.zero_amplitude(self.d_int, float(omega))
+        admittance = self._get_Yr(point)
+        impedance = stiffness + 1j * np.asarray(Fourier.harmonics)[:, None, None] * omega * damping
+        coefficients = np.linalg.solve(
+            np.eye(self.d_int) + admittance @ impedance, self._get_Fadm(point))
+        return FourierOmegaPoint(Fourier(coefficients), float(omega))
+
     def _get_FRF(self, x: FourierOmegaPoint) -> np.ndarray:
         if x.Y_cache is None:
             x.Y_cache = self.frf_provider.compute_FRF(
