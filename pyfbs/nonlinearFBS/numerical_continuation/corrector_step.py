@@ -17,12 +17,17 @@ class NewtonRaphson(object):
 	:param jacobian_reuse_delta_threshold: ... but refresh immediately while
 		||delta|| >= threshold * ||x||, i.e. reuse only near convergence.
 	:param column_scale: right preconditioner D -- solve (J D) y = R and take
-		delta = D y; conditions the omega column to O(1) without changing the
-		solution.  None = plain solve.
+		delta = D y. This improves coordinate conditioning while keeping the
+		unknowns and residuals in physical coordinates. None = plain solve.
+	:param merit_scale: optional (n+1, 1) coordinate scale of an extended
+		system. The line search then divides the first n residual rows (in
+		state units) by their scale, so they weigh like the dimensionless last
+		row. Convergence is still tested on the unscaled residual. None = plain norm.
 	"""
 	def __init__(self, func, jacobian, maximum_iterations: int, absolute_tolerance: float,
 				 jacobian_update_frequency: int = 3,
-				 jacobian_reuse_delta_threshold: float = 1e-3, column_scale=None):
+				 jacobian_reuse_delta_threshold: float = 1e-3, column_scale=None,
+				 merit_scale=None):
 		self.compute_residue = func
 		self.compute_jacobian = jacobian
 		self.maximum_iterations = maximum_iterations
@@ -31,6 +36,15 @@ class NewtonRaphson(object):
 		self.jacobian_reuse_delta_threshold = jacobian_reuse_delta_threshold
 
 		self.column_scale = None if column_scale is None else asarray(column_scale).reshape(-1, 1)
+		self.merit_scale = None if merit_scale is None else asarray(merit_scale).reshape(-1, 1)
+
+	def merit(self, residue) -> float:
+		"""Line-search merit: plain norm, or state rows divided by merit_scale."""
+		if self.merit_scale is None or len(residue) != len(self.merit_scale):
+			return norm(residue)
+		scaled = np.array(residue, copy=True)
+		scaled[:-1] /= self.merit_scale[:-1]
+		return norm(scaled)
 
 	def is_converged(self) -> bool:
 		return norm(self.residue) < self.absolute_tolerance
@@ -55,17 +69,16 @@ class NewtonRaphson(object):
 			self.delta = self.column_scale * y							# delta = D*y
 	
 	def update_solution(self):
-		"""Backtracking line search: halve the step until the residue norm
-		decreases; after max_backtracks halvings without improvement, take the
-		full step."""
+		"""Backtracking line search: halve the step until the merit decreases;
+		after max_backtracks halvings without improvement, take the full step."""
 		alpha = 1.0
-		norm_old = norm(self.residue)
+		norm_old = self.merit(self.residue)
 		max_backtracks = 10
 		for _ in range(max_backtracks):
 			x_trial = self.x - alpha * self.delta
 			try:
 				r_trial = self.compute_residue(x_trial)
-				if norm(r_trial) < norm_old:
+				if self.merit(r_trial) < norm_old:
 					self.x = x_trial
 					self.residue = r_trial  # reuse — saves one func call next iter
 					return
@@ -144,7 +157,7 @@ class OrthogonalParameterization(CorrectorParameterization):
 	orthogonal to `predictor_vector`. Robust through turning points where omega
 	is non-monotonic in arc length; quadratic-free, so Newton converges fast.
 
-	g(x) = <predictor_vector, x - predicted_solution>
+	g(x) = t^T D^{-2} (x - predicted_solution), D = diag(dscale).
 	"""
 	def compute_parameterization(self, point, *args):
 		delta = point - self.predicted_solution
@@ -164,7 +177,7 @@ class ArcLengthParameterization(CorrectorParameterization):
 	`step_size` around `last_solution`. Quadratic in x — Newton may need more
 	iterations at sharp bends.
 
-	g(x) = ||x - last_solution||^2 - step_size^2
+	g(x) = ||(x - last_solution) / dscale||^2 - step_size^2
 	"""
 	def compute_parameterization(self, point, *args):
 		delta = point - self.last_solution
