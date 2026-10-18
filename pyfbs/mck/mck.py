@@ -8,6 +8,18 @@ import h5py
 import warnings
 
 
+def _active_static_dofs(stiffness, mass):
+    """Exclude FE equations with no stiffness or mass; their response stays zero."""
+    if mass is None:
+        return np.arange(stiffness.shape[0])
+    matrices = [sp.sparse.csr_matrix(matrix, copy=True) for matrix in (stiffness, mass)]
+    inactive = np.ones(stiffness.shape[0], dtype=bool)
+    for matrix in matrices:
+        matrix.eliminate_zeros()
+        inactive &= (matrix.getnnz(axis=0) == 0) & (matrix.getnnz(axis=1) == 0)
+    return np.flatnonzero(~inactive)
+
+
 class Model:
     def __init__(
         self,
@@ -894,13 +906,13 @@ class Model:
             _all=False,
             rigid_modes=None,
     ):
-        """Calculate static flexibility in modal-synthesis coordinates."""
+        """Calculate static flexibility, using PARDISO when available."""
         if self.k is None:
             raise ValueError(
                 "Static correction requires the physical stiffness matrix k"
             )
 
-        stiffness = sp.sparse.csc_matrix(self._k)
+        stiffness = sp.sparse.csc_matrix(self.k)
         if stiffness.shape[0] != stiffness.shape[1]:
             raise ValueError("The stiffness matrix must be square")
 
@@ -921,14 +933,6 @@ class Model:
                 ],
                 format="csc",
             )
-
-        try:
-            stiffness_factor = sp.sparse.linalg.splu(system_matrix)
-        except RuntimeError as error:
-            raise ValueError(
-                "Static correction requires a nonsingular constrained "
-                "stiffness system"
-            ) from error
 
         unique_impacts, impact_directions = self.data_preparation(
             df_impact, n_dim
@@ -951,9 +955,40 @@ class Model:
             dtype=np.result_type(stiffness.dtype, rigid_modes),
         )
         right_hand_side[impact_dofs] = impact_projection.T
-        static_displacement = stiffness_factor.solve(right_hand_side)[
-            : stiffness.shape[0]
-        ]
+
+        # ANSYS .full files can retain eliminated/support equations as zero
+        # rows in both K and M. Solve the active equations and scatter back.
+        active = _active_static_dofs(stiffness, self.m)
+        solve_dofs = np.concatenate([
+            active, np.arange(stiffness.shape[0], system_matrix.shape[0])])
+        system_matrix = system_matrix[solve_dofs][:, solve_dofs]
+        right_hand_side = right_hand_side[solve_dofs]
+
+        try:
+            import pypardiso
+        except ImportError:
+            pypardiso = None
+
+        if pypardiso is not None:
+            try:
+                solution = pypardiso.spsolve(
+                    system_matrix.tocsr(), right_hand_side, squeeze=False)
+            finally:
+                pypardiso.ps.free_memory(everything=True)
+        else:
+            try:
+                stiffness_factor = sp.sparse.linalg.splu(system_matrix)
+            except RuntimeError as error:
+                raise ValueError(
+                    "Static correction requires a nonsingular constrained "
+                    "stiffness system"
+                ) from error
+            solution = stiffness_factor.solve(right_hand_side)
+
+        static_displacement = np.zeros(
+            (stiffness.shape[0], solution.shape[1]), dtype=solution.dtype)
+        static_displacement[active] = solution[:len(active)]
+        print(f"Static correction computed (solver: {'PARDISO' if pypardiso else 'SuperLU'})")
 
         unique_channels, channel_directions = self.data_preparation(
             df_channel, n_dim
@@ -991,6 +1026,7 @@ class Model:
             _all=False,
             n_dim=3,
             static_correction=False,
+            rayleigh_damping=None,
     ):
         """
         Synthetisation of frequency response functions using the mode superposition method.
@@ -1018,6 +1054,10 @@ class Model:
         :param static_correction: apply a residual-flexibility correction so
             that the truncated modal receptance has the exact static response
         :type static_correction: bool, optional
+        :param rayleigh_damping: ``(alpha, beta)`` for ``C = alpha*M + beta*K``,
+            in 1/s and s. Mutually exclusive with ``modal_damping``. Applies to
+            real modes, including rigid-body modes without division by frequency.
+        :type rayleigh_damping: tuple(float, float) or None
         """
 
         if not isinstance(static_correction, (bool, np.bool_)):
@@ -1027,6 +1067,8 @@ class Model:
                 "Static correction is not supported for state-space damped "
                 "modes"
             )
+        if rayleigh_damping is not None and self.damped_solver:
+            raise ValueError("Rayleigh damping requires real, undamped mode shapes")
 
         no_modes, _eig_val2, damping, m_p = self.transform_modal_parameters(
             df_channel=df_channel,
@@ -1065,13 +1107,11 @@ class Model:
                 )
 
         else:
-            denominator = (
-                                  _eig_val2[:no_modes, np.newaxis] - ome2
-                          ) + np.einsum(
-                'ij,i->ij',
-                (ome * self.angular_eig_freq[:no_modes, np.newaxis]),
-                (2 * 1j * damping[:no_modes]),
+            damping_rates = self._modal_damping_rates(
+                self.angular_eig_freq[:no_modes], modal_damping, rayleigh_damping
             )
+            denominator = (_eig_val2[:no_modes, np.newaxis] - ome2
+                           + 1j * damping_rates[:, np.newaxis] * ome)
 
             frf_matrix = np.einsum('ijk,il->ljk', m_p, 1 / denominator)
 
@@ -1325,6 +1365,33 @@ class Model:
         return frf_FDoF
 
     @staticmethod
+    def _modal_damping_rates(angular_eig_freq, modal_damping=None,
+                             rayleigh_damping=None):
+        """Modal viscous coefficients in mass-normalized coordinates [1/s].
+
+        A Rayleigh model gives alpha + beta*Omega**2, including Omega=0.
+        Existing modal damping ratios give 2*zeta*Omega.
+        """
+        frequencies = np.asarray(angular_eig_freq, dtype=float)
+        if rayleigh_damping is not None:
+            if modal_damping is not None:
+                raise ValueError("Specify either modal_damping or rayleigh_damping, not both")
+            coefficients = np.asarray(rayleigh_damping, dtype=float)
+            if (coefficients.shape != (2,) or not np.all(np.isfinite(coefficients))
+                    or np.any(coefficients < 0)):
+                raise ValueError("rayleigh_damping must be two finite nonnegative coefficients (alpha, beta)")
+            alpha, beta = coefficients
+            return alpha + beta * frequencies**2
+        if modal_damping is None:
+            return np.zeros_like(frequencies)
+        ratios = np.asarray(modal_damping, dtype=float).ravel()
+        if len(ratios) == 1:
+            ratios = np.full(len(frequencies), ratios[0])
+        elif len(ratios) != len(frequencies):
+            raise ValueError('Input for "modal damping" not valid.')
+        return 2 * ratios * frequencies
+
+    @staticmethod
     def custom_frf_synth(
         angular_eig_freq,
         eig_vec_chn,
@@ -1336,6 +1403,7 @@ class Model:
         modal_damping=None,
         frf_type="receptance",
         omegas=None,
+        rayleigh_damping=None,
     ):
         """
         Synthetisation of frequency response functions using the mode superposition method.
@@ -1359,27 +1427,17 @@ class Model:
         :type modal_damping: float or None
         :param frf_type: define calculated frf type (``receptance``, ``mobility`` or ``accelerance``)
         :type frf_type: str
+        :param rayleigh_damping: ``(alpha, beta)`` for ``C = alpha*M + beta*K``;
+            use instead of modal damping ratios. Units: 1/s, s.
         """
         if limit_modes is None:
             no_modes = len(angular_eig_freq)
         else:
             no_modes = limit_modes
 
-        # modal_damping=None means undamped. (The previous check
-        # `modal_damping.all() == None` could never trigger: np.asarray(None)
-        # is an object array holding None, its .all() is False because None is
-        # falsy, and `False == None` is False -- so a missing damping input
-        # fell through to the branches below and crashed as `complex * None`.)
-        if modal_damping is None:
-            damping = np.zeros(no_modes)
-        else:
-            modal_damping = np.asarray(modal_damping, dtype=float).ravel()
-            if len(modal_damping) == 1:
-                damping = np.repeat(modal_damping, no_modes)
-            elif len(modal_damping) == no_modes:
-                damping = modal_damping
-            else:
-                raise Exception('Input for "modal damping" not valid.')
+        angular_eig_freq = np.asarray(angular_eig_freq, dtype=float)
+        damping_rates = Model._modal_damping_rates(
+            angular_eig_freq[:no_modes], modal_damping, rayleigh_damping)
 
         if omegas is not None:
             # exact-frequency mode: omegas are angular query freqs [rad/s],
@@ -1405,11 +1463,8 @@ class Model:
 
         m_p = np.einsum('ij,kj->jik', m_p_chn, m_p_imp)
 
-        denominator = (_eig_val2[:no_modes, np.newaxis] - ome2) + np.einsum(
-            'ij,i->ij',
-            (ome * angular_eig_freq[:no_modes, np.newaxis]),
-            (2 * 1j * damping[:no_modes]),
-        )
+        denominator = (_eig_val2[:no_modes, np.newaxis] - ome2
+                       + 1j * damping_rates[:, np.newaxis] * ome)
 
         frf_matrix = np.einsum('ijk,il->ljk', m_p, 1 / denominator)
 
@@ -1442,28 +1497,23 @@ class Model:
         modal_damping=None,
         frf_type="receptance",
         omegas=None,
+        rayleigh_damping=None,
     ):
         """
         Derivative of custom_frf_synth w.r.t. (angular) omega, by mode superposition.
         Real-mode form only (no complex/damped-solver branch). Returns
         (freq, dfrf_domega) with dfrf_domega shape (n_freq, n_chn, n_imp).
+        ``rayleigh_damping=(alpha, beta)`` uses the same mass/stiffness
+        proportional model as custom_frf_synth, including rigid-body modes.
         """
         if limit_modes is None:
             no_modes = len(angular_eig_freq)
         else:
             no_modes = limit_modes
 
-        # modal_damping=None means undamped; see the note in custom_frf_synth.
-        if modal_damping is None:
-            damping = np.zeros(no_modes)
-        else:
-            modal_damping = np.asarray(modal_damping, dtype=float).ravel()
-            if len(modal_damping) == 1:
-                damping = np.repeat(modal_damping, no_modes)
-            elif len(modal_damping) == no_modes:
-                damping = modal_damping
-            else:
-                raise Exception('Input for "modal damping" not valid.')
+        angular_eig_freq = np.asarray(angular_eig_freq, dtype=float)
+        damping_rates = Model._modal_damping_rates(
+            angular_eig_freq[:no_modes], modal_damping, rayleigh_damping)
 
         if omegas is not None:
             ome = np.asarray(omegas, dtype=float)
@@ -1482,16 +1532,13 @@ class Model:
             'ij,kj->jik', eig_vec_chn[:, :no_modes], eig_vec_imp[:, :no_modes]
         )
 
-        denominator = (_eig_val2[:no_modes, np.newaxis] - ome2) + np.einsum(
-            'ij,i->ij',
-            (ome * angular_eig_freq[:no_modes, np.newaxis]),
-            (2 * 1j * damping[:no_modes]),
-        )
+        denominator = (_eig_val2[:no_modes, np.newaxis] - ome2
+                       + 1j * damping_rates[:, np.newaxis] * ome)
 
-        # H and dH/dome.  D = Omega^2 - ome^2 + 2j*zeta*Omega*ome
-        #   -> dD/dome = -2*ome + 2j*zeta*Omega   (damping term is ome-independent)
+        # D = Omega**2 - ome**2 + 1j*ome*damping_rate.
+        # dD/dome = -2*ome + 1j*damping_rate, also for rigid-body modes.
         frf_H = np.einsum('ijk,il->ljk', m_p, 1 / denominator)
-        damping_term = 2.0 * 1j * damping[:no_modes] * angular_eig_freq[:no_modes]
+        damping_term = 1j * damping_rates
         dD_dome = -2.0 * ome[np.newaxis, :] + damping_term[:, np.newaxis]
         dfrf = np.einsum('ijk,il->ljk', m_p, -dD_dome / denominator ** 2)
 
