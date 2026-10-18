@@ -6,163 +6,116 @@ from numpy.linalg import norm
 from scipy.linalg import null_space
 
 
-def _metric_normalize(vector: np.ndarray, dscale=None) -> np.ndarray:
-    """Scale `vector` to unit length in the continuation metric, i.e. ‖D⁻¹ vector‖ = 1
-    with D = diag(dscale). Falls back to the plain Euclidean norm when dscale is None,
-    so the unscaled path is bit-for-bit unchanged."""
-    if dscale is None:
-        return vector / norm(vector)
-    dinv = 1.0 / np.asarray(dscale).reshape(-1, 1)
-    return vector / np.sqrt(np.sum((dinv * vector) ** 2))
+def _scaled_inputs(jacobian, reference_direction, dscale):
+    """Physical J, r -> J*diag(sigma), r/sigma."""
+    size = jacobian.shape[1]
+    scale = np.ones((size, 1)) if dscale is None else np.asarray(dscale, float).reshape(-1, 1)
+    if scale.shape != (size, 1) or not np.all(np.isfinite(scale)) or np.any(scale <= 0):
+        raise ValueError("dscale must contain one finite positive scale per unknown")
+    reference = np.asarray(reference_direction, float).reshape(size, 1) / scale
+    return np.asarray(jacobian) * scale.T, reference, scale
+
+
+def _physical_tangent(tangent, reference, scale):
+    """Normalise and orient in scaled coordinates, then return physical t."""
+    length = norm(tangent)
+    if not np.isfinite(length) or length == 0:
+        return None
+    tangent = tangent / length
+    alignment = float(np.vdot(reference, tangent).real)
+    if not np.isfinite(alignment) or alignment == 0:
+        return None
+    return scale * tangent * (1.0 if alignment > 0 else -1.0)
 
 
 class Predictor(object):
     def compute_predictor_vector():
         pass
 
+
 class TangentPredictorRobust(Predictor):
-    """
-    Robust tangent predictor
-    The dimension of the kernel is verified
-    It is not the fastest if the dimension of the kernel is known apriori
-    """
+    """Scaled null-space tangent, removing autonomous phase directions."""
     autonomous = True
+
     @staticmethod
-    def compute_predictor_vector(jacobian: np.ndarray,
-                                 reference_direction: np.ndarray,
-                                 remove_direction=np.array([[]]),
-                                 dscale=None, **_) -> np.ndarray:
-
-        predictor_vector: np.ndarray = null_space(jacobian)
-        dimension_of_kernel: int = predictor_vector.shape[1]
-
-        if dimension_of_kernel != 1:
-
-            if dimension_of_kernel == 0:
-                print(f"TangentPredictorRobust: could not find any predictor directions")
+    def compute_predictor_vector(jacobian, reference_direction,
+                                 remove_direction=np.array([[]]), dscale=None, **_):
+        matrix, reference, scale = _scaled_inputs(jacobian, reference_direction, dscale)
+        basis = null_space(matrix)
+        dimension = basis.shape[1]
+        if dimension == 0:
+            return None
+        if dimension != 1:
+            remove = np.asarray(remove_direction)
+            if remove.size == 0:
                 return None
-
-            predictor_vector = TangentPredictorRobust.filter_directions(predictor_vector,
-                                                                        dimension_of_kernel,
-                                                                        remove_direction)
-
-        if predictor_vector is None:
+            basis = TangentPredictorRobust.filter_directions(basis, dimension, remove / scale)
+        if basis is None:
             return None
+        return _physical_tangent(basis, reference, scale)
 
-        # normalize predictor_vector in the continuation metric (‖D⁻¹ v‖ = 1)
-        predictor_vector = _metric_normalize(predictor_vector, dscale)
-        # align predictor_vector with reference
-        predictor_vector *= sign(vdot(reference_direction, predictor_vector))
-        # unit tangent; core.py scales it by the step length
-        return predictor_vector
-    
     @staticmethod
-    def filter_directions(predictor_vector: np.ndarray, 
-                          dimension_of_kernel: int, 
-                          remove_direction: np.ndarray):
-        
-        remove_dimension: int = remove_direction.shape[1]   
-         
-        if dimension_of_kernel > remove_dimension + 1:
-            print(f"TangentPredictorRobust: encoutered {dimension_of_kernel} possible predictor directions and could only remove {remove_dimension}")
+    def filter_directions(predictor_vector, dimension_of_kernel, remove_direction):
+        if dimension_of_kernel > remove_direction.shape[1] + 1:
             return None
-            
-        alignment_to_remove: np.ndarray = remove_direction.T @ predictor_vector
-        coordinates_filter: np.ndarray = null_space(alignment_to_remove)
-        
-        if coordinates_filter.shape[1] == 1:
-            return predictor_vector @ coordinates_filter
-        
-        print(f"TangentPredictorRobust: encoutered {dimension_of_kernel} possible predictor directions. \
-                After filering, {coordinates_filter.shape[1]} directions remained because the remove directions were not independent")
-        
-        return None
-        
+        coordinates = null_space(remove_direction.T @ predictor_vector)
+        return predictor_vector @ coordinates if coordinates.shape[1] == 1 else None
+
+
 class TangentPredictorOne(Predictor):
-    """
-    Less robust than TangentPredictorRobust 
-    The dimension of the kernel is always assumed to be 1
-    It is designed for non-autonomous ODEs
-    Use at your own risk
-    """
+    """Scaled null-space tangent for a one-dimensional forced branch."""
     autonomous = False
-    @staticmethod
-    def compute_predictor_vector(jacobian: np.ndarray,
-                                 reference_direction: np.ndarray,
-                                 rcond: float = None,
-                                 dscale=None, **_) -> np.ndarray:
 
-        predictor_vector: np.ndarray = null_space(jacobian, rcond=rcond)
-        # normalize predictor_vector in the continuation metric (‖D⁻¹ v‖ = 1)
-        predictor_vector = _metric_normalize(predictor_vector, dscale)
-        # align predictor_vector with reference
-        predictor_vector *= sign(vdot(reference_direction, predictor_vector))
-        # scale to match step length
-        return predictor_vector
+    @staticmethod
+    def compute_predictor_vector(jacobian, reference_direction, rcond=None,
+                                 dscale=None, **_):
+        matrix, reference, scale = _scaled_inputs(jacobian, reference_direction, dscale)
+        basis = null_space(matrix, rcond=rcond)
+        if basis.shape[1] != 1:
+            return None
+        return _physical_tangent(basis, reference, scale)
+
 
 class TangentPredictorTwo(Predictor):
-    """
-    Less robust than TangentPredictorRobust 
-    The dimension of the kernel is always assumed to be 2
-    It is designed for autonomous ODEs
-    Use at your own risk
-    """
+    """Scaled null-space tangent for an autonomous branch with one phase mode."""
     autonomous = True
+
     @staticmethod
-    def compute_predictor_vector(jacobian: np.ndarray,
-                                 reference_direction: np.ndarray,
-                                 remove_direction: np.ndarray,
-                                 rcond: float = None,
-                                 dscale=None, **_) -> np.ndarray:
-        """
-        rcond : float, optional
-            -> Relative condition number. Singular values s smaller than rcond * max(s) are considered zero. Default: floating point eps * max(M,N).
-        """
-
-        predictor_vector: np.ndarray = null_space(jacobian, rcond=rcond)
-        dimension_of_kernel: int = predictor_vector.shape[1]
-        if not dimension_of_kernel == 2:
-            print(f"TangentPredictorTwo: for rcond={rcond}, dimension_of_kernel={dimension_of_kernel}")
+    def compute_predictor_vector(jacobian, reference_direction, remove_direction,
+                                 rcond=None, dscale=None, **_):
+        matrix, reference, scale = _scaled_inputs(jacobian, reference_direction, dscale)
+        basis = null_space(matrix, rcond=rcond)
+        if basis.shape[1] != 2:
             return None
+        basis = TangentPredictorRobust.filter_directions(
+            basis, 2, np.asarray(remove_direction) / scale)
+        if basis is None:
+            return None
+        return _physical_tangent(basis, reference, scale)
 
-        # remove one direction
-        alignment_to_remove: np.ndarray = remove_direction.T @ predictor_vector
-        predictor_vector = predictor_vector @ np.array([-alignment_to_remove[:,1], alignment_to_remove[:,0]])
-
-        # normalize predictor_vector in the continuation metric (‖D⁻¹ v‖ = 1)
-        predictor_vector = _metric_normalize(predictor_vector, dscale)
-        # align predictor_vector with reference
-        predictor_vector *= sign(vdot(reference_direction, predictor_vector))
-        # scale to match step length
-        return predictor_vector
 
 class TangentPredictorBordered(Predictor):
-    """Keller (1983) §6: tangent from the bordered system.
-    Solve  [A  B; ṫ_prevᵀ]  [t_x; t_λ]  =  [0; 1]
-    where ṫ_prev is the previous tangent. Stable when A becomes
-    rank-deficient at limit points."""
+    """Solve [J*diag(sigma); (r/sigma).T] t_scaled = [0; 1].
+
+    Normalisation and orientation use the scaled coordinates. The returned
+    physical tangent is sigma*t_scaled, so ||t/sigma||=1. A singular bordered
+    solve falls back to the null-space projection of the reference direction.
+    """
     autonomous = False
 
     @staticmethod
     def compute_predictor_vector(jacobian, reference_direction, dscale=None, **_):
-        # jacobian = [∂r/∂x_r | ∂r/∂ω], shape (N, N+1)
-        # reference_direction = previous tangent, shape (N+1, 1)
-        n_plus_one = jacobian.shape[1]
-        bordered = np.vstack((jacobian, reference_direction.T))  # (N+1, N+1)
-
-        rhs = np.zeros((n_plus_one, 1))
-        rhs[-1, 0] = 1.0
-
+        matrix, reference, scale = _scaled_inputs(jacobian, reference_direction, dscale)
+        rhs = np.zeros((matrix.shape[1], 1))
+        rhs[-1] = 1.0
         try:
-            tangent = np.linalg.solve(bordered, rhs)
+            tangent = np.linalg.solve(np.vstack((matrix, reference.T)), rhs)
         except np.linalg.LinAlgError:
-            return None    # 𝒜 itself singular: true bifurcation, fall through
-
-        # unit in the scaled metric: ‖D⁻¹ t‖ = 1 (plain norm when dscale is None)
-        tangent = _metric_normalize(tangent, dscale)
-        tangent *= np.sign(np.vdot(reference_direction, tangent))
-        return tangent
-
+            basis = null_space(matrix)
+            if basis.shape[1] == 0:
+                return None
+            tangent = basis @ (basis.T @ reference)
+        return _physical_tangent(tangent, reference, scale)
 
 
 class StepLengthAdaptation(object):
