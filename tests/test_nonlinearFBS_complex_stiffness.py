@@ -1,6 +1,7 @@
 """ComplexStiffness (Extension A): analytic Jacobians against finite differences,
-the linear limit against closed-form LM-FBS, and the first-harmonic equivalence
-with AFT for a diagonal cubic spring-damper law.
+the linear limit against closed-form LM-FBS, the first-harmonic equivalence
+with AFT for a diagonal cubic spring-damper law, and the tabulated stiffness of
+FBS_SystemComplexStiffnessExperimental.
 
 Self-contained: random modal data through NumericalFRF, whose dY/domega is
 analytic, so the omega checks test the method and not the FRF provider. The
@@ -14,6 +15,7 @@ import pytest
 
 from pyfbs.nonlinearFBS import (
     AFT, ComplexStiffness, FBSProblem, FBS_System, FBS_SystemComplexStiffness,
+    FBS_SystemComplexStiffnessExperimental,
     Fourier, FourierOmegaPoint, HarmonicBalanceMethod, NumericalFRF,
 )
 
@@ -305,3 +307,147 @@ def test_solution_matches_first_harmonic_aft():
 
     assert np.allclose(solutions[1], solutions[0],
                        rtol=1e-8, atol=1e-10 * np.abs(solutions[0]).max())
+
+
+# ---------------------------------------------------------------------------
+# Tabulated stiffness: FBS_SystemComplexStiffnessExperimental
+# ---------------------------------------------------------------------------
+
+# each DOF has its own amplitude grid; the grids enclose OMEGA and the test points
+OMEGA_GRID = np.linspace(50.0, 300.0, 12)
+AMPLITUDE_SCALE = np.array([1.0, 1.5, 2.0])
+A_REF = 2.0e-3
+
+
+def _amplitude_grid(n, start=0.0, stop=8.0e-3):
+    return np.linspace(start, stop, n)[:, None] * AMPLITUDE_SCALE      # (n, N_INT)
+
+
+def _cubic_law(omega, amplitude):
+    """Describing function of CUBIC, the same as _FrequencyDomain.complex_stiffness."""
+    return _FrequencyDomain(**CUBIC).complex_stiffness(omega, amplitude)
+
+
+def _soft_law(omega, amplitude):
+    """Smooth, non-polynomial law: amplitude softening and frequency-dependent loss."""
+    return (CUBIC["k"] * (1.0 - 0.5 * np.tanh(amplitude / A_REF))
+            + 1j * omega * CUBIC["c"] * (1.0 + 0.5 * np.sin(omega / 40.0)))
+
+
+def _table(law, omega_grid=OMEGA_GRID, amplitude_grid=None):
+    """K[p, m, j] = law(omega_p, a_mj) on the given grids."""
+    amplitude_grid = _amplitude_grid(10) if amplitude_grid is None else amplitude_grid
+    return omega_grid, amplitude_grid, law(omega_grid[:, None, None], amplitude_grid[None, :, :])
+
+
+class _Tabulated(FBS_SystemComplexStiffnessExperimental):
+    """Same setup as the other test systems, law from a table."""
+
+    def __init__(self, omega, amplitude, K):
+        super().__init__(omega, amplitude, K)
+        _setup(self, **CUBIC)
+
+    def external_term(self, tau):
+        return self.F0[None, :, None] * np.cos(tau)[:, None, None]
+
+
+def _build_tabulated(*table):
+    system = _Tabulated(*table)
+    HarmonicBalanceMethod.update_dependencies(HARMONICS, system.sample_number)
+    provider = NumericalFRF.from_modal(system.angular_eig_freq, system.eig_vec, system.zeta)
+    return FBSProblem(system, provider, ComplexStiffness())
+
+
+@pytest.mark.parametrize("case", ["1D amplitude", "wrong K shape", "decreasing omega",
+                                  "decreasing amplitude", "3 amplitude levels"])
+def test_table_rejects_invalid_input(case):
+    omega, amplitude, K = _table(_cubic_law)
+    broken = {
+        "1D amplitude": (omega, amplitude[:, 0], K[:, :, 0]),
+        "wrong K shape": (omega, amplitude, K[:, :-1]),
+        "decreasing omega": (omega[::-1], amplitude, K),
+        "decreasing amplitude": (omega, amplitude[::-1], K),
+        "3 amplitude levels": (omega, amplitude[:3], K[:, :3]),
+    }[case]
+    with pytest.raises(ValueError):
+        FBS_SystemComplexStiffnessExperimental(*broken)
+
+
+def test_table_reproduces_polynomial_law():
+    """CUBIC is at most cubic in omega and quadratic in a, so the cubic splines
+    reproduce it exactly: force and both Jacobians equal the analytic system."""
+    analytic = _build(ComplexStiffness())
+    tabulated = _build_tabulated(*_table(_cubic_law))
+    coefficients = _coefficients()
+
+    for name in ("compute_F_int", "compute_J_int_RI", "compute_dF_int_domega_RI"):
+        reference = getattr(analytic.method, name)(_point(coefficients), analytic.ode)
+        result = getattr(tabulated.method, name)(_point(coefficients), tabulated.ode)
+        assert np.allclose(result, reference,
+                           rtol=1e-7, atol=1e-9 * np.abs(reference).max()), name
+
+
+def test_table_interpolation_error_decreases_with_refinement():
+    """Guide A4: for a non-polynomial law the interpolation error of cubic splines
+    falls with about the fourth power of the grid spacing, once the grid resolves
+    the law (16 points: spacing about A_REF / 4)."""
+    rng = np.random.default_rng(5)
+    omega_queries = rng.uniform(OMEGA_GRID[0], OMEGA_GRID[-1], 20)
+    amplitude_queries = rng.uniform(0.0, 8.0e-3, (20, 1)) * AMPLITUDE_SCALE
+
+    errors = []
+    for n in (16, 32):
+        table = FBS_SystemComplexStiffnessExperimental(
+            *_table(_soft_law, np.linspace(OMEGA_GRID[0], OMEGA_GRID[-1], n), _amplitude_grid(n)))
+        errors.append(max(np.abs(table.complex_stiffness(w, a) - _soft_law(w, a)).max()
+                          for w, a in zip(omega_queries, amplitude_queries)))
+
+    assert errors[1] < errors[0] / 8.0
+
+
+def test_table_jacobians_match_finite_differences():
+    """The spline derivatives are consistent with the spline values, through ComplexStiffness."""
+    problem = _build_tabulated(*_table(_soft_law))
+    coefficients = _coefficients()
+    J = problem.method.compute_J_int_RI(_point(coefficients), problem.ode)
+
+    step = 1e-7 * np.abs(coefficients).max()
+    for direction in _directions(N_INT):
+        perturbation = Fourier.new_from_RI(step * direction).coefficients
+        finite_difference = (_force_RI(problem, coefficients + perturbation)
+                             - _force_RI(problem, coefficients - perturbation)) / (2.0 * step)
+        analytic = J @ direction
+        assert np.allclose(finite_difference, analytic,
+                           rtol=1e-6, atol=1e-8 * np.abs(analytic).max())
+
+    analytic = problem.method.compute_dF_int_domega_RI(_point(coefficients), problem.ode)
+    step = 1e-6 * OMEGA
+    finite_difference = (_force_RI(problem, coefficients, OMEGA + step)
+                         - _force_RI(problem, coefficients, OMEGA - step)) / (2.0 * step)
+    assert np.allclose(finite_difference, analytic,
+                       rtol=1e-6, atol=1e-8 * np.abs(analytic).max())
+
+
+def test_table_holds_value_below_smallest_amplitude():
+    """Below the table the smallest level is held, with zero amplitude derivative and a warning."""
+    amplitude_grid = _amplitude_grid(10, start=1.0e-3)
+    table = FBS_SystemComplexStiffnessExperimental(*_table(_soft_law, amplitude_grid=amplitude_grid))
+    amplitude = np.array([0.0, 4.0e-3, 4.0e-3])          # DOF 0 below its smallest level
+
+    with pytest.warns(UserWarning, match="below the smallest"):
+        value = table.complex_stiffness(OMEGA, amplitude)
+    with pytest.warns(UserWarning, match="below the smallest"):
+        slope = table.complex_stiffness_derivative_amplitude(OMEGA, amplitude)
+
+    held = table.complex_stiffness(OMEGA, amplitude_grid[0])
+    assert np.isclose(value[0], held[0])
+    assert slope[0] == 0.0 and np.all(slope[1:] != 0.0)
+
+
+@pytest.mark.parametrize("omega, amplitude", [(400.0, np.full(N_INT, 1.0e-3)),
+                                              (OMEGA, np.array([1.0e-3, 1.0, 1.0e-3]))],
+                         ids=["omega_above_table", "amplitude_above_table"])
+def test_table_rejects_queries_outside(omega, amplitude):
+    table = FBS_SystemComplexStiffnessExperimental(*_table(_soft_law))
+    with pytest.raises(ValueError):
+        table.complex_stiffness(omega, amplitude)

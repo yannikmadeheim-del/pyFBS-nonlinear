@@ -3,7 +3,12 @@
 path continuation with AFT and DLFT normal contact, consuming FRFs through the
 FRFProvider interface (NumericalFRF / ExperimentalFRF)."""
 
-from .dynamical_system import FBSSetup, FBS_System, FBS_SystemComplexStiffness
+from .dynamical_system import (
+    FBSSetup,
+    FBS_System,
+    FBS_SystemComplexStiffness,
+    FBS_SystemComplexStiffnessExperimental
+)
 
 from .frequency_domain import (
     Fourier,
@@ -56,7 +61,7 @@ from .core import (
 )
 
 __all__ = [
-    "FBSSetup", "FBS_System", "FBS_SystemComplexStiffness",
+    "FBSSetup", "FBS_System", "FBS_SystemComplexStiffness", "FBS_SystemComplexStiffnessExperimental",
     "Fourier", "Fourier_Real", "FourierOmegaPoint",
     "JacobianFourier", "JacobianFourier_Real", "block_diag_stack_to_RI",
     "FRFProvider", "NumericalFRF", "ExperimentalFRF", "ModalVPFRF",
