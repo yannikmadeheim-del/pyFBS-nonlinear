@@ -7,9 +7,11 @@ by one Duffing joint law on all six DoFs:
 
     f = k q_rel + alpha q_rel^3 + c qdot_rel
 
-Two systems share the setup and the law parameters:
+Three systems share the setup and the law parameters:
     TestbenchJointDuffingComplexStiffness -- first-harmonic complex stiffness
         k* = k + 3/4 alpha a^2 + i omega c, solved with ComplexStiffness
+    TestbenchJointDuffingTable -- the same complex stiffness from a table
+        (duffing_table), interpolated by FBS_SystemComplexStiffnessExperimental
     TestbenchJointDuffingAFT -- the time-domain law, solved with AFT
 Units: m, N, rad, s.
 """
@@ -21,7 +23,7 @@ import numpy as np
 import pandas as pd
 
 import pyfbs
-from pyfbs.nonlinearFBS import FBS_System, FBS_SystemComplexStiffness
+from pyfbs.nonlinearFBS import FBS_System, FBS_SystemComplexStiffness, FBS_SystemComplexStiffnessExperimental
 
 # --- Data ---------------------------------------------------------------------
 HERE = Path(__file__).resolve().parent
@@ -79,6 +81,14 @@ Y = np.zeros((len(omega), N, N), dtype=complex)
 Y[:, :nA, :nA] = vpt_A.frf
 Y[:, nA:, nA:] = vpt_B.frf
 
+# --- Tabulated complex stiffness ----------------------------------------------
+def duffing_table(k, alpha, c, omega_grid, amplitude_grid):
+    """Describing function of f = k q + alpha q^3 + c qdot on the grids,
+    K[p, m, j] = k + 3/4 alpha a_mj^2 + i omega_p c, shape (P, M, n_int)."""
+    W = omega_grid[:, None, None]           # (P, 1, 1)
+    A = amplitude_grid[None, :, :]          # (1, M, n_int)
+    return k + 0.75 * alpha * A**2 + 1j * W * c
+
 # --- Coupling -----------------------------------------------------------------
 # VP DoFs are sorted by grouping (1 < 10 < 100):
 # [A ref | A interface (6) | B interface (6) | B ref]
@@ -113,6 +123,23 @@ class TestbenchJointDuffingComplexStiffness(FBS_SystemComplexStiffness):
 
     def complex_stiffness_derivative_omega(self, omega: float, amplitude: np.ndarray):
         return 1j*self.c
+
+
+class TestbenchJointDuffingTable(FBS_SystemComplexStiffnessExperimental):
+    """Testbench joint whose complex stiffness comes from a table
+    (omega_grid [rad/s], amplitude_grid per DoF, K_table), diagonal on all six VP DoFs."""
+
+    def __init__(self, omega_grid, amplitude_grid, K_table, F0=1.0, sample_number=256):
+        super().__init__(omega_grid, amplitude_grid, K_table)   # stores, checks, builds the splines
+        self.B_coupling = Bc
+        self.F0 = F0
+        self.sample_number = sample_number
+        self.out_full, self.inp_full = out_full, inp_full
+
+    def external_term(self, tau):
+        f = np.zeros((len(tau), N, 1))
+        f[:, self.inp_full, 0] = self.F0 * np.cos(tau)
+        return f
 
 
 class TestbenchJointDuffingAFT(FBS_System):
