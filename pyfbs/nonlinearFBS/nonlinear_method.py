@@ -470,7 +470,11 @@ class ComplexStiffness(NonlinearMethod):
         """Joint force K* Q^rel_1, complex, shape (n_int, 1)."""
         Q = x.fourier.coefficients.reshape(-1)
         amplitude = self._amplitude(x)
-        F_int = _per_dof_broadcast(ode.complex_stiffness(x.omega, amplitude), amplitude) * Q
+        Kstar = _per_dof_broadcast(ode.complex_stiffness(x.omega, amplitude), amplitude)
+        if np.any(Kstar.imag < 0):
+            warnings.warn("ComplexStiffness: negative loss stiffness Im(k*) < 0 - "
+                          "the joint law is not passive and feeds energy into the system")
+        F_int = Kstar * Q
         return F_int.reshape(-1, 1)
 
     def compute_J_int_RI(self, x: FourierOmegaPoint, ode) -> np.ndarray:

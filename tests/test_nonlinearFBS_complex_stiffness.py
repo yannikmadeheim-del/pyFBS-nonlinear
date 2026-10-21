@@ -7,6 +7,8 @@ analytic, so the omega checks test the method and not the FRF provider. The
 same setup and law parameters feed a time-domain system (for AFT) and a
 frequency-domain system (for ComplexStiffness).
 """
+import warnings
+
 import numpy as np
 import pytest
 
@@ -26,6 +28,7 @@ AMPLITUDE = 1.0e-3            # physical amplitude scale of the random test poin
 CUBIC = dict(k=1.0e3, alpha=1.0e9, c=0.5, beta=10.0)
 SPRING_DAMPER = dict(k=1.0e3, alpha=0.0, c=0.5, beta=0.0)
 SPRING = dict(k=1.0e3, alpha=0.0, c=0.0, beta=0.0)
+ACTIVE_DAMPER = dict(k=1.0e3, alpha=0.0, c=-0.5, beta=0.0)   # Im k* = omega c < 0: not passive
 
 
 def _setup(system, k, alpha, c, beta, seed=0):
@@ -161,6 +164,20 @@ def test_scalar_law_is_broadcast():
     assert np.allclose(force, SPRING["k"] * coefficients.reshape(-1, 1))
     assert problem.method.compute_J_int_RI(point, problem.ode).shape == (2 * N_INT, 2 * N_INT)
     assert problem.method.compute_dF_int_domega_RI(point, problem.ode).shape == (2 * N_INT, 1)
+
+
+def test_negative_loss_stiffness_warns():
+    """Im k* < 0 feeds energy into the structure every cycle: the law is not passive."""
+    problem = _build(ComplexStiffness(), law=ACTIVE_DAMPER)
+    with pytest.warns(UserWarning, match="not passive"):
+        problem.method.compute_F_int(_point(_coefficients()), problem.ode)
+
+
+def test_passive_law_does_not_warn():
+    problem = _build(ComplexStiffness(), law=CUBIC)
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")          # any warning would fail the test
+        problem.method.compute_F_int(_point(_coefficients()), problem.ode)
 
 
 # ---------------------------------------------------------------------------
