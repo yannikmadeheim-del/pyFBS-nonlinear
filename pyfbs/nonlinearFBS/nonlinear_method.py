@@ -426,3 +426,67 @@ class DLFTContactAFT(NonlinearMethod):
                 + _to_RI(self._get_P(x, ode)) @ dF_N)
 
         return self.LN_RI.T @ dF_N + self.LF_RI.T @ dF_F + dF_A
+
+
+class ComplexStiffness(NonlinearMethod):
+    """
+    First-harmonic joint force from an amplitude-dependent complex stiffness,
+    F_int = K*(omega, a) Q^rel_1.
+
+    Assumptions: only the first harmonic is retained; K* is diagonal and each
+    k*_j depends only on the physical amplitude a_j = 2/N_t |Q_j| of its own DoF.
+
+    :param stiffness_map: ComplexStiffnessMap providing k*_j and its derivatives
+    """
+
+    def __init__(self, stiffness_map):
+        self._stiffness_map = stiffness_map
+
+    def bind(self, problem) -> None:
+        """Check that the retained harmonics are [1]; raise ValueError otherwise."""
+        if list(Fourier.harmonics) != [1]:
+            raise ValueError("ComplexStiffness requires harmonics = [1], "
+                             f"got {list(Fourier.harmonics)}")
+
+    def _amplitude(self, x: FourierOmegaPoint) -> np.ndarray:
+        """Physical first-harmonic amplitudes a_j = 2/N_t |Q_j|, real, shape (n_int,)."""
+        return 2/Fourier.number_of_time_samples * np.abs(x.fourier.coefficients.reshape(-1))
+
+    def _phasor_sq(self, x: FourierOmegaPoint) -> np.ndarray:
+        """Squared unit phasors (Q_j/|Q_j|)^2, 0 where Q_j = 0, complex, shape (n_int,)."""
+        Q =x.fourier.coefficients.reshape(-1)  # (n_int,) complex
+        Qabs = np.abs(Q)
+        phasor_sq = np.zeros_like(Q)
+        nonzero = Qabs > 0  # boolean mask
+        phasor_sq[nonzero] = (Q[nonzero] / Qabs[nonzero]) ** 2
+        return phasor_sq
+
+    def compute_F_int(self, x: FourierOmegaPoint, ode) -> np.ndarray:
+        """Joint force K* Q^rel_1, complex, shape (n_int, 1)."""
+        Q = x.fourier.coefficients.reshape(-1)
+        amplitude = self._amplitude(x)
+        F_int = self._stiffness_map.evaluate_Kstar(x.omega, amplitude) * Q
+        return F_int.reshape(-1, 1)
+
+    def compute_J_int_RI(self, x: FourierOmegaPoint, ode) -> np.ndarray:
+        """
+        Realified force Jacobian [[Re(D+E), -Im(D-E)], [Im(D+E), Re(D-E)]] with
+        D = diag(k* + a/2 dk*/da) and E = diag(a/2 dk*/da (Q/|Q|)^2),
+        real, shape (2 n_int, 2 n_int).
+        """
+        amplitude = self._amplitude(x)
+        phasor_sq = self._phasor_sq(x)
+        dKstar_damplitude = self._stiffness_map.evaluate_dKstar_damplitude(x.omega, amplitude)
+        Kstar = self._stiffness_map.evaluate_Kstar(x.omega, amplitude)
+        D = np.diag(Kstar + amplitude/2 * dKstar_damplitude)
+        E = np.diag(amplitude/2 * dKstar_damplitude * phasor_sq)
+        DE_plus = D+E
+        DE_minus = D-E
+        return np.block([[DE_plus.real, -DE_minus.imag],[DE_plus.imag, DE_minus.real]])
+
+    def compute_dF_int_domega_RI(self, x, ode) -> np.ndarray:
+        """Realified omega-derivative (dK*/domega) Q^rel_1 as [Re; Im], real, shape (2 n_int, 1)."""
+        Q =x.fourier.coefficients.reshape(-1)
+        amplitude = self._amplitude(x)
+        values = self._stiffness_map.evaluate_dKstar_domega(x.omega, amplitude) * Q
+        return np.concatenate((values.real, values.imag)).reshape(-1, 1)
