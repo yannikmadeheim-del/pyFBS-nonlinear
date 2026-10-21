@@ -54,8 +54,8 @@ class AnalyticalStiffnessMap(ComplexStiffnessMap):
     Complex stiffness map from analytic functions (surrogate model).
 
     :param Kstar_function: function (omega, amplitude) -> k*_j, shape (n_int,)
-    :param dKstar_damplitude_function: function (omega, amplitude) -> d k*_j / d a_j
-    :param dKstar_domega_function: function (omega, amplitude) -> d k*_j / d omega
+    :param dKstar_damplitude_function: function (omega, amplitude) -> d k*_j / d a_j, shape (n_int,)
+    :param dKstar_domega_function: function (omega, amplitude) -> d k*_j / d omega, shape (n_int,)
     """
     def __init__(self, Kstar_function, dKstar_damplitude_function, dKstar_domega_function):
         self._Kstar = Kstar_function
