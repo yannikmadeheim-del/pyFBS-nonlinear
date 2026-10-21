@@ -3,11 +3,14 @@ pyFBS lab testbench A + B, coupled on the 6-DoF virtual-point gap
 
     q_rel = Bc u = VP_A - VP_B
 
-by one polynomial joint law on all six DoFs:
+by one Duffing joint law on all six DoFs:
 
-    f = k q_rel + alpha q_rel^3 + c qdot_rel + beta qdot_rel^3
+    f = k q_rel + alpha q_rel^3 + c qdot_rel
 
-Solved with DLFTContactAFT. L_N and L_F are empty, so the law is the f^nl,A block.
+Two systems share the setup and the law parameters:
+    TestbenchJointDuffingComplexStiffness -- first-harmonic complex stiffness
+        k* = k + 3/4 alpha a^2 + i omega c, solved with ComplexStiffness
+    TestbenchJointDuffingAFT -- the time-domain law, solved with AFT
 Units: m, N, rad, s.
 """
 
@@ -18,11 +21,11 @@ import numpy as np
 import pandas as pd
 
 import pyfbs
-from pyfbs.nonlinearFBS import FBS_System, AnalyticalStiffnessMap
+from pyfbs.nonlinearFBS import FBS_System, FBS_SystemComplexStiffness
 
 # --- Data ---------------------------------------------------------------------
 HERE = Path(__file__).resolve().parent
-LAB = HERE / "lab_testbench"   # shared copy in pyfbs/nonlinearFBS
+LAB = HERE.parents[3] / "examples" / "lab_testbench"   # shared with the pyFBS notebooks
 
 cwd = os.getcwd()
 os.chdir(LAB.parent)                    # download_lab_testbench writes to the cwd
@@ -87,13 +90,12 @@ out_full = 0                 # first A reference DoF
 inp_full = nA + N_IF         # first B reference DoF
 
 
-class TestbenchJoint(ComplexStiffnessMap):
-    """f = k q + alpha q^3 + c qdot + beta qdot^3, diagonal on all six VP DoFs."""
-    is_real_valued = True
-
-    def __init__(self, k, alpha, c, beta, F0=1.0, sample_number=256):
+class TestbenchJointDuffingComplexStiffness(FBS_SystemComplexStiffness):
+    """First-harmonic complex stiffness of f = k q + alpha q^3 + c qdot,
+    k* = k + 3/4 alpha a^2 + i omega c, diagonal on all six VP DoFs."""
+    def __init__(self, k, alpha, c, F0=1.0, sample_number=256):
         self.B_coupling = Bc
-        self.k, self.alpha, self.c, self.beta = k, alpha, c, beta
+        self.k, self.alpha, self.c = k, alpha, c
         self.F0 = F0
         self.sample_number = sample_number
         self.out_full, self.inp_full = out_full, inp_full
@@ -103,26 +105,35 @@ class TestbenchJoint(ComplexStiffnessMap):
         f[:, self.inp_full, 0] = self.F0 * np.cos(tau)
         return f
 
-    # --- f^nl,A on the full interface; u_rel_dot is the physical velocity ---
+    def complex_stiffness(self, omega: float, amplitude: np.ndarray):
+        return self.k + 3/4*self.alpha*amplitude**2 + 1j*omega*self.c
+
+    def complex_stiffness_derivative_amplitude(self, omega: float, amplitude: np.ndarray):
+        return 3/2*self.alpha*amplitude
+
+    def complex_stiffness_derivative_omega(self, omega: float, amplitude: np.ndarray):
+        return 1j*self.c
+
+
+class TestbenchJointDuffingAFT(FBS_System):
+    """f = k q + alpha q^3 + c qdot, diagonal on all six VP DoFs (for the AFT comparison)."""
+    def __init__(self, k, alpha, c, F0=1.0, sample_number=256):
+        self.B_coupling = Bc
+        self.k, self.alpha, self.c = k, alpha, c
+        self.F0 = F0
+        self.sample_number = sample_number
+        self.out_full, self.inp_full = out_full, inp_full
+
+    def external_term(self, tau):
+        f = np.zeros((len(tau), N, 1))
+        f[:, self.inp_full, 0] = self.F0 * np.cos(tau)
+        return f
+
     def interface_force(self, u_rel, u_rel_dot, tau):
-        return (self.k * u_rel + self.alpha * u_rel ** 3
-                + self.c * u_rel_dot + self.beta * u_rel_dot ** 3)
+        return self.k * u_rel + self.alpha * u_rel ** 3 + self.c * u_rel_dot
 
     def jacobian_interface_force(self, u_rel, u_rel_dot, tau):
         return (self.k + 3 * self.alpha * u_rel ** 2) * np.eye(N_IF)
 
     def jacobian_interface_force_qdot(self, u_rel, u_rel_dot, tau):
-        return (self.c + 3 * self.beta * u_rel_dot ** 2) * np.eye(N_IF)
-
-    # --- f^F on the n_F = 0 friction DoFs ---
-    def friction_force(self, u_F_rel, u_F_rel_dot, f_normal, tau):
-        return np.zeros((len(tau), 0, 1))
-
-    def jacobian_friction_force(self, u_F_rel, u_F_rel_dot, f_normal, tau):
-        return np.zeros((len(tau), 0, 0))
-
-    def jacobian_friction_force_qdot(self, u_F_rel, u_F_rel_dot, f_normal, tau):
-        return np.zeros((len(tau), 0, 0))
-
-    def jacobian_friction_force_normal(self, u_F_rel, u_F_rel_dot, f_normal, tau):
-        return np.zeros((len(tau), 0, 0))
+        return self.c * np.eye(N_IF) * np.ones((len(tau), 1, 1))    # (Nt, 6, 6)
