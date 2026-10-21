@@ -65,19 +65,19 @@ N = nA + nB
 # --- Experimental FRF (optional) ----------------------------------------------
 # The spline is evaluated at h*omega, so the grid must reach max(harmonics)*f_hi;
 # np.arange excludes the end point, hence + f_resolution.
-# f_resolution = 0.1
-# f_end = 7 * 500.0 * 1.02 + f_resolution
-# MK_A.frf_synth(df_chn_A, df_imp_A, f_start=0, f_end=f_end,
-#                f_resolution=f_resolution, modal_damping=modal_damping)
-# MK_B.frf_synth(df_chn_B, df_imp_B, f_start=0, f_end=f_end,
-#                f_resolution=f_resolution, modal_damping=modal_damping)
-# vpt_A.apply_vpt(MK_A.freq, MK_A.frf)
-# vpt_B.apply_vpt(MK_B.freq, MK_B.frf)
-#
-# omega = 2 * np.pi * MK_A.freq
-# Y = np.zeros((len(omega), N, N), dtype=complex)
-# Y[:, :nA, :nA] = vpt_A.frf
-# Y[:, nA:, nA:] = vpt_B.frf
+f_resolution = 0.1
+f_end = 300.0 * 1.02 + f_resolution
+MK_A.frf_synth(df_chn_A, df_imp_A, f_start=0, f_end=f_end,
+               f_resolution=f_resolution, modal_damping=modal_damping)
+MK_B.frf_synth(df_chn_B, df_imp_B, f_start=0, f_end=f_end,
+               f_resolution=f_resolution, modal_damping=modal_damping)
+vpt_A.apply_vpt(MK_A.freq, MK_A.frf)
+vpt_B.apply_vpt(MK_B.freq, MK_B.frf)
+
+omega = 2 * np.pi * MK_A.freq
+Y = np.zeros((len(omega), N, N), dtype=complex)
+Y[:, :nA, :nA] = vpt_A.frf
+Y[:, nA:, nA:] = vpt_B.frf
 
 # --- Coupling -----------------------------------------------------------------
 # VP DoFs are sorted by grouping (1 < 10 < 100):

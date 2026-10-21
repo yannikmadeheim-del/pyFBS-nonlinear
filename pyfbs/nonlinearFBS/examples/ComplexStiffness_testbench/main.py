@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 
 import dynamical_system as ds
 from pyfbs.nonlinearFBS import (
-    Fourier, FourierOmegaPoint, FBSProblem, ModalVPFRF, AFT, ComplexStiffness,
+    Fourier, FourierOmegaPoint, FBSProblem, ModalVPFRF, ExperimentalFRF, AFT, ComplexStiffness,
     HarmonicBalanceMethod, ArcLengthParameterization, TangentPredictorBordered,
 )
 # from pyfbs.nonlinearFBS import ExperimentalFRF
@@ -63,29 +63,32 @@ def run(system, method, harmonics, provider):
     return f_sol, q_out
 
 # --- FRF provider -------------------------------------------------------------
-provider = ModalVPFRF.from_substructures(
+provider_num = ModalVPFRF.from_substructures(
     [(ds.MK_A, ds.vpt_A, ds.df_chn_A, ds.df_imp_A),
      (ds.MK_B, ds.vpt_B, ds.df_chn_B, ds.df_imp_B)],
     modal_damping=ds.modal_damping)
-# provider = ExperimentalFRF(ds.omega, ds.Y)
+provider_exp = ExperimentalFRF(ds.omega, ds.Y)
 
 # --- Runs ---------------------------------------------------------------------
 system_cs = ds.TestbenchJointDuffingComplexStiffness(k, alpha, c, F0=F0, sample_number=SAMPLE_NUMBER)
 system_aft = ds.TestbenchJointDuffingAFT(k, alpha, c, F0=F0, sample_number=SAMPLE_NUMBER)
 
-f_cs,  q_cs  = run(system_cs,  ComplexStiffness(), [1], provider)
-f_aft, q_aft = run(system_aft, AFT(),              [1], provider)
-f_h7,  q_h7  = run(system_aft, AFT(),              [1, 3, 5, 7], provider)   # optional
+f_cs,  q_cs  = run(system_cs,  ComplexStiffness(), [1], provider_num)
+f_aft, q_aft = run(system_aft, AFT(),              [1], provider_num)
+f_h7,  q_h7  = run(system_aft, AFT(),              [1, 3, 5, 7], provider_num)
+f_cs_exp, q_cs_exp = run(system_cs,  ComplexStiffness(), [1], provider_exp)
 
 # --- Plot ---------------------------------------------------------------------
 # First-harmonic magnitude at the output channel (first A reference DoF) for the
 # excitation F0 cos(omega t) at the input channel (first B reference DoF).
 # ComplexStiffness and AFT [1] must coincide; AFT [1, 3, 5, 7] shows the error of
-# the first-harmonic approximation. Line styles separate the curves where they overlap.
+# the first-harmonic approximation; ComplexStiffness with the sampled (experimental)
+# FRFs shows the provider independence. Line styles separate the curves where they overlap.
 curves = [
-    (f_cs,  q_cs,  "ComplexStiffness, H = [1]", dict(color="#6250d6", linestyle="-",  linewidth=3)),
-    (f_aft, q_aft, "AFT, H = [1]",              dict(color="#eb6834", linestyle="--", linewidth=2)),
-    (f_h7,  q_h7,  "AFT, H = [1, 3, 5, 7]",     dict(color="#1baf7a", linestyle=":",  linewidth=2)),
+    (f_cs,     q_cs,     "ComplexStiffness, H = [1], ModalVPFRF",      dict(color="#6250d6", linestyle="-",  linewidth=3)),
+    (f_aft,    q_aft,    "AFT, H = [1], ModalVPFRF",                   dict(color="#eb6834", linestyle="--", linewidth=2)),
+    (f_h7,     q_h7,     "AFT, H = [1, 3, 5, 7], ModalVPFRF",          dict(color="#1baf7a", linestyle=":",  linewidth=2)),
+    (f_cs_exp, q_cs_exp, "ComplexStiffness, H = [1], ExperimentalFRF", dict(color="#0b0b0b", linestyle="-.", linewidth=1.5)),
 ]
 
 fig, ax = plt.subplots(figsize=(8, 4.5))
