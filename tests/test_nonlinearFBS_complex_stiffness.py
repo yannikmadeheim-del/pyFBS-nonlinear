@@ -3,13 +3,15 @@ the linear limit against closed-form LM-FBS, and the first-harmonic equivalence
 with AFT for a diagonal cubic spring-damper law.
 
 Self-contained: random modal data through NumericalFRF, whose dY/domega is
-analytic, so the omega checks test the method and not the FRF provider.
+analytic, so the omega checks test the method and not the FRF provider. The
+same setup and law parameters feed a time-domain system (for AFT) and a
+frequency-domain system (for ComplexStiffness).
 """
 import numpy as np
 import pytest
 
 from pyfbs.nonlinearFBS import (
-    AFT, AnalyticalStiffnessMap, ComplexStiffness, FBSProblem, FBS_System,
+    AFT, ComplexStiffness, FBSProblem, FBS_System, FBS_SystemComplexStiffness,
     Fourier, FourierOmegaPoint, HarmonicBalanceMethod, NumericalFRF,
 )
 
@@ -23,24 +25,29 @@ AMPLITUDE = 1.0e-3            # physical amplitude scale of the random test poin
 # AMPLITUDE and OMEGA all four terms are of comparable size
 CUBIC = dict(k=1.0e3, alpha=1.0e9, c=0.5, beta=10.0)
 SPRING_DAMPER = dict(k=1.0e3, alpha=0.0, c=0.5, beta=0.0)
+SPRING = dict(k=1.0e3, alpha=0.0, c=0.0, beta=0.0)
 
 
-class _Synthetic(FBS_System):
-    """Two random modal substructures coupled on N_INT DOFs, monoharmonic
-    excitation, diagonal law f = k q + alpha q^3 + c qdot + beta qdot^3 for AFT."""
+def _setup(system, k, alpha, c, beta, seed=0):
+    """Two random modal substructures coupled on N_INT DOFs, monoharmonic excitation."""
+    rng = np.random.default_rng(seed)
+    n_modes = 6
+    system.total_dimension = 2 * N_INT
+    system.angular_eig_freq = np.sort(rng.uniform(40.0, 400.0, n_modes))
+    system.eig_vec = rng.standard_normal((system.total_dimension, n_modes))
+    system.zeta = 0.02
+    system.B_coupling = np.hstack([np.eye(N_INT), -np.eye(N_INT)])   # q_rel = u_A - u_B
+    system.sample_number = SAMPLE_NUMBER
+    system.omega_ref = system.angular_eig_freq[0]
+    system.F0 = rng.standard_normal((system.total_dimension,))
+    system.k, system.alpha, system.c, system.beta = k, alpha, c, beta
 
-    def __init__(self, k, alpha, c, beta, seed=0):
-        rng = np.random.default_rng(seed)
-        n_modes = 6
-        self.total_dimension = 2 * N_INT
-        self.angular_eig_freq = np.sort(rng.uniform(40.0, 400.0, n_modes))
-        self.eig_vec = rng.standard_normal((self.total_dimension, n_modes))
-        self.zeta = 0.02
-        self.B_coupling = np.hstack([np.eye(N_INT), -np.eye(N_INT)])   # q_rel = u_A - u_B
-        self.sample_number = SAMPLE_NUMBER
-        self.omega_ref = self.angular_eig_freq[0]
-        self.F0 = rng.standard_normal((self.total_dimension,))
-        self.k, self.alpha, self.c, self.beta = k, alpha, c, beta
+
+class _TimeDomain(FBS_System):
+    """Diagonal law f = k q + alpha q^3 + c qdot + beta qdot^3, for AFT."""
+
+    def __init__(self, k, alpha, c, beta):
+        _setup(self, k, alpha, c, beta)
 
     def external_term(self, tau):
         return self.F0[None, :, None] * np.cos(tau)[:, None, None]
@@ -56,18 +63,45 @@ class _Synthetic(FBS_System):
         return (self.c + 3.0 * self.beta * udot_rel[:, :, 0][:, :, None] ** 2) * np.eye(N_INT)
 
 
-def _equivalent_map(k, alpha, c, beta):
-    """First-harmonic (describing-function) stiffness of the _Synthetic law:
+class _FrequencyDomain(FBS_SystemComplexStiffness):
+    """First-harmonic (describing-function) stiffness of the _TimeDomain law:
     k* = k + 3/4 alpha a^2 + i omega (c + 3/4 beta omega^2 a^2)."""
-    return AnalyticalStiffnessMap(
-        lambda w, a: k + 0.75 * alpha * a ** 2 + 1j * w * (c + 0.75 * beta * w ** 2 * a ** 2),
-        lambda w, a: 1.5 * alpha * a + 1j * w * 1.5 * beta * w ** 2 * a,
-        lambda w, a: 1j * (c + 2.25 * beta * w ** 2 * a ** 2),
-    )
+
+    def __init__(self, k, alpha, c, beta):
+        _setup(self, k, alpha, c, beta)
+
+    def external_term(self, tau):
+        return self.F0[None, :, None] * np.cos(tau)[:, None, None]
+
+    def complex_stiffness(self, omega, amplitude):
+        return (self.k + 0.75 * self.alpha * amplitude ** 2
+                + 1j * omega * (self.c + 0.75 * self.beta * omega ** 2 * amplitude ** 2))
+
+    def complex_stiffness_derivative_amplitude(self, omega, amplitude):
+        return 1.5 * self.alpha * amplitude + 1j * omega * 1.5 * self.beta * omega ** 2 * amplitude
+
+    def complex_stiffness_derivative_omega(self, omega, amplitude):
+        return 1j * (self.c + 2.25 * self.beta * omega ** 2 * amplitude ** 2)
 
 
-def _build(method, law=CUBIC, harmonics=HARMONICS):
-    system = _Synthetic(**law)
+class _ScalarSpring(_FrequencyDomain):
+    """Constant law returned as plain scalars, to exercise the broadcast in ComplexStiffness."""
+
+    def complex_stiffness(self, omega, amplitude):
+        return self.k
+
+    def complex_stiffness_derivative_amplitude(self, omega, amplitude):
+        return 0.0
+
+    def complex_stiffness_derivative_omega(self, omega, amplitude):
+        return 0.0
+
+
+def _build(method, law=CUBIC, harmonics=HARMONICS, system_class=None):
+    """FBSProblem with the system type that matches the method, unless given."""
+    if system_class is None:
+        system_class = _FrequencyDomain if isinstance(method, ComplexStiffness) else _TimeDomain
+    system = system_class(**law)
     HarmonicBalanceMethod.update_dependencies(harmonics, system.sample_number)
     provider = NumericalFRF.from_modal(system.angular_eig_freq, system.eig_vec, system.zeta)
     return FBSProblem(system, provider, method)
@@ -108,7 +142,25 @@ def _directions(n, count=3, seed=3):
 
 def test_bind_rejects_higher_harmonics():
     with pytest.raises(ValueError):
-        _build(ComplexStiffness(_equivalent_map(**CUBIC)), harmonics=np.array([1, 3]))
+        _build(ComplexStiffness(), harmonics=np.array([1, 3]))
+
+
+def test_bind_rejects_time_domain_system():
+    with pytest.raises(TypeError):
+        _build(ComplexStiffness(), system_class=_TimeDomain)
+
+
+def test_scalar_law_is_broadcast():
+    """A law that returns plain numbers yields one value per interface DOF."""
+    problem = _build(ComplexStiffness(), law=SPRING, system_class=_ScalarSpring)
+    coefficients = _coefficients()
+    point = _point(coefficients)
+
+    force = problem.method.compute_F_int(point, problem.ode)
+    assert force.shape == (N_INT, 1)
+    assert np.allclose(force, SPRING["k"] * coefficients.reshape(-1, 1))
+    assert problem.method.compute_J_int_RI(point, problem.ode).shape == (2 * N_INT, 2 * N_INT)
+    assert problem.method.compute_dF_int_domega_RI(point, problem.ode).shape == (2 * N_INT, 1)
 
 
 # ---------------------------------------------------------------------------
@@ -116,7 +168,7 @@ def test_bind_rejects_higher_harmonics():
 # ---------------------------------------------------------------------------
 
 def test_force_jacobian_matches_finite_differences():
-    problem = _build(ComplexStiffness(_equivalent_map(**CUBIC)))
+    problem = _build(ComplexStiffness())
     coefficients = _coefficients()
     J = problem.method.compute_J_int_RI(_point(coefficients), problem.ode)
 
@@ -132,7 +184,7 @@ def test_force_jacobian_matches_finite_differences():
 
 def test_jacobian_converges_under_step_refinement():
     """Central differences converge with step^2 only if the analytic Jacobian is right."""
-    problem = _build(ComplexStiffness(_equivalent_map(**CUBIC)))
+    problem = _build(ComplexStiffness())
     coefficients = _coefficients()
     J = problem.method.compute_J_int_RI(_point(coefficients), problem.ode)
     direction = next(_directions(N_INT))
@@ -149,7 +201,7 @@ def test_jacobian_converges_under_step_refinement():
 
 
 def test_domega_matches_finite_differences():
-    problem = _build(ComplexStiffness(_equivalent_map(**CUBIC)))
+    problem = _build(ComplexStiffness())
     coefficients = _coefficients()
     analytic = problem.method.compute_dF_int_domega_RI(_point(coefficients), problem.ode)
 
@@ -162,7 +214,7 @@ def test_domega_matches_finite_differences():
 
 def test_residual_jacobians_match_finite_differences():
     """The same checks through FBSProblem: RI layout and admittance product."""
-    problem = _build(ComplexStiffness(_equivalent_map(**CUBIC)))
+    problem = _build(ComplexStiffness())
     coefficients = _coefficients()
     J = problem.compute_jacobian_of_residue_RI(_point(coefficients))
 
@@ -189,17 +241,12 @@ def test_residual_jacobians_match_finite_differences():
 # V1/V2: linear limit against the closed-form relaxed-compatibility LM-FBS
 # ---------------------------------------------------------------------------
 
-@pytest.mark.parametrize("damping", [0.0, SPRING_DAMPER["c"]],
-                         ids=["real_stiffness", "spring_damper"])
-def test_constant_stiffness_reproduces_linear_lmfbs(damping):
+@pytest.mark.parametrize("law", [SPRING, SPRING_DAMPER], ids=["real_stiffness", "spring_damper"])
+def test_constant_stiffness_reproduces_linear_lmfbs(law):
     """linear_initialization solves (I + Y_int (K + i omega C)) Q = F_adm in closed
     form; the residual of ComplexStiffness must vanish at that point."""
-    k = SPRING_DAMPER["k"]
-    stiffness_map = AnalyticalStiffnessMap(lambda w, a: k + 1j * w * damping,
-                                           lambda w, a: 0.0,
-                                           lambda w, a: 1j * damping)
-    problem = _build(ComplexStiffness(stiffness_map), law=SPRING_DAMPER)
-    x = problem.linear_initialization(OMEGA, k * np.ones(N_INT), damping * np.ones(N_INT))
+    problem = _build(ComplexStiffness(), law=law)
+    x = problem.linear_initialization(OMEGA, law["k"] * np.ones(N_INT), law["c"] * np.ones(N_INT))
 
     residual = problem.compute_residue_RI(x)
     assert np.abs(residual).max() <= 1e-10 * np.abs(x.fourier.coefficients).max()
@@ -215,7 +262,7 @@ def test_matches_first_harmonic_aft(law):
     law, i.e. its describing function: force and both Jacobians must agree. The
     spring-damper case checks the sign and phase of the loss stiffness."""
     aft = _build(AFT(), law=law)
-    complex_stiffness = _build(ComplexStiffness(_equivalent_map(**law)), law=law)
+    complex_stiffness = _build(ComplexStiffness(), law=law)
     coefficients = _coefficients()
 
     for name in ("compute_F_int", "compute_J_int_RI", "compute_dF_int_domega_RI"):
@@ -230,7 +277,7 @@ def test_solution_matches_first_harmonic_aft():
     """Fixed-frequency Newton solves from the same linear seed land on the same point."""
     solver_kwargs = {"maximum_iterations": 100, "absolute_tolerance": 1e-10}
     solutions = []
-    for method in (AFT(), ComplexStiffness(_equivalent_map(**CUBIC))):
+    for method in (AFT(), ComplexStiffness()):
         problem = _build(method)
         solver = HarmonicBalanceMethod(harmonics=HARMONICS, freq_domain_ode=problem)
         seed = problem.linear_initialization(OMEGA, CUBIC["k"] * np.ones(N_INT),

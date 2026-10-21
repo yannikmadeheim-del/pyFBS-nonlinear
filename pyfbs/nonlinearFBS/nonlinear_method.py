@@ -3,10 +3,16 @@ from numpy import eye, block, kron, diag, zeros_like
 from abc import ABC, abstractmethod
 import warnings
 
+from .dynamical_system import FBS_SystemComplexStiffness
 from .frequency_domain import (
     Fourier, Fourier_Real, FourierOmegaPoint,
     JacobianFourier_Real, block_diag_stack_to_RI,
 )
+
+
+def _per_dof_broadcast(values, amplitude):
+    """Return values as a complex array with one entry per interface DoF."""
+    return np.broadcast_to(np.asarray(values, dtype=complex), np.shape(amplitude))
 
 
 def _velocity_scaled_tangent(G: JacobianFourier_Real, Gdot: JacobianFourier_Real,
@@ -435,15 +441,14 @@ class ComplexStiffness(NonlinearMethod):
 
     Assumptions: only the first harmonic is retained; K* is diagonal and each
     k*_j depends only on the physical amplitude a_j = 2/N_t |Q_j| of its own DoF.
-
-    :param stiffness_map: ComplexStiffnessMap providing k*_j and its derivatives
+    The law k*_j and its derivatives come from the FBS_SystemComplexStiffness.
     """
 
-    def __init__(self, stiffness_map):
-        self._stiffness_map = stiffness_map
-
     def bind(self, problem) -> None:
-        """Check that the retained harmonics are [1]; raise ValueError otherwise."""
+        """Check that the system has a frequency-domain law and the retained harmonics are [1]."""
+        if not isinstance(problem.ode, FBS_SystemComplexStiffness):
+            raise TypeError("ComplexStiffness requires an FBS_SystemComplexStiffness, "
+                            f"got {type(problem.ode).__name__}")
         if list(Fourier.harmonics) != [1]:
             raise ValueError("ComplexStiffness requires harmonics = [1], "
                              f"got {list(Fourier.harmonics)}")
@@ -465,7 +470,7 @@ class ComplexStiffness(NonlinearMethod):
         """Joint force K* Q^rel_1, complex, shape (n_int, 1)."""
         Q = x.fourier.coefficients.reshape(-1)
         amplitude = self._amplitude(x)
-        F_int = self._stiffness_map.evaluate_Kstar(x.omega, amplitude) * Q
+        F_int = _per_dof_broadcast(ode.complex_stiffness(x.omega, amplitude), amplitude) * Q
         return F_int.reshape(-1, 1)
 
     def compute_J_int_RI(self, x: FourierOmegaPoint, ode) -> np.ndarray:
@@ -476,8 +481,9 @@ class ComplexStiffness(NonlinearMethod):
         """
         amplitude = self._amplitude(x)
         phasor_sq = self._phasor_sq(x)
-        dKstar_damplitude = self._stiffness_map.evaluate_dKstar_damplitude(x.omega, amplitude)
-        Kstar = self._stiffness_map.evaluate_Kstar(x.omega, amplitude)
+        dKstar_damplitude = _per_dof_broadcast(
+            ode.complex_stiffness_derivative_amplitude(x.omega, amplitude), amplitude)
+        Kstar = _per_dof_broadcast(ode.complex_stiffness(x.omega, amplitude), amplitude)
         D = np.diag(Kstar + amplitude/2 * dKstar_damplitude)
         E = np.diag(amplitude/2 * dKstar_damplitude * phasor_sq)
         DE_plus = D+E
@@ -486,7 +492,8 @@ class ComplexStiffness(NonlinearMethod):
 
     def compute_dF_int_domega_RI(self, x, ode) -> np.ndarray:
         """Realified omega-derivative (dK*/domega) Q^rel_1 as [Re; Im], real, shape (2 n_int, 1)."""
-        Q =x.fourier.coefficients.reshape(-1)
+        Q = x.fourier.coefficients.reshape(-1)
         amplitude = self._amplitude(x)
-        values = self._stiffness_map.evaluate_dKstar_domega(x.omega, amplitude) * Q
+        values = _per_dof_broadcast(
+            ode.complex_stiffness_derivative_omega(x.omega, amplitude), amplitude) * Q
         return np.concatenate((values.real, values.imag)).reshape(-1, 1)
